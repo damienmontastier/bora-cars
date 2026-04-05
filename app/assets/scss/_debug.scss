@@ -1,0 +1,23 @@
+@use '@/assets/scss/_mixins.scss' as *;
+
+/* [SEO] Debugging <img> with invalid alt attribute */
+img:not([alt]),
+img[alt=''] {
+  border: 5px solid rgb(255, 0, 0);
+}
+
+#app-debug-pane {
+  z-index: 999999999;
+  position: fixed;
+  right: 0;
+  // left: 0;
+  top: 0;
+  max-height: 80vh;
+  overflow: hidden visible;
+  width: 25%;
+
+  @include mobile {
+    width: 50%;
+    // display: none;
+  }
+}

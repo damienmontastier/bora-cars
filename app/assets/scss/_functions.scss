@@ -1,0 +1,30 @@
+@use '@/assets/scss/variables.scss' as *;
+@use 'sass:math';
+
+@function mobile-vw($pixels, $base-vw: $mobile-width) {
+  @return math.div($pixels * 100vw, $base-vw);
+}
+
+@function mobile-vh($pixels, $base-vh: $mobile-height) {
+  @return math.div($pixels * 100vh, $base-vh);
+}
+
+@function desktop-vw($pixels, $base-vw: $desktop-width) {
+  @return calc(math.div($pixels * 100vw, $base-vw));
+}
+
+@function desktop-vw-native($pixels, $base-vw: $desktop-width) {
+  @return math.div($pixels * 100vw, $base-vw);
+}
+
+@function desktop-vh($pixels, $base-vh: $desktop-height) {
+  @return math.div($pixels * 100vh, $base-vh);
+}
+
+@function columns($columns) {
+  @return calc((#{$columns} * var(--layout-column-width)) + ((#{$columns}) * var(--layout-columns-gap)));
+}
+
+@function columns-native($columns) {
+  @return calc((#{$columns} * var(--layout-column-width)) + ((#{$columns} - 1) * var(--layout-columns-gap)));
+}

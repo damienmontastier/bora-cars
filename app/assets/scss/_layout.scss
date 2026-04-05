@@ -1,0 +1,31 @@
+@use 'sass:map';
+@use 'sass:list';
+@use '@/assets/scss/_mixins.scss' as *;
+@use '@/assets/scss/_functions.scss' as *;
+
+// inspiration: https://material.io/design/layout/responsive-layout-grid.html#columns-gutters-and-margins
+
+// css variables exposed globally:
+// --layout-columns-count: columns count in the layout
+// --layout-columns-gap: gap size between columns
+// --layout-margin: layout margin size (left or right)
+
+// 'variables': (mobile, desktop)
+$layout: (
+  'columns-count': (
+    8,
+    12,
+  ),
+  'columns-gap': (
+    16px,
+    40px,
+  ),
+  'margin': (
+    20px,
+    50px,
+  ),
+  'margin-header': (
+    40px,
+    45px,
+  ),
+);

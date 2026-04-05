@@ -1,0 +1,58 @@
+@use '@/assets/scss/_layout.scss' as *;
+@use '@/assets/scss/_mixins.scss' as *;
+@use '@/assets/scss/_functions.scss' as *;
+@use 'sass:map';
+@use 'sass:list';
+
+:root {
+  --layout-columns-count: #{list.nth(map.get($layout, 'columns-count'), 1)};
+  --layout-columns-gap: #{mobile-vw(list.nth(map.get($layout, 'columns-gap'), 1))};
+  --layout-margin: #{mobile-vw(list.nth(map.get($layout, 'margin'), 1))};
+  --layout-width: calc(100vw - (2 * var(--layout-margin)));
+  --layout-column-width: calc(
+    (var(--layout-width) - ((var(--layout-columns-count) - 1) * var(--layout-columns-gap))) /
+      var(--layout-columns-count)
+  );
+  --layout-margin-header: #{list.nth(map.get($layout, 'margin-header'), 1)};
+
+  @include desktop {
+    --layout-columns-count: #{list.nth(map.get($layout, 'columns-count'), 2)};
+    --layout-columns-gap: #{desktop-vw(list.nth(map.get($layout, 'columns-gap'), 2))};
+    --layout-margin: #{desktop-vw(list.nth(map.get($layout, 'margin'), 2))};
+    --layout-margin-header: #{list.nth(map.get($layout, 'margin-header'), 2)};
+  }
+}
+
+.block {
+  margin-left: auto;
+  margin-right: auto;
+  width: calc(100% - 2 * var(--layout-margin));
+}
+
+.block-inner {
+  padding-left: var(--layout-margin);
+  padding-right: var(--layout-margin);
+  width: 100%;
+}
+
+.grid {
+  @extend .block;
+
+  display: grid;
+  grid-template-columns: repeat(var(--layout-columns-count), minmax(0, 1fr));
+  grid-gap: var(--layout-columns-gap);
+}
+
+.grid-inner {
+  @extend .block-inner;
+
+  display: grid;
+  grid-template-columns: repeat(var(--layout-columns-count), minmax(0, 1fr));
+  grid-gap: var(--layout-columns-gap);
+}
+
+.grid-fullwidth {
+  display: grid;
+  grid-template-columns: repeat(var(--layout-columns-count), minmax(0, 1fr));
+  grid-gap: var(--layout-columns-gap);
+}

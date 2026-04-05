@@ -1,0 +1,26 @@
+@use '@/assets/scss/_mixins.scss' as *;
+
+.full-width {
+  width: 100vw;
+  position: relative;
+  left: 50%;
+  right: 50%;
+  margin-left: -50vw;
+  margin-right: -50vw;
+}
+
+.disable-draggable {
+  @include disable-draggable();
+}
+
+.hide-on-desktop {
+  @include desktop {
+    display: none !important;
+  }
+}
+
+.hide-on-mobile {
+  @include mobile {
+    display: none !important;
+  }
+}

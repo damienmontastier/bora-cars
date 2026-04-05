@@ -1,0 +1,85 @@
+{
+  "intro": {
+    "title": "PRÊTS À PLONGER, MARINS\u00A0?",
+    "paragraph": "Gaultier vous met au défi... à vous de reprendre la barre !\nConnaissez-vous vraiment l’équipage Les Males ?\nProuvez-le, vague après vague, en seulement 3 questions.\nÀ la clé ? Une surprise qui vous fera chavirer. Et même, un petit bonus. Du grand Gaultier !",
+    "cta_label": "JE JOUE",
+    "input_accept_rules_label_1": "J'accepte le",
+    "input_accept_rules_label_2": "règlement du jeu",
+    "input_accept_rules_link": "https://jeanpaulgaultier.com/fr/fr/reglement-officiel-jeu-le-male-in-blue/"
+  },
+  "quiz": {
+    "wrong_answer_label": "FAUX",
+    "questions_text_additional_info": "Sélectionnez le bon Male parmi les 6 ci-dessous",
+    "questions_text_found": "parfums trouvés",
+    "questions": [
+      {
+        "id": "q1",
+        "text": "QUEL MALE BRILLE SUR LE PONT GRÂCE À SON TORSE DORÉ ICONIQUE\u00A0?",
+        "correct_perfume": "elixir"
+      },
+      {
+        "id": "q2",
+        "text": "QUEL MALE A REJOINT L'ÉQUIPAGE GRÂCE À VOS VOTES\u00A0?",
+        "correct_perfume": "lmib"
+      },
+      {
+        "id": "q3",
+        "text": "QUEL MALE A ÉTÉ LE TOUT PREMIER À MONTER À BORD\u00A0?",
+        "correct_perfume": "leMale"
+      }
+    ],
+    "results": {
+      "validated_label": "BIEN JOUÉ !",
+      "next_label": "SUIVANT",
+      "items": [
+        {
+          "paragraph": "Vague de chaleur en vue ! La traversée s’annonce torride avec Le Male Elixir…\nUn sillage ambré si sensuel qu’une simple goutte vous fait chavirer.\n\nSous ses airs frais, la fringante lavande prend vite une ampleur charnelle, sublimée par la richesse baumée du benjoin aux accents liquoreux et vanillés.",
+          "correct_perfume": "elixir"
+        },
+        {
+          "paragraph": "Le Male In Blue, une nouvelle vague en édition limitée taillée pour les marins téméraires.\nSon sillage aromatique épicé donne le cap et déclenche la vague. La lavande iconique ouvre la voie et se laisse emporter par cette intensité bleue. La vivacité de l’anis métallisé claque comme une voile qu’on lâche au vent et le benjoin, profond, en scelle la puissance.",
+          "correct_perfume": "lmib"
+        },
+        {
+          "paragraph": "Cap vers la sensualité avec ce parfum tout en muscles qui sait être robuste et subtil. Les deux mon capitaine !\n\nCoup de frais avec la menthe pour attraper. Coup de chaud avec la vanille pour enjôler. Entre les deux l'allure fringante de la lavande et cette odeur de propre, réminiscence du savon à barbe qui a bercé l'enfance de Jean Paul Gaultier. Quelle odyssée virile !",
+          "correct_perfume": "leMale"
+        }
+      ]
+    },
+    "final_result": {
+      "bonusQuestionTitle": "QUESTION BONUS",
+      "preTitle": "L'ÉQUIPAGE EST AU COMPLET.",
+      "title": "SAUREZ-VOUS À PRÉSENT DEVINER SELON QUEL CRITÈRE ILS SE DRESSENT FACE À VOUS\u00A0?",
+      "validate": "JE VALIDE MON CHOIX",
+      "retry": "Essaie encore !",
+      "slider": {
+        "labels": ["Par intensité", "Par date de sortie", "Par audace"],
+        "good_answer_index": 0
+      }
+    }
+  },
+  "finish": {
+    "title": "QUEL MARIN HORS PAIR\u00A0!\nENVIE DE REJOINDRE L’ÉQUIPAGE\u00A0?",
+    "paragraph": "Inscrivez-vous pour voguer en avant-première vers nos lancements, surprises et privilèges exclusifs.",
+    "input_email_placeholder": "Votre adresse e-mail",
+    "input_email_cta": "JE VALIDE",
+    "second_cta_label": "Ou accédez directement à vos cadeaux."
+  },
+  "end": {
+    "title": "ENCORE BRAVO\u00A0!\nVOUS AVEZ TENU LA BARRE AVEC BRIO.",
+    "paragraph": "Un vrai marin mérite plus qu’un simple bravo.\nLaissez-nous vous offrir ce que l’équipage réserve aux meilleurs:",
+    "copy_label": "JE COPIE LE CODE",
+    "gift_code": "BLUEWAVE",
+    "second_paragraph": "More surprises await you...",
+    "cta_label": "DÉCOUVREZ LES PARFUMS JPG LES PLUS PLÉBISCITÉS",
+    "cta_link": "https://www.jeanpaulgaultier.com/"
+  },
+  "wrong_selection": {
+    "messages": [
+      "Audacieux... mais pas le parfum attendu !",
+      "Bien tenté, mais ce n’est pas lui !",
+      "Raté, mais l’intention y était !",
+      "Presque ! Mais ce n’est pas celui-là."
+    ]
+  }
+}
