@@ -1,16 +1,10 @@
 <script lang="ts" setup>
-const webGLStore = useWebGLStore()
-
 onMounted(() => {
-  webGLStore.forceSceneVisibility({
-    blank: true,
-  })
+
 })
 
 onUnmounted(() => {
-  webGLStore.forceSceneVisibility({
-    blank: false,
-  })
+
 })
 </script>
 

@@ -1,18 +1,10 @@
 <script lang="ts" setup>
-const webGLStore = useWebGLStore()
-
-const { cameraAutoRotate } = toRefs(webGLStore)
-
 onMounted(() => {
-  webGLStore.forceSceneVisibility({
-    default: true,
-  })
+
 })
 
 onUnmounted(() => {
-  webGLStore.forceSceneVisibility({
-    default: false,
-  })
+
 })
 </script>
 
@@ -23,10 +15,6 @@ onUnmounted(() => {
     </TextsH1>
 
     <div class="page-tresjs__content">
-      <AtomsCTA @click="cameraAutoRotate = !cameraAutoRotate">
-        {{ cameraAutoRotate ? 'Stop' : 'Start' }} Auto-Rotate
-      </AtomsCTA>
-
       <AtomsCTA to="/">
         Go To Home
       </AtomsCTA>

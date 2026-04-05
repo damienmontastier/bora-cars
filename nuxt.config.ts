@@ -14,16 +14,12 @@ export default defineNuxtConfig({
     '@nuxt/fonts',
     '@vueuse/nuxt',
     '@pinia/nuxt',
-    '@tresjs/nuxt',
     '@nuxtjs/robots',
     '@nuxtjs/i18n',
   ],
 
   css: ['~/assets/scss/main.scss'],
 
-  tres: {
-    glsl: true,
-  },
 
   i18n: {
     strategy: 'prefix',

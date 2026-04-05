@@ -18,9 +18,6 @@ const layoutColumnsCount = computed(() => Number(cssRawLayoutColumnsCount.value)
 const appStore = useAppStore()
 const { fontsLoaded } = toRefs(appStore)
 
-const webGLStore = useWebGLStore()
-const { cameraType, scenes } = toRefs(webGLStore)
-
 useMagicKeys({
   passive: false,
   onEventFired: (e) => {
@@ -109,31 +106,6 @@ onClickOutside(itemsRef, () => {
             </template>
             <template #value>
               {{ fontsLoaded }}
-            </template>
-          </DebugPatrolLabel>
-        </div>
-      </div>
-      <div class="app-debug-patrol__states-info__block">
-        <TextsP1 color="black" class="app-debug-patrol__states-info__block__title">
-          WebGL
-        </TextsP1>
-
-        <div class="app-debug-patrol__states-info__block__items">
-          <DebugPatrolLabel v-for="(value, key, index) in scenes" :key="`${key}-${index}`">
-            <template #key>
-              {{ key }}
-            </template>
-            <template #value>
-              {{ value }}
-            </template>
-          </DebugPatrolLabel>
-
-          <DebugPatrolLabel>
-            <template #key>
-              cameraType
-            </template>
-            <template #value>
-              {{ cameraType }}
             </template>
           </DebugPatrolLabel>
         </div>

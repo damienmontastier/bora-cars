@@ -29,11 +29,9 @@ watch(fontsReady, (ready) => {
       <NuxtPage />
     </div>
 
-    <WebglScene />
-
-    <!-- <DevOnly> -->
-    <DebugPatrol />
-    <!-- </DevOnly> -->
+    <DevOnly>
+      <DebugPatrol />
+    </DevOnly>
   </div>
 </template>
 
