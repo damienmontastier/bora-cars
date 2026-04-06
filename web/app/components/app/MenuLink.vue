@@ -41,7 +41,7 @@ const { to } = toRefs(props)
     height: 0;
     border-top: 5px solid transparent;
     border-bottom: 5px solid transparent;
-    border-left: 5px solid var(--c-red-2);
+    border-left: 5px solid var(--c-black);
     margin-right: 5px;
   }
 }

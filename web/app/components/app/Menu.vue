@@ -13,20 +13,12 @@ onMounted(() => {
 <template>
   <div class="app-menu">
     <TextsP1 class="app-menu__heading">
-      NUXT4 — STARTER
+      NUXT4 — BORA CARS
     </TextsP1>
 
     <ul class="app-menu__links">
       <AppMenuLink to="/">
-        HOME
-      </AppMenuLink>
-
-      <AppMenuLink to="/tresjs">
-        TRESJS
-      </AppMenuLink>
-
-      <AppMenuLink to="/tresjs-blank">
-        TRESJS — BLANK
+        Home
       </AppMenuLink>
     </ul>
   </div>

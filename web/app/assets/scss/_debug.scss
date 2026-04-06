@@ -21,3 +21,11 @@ img[alt=''] {
     // display: none;
   }
 }
+
+.app-debug-wip {
+  background-color: red;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-evenly;
+}
