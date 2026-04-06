@@ -16,7 +16,19 @@ export default defineNuxtConfig({
     '@pinia/nuxt',
     '@nuxtjs/robots',
     '@nuxtjs/i18n',
+    '@nuxtjs/sanity',
   ],
+
+  sanity: {
+    globalHelper: true,
+    projectId: process.env.NUXT_PUBLIC_SANITY_PROJECT_ID,
+    dataset: process.env.NUXT_PUBLIC_SANITY_DATASET || 'production',
+    apiVersion: '2026-04-06',
+    visualEditing: {
+      token: process.env.NUXT_SANITY_VISUAL_EDITING_TOKEN,
+      studioUrl: process.env.NUXT_SANITY_VISUAL_EDITING_STUDIO_URL,
+    },
+  },
 
   css: ['~/assets/scss/main.scss'],
 

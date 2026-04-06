@@ -1,41 +1,26 @@
 {
-  "name": "nuxt4",
-  "type": "module",
+  "name": "bora-cars-monorepo",
   "private": true,
+  "version": "1.0.0",
+  "description": "Monorepo for Nuxt 4 (web) + Sanity Studio (studio)",
   "scripts": {
-    "build": "nuxt build",
-    "dev": "nuxt dev --host 0.0.0.0 --dotenv .env",
-    "generate": "nuxt generate --dotenv .env",
-    "generate:ftp": "nuxt generate --dotenv .env.ftp",
-    "lint": "eslint .",
-    "lint:fix": "eslint . --fix",
-    "preview": "nuxt preview",
-    "postinstall": "nuxt prepare"
-  },
-  "dependencies": {
-    "@nuxt/fonts": "^0.14.0",
-    "@nuxt/image": "^2.0.0",
-    "@nuxtjs/i18n": "^10.2.4",
-    "@nuxtjs/robots": "^5.7.0",
-    "@pinia/nuxt": "^0.11.3",
-    "gsap": "^3.14.2",
-    "nuxt": "^4.4.2",
-    "pinia": "^3.0.4",
-    "tempus": "^1.0.0-dev.15",
-    "tweakpane": "^4.0.5",
-    "vue": "^3.5.17",
-    "vue-router": "^4.6.3"
+    "dev": "concurrently \"npm --prefix web run dev\" \"npm --prefix studio run dev\"",
+    "dev:web": "npm --prefix web run dev",
+    "dev:studio": "npm --prefix studio run dev",
+    "build": "npm run build:web && npm run build:studio",
+    "build:web": "npm --prefix web run build",
+    "build:studio": "npm --prefix studio run build",
+    "generate": "npm --prefix web run generate",
+    "preview": "npm --prefix web run preview",
+    "install:all": "npm --prefix web install && npm --prefix studio install",
+    "lint": "npm --prefix web run lint",
+    "lint:fix": "npm --prefix web run lint:fix",
+    "studio:deploy": "npm --prefix studio run deploy",
+    "studio:deploy-graphql": "npm --prefix studio run deploy-graphql",
+    "prepare": "husky install"
   },
   "devDependencies": {
-    "@antfu/eslint-config": "^6.7.3",
-    "@nuxt/eslint": "^1.15.2",
-    "@tweakpane/core": "^2.0.5",
-    "@tweakpane/plugin-essentials": "^0.2.1",
-    "@vueuse/core": "^14.2.1",
-    "@vueuse/nuxt": "^14.2.1",
-    "eslint": "^9.39.4",
-    "eslint-plugin-format": "^1.4.0",
-    "sass": "^1.98.0",
-    "typescript": "^5.9.3"
+    "concurrently": "^8.2.2",
+    "husky": "^9.1.6"
   }
 }
