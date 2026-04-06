@@ -16,8 +16,8 @@ $colors: (
   @each $name, $color in $colors {
     --c-#{$name}: #{$color};
 
-    @for $i from 0 through 10 {
-      $opacity-value: $i * 10; // 0, 10, 20...
+    @for $i from 1 through 20 {
+      $opacity-value: $i * 5; // 5, 10, 15, ..., 100
 
       $alpha: math.div($opacity-value, 100);
 
