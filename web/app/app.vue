@@ -19,6 +19,8 @@ watch(fontsReady, (ready) => {
 
 <template>
   <div id="app" class="app">
+    <AppLenis />
+
     <!-- <AppPreloader /> -->
 
     <AppMenu />

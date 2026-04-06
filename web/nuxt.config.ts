@@ -17,6 +17,7 @@ export default defineNuxtConfig({
     '@nuxtjs/robots',
     '@nuxtjs/i18n',
     '@nuxtjs/sanity',
+    'lenis/nuxt',
   ],
 
   sanity: {

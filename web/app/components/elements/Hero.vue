@@ -80,6 +80,9 @@
 
     &-content {
       margin-left: auto;
+      display: flex;
+      flex-direction: column;
+      gap: desktop-vw(24px);
     }
 
     .H1 {

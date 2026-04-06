@@ -1,25 +1,20 @@
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { SplitText } from 'gsap/SplitText'
-
 import Tempus from 'tempus'
 
-export default defineNuxtPlugin((_nuxtApp) => {
-  gsap.config({
-    force3D: true,
-  })
-
+export default defineNuxtPlugin(() => {
+  gsap.config({ force3D: true })
   gsap.registerPlugin(ScrollTrigger, SplitText)
+  gsap.ticker.lagSmoothing(0)
 
   ScrollTrigger.defaults({
-    markers: import.meta.dev,
+    markers: process.env.NODE_ENV === 'development',
   })
 
   gsap.ticker.remove(gsap.updateRoot)
 
-  gsap.ticker.lagSmoothing(0)
-
   Tempus.add((time) => {
     gsap.updateRoot(time / 1000)
-  })
+  }, { priority: -1 })
 })
