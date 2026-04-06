@@ -20,7 +20,6 @@ export default defineNuxtConfig({
 
   css: ['~/assets/scss/main.scss'],
 
-
   i18n: {
     strategy: 'prefix',
     compilation: {
@@ -53,14 +52,15 @@ export default defineNuxtConfig({
   fonts: {
     families: [
       {
-        name: 'Noto Sans',
-        provider: 'google',
+        name: 'Lora',
+        src: '/fonts/Lora-Regular.woff2',
+        weight: 400,
         global: true,
       },
       {
-        name: 'LocalFont1',
-        src: '/fonts/Pacifico-Regular.woff2',
-        weight: 400,
+        name: 'HaasGrotDispMedium',
+        src: '/fonts/HaasGrotDispMedium.woff2',
+        weight: 600,
         global: true,
       },
     ],

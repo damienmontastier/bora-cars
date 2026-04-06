@@ -2,7 +2,7 @@
 const props = defineProps({
   tag: {
     type: String,
-    default: 'span',
+    default: 'p',
   },
   color: {
     type: String,
@@ -29,7 +29,7 @@ defineExpose({
   <component
     :is="tag"
     ref="mainRef"
-    class="CTA-TEXT app-text"
+    class="P2 app-text"
     :class="classes"
     :style="{ color: `var(--c-${color})` }"
   >
@@ -38,7 +38,7 @@ defineExpose({
 </template>
 
 <style lang="scss">
-.CTA-TEXT {
+.P2 {
   &.no-selectable {
     user-select: none;
   }

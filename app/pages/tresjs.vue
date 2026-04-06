@@ -32,14 +32,6 @@ onUnmounted(() => {
   gap: 250px;
   pointer-events: auto;
 
-  &__font-test {
-    text-transform: initial;
-  }
-
-  &__font-test {
-    font-family: var(--font-test-1);
-  }
-
   &__content {
     display: flex;
     align-items: center;

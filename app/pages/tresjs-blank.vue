@@ -31,11 +31,6 @@ onUnmounted(() => {
   height: 100%;
   gap: 50px;
 
-  &__font-test {
-    text-transform: initial;
-    font-family: var(--font-test-1);
-  }
-
   &__content {
     display: flex;
     align-items: center;

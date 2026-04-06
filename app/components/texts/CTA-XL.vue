@@ -29,7 +29,7 @@ defineExpose({
   <component
     :is="tag"
     ref="mainRef"
-    class="CTA-TEXT app-text"
+    class="CTA-TEXT-XL app-text"
     :class="classes"
     :style="{ color: `var(--c-${color})` }"
   >
@@ -38,7 +38,7 @@ defineExpose({
 </template>
 
 <style lang="scss">
-.CTA-TEXT {
+.CTA-TEXT-XL {
   &.no-selectable {
     user-select: none;
   }

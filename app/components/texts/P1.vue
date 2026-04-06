@@ -6,7 +6,7 @@ const props = defineProps({
   },
   color: {
     type: String,
-    default: 'red-2',
+    default: 'black-100',
   },
   selectable: {
     type: Boolean,
