@@ -38,14 +38,39 @@ body {
 
 .H1 {
   font-family: var(--font-test-1);
-  font-size: desktop-vw(110px);
-  line-height: desktop-vw(110px);
+  font-size: desktop-vw(136px);
+  line-height: desktop-vw(132px);
   text-transform: uppercase;
-  font-weight: 400;
-  letter-spacing: -0.25px;
+  font-weight: 600;
 
   @include mobile {
-    font-size: mobile-vw(34px);
-    line-height: mobile-vw(34px);
+    font-size: mobile-vw(64px);
+    line-height: mobile-vw(64px);
+  }
+}
+
+.H2 {
+  font-family: var(--font-test-1);
+  font-size: desktop-vw(72px);
+  line-height: desktop-vw(76px);
+  text-transform: uppercase;
+  font-weight: 600;
+
+  @include mobile {
+    font-size: mobile-vw(40px);
+    line-height: mobile-vw(48px);
+  }
+}
+
+.H3 {
+  font-family: var(--font-test-1);
+  font-size: desktop-vw(48px);
+  line-height: desktop-vw(52px);
+  text-transform: uppercase;
+  font-weight: 600;
+
+  @include mobile {
+    font-size: mobile-vw(32px);
+    line-height: mobile-vw(40px);
   }
 }

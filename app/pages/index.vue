@@ -6,7 +6,7 @@ const { fontsLoaded } = toRefs(appStore)
 <template>
   <main class="page-main block-inner">
     <TextsH1 :selectable="false" class="page-main__font-test">
-      Index Page
+      mael salope
     </TextsH1>
     <AtomsCTA to="/tresjs">
       Go to TresJS Page
