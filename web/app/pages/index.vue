@@ -4,7 +4,7 @@ const { fontsLoaded } = toRefs(appStore)
 </script>
 
 <template>
-  <main class="page-main block-inner">
+  <main class="page-main">
     <ElementsHero />
 
     <div class="app-debug-wip" style="width: 100%;height: 300vh;background-color: red;">

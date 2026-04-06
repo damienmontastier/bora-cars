@@ -12,34 +12,32 @@
 
 html {
   width: 100%;
-  // height: 100%;
   scrollbar-width: thin;
 }
 
 body {
-  // height: 100%;
   background-color: var(--c-beige-100);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   width: 100%;
-
-  @include mobile {
-    // height: 100%;
-  }
 }
 
 #__nuxt {
-  // height: 100%;
   display: flex;
   flex-direction: column;
   width: 100%;
-
-  @include mobile {
-    // height: 100%;
-  }
 }
 
 *::selection {
   background-color: var(--c-red-1);
   color: var(--c-light-1);
+}
+
+img {
+  @include disable-draggable();
+
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
 }
