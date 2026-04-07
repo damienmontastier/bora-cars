@@ -135,7 +135,16 @@ function onResize() {
 }
 
 onMounted(() => {
+  // Defensive cleanup — on HMR, Menu.vue is not remounted so GSAP inline styles
+  // from the previous lifecycle linger. Reset both elements to their CSS-default state.
+  clone?.remove()
+  clone = null
   menuCtaEl = document.querySelector('.app-menu__cta')
+  if (menuCtaEl)
+    gsap.set(menuCtaEl, { clearProps: 'display,opacity,visibility' })
+  const heroCta = ctaRef.value?.$el
+  if (heroCta)
+    gsap.set(heroCta, { clearProps: 'visibility' })
 
   ScrollTrigger.addEventListener('refresh', onResize)
 
