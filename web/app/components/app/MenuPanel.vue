@@ -25,14 +25,14 @@ watch(menuOpen, (open) => {
       onComplete: () => { anim = null },
     })
       .fromTo(backgroundRef.value, { scale: 0 }, { scale: 1, duration: 0.5, ease: 'power3.inOut', transformOrigin: 'top center' }, 0)
-      .fromTo(items, { y: '110%' }, { y: '0%', duration: 0.5, ease: 'power3.out', stagger: 0.06 }, 0.35)
+      .fromTo(items, { y: '110%' }, { y: '0%', duration: 0.35, ease: 'power3.out', stagger: 0.06 }, 0.4)
   }
   else {
     anim = gsap.timeline({
       onComplete: () => { anim = null },
     })
       .to(items, { y: '110%', duration: 0.3, ease: 'power3.in', stagger: { each: 0.04, from: 'end' } }, 0)
-      .to(backgroundRef.value, { scale: 0, duration: 0.4, ease: 'power3.inOut', transformOrigin: 'top center' }, 0.3)
+      .to(backgroundRef.value, { scale: 0, duration: 0.4, ease: 'power3.inOut', transformOrigin: 'top center' }, 0.4)
   }
 })
 

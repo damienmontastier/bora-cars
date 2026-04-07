@@ -5,13 +5,13 @@ import { Flip } from 'gsap/Flip'
 import { useLenis } from 'lenis/vue'
 
 const appStore = useAppStore()
-const { menuTheme, menuOpen } = toRefs(appStore)
-const { menuAnimating } = toRefs(appStore)
+const { menuTheme, menuOpen, menuAnimating } = toRefs(appStore)
 
 const lenis = useLenis()
 
 watch(menuOpen, (open) => {
-  if (open) lenis.value?.stop()
+  if (open)
+    lenis.value?.stop()
   else lenis.value?.start()
 })
 
@@ -72,21 +72,20 @@ function expandMain() {
   setTargetRect(menuCtaEl.getBoundingClientRect()) // correct final-layout position
   clipEl.style.width = `${fromWidth}px` // restore before GSAP takes over
 
-  expandAnim = gsap.fromTo(clipEl, { width: fromWidth }, {
-    width: toWidth,
-    duration: 0.6,
-    ease: 'power3.inOut',
+  expandAnim = gsap.timeline({
     onComplete: () => {
-      // Let clip follow natural content width (handles resize)
       gsap.set(clipEl, { width: 'auto' })
       expandAnim = null
     },
   })
+    .fromTo(clipEl, { width: fromWidth }, { width: toWidth, duration: 0.6, ease: 'power3.inOut' }, 0)
+    .fromTo(mainEl, { x: 50 }, { x: 0, duration: 0.6, ease: 'power3.inOut' }, 0)
 }
 
 function collapseMain() {
   const clipEl = mainClipRef.value
   const menuCtaEl = menuCtaRef.value?.$el
+  const mainEl = mainRef.value
   if (!clipEl || !menuCtaEl)
     return
 
@@ -96,7 +95,6 @@ function collapseMain() {
     menuAnim = null
     menuAnimating.value = false
     const logoEl = logoWrapRef.value
-    const mainEl = mainRef.value
     if (logoEl)
       gsap.set(logoEl, { clearProps: 'position,left,top,width,opacity' })
     if (mainEl)
@@ -116,15 +114,16 @@ function collapseMain() {
   // Do NOT hide CTA before animating — the clip must contract with full content
   // visible so it mirrors the expand (full pill shrinks left, not just the burger pill).
   // CTA is hidden in onComplete once the clip is fully collapsed.
-  expandAnim = gsap.fromTo(clipEl, { width: fromWidth }, {
-    width: 0,
-    duration: 0.6,
-    ease: 'power3.inOut',
+  expandAnim = gsap.timeline({
     onComplete: () => {
       menuCtaEl.style.display = 'none'
+      if (mainEl)
+        gsap.set(mainEl, { clearProps: 'x' })
       expandAnim = null
     },
   })
+    .fromTo(clipEl, { width: fromWidth }, { width: 0, duration: 0.6, ease: 'power3.inOut' }, 0)
+    .to(mainEl, { x: 50, duration: 0.6, ease: 'power3.inOut' }, 0)
 }
 
 // Measure burger width after fonts load and set as CSS var on __main,
@@ -184,7 +183,7 @@ function openMenu() {
     },
   })
     .add(Flip.from(state, { duration: 0.5, ease: 'power3.inOut', simple: true }), 0)
-    .to(logoEl, { opacity: 0, duration: 0.2, ease: 'power2.in' }, 0.3)
+    .to(logoEl, { opacity: 0, duration: 0.2, ease: 'power2.in' }, 0.1)
 }
 
 function closeMenu() {
@@ -204,7 +203,7 @@ function closeMenu() {
   const xOffset = (savedLogoWidth + gap) / 2
 
   menuAnim = gsap.timeline({
-    delay: 0.25,
+    delay: 0.3,
     onComplete: () => {
       // Restore logo to flex flow — clip is already at the correct position (no jump)
       gsap.set(logoEl, { clearProps: 'position,left,top,width' })
