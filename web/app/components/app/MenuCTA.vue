@@ -78,9 +78,9 @@ const themeColors = computed(() => ({
     gap: desktop-vw(8px);
   }
 
-  &__icon {
+  &__icon.svg-icon-burger {
     width: desktop-vw(40px);
-    height: 100%;
+    height: auto;
     aspect-ratio: 40 / 28;
   }
 
@@ -102,8 +102,8 @@ const themeColors = computed(() => ({
 .label-enter-active,
 .label-leave-active {
   transition:
-    transform 0.3s var(--ease-out-cubic),
-    opacity 0.3s var(--ease-out-cubic);
+    transform 0.45s var(--ease-out-cubic),
+    opacity 0.45s var(--ease-out-cubic);
 }
 
 .label-leave-active {

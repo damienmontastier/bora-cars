@@ -54,5 +54,9 @@ const { menuTheme } = toRefs(appStore)
     height: 100%;
     aspect-ratio: 1 / 1;
   }
+
+  &__cta {
+    opacity: 0;
+  }
 }
 </style>

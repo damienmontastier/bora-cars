@@ -35,17 +35,19 @@ watch(() => props.open, (val) => {
 </script>
 
 <template>
-  <svg class="svg-icon-burger" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 28" width="40" height="28" fill="none">
-    <g ref="line1">
-      <path :stroke="`var(--c-${color})`" stroke-width="2.5" d="M6 6h28" />
-    </g>
-    <g ref="line2">
-      <path :stroke="`var(--c-${color})`" stroke-width="2.5" d="M6 14h28" />
-    </g>
-    <g ref="line3">
-      <path :stroke="`var(--c-${color})`" stroke-width="2.5" d="M6 22h28" />
-    </g>
-  </svg>
+  <div class="svg-icon-burger">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 28" fill="none">
+      <g ref="line1">
+        <path :stroke="`var(--c-${color})`" stroke-width="2.5" d="M6 6h28" />
+      </g>
+      <g ref="line2">
+        <path :stroke="`var(--c-${color})`" stroke-width="2.5" d="M6 14h28" />
+      </g>
+      <g ref="line3">
+        <path :stroke="`var(--c-${color})`" stroke-width="2.5" d="M6 22h28" />
+      </g>
+    </svg>
+  </div>
 </template>
 
 <style lang="scss">
@@ -54,5 +56,12 @@ watch(() => props.open, (val) => {
   width: 100%;
   height: 100%;
   overflow: visible;
+
+  svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+  }
 }
 </style>

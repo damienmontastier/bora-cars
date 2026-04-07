@@ -1,3 +1,127 @@
+<script setup>
+import gsap from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
+
+const ctaRef = ref(null)
+const ctaInView = ref(false)
+
+let st = null
+let currentAnim = null
+let clone = null
+
+// Propriétés posées par GSAP sur les enfants (transforms Flip, position, min-width)
+// qu'on doit retirer sans toucher aux styles Vue (:style="{ color: ... }")
+const GSAP_LAYOUT_PROPS = ['transform', 'position', 'top', 'left', 'right', 'bottom', 'min-width', 'width', 'height']
+
+function buildClone(sourceEl) {
+  clone?.remove()
+  clone = sourceEl.cloneNode(true)
+  clone.querySelectorAll('[style]').forEach((el) => {
+    GSAP_LAYOUT_PROPS.forEach(prop => el.style.removeProperty(prop))
+  })
+  gsap.set(clone, { position: 'fixed', visibility: 'hidden', margin: 0, zIndex: 1000, pointerEvents: 'none' })
+  document.body.appendChild(clone)
+}
+
+function animateToMenu() {
+  const heroCta = ctaRef.value?.$el
+  const menuCta = document.querySelector('.app-menu__cta')
+  if (!heroCta || !menuCta)
+    return
+
+  currentAnim?.kill()
+
+  // Clone créé ici pour toujours refléter le DOM courant (après AtomsCTA.init + fonts)
+  buildClone(heroCta)
+
+  const heroRect = heroCta.getBoundingClientRect()
+  const menuRect = menuCta.getBoundingClientRect()
+
+  // Menu CTA à 0 dès le départ — pendant le vol seul le clone est visible, pas de double layer
+  gsap.set(menuCta, { opacity: 0 })
+  gsap.set(clone, { top: heroRect.top, left: heroRect.left, width: heroRect.width, height: heroRect.height, visibility: 'visible' })
+  gsap.set(heroCta, { visibility: 'hidden' })
+
+  currentAnim = gsap.to(clone, {
+    top: menuRect.top,
+    left: menuRect.left,
+    width: menuRect.width,
+    height: menuRect.height,
+    duration: 0.7,
+    ease: 'power3.inOut',
+    onComplete: () => {
+      gsap.set(clone, { visibility: 'hidden' })
+      gsap.set(menuCta, { opacity: 1 })
+      currentAnim = null
+    },
+  })
+}
+
+function animateToHero() {
+  const heroCta = ctaRef.value?.$el
+  const menuCta = document.querySelector('.app-menu__cta')
+  if (!heroCta || !menuCta || !clone)
+    return
+
+  currentAnim?.kill()
+
+  const menuRect = menuCta.getBoundingClientRect()
+
+  const startRect = { top: menuRect.top, left: menuRect.left, width: menuRect.width, height: menuRect.height }
+
+  gsap.set(menuCta, { opacity: 0 })
+  // Reset opacity ici (et non dans le onComplete du forward) pour éviter le flash
+  gsap.set(clone, { ...startRect, opacity: 1, visibility: 'visible' })
+
+  // Proxy tween: recalculate hero CTA's current viewport position each frame
+  // so the clone tracks the scrolling element and lands exactly on it
+  const proxy = { t: 0 }
+  currentAnim = gsap.to(proxy, {
+    t: 1,
+    duration: 0.7,
+    ease: 'power3.inOut',
+    onUpdate() {
+      const t = proxy.t
+      const targetRect = heroCta.getBoundingClientRect()
+      gsap.set(clone, {
+        top: startRect.top + (targetRect.top - startRect.top) * t,
+        left: startRect.left + (targetRect.left - startRect.left) * t,
+        width: startRect.width + (targetRect.width - startRect.width) * t,
+        height: startRect.height + (targetRect.height - startRect.height) * t,
+      })
+    },
+    onComplete: () => {
+      gsap.set(clone, { visibility: 'hidden' })
+      gsap.set(heroCta, { clearProps: 'visibility' })
+      gsap.set(menuCta, { opacity: 0 })
+      currentAnim = null
+    },
+  })
+}
+
+onMounted(() => {
+  st = ScrollTrigger.create({
+    trigger: ctaRef.value.$el,
+    start: 'top top+=25%',
+    markers: true,
+    onEnter: () => {
+      ctaInView.value = true
+      animateToMenu()
+    },
+    onLeaveBack: () => {
+      ctaInView.value = false
+      animateToHero()
+    },
+  })
+})
+
+onUnmounted(() => {
+  currentAnim?.kill()
+  st?.kill()
+  clone?.remove()
+})
+</script>
+
 <template>
   <div class="app-elements-hero">
     <div class="app-elements-hero__background-wrapper">
@@ -18,7 +142,7 @@
             Des véhicules d’exception pour des moments uniques.
           </TextsP2>
 
-          <AtomsCTA theme="orange" class="app-elements-hero__cta">
+          <AtomsCTA ref="ctaRef" theme="orange" class="app-elements-hero__cta">
             Contacter un conseiller
           </AtomsCTA>
         </div>

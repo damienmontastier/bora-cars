@@ -39,6 +39,19 @@
     font-weight: 900;
     font-size: desktop-vw(18px);
     line-height: desktop-vw(18px);
+
+    select {
+      appearance: auto;
+      background-color: var(--c-white);
+      color: var(--c-black);
+      border: 1px solid var(--c-black);
+      border-radius: 3px;
+      padding: 2px 4px;
+      cursor: pointer;
+      font-style: italic;
+      font-weight: 900;
+      font-size: desktop-vw(18px);
+    }
   }
 }
 </style>
