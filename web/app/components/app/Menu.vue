@@ -44,9 +44,26 @@ const heroCTABus = useEventBus('hero-cta')
 const offHeroCTABus = heroCTABus.on((event) => {
   if (event === 'enter')
     expandMain()
+  if (event === 'enter:snap')
+    snapMain()
   if (event === 'leave')
     collapseMain()
 })
+
+function snapMain() {
+  const mainEl = mainRef.value
+  const clipEl = mainClipRef.value
+  const menuCtaEl = menuCtaRef.value?.$el
+  if (!mainEl || !clipEl || !menuCtaEl)
+    return
+
+  expandAnim?.kill()
+  expandAnim = null
+  menuCtaEl.style.display = 'inline-flex'
+  menuCtaRef.value?.init()
+  gsap.set(clipEl, { width: 'auto' })
+  gsap.set(mainEl, { x: 0 })
+}
 
 function expandMain() {
   const mainEl = mainRef.value

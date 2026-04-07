@@ -13,6 +13,8 @@ const { fontsLoaded } = toRefs(appStore)
         ...WIP...
       </TextsH1>
     </div>
+
+    <div id="debug" style="width: 100%;height: 100vh;background-color: var(--c-beige-40);" />
   </main>
 </template>
 

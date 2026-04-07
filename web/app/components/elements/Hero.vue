@@ -28,6 +28,19 @@ function buildClone(sourceEl) {
   document.body.appendChild(clone)
 }
 
+function snapToMenu() {
+  const heroCta = ctaRef.value?.$el
+  if (!heroCta || !menuCtaEl)
+    return
+  currentAnim?.kill()
+  currentAnim = null
+  heroCTABus.emit('enter:snap')
+  buildClone(heroCta) // nécessaire pour que animateToHero() puisse faire le retour
+  gsap.set(clone, { visibility: 'hidden' })
+  gsap.set(menuCtaEl, { opacity: 1 })
+  gsap.set(heroCta, { visibility: 'hidden' })
+}
+
 function animateToMenu() {
   const heroCta = ctaRef.value?.$el
   if (!heroCta || !menuCtaEl)
@@ -148,18 +161,23 @@ onMounted(() => {
 
   ScrollTrigger.addEventListener('refresh', onResize)
 
+  let mounted = false
   st = ScrollTrigger.create({
     trigger: ctaRef.value?.$el,
     start: 'top top+=25%',
     onEnter: () => {
       ctaInView.value = true
-      animateToMenu()
+      if (mounted)
+        animateToMenu()
+      else
+        snapToMenu()
     },
     onLeaveBack: () => {
       ctaInView.value = false
       animateToHero()
     },
   })
+  mounted = true
 })
 
 onUnmounted(() => {
