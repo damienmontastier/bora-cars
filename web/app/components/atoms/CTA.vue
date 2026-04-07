@@ -36,8 +36,15 @@ const rootRef = useTemplateRef('rootRef')
 const textRef = useTemplateRef('textRef')
 
 let tl = null
+let initialized = false
 
 function init() {
+  if (initialized) return
+  // Don't init while hidden — offsetWidth would be 0, breaking minWidth measurement
+  if (!rootRef.value?.$el || rootRef.value.$el.offsetWidth === 0) return
+
+  initialized = true
+
   const el = textRef.value.root
   const wordsList = el.textContent.trim().split(' ')
 
@@ -93,6 +100,8 @@ onMounted(() => {
 onUnmounted(() => {
   tl?.kill()
 })
+
+defineExpose({ init })
 
 function onEnter() {
   tl?.play()
