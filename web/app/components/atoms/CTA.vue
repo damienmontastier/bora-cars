@@ -83,18 +83,11 @@ function init() {
 }
 
 onMounted(() => {
-  if (!props.animated)
-    return
-
-  if (fontsLoaded.value)
-    return init()
-
-  const stop = watch(fontsLoaded, (loaded) => {
-    if (!loaded)
-      return
-    init()
-    stop()
-  })
+  if (!props.animated) return
+  // init() is idempotent — safe to call on every truthy tick (immediate covers already-loaded case)
+  watch(fontsLoaded, (loaded) => {
+    if (loaded) init()
+  }, { immediate: true })
 })
 
 onUnmounted(() => {
@@ -118,8 +111,8 @@ function onLeave() {
     :to="to"
     class="app-atoms-cta"
     :class="`app-atoms-cta--${theme}`"
-    @mouseenter="animated ? onEnter() : undefined"
-    @mouseleave="animated ? onLeave() : undefined"
+    @mouseenter="onEnter"
+    @mouseleave="onLeave"
   >
     <TextsCTA ref="textRef" :selectable="false" :color="themeTextColor">
       <slot />

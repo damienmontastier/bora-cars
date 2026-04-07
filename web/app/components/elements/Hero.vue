@@ -12,6 +12,7 @@ const ctaInView = ref(false)
 let st = null
 let currentAnim = null
 let clone = null
+let menuCtaEl = null // cached cross-component ref, set once in onMounted
 
 // Propriétés posées par GSAP sur les enfants (transforms Flip, position, min-width)
 // qu'on doit retirer sans toucher aux styles Vue (:style="{ color: ... }")
@@ -29,8 +30,7 @@ function buildClone(sourceEl) {
 
 function animateToMenu() {
   const heroCta = ctaRef.value?.$el
-  const menuCta = document.querySelector('.app-menu__cta')
-  if (!heroCta || !menuCta)
+  if (!heroCta || !menuCtaEl)
     return
 
   currentAnim?.kill()
@@ -45,11 +45,11 @@ function animateToMenu() {
   buildClone(heroCta)
 
   const heroRect = heroCta.getBoundingClientRect()
-  // Rect capturé dans expandMain() avant Flip.from() — position layout correcte
-  const menuRect = getTargetRect() || menuCta.getBoundingClientRect()
+  // Rect capturé dans expandMain() avant animation — position layout correcte
+  const menuRect = getTargetRect() || menuCtaEl.getBoundingClientRect()
 
   // Menu CTA à 0 dès le départ — pendant le vol seul le clone est visible, pas de double layer
-  gsap.set(menuCta, { opacity: 0 })
+  gsap.set(menuCtaEl, { opacity: 0 })
   gsap.set(clone, { top: heroRect.top, left: heroRect.left, width: heroRect.width, height: heroRect.height, visibility: 'visible' })
   gsap.set(heroCta, { visibility: 'hidden' })
 
@@ -62,7 +62,7 @@ function animateToMenu() {
     ease: 'power3.inOut',
     onComplete: () => {
       gsap.set(clone, { visibility: 'hidden' })
-      gsap.set(menuCta, { opacity: 1 })
+      gsap.set(menuCtaEl, { opacity: 1 })
       currentAnim = null
     },
   })
@@ -70,20 +70,19 @@ function animateToMenu() {
 
 function animateToHero() {
   const heroCta = ctaRef.value?.$el
-  const menuCta = document.querySelector('.app-menu__cta')
-  if (!heroCta || !menuCta || !clone)
+  if (!heroCta || !menuCtaEl || !clone)
     return
 
   currentAnim?.kill()
 
   // Lire le rect AVANT d'émettre — collapseMain va cacher le CTA (display:none)
-  const menuRect = menuCta.getBoundingClientRect()
+  const menuRect = menuCtaEl.getBoundingClientRect()
 
   heroCTABus.emit('leave')
 
   const startRect = { top: menuRect.top, left: menuRect.left, width: menuRect.width, height: menuRect.height }
 
-  gsap.set(menuCta, { opacity: 0 })
+  gsap.set(menuCtaEl, { opacity: 0 })
   // Reset opacity ici (et non dans le onComplete du forward) pour éviter le flash
   gsap.set(clone, { ...startRect, opacity: 1, visibility: 'visible' })
 
@@ -107,7 +106,7 @@ function animateToHero() {
     onComplete: () => {
       gsap.set(clone, { visibility: 'hidden' })
       gsap.set(heroCta, { clearProps: 'visibility' })
-      gsap.set(menuCta, { opacity: 0 })
+      gsap.set(menuCtaEl, { opacity: 0 })
       currentAnim = null
     },
   })
@@ -115,32 +114,32 @@ function animateToHero() {
 
 function onResize() {
   const heroCta = ctaRef.value?.$el
-  const menuCta = document.querySelector('.app-menu__cta')
-  if (!heroCta || !menuCta) return
+  if (!heroCta || !menuCtaEl) return
 
   currentAnim?.kill()
   currentAnim = null
 
-  // Snap à l'état correct avec les nouvelles coordonnées
+  // Snap to correct state with updated coordinates
+  if (clone) gsap.set(clone, { visibility: 'hidden' })
+
   if (ctaInView.value) {
-    gsap.set(clone, { visibility: 'hidden' })
     gsap.set(heroCta, { visibility: 'hidden' })
-    gsap.set(menuCta, { opacity: 1 })
+    gsap.set(menuCtaEl, { opacity: 1 })
   }
   else {
-    gsap.set(clone, { visibility: 'hidden' })
     gsap.set(heroCta, { clearProps: 'visibility' })
-    gsap.set(menuCta, { opacity: 0 })
+    gsap.set(menuCtaEl, { opacity: 0 })
   }
 }
 
 onMounted(() => {
+  menuCtaEl = document.querySelector('.app-menu__cta')
+
   ScrollTrigger.addEventListener('refresh', onResize)
 
   st = ScrollTrigger.create({
-    trigger: ctaRef.value.$el,
+    trigger: ctaRef.value?.$el,
     start: 'top top+=25%',
-    markers: true,
     onEnter: () => {
       ctaInView.value = true
       animateToMenu()

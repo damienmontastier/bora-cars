@@ -1,31 +1,40 @@
 <script setup>
-import { useEventBus } from '@vueuse/core'
+import { useEventBus, useResizeObserver } from '@vueuse/core'
 import gsap from 'gsap'
+import { Flip } from 'gsap/Flip'
 
 const appStore = useAppStore()
-const { menuTheme, fontsLoaded } = toRefs(appStore)
+const { menuTheme, menuOpen } = toRefs(appStore)
 
 const { setTargetRect } = useMenuCtaSync()
 
+const logoWrapRef = ref(null) // native div — reliable offsetWidth, no component chain
 const mainRef = ref(null)
 const mainClipRef = ref(null)
 const menuBtnRef = ref(null)
 const menuCtaRef = ref(null)
 
 let expandAnim = null
+let menuAnim = null
+let savedClipWidth = 0
+let savedLogoWidth = 0
+let ignoreMenuWatch = false
 
 const heroCTABus = useEventBus('hero-cta')
 
 heroCTABus.on((event) => {
-  if (event === 'enter') expandMain()
-  if (event === 'leave') collapseMain()
+  if (event === 'enter')
+    expandMain()
+  if (event === 'leave')
+    collapseMain()
 })
 
 function expandMain() {
   const mainEl = mainRef.value
   const clipEl = mainClipRef.value
   const menuCtaEl = menuCtaRef.value?.$el
-  if (!mainEl || !clipEl || !menuCtaEl) return
+  if (!mainEl || !clipEl || !menuCtaEl)
+    return
 
   expandAnim?.kill()
 
@@ -34,7 +43,7 @@ function expandMain() {
   menuCtaRef.value?.init()
 
   const fromWidth = clipEl.offsetWidth // current (0 or mid-collapse)
-  const toWidth = mainEl.offsetWidth   // natural expanded width
+  const toWidth = mainEl.offsetWidth // natural expanded width
 
   // __inner uses justify-content:center — the flex layout shifts as the clip grows.
   // Reading getBoundingClientRect() with clip at width=0 gives a wrong X position.
@@ -42,27 +51,43 @@ function expandMain() {
   // All synchronous — browser batches DOM writes so no flash occurs.
   clipEl.style.width = `${toWidth}px`
   setTargetRect(menuCtaEl.getBoundingClientRect()) // correct final-layout position
-  clipEl.style.width = `${fromWidth}px`            // restore before GSAP takes over
+  clipEl.style.width = `${fromWidth}px` // restore before GSAP takes over
 
-  expandAnim = gsap.fromTo(clipEl,
-    { width: fromWidth },
-    {
-      width: toWidth,
-      duration: 0.6,
-      ease: 'power3.inOut',
-      onComplete: () => {
-        // Let clip follow natural content width (handles resize)
-        gsap.set(clipEl, { width: 'auto' })
-        expandAnim = null
-      },
+  expandAnim = gsap.fromTo(clipEl, { width: fromWidth }, {
+    width: toWidth,
+    duration: 0.6,
+    ease: 'power3.inOut',
+    onComplete: () => {
+      // Let clip follow natural content width (handles resize)
+      gsap.set(clipEl, { width: 'auto' })
+      expandAnim = null
     },
-  )
+  })
 }
 
 function collapseMain() {
   const clipEl = mainClipRef.value
   const menuCtaEl = menuCtaRef.value?.$el
-  if (!clipEl || !menuCtaEl) return
+  if (!clipEl || !menuCtaEl)
+    return
+
+  // If menu is open, snap logo/main back instantly — clip collapses to 0 anyway
+  if (menuOpen.value) {
+    menuAnim?.kill()
+    menuAnim = null
+    const logoEl = logoWrapRef.value
+    const mainEl = mainRef.value
+    if (logoEl)
+      gsap.set(logoEl, { clearProps: 'position,left,top,width,opacity' })
+    if (mainEl)
+      gsap.set(mainEl, { clearProps: 'width' })
+    gsap.set(clipEl, { clearProps: 'x' })
+    ignoreMenuWatch = true
+    menuOpen.value = false
+    nextTick(() => {
+      ignoreMenuWatch = false
+    })
+  }
 
   expandAnim?.kill()
 
@@ -71,18 +96,15 @@ function collapseMain() {
   // Do NOT hide CTA before animating — the clip must contract with full content
   // visible so it mirrors the expand (full pill shrinks left, not just the burger pill).
   // CTA is hidden in onComplete once the clip is fully collapsed.
-  expandAnim = gsap.fromTo(clipEl,
-    { width: fromWidth },
-    {
-      width: 0,
-      duration: 0.6,
-      ease: 'power3.inOut',
-      onComplete: () => {
-        menuCtaEl.style.display = 'none'
-        expandAnim = null
-      },
+  expandAnim = gsap.fromTo(clipEl, { width: fromWidth }, {
+    width: 0,
+    duration: 0.6,
+    ease: 'power3.inOut',
+    onComplete: () => {
+      menuCtaEl.style.display = 'none'
+      expandAnim = null
     },
-  )
+  })
 }
 
 // Measure burger width after fonts load and set as CSS var on __main,
@@ -90,46 +112,122 @@ function collapseMain() {
 function updateBtnSpace() {
   const btnEl = menuBtnRef.value?.$el
   const mainEl = mainRef.value
-  if (!btnEl || !mainEl) return
+  if (!btnEl || !mainEl)
+    return
   const gap = Number.parseFloat(getComputedStyle(mainEl).gap) || 0
   mainEl.style.setProperty('--menu-btn-extra', `${btnEl.offsetWidth + gap}px`)
 }
 
-onMounted(() => {
-  if (fontsLoaded.value) {
-    updateBtnSpace()
-  }
-  else {
-    const stop = watch(fontsLoaded, (loaded) => {
-      if (!loaded) return
-      updateBtnSpace()
-      stop()
-    })
-  }
+// Re-measure whenever the burger resizes (font load, viewport change)
+useResizeObserver(menuBtnRef, updateBtnSpace)
+
+function openMenu() {
+  const clipEl = mainClipRef.value
+  const logoEl = logoWrapRef.value
+  const mainEl = mainRef.value
+  const innerEl = logoEl?.parentElement
+  if (!clipEl || !logoEl || !mainEl || !innerEl)
+    return
+
+  menuAnim?.kill()
+
+  savedClipWidth = clipEl.offsetWidth
+  savedLogoWidth = logoEl.offsetWidth
+  const gap = Number.parseFloat(getComputedStyle(innerEl).gap) || 0
+
+  // 1. Capture clip state BEFORE changing layout —
+  //    Flip will animate from this position (right-of-center with logo beside it)
+  //    to the new centered position → natural leftward "catching up" movement
+  const state = Flip.getState(clipEl)
+
+  // 2. Freeze logo at its current visual position, remove from flex flow
+  const logoRect = logoEl.getBoundingClientRect()
+  const innerRect = innerEl.getBoundingClientRect()
+  gsap.set(logoEl, {
+    position: 'absolute',
+    left: logoRect.left - innerRect.left,
+    top: logoRect.top - innerRect.top,
+    width: savedLogoWidth,
+  })
+
+  // 3. Set clip's final size — now the only flex item, it recenters (moves left)
+  gsap.set(clipEl, { width: savedClipWidth + savedLogoWidth + gap })
+  gsap.set(mainEl, { width: '100%' })
+
+  // 4. Flip moves clip from old right-of-center position → new centered position
+  //    Logo fades out near the end once clip has passed over it
+  menuAnim = gsap.timeline({
+    onComplete: () => { menuAnim = null },
+  })
+    .add(Flip.from(state, { duration: 0.5, ease: 'power3.inOut', simple: true }), 0)
+    .to(logoEl, { opacity: 0, duration: 0.2, ease: 'power2.in' }, 0.3)
+}
+
+function closeMenu() {
+  const clipEl = mainClipRef.value
+  const logoEl = logoWrapRef.value
+  const mainEl = mainRef.value
+  const innerEl = logoEl?.parentElement
+  if (!clipEl || !logoEl || !mainEl || !innerEl)
+    return
+
+  menuAnim?.kill()
+
+  const gap = Number.parseFloat(getComputedStyle(innerEl).gap) || 0
+  // Clip is centered alone → with logo in flex flow it sits (logoWidth + gap) / 2 to the right
+  // Animate that offset so the clip lands exactly at its natural flex position
+  const xOffset = (savedLogoWidth + gap) / 2
+
+  menuAnim = gsap.timeline({
+    onComplete: () => {
+      // Restore logo to flex flow — clip is already at the correct position (no jump)
+      gsap.set(logoEl, { clearProps: 'position,left,top,width' })
+      gsap.set(clipEl, { clearProps: 'x', width: 'auto' })
+      gsap.set(mainEl, { clearProps: 'width' })
+      menuAnim = null
+    },
+  })
+    // Clip shrinks and drifts right toward its natural position beside the logo
+    .to(clipEl, { width: savedClipWidth, x: xOffset, duration: 0.5, ease: 'power3.inOut' }, 0)
+    // Logo fades in once clip has moved away enough to reveal it
+    .to(logoEl, { opacity: 1, duration: 0.3, ease: 'power2.out' }, 0.25)
+}
+
+watch(menuOpen, (open) => {
+  if (ignoreMenuWatch)
+    return
+  if (open)
+    openMenu()
+  else closeMenu()
 })
 
 onUnmounted(() => {
   expandAnim?.kill()
+  menuAnim?.kill()
 })
 </script>
 
 <template>
   <div class="app-menu">
     <div class="app-menu__inner">
-      <UtilsBaseLink to="/">
-        <SvgLogoMinimal class="app-menu__logo" :color="menuTheme" />
-      </UtilsBaseLink>
+      <div ref="logoWrapRef" class="app-menu__logo-wrap">
+        <UtilsBaseLink to="/">
+          <SvgLogoMinimal class="app-menu__logo" :color="menuTheme" />
+        </UtilsBaseLink>
+      </div>
 
-      <!-- Clip wrapper: overflow hidden, animates width from 0 → natural -->
-      <div ref="mainClipRef" class="app-menu__main-clip">
-        <div ref="mainRef" class="app-menu__main">
-          <!-- Absolute: doesn't drive __main width, appears as clip reveals it -->
-          <AppMenuCTA ref="menuBtnRef" class="app-menu__btn" />
+      <div class="app-menu__clip-wrap">
+        <div ref="mainClipRef" class="app-menu__main-clip">
+          <div ref="mainRef" class="app-menu__main" :class="{ 'is-open': menuOpen }">
+            <AppMenuCTA ref="menuBtnRef" class="app-menu__btn" />
 
-          <AtomsCTA ref="menuCtaRef" :theme="menuTheme" class="app-menu__cta">
-            Contacter un conseiller
-          </AtomsCTA>
+            <AtomsCTA ref="menuCtaRef" :theme="menuTheme" class="app-menu__cta">
+              Contacter un conseiller
+            </AtomsCTA>
+          </div>
         </div>
+
+        <AppMenuPanel />
       </div>
     </div>
   </div>
@@ -151,19 +249,24 @@ onUnmounted(() => {
     align-items: center;
     justify-content: center;
     gap: desktop-vw(8px);
+    position: relative;
   }
 
-  // Clip wrapper — overflow:hidden reveals the pill from left to right
+  &__clip-wrap {
+    position: relative;
+    display: inline-flex;
+  }
+
   &__main-clip {
     overflow: hidden;
     display: inline-flex;
-    border-radius: desktop-vw(12px);
     width: 0; // hidden until GSAP expands it
   }
 
   &__main {
     display: flex;
     align-items: center;
+    justify-content: flex-end;
     gap: desktop-vw(8px); // read by JS to compute --menu-btn-extra
     position: relative; // anchor for absolute .app-menu__btn
 
@@ -174,6 +277,14 @@ onUnmounted(() => {
     border-radius: desktop-vw(12px);
     border: 1px solid var(--c-beige-20);
     backdrop-filter: blur(20px);
+    transition:
+      background 0.4s var(--ease-out-cubic),
+      border-color 0.4s var(--ease-out-cubic);
+
+    &.is-open {
+      background: var(--c-beige-100);
+      border-color: var(--c-beige-100);
+    }
   }
 
   // Burger button: absolute so it doesn't affect __main's flex width
@@ -184,9 +295,15 @@ onUnmounted(() => {
     transform: translateY(-50%);
   }
 
+  &__logo-wrap {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+  }
+
   &__logo {
     width: desktop-vw(76px);
-    height: 100%;
+    height: auto;
     aspect-ratio: 1 / 1;
   }
 
