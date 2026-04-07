@@ -1,17 +1,18 @@
 <script setup>
 import { useEventBus } from '@vueuse/core'
-import { Flip } from 'gsap/Flip'
+import gsap from 'gsap'
 
 const appStore = useAppStore()
-const { menuTheme } = toRefs(appStore)
+const { menuTheme, fontsLoaded } = toRefs(appStore)
 
 const { setTargetRect } = useMenuCtaSync()
 
 const mainRef = ref(null)
+const mainClipRef = ref(null)
 const menuBtnRef = ref(null)
 const menuCtaRef = ref(null)
 
-let flipAnim = null
+let expandAnim = null
 
 const heroCTABus = useEventBus('hero-cta')
 
@@ -22,74 +23,113 @@ heroCTABus.on((event) => {
 
 function expandMain() {
   const mainEl = mainRef.value
+  const clipEl = mainClipRef.value
   const menuCtaEl = menuCtaRef.value?.$el
-  if (!mainEl || !menuCtaEl) return
+  if (!mainEl || !clipEl || !menuCtaEl) return
 
-  flipAnim?.kill()
+  expandAnim?.kill()
 
-  // Only track mainEl + AppMenuCTA — exclude menuCta so Flip doesn't apply
-  // transforms to it (would corrupt getBoundingClientRect() in Hero.vue)
-  const menuBtnEl = menuBtnRef.value?.$el
-  const state = Flip.getState([mainEl, menuBtnEl].filter(Boolean))
-
-  // Montrer le CTA — __main va s'agrandir
+  // Show CTA so mainEl takes its full natural width
   menuCtaEl.style.display = 'inline-flex'
-
-  // Init lazily (first time visible so offsetWidth is correct)
   menuCtaRef.value?.init()
 
-  // Save rect BEFORE Flip.from() applies transforms to mainEl.
-  // Flip.from() is synchronous — it immediately sets transforms on mainEl,
-  // which would corrupt getBoundingClientRect() on its children in Hero.vue.
-  setTargetRect(menuCtaEl.getBoundingClientRect())
+  const fromWidth = clipEl.offsetWidth // current (0 or mid-collapse)
+  const toWidth = mainEl.offsetWidth   // natural expanded width
 
-  // Flip anime le container depuis l'état compact vers l'état étendu
-  // nested:true empêche AppMenuCTA de se déformer pendant l'expansion
-  flipAnim = Flip.from(state, {
-    duration: 0.6,
-    ease: 'power3.inOut',
-    nested: true,
-    onComplete: () => { flipAnim = null },
-  })
+  // __inner uses justify-content:center — the flex layout shifts as the clip grows.
+  // Reading getBoundingClientRect() with clip at width=0 gives a wrong X position.
+  // Solution: temporarily set clip to its final width, measure the real rect, then restore.
+  // All synchronous — browser batches DOM writes so no flash occurs.
+  clipEl.style.width = `${toWidth}px`
+  setTargetRect(menuCtaEl.getBoundingClientRect()) // correct final-layout position
+  clipEl.style.width = `${fromWidth}px`            // restore before GSAP takes over
+
+  expandAnim = gsap.fromTo(clipEl,
+    { width: fromWidth },
+    {
+      width: toWidth,
+      duration: 0.6,
+      ease: 'power3.inOut',
+      onComplete: () => {
+        // Let clip follow natural content width (handles resize)
+        gsap.set(clipEl, { width: 'auto' })
+        expandAnim = null
+      },
+    },
+  )
 }
 
 function collapseMain() {
-  const mainEl = mainRef.value
+  const clipEl = mainClipRef.value
   const menuCtaEl = menuCtaRef.value?.$el
-  if (!mainEl || !menuCtaEl) return
+  if (!clipEl || !menuCtaEl) return
 
-  flipAnim?.kill()
+  expandAnim?.kill()
 
-  const menuBtnEl = menuBtnRef.value?.$el
-  const state = Flip.getState([mainEl, menuBtnEl].filter(Boolean))
+  const fromWidth = clipEl.offsetWidth
 
-  // Cacher le CTA — __main va se contracter
-  menuCtaEl.style.display = 'none'
-
-  flipAnim = Flip.from(state, {
-    duration: 0.6,
-    ease: 'power3.inOut',
-    nested: true,
-    onComplete: () => { flipAnim = null },
-  })
+  // Do NOT hide CTA before animating — the clip must contract with full content
+  // visible so it mirrors the expand (full pill shrinks left, not just the burger pill).
+  // CTA is hidden in onComplete once the clip is fully collapsed.
+  expandAnim = gsap.fromTo(clipEl,
+    { width: fromWidth },
+    {
+      width: 0,
+      duration: 0.6,
+      ease: 'power3.inOut',
+      onComplete: () => {
+        menuCtaEl.style.display = 'none'
+        expandAnim = null
+      },
+    },
+  )
 }
 
+// Measure burger width after fonts load and set as CSS var on __main,
+// so padding-left can accommodate the absolutely-positioned burger.
+function updateBtnSpace() {
+  const btnEl = menuBtnRef.value?.$el
+  const mainEl = mainRef.value
+  if (!btnEl || !mainEl) return
+  const gap = Number.parseFloat(getComputedStyle(mainEl).gap) || 0
+  mainEl.style.setProperty('--menu-btn-extra', `${btnEl.offsetWidth + gap}px`)
+}
+
+onMounted(() => {
+  if (fontsLoaded.value) {
+    updateBtnSpace()
+  }
+  else {
+    const stop = watch(fontsLoaded, (loaded) => {
+      if (!loaded) return
+      updateBtnSpace()
+      stop()
+    })
+  }
+})
+
 onUnmounted(() => {
-  flipAnim?.kill()
+  expandAnim?.kill()
 })
 </script>
 
 <template>
   <div class="app-menu">
     <div class="app-menu__inner">
-      <SvgLogoMinimal class="app-menu__logo" :color="menuTheme" />
+      <UtilsBaseLink to="/">
+        <SvgLogoMinimal class="app-menu__logo" :color="menuTheme" />
+      </UtilsBaseLink>
 
-      <div ref="mainRef" class="app-menu__main">
-        <AppMenuCTA ref="menuBtnRef" />
+      <!-- Clip wrapper: overflow hidden, animates width from 0 → natural -->
+      <div ref="mainClipRef" class="app-menu__main-clip">
+        <div ref="mainRef" class="app-menu__main">
+          <!-- Absolute: doesn't drive __main width, appears as clip reveals it -->
+          <AppMenuCTA ref="menuBtnRef" class="app-menu__btn" />
 
-        <AtomsCTA ref="menuCtaRef" :theme="menuTheme" class="app-menu__cta">
-          Contacter un conseiller
-        </AtomsCTA>
+          <AtomsCTA ref="menuCtaRef" :theme="menuTheme" class="app-menu__cta">
+            Contacter un conseiller
+          </AtomsCTA>
+        </div>
       </div>
     </div>
   </div>
@@ -113,16 +153,35 @@ onUnmounted(() => {
     gap: desktop-vw(8px);
   }
 
+  // Clip wrapper — overflow:hidden reveals the pill from left to right
+  &__main-clip {
+    overflow: hidden;
+    display: inline-flex;
+    border-radius: desktop-vw(12px);
+    width: 0; // hidden until GSAP expands it
+  }
+
   &__main {
     display: flex;
     align-items: center;
-    gap: desktop-vw(8px);
+    gap: desktop-vw(8px); // read by JS to compute --menu-btn-extra
+    position: relative; // anchor for absolute .app-menu__btn
 
     background: var(--c-beige-20);
+    // padding-left reserves space for the absolute burger + gap
     padding: desktop-vw(8px);
+    padding-left: calc(desktop-vw(8px) + var(--menu-btn-extra, 0px));
     border-radius: desktop-vw(12px);
     border: 1px solid var(--c-beige-20);
     backdrop-filter: blur(20px);
+  }
+
+  // Burger button: absolute so it doesn't affect __main's flex width
+  &__btn {
+    position: absolute;
+    left: desktop-vw(8px);
+    top: 50%;
+    transform: translateY(-50%);
   }
 
   &__logo {

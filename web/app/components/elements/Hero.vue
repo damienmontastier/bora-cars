@@ -62,8 +62,7 @@ function animateToMenu() {
     ease: 'power3.inOut',
     onComplete: () => {
       gsap.set(clone, { visibility: 'hidden' })
-      // clearProps: 'transform' removes any residual Flip nested transform before revealing
-      gsap.set(menuCta, { clearProps: 'transform', opacity: 1 })
+      gsap.set(menuCta, { opacity: 1 })
       currentAnim = null
     },
   })
