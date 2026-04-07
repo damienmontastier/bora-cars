@@ -1,7 +1,7 @@
 <script setup>
+import { useEventBus } from '@vueuse/core'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import { useEventBus } from '@vueuse/core'
 
 const heroCTABus = useEventBus('hero-cta')
 const { getTargetRect } = useMenuCtaSync()
@@ -114,13 +114,15 @@ function animateToHero() {
 
 function onResize() {
   const heroCta = ctaRef.value?.$el
-  if (!heroCta || !menuCtaEl) return
+  if (!heroCta || !menuCtaEl)
+    return
 
   currentAnim?.kill()
   currentAnim = null
 
   // Snap to correct state with updated coordinates
-  if (clone) gsap.set(clone, { visibility: 'hidden' })
+  if (clone)
+    gsap.set(clone, { visibility: 'hidden' })
 
   if (ctaInView.value) {
     gsap.set(heroCta, { visibility: 'hidden' })
@@ -232,7 +234,7 @@ onUnmounted(() => {
 
   &__middle {
     width: 100%;
-    height: 100vh;
+    height: 85vh;
     display: flex;
     flex-direction: row;
     align-items: flex-end;

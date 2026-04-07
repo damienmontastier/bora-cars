@@ -1,5 +1,5 @@
 <script setup>
-import { useEventBus, useResizeObserver } from '@vueuse/core'
+import { onClickOutside, onKeyStroke, useEventBus, useResizeObserver } from '@vueuse/core'
 import gsap from 'gsap'
 import { Flip } from 'gsap/Flip'
 import { useLenis } from 'lenis/vue'
@@ -22,6 +22,17 @@ const mainRef = ref(null)
 const mainClipRef = ref(null)
 const menuBtnRef = ref(null)
 const menuCtaRef = ref(null)
+const clipWrapRef = ref(null)
+
+onClickOutside(clipWrapRef, () => {
+  if (menuOpen.value && !menuAnimating.value)
+    menuOpen.value = false
+})
+
+onKeyStroke('Escape', () => {
+  if (menuOpen.value && !menuAnimating.value)
+    menuOpen.value = false
+}, { dedupe: true })
 
 let expandAnim = null
 let menuAnim = null
@@ -234,7 +245,7 @@ onUnmounted(() => {
         </UtilsBaseLink>
       </div>
 
-      <div class="app-menu__clip-wrap">
+      <div ref="clipWrapRef" class="app-menu__clip-wrap">
         <div ref="mainClipRef" class="app-menu__main-clip">
           <div ref="mainRef" class="app-menu__main" :class="{ 'is-open': menuOpen }">
             <AppMenuCTA ref="menuBtnRef" class="app-menu__btn" />
