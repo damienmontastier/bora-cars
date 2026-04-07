@@ -1,5 +1,5 @@
 <script setup>
-import { useResizeObserver } from '@vueuse/core'
+import { useDebounceFn, useResizeObserver } from '@vueuse/core'
 import gsap from 'gsap'
 import { Flip } from 'gsap/Flip'
 
@@ -106,11 +106,13 @@ onMounted(() => {
   }, { immediate: true })
 })
 
-useResizeObserver(rootRef, () => {
+const onResize = useDebounceFn(() => {
   if (!props.animated || !initialized) return
   reset()
   init()
-})
+}, 150)
+
+useResizeObserver(rootRef, onResize)
 
 onUnmounted(() => {
   tl?.kill()
