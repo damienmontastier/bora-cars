@@ -18,8 +18,8 @@
             Des véhicules d’exception pour des moments uniques.
           </TextsP2>
 
-          <AtomsCTA class="app-elements-hero__cta">
-            Découvrir la collection
+          <AtomsCTA theme="orange" class="app-elements-hero__cta">
+            Contacter un conseiller
           </AtomsCTA>
         </div>
       </div>
@@ -79,14 +79,25 @@
     padding: desktop-vw(24px);
 
     &-content {
+      flex: 0 0 desktop-vw(310px);
       margin-left: auto;
       display: flex;
       flex-direction: column;
       gap: desktop-vw(24px);
     }
 
+    .P2 {
+      width: 75%;
+    }
+
+    .app-atoms-cta {
+      align-self: flex-end;
+      width: 100%;
+    }
+
     .H1 {
-      width: 80%;
+      flex: 0 0 auto;
+      max-width: desktop-vw(900px);
     }
   }
 

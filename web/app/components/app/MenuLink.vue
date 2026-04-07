@@ -9,7 +9,7 @@ const { to } = toRefs(props)
 </script>
 
 <template>
-  <TextsP1 tag="li" class="app-menu-link">
+  <TextsP1 tag="li" color="beige-100" class="app-menu-link">
     <UtilsBaseLink
       :to="to"
     >
@@ -41,7 +41,7 @@ const { to } = toRefs(props)
     height: 0;
     border-top: 5px solid transparent;
     border-bottom: 5px solid transparent;
-    border-left: 5px solid var(--c-black);
+    border-left: 5px solid var(--c-beige-100);
     margin-right: 5px;
   }
 }

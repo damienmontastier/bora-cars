@@ -1,53 +1,58 @@
 <script setup>
-const props = defineProps({
-
-})
-
-// const { to, color } =  toRefs(props)
-
-onMounted(() => {
-
-})
+const appStore = useAppStore()
+const { menuTheme } = toRefs(appStore)
 </script>
 
 <template>
   <div class="app-menu">
-    <TextsP1 class="app-menu__heading">
-      NUXT4 — BORA CARS
-    </TextsP1>
+    <div class="app-menu__inner">
+      <SvgLogoMinimal class="app-menu__logo" :color="menuTheme" />
 
-    <ul class="app-menu__links">
-      <AppMenuLink to="/">
-        Home
-      </AppMenuLink>
-    </ul>
+      <div class="app-menu__main">
+        <AppMenuCTA />
+
+        <AtomsCTA :theme="menuTheme" class="app-menu__cta">
+          Contacter un conseiller
+        </AtomsCTA>
+      </div>
+    </div>
   </div>
 </template>
 
 <style lang="scss">
 .app-menu {
+  width: 100%;
   z-index: 10;
   position: fixed;
   top: 0;
-  padding: desktop-vw(35px) var(--layout-margin) desktop-vw(35px) var(--layout-margin);
+  padding: desktop-vw(8px) 0px desktop-vw(8px) 0px;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
 
-  @include mobile {
-    padding: mobile-vw(20px) mobile-vw(35px) mobile-vw(20px) mobile-vw(35px);
-  }
-
-  &__heading {
-    font-size: desktop-vw(32px);
-    line-height: desktop-vw(32px);
-  }
-
-  &__links {
-    flex-direction: column;
+  &__inner {
+    width: 100%;
     display: flex;
-    gap: 10px;
-    margin-top: 15px;
-    margin-left: 15px;
+    align-items: center;
+    justify-content: center;
+    gap: desktop-vw(8px);
+  }
+
+  &__main {
+    display: flex;
+    align-items: center;
+    gap: desktop-vw(8px);
+
+    background: var(--c-beige-20);
+    padding: desktop-vw(8px);
+    border-radius: desktop-vw(12px);
+    border: 1px solid var(--c-beige-20);
+    backdrop-filter: blur(20px);
+  }
+
+  &__logo {
+    width: desktop-vw(76px);
+    height: 100%;
+    aspect-ratio: 1 / 1;
   }
 }
 </style>

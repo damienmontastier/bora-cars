@@ -16,7 +16,7 @@ const cssRawLayoutColumnsCount = useCssVar('--layout-columns-count')
 const layoutColumnsCount = computed(() => Number(cssRawLayoutColumnsCount.value))
 
 const appStore = useAppStore()
-const { fontsLoaded } = toRefs(appStore)
+const { fontsLoaded, menuTheme } = toRefs(appStore)
 
 useMagicKeys({
   passive: false,
@@ -106,6 +106,19 @@ onClickOutside(itemsRef, () => {
             </template>
             <template #value>
               {{ fontsLoaded }}
+            </template>
+          </DebugPatrolLabel>
+
+          <DebugPatrolLabel>
+            <template #key>
+              menuTheme
+            </template>
+            <template #value>
+              <select v-model="menuTheme">
+                <option value="white">white</option>
+                <option value="orange">orange</option>
+                <option value="black">black</option>
+              </select>
             </template>
           </DebugPatrolLabel>
         </div>

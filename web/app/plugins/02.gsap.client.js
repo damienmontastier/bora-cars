@@ -1,11 +1,12 @@
 import gsap from 'gsap'
+import { Flip } from 'gsap/Flip'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { SplitText } from 'gsap/SplitText'
 import Tempus from 'tempus'
 
 export default defineNuxtPlugin(() => {
   gsap.config({ force3D: true })
-  gsap.registerPlugin(ScrollTrigger, SplitText)
+  gsap.registerPlugin(ScrollTrigger, SplitText, Flip)
   gsap.ticker.lagSmoothing(0)
 
   ScrollTrigger.defaults({

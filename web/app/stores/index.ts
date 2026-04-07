@@ -7,5 +7,7 @@ export const useAppStore = defineStore('app', {
   state: () => ({
     fontsLoaded: false,
     preloaderDone: false,
+    menuTheme: 'orange' as 'white' | 'orange' | 'black',
+    menuOpen: false,
   }),
 })

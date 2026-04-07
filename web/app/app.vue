@@ -22,9 +22,11 @@ watch(fontsReady, (ready) => {
     <AppLenis />
 
     <!-- <AppPreloader /> -->
-
     <AppMenu />
 
+    <!-- <DevOnly>
+      <AppMenuDev />
+    </DevOnly> -->
     <!-- <AppTransitionOverlay /> -->
 
     <div id="app-page" class="app-page">

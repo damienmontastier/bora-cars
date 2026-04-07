@@ -11,11 +11,11 @@
 
     <div class="app-elements-pitch__bottom">
       <TextsP2 color="orange-100">
-        Des véhicules d’exception pour des moments uniques.
+        Un conseiller <br> vous répond sous 24h
       </TextsP2>
 
-      <AtomsCTA>
-        Découvrir la collection
+      <AtomsCTA theme="orange">
+        Contacter un conseiller
       </AtomsCTA>
     </div>
   </div>
@@ -32,10 +32,17 @@
   gap: desktop-vw(40px);
 
   &__top {
-    width: 100%;
-    display: flex;
-    align-items: flex-end;
-    justify-content: center;
+    width: 90%;
+    align-self: flex-start;
+
+    .P2,
+    .H2 {
+      display: inline;
+    }
+
+    .P2 {
+      margin-right: desktop-vw(16px);
+    }
   }
 
   &__bottom {
@@ -43,9 +50,14 @@
     flex-direction: column;
     align-self: flex-end;
     gap: desktop-vw(24px);
+    width: 22.5%;
 
     .app-atom-cta {
       align-self: flex-end;
+    }
+
+    .P2 {
+      width: 65%;
     }
   }
 }
