@@ -187,6 +187,7 @@ function closeMenu() {
   const xOffset = (savedLogoWidth + gap) / 2
 
   menuAnim = gsap.timeline({
+    delay: 0.25,
     onComplete: () => {
       // Restore logo to flex flow — clip is already at the correct position (no jump)
       gsap.set(logoEl, { clearProps: 'position,left,top,width' })

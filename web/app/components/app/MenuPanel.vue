@@ -4,36 +4,34 @@ import gsap from 'gsap'
 const appStore = useAppStore()
 const { menuOpen, menuTheme } = toRefs(appStore)
 
-const containerRef = ref(null)
+const backgroundRef = ref(null)
 const navRef = ref(null)
 
 let anim = null
 
-const CLIP_CLOSED_OPEN = 'inset(0% 50% 100% 50% round 12px)'
-const CLIP_CLOSED_CLOSE = 'inset(0% 0% 100% 0% round 12px)'
-const CLIP_OPEN = 'inset(0% 0% 0% 0% round 12px)'
-
 onMounted(() => {
-  gsap.set(containerRef.value, { clipPath: CLIP_CLOSED_OPEN })
-  gsap.set(navRef.value.children, { opacity: 0 })
+  gsap.set(backgroundRef.value, { scale: 0, transformOrigin: 'top center' })
+  gsap.set(navRef.value.querySelectorAll('.app-menu-panel__nav-inner'), { y: '110%' })
 })
 
 watch(menuOpen, (open) => {
   anim?.kill()
 
+  const items = navRef.value.querySelectorAll('.app-menu-panel__nav-inner')
+
   if (open) {
     anim = gsap.timeline({
       onComplete: () => { anim = null },
     })
-      .fromTo(containerRef.value, { clipPath: CLIP_CLOSED_OPEN }, { clipPath: CLIP_OPEN, duration: 0.5, ease: 'power3.inOut' }, 0)
-      .fromTo(navRef.value.children, { opacity: 0 }, { opacity: 1, duration: 0.3, ease: 'power2.out', stagger: 0.06 }, 0.2)
+      .fromTo(backgroundRef.value, { scale: 0 }, { scale: 1, duration: 0.5, ease: 'power3.inOut', transformOrigin: 'top center' }, 0)
+      .fromTo(items, { y: '110%' }, { y: '0%', duration: 0.5, ease: 'power3.out', stagger: 0.06 }, 0.35)
   }
   else {
     anim = gsap.timeline({
       onComplete: () => { anim = null },
     })
-      .to(navRef.value.children, { opacity: 0, duration: 0.2, ease: 'power2.in', stagger: 0.04 }, 0)
-      .to(containerRef.value, { clipPath: CLIP_CLOSED_CLOSE, duration: 0.4, ease: 'power3.inOut' }, 0.05)
+      .to(items, { y: '110%', duration: 0.3, ease: 'power3.in', stagger: 0.04 }, 0)
+      .to(backgroundRef.value, { scale: 0, duration: 0.4, ease: 'power3.inOut', transformOrigin: 'top center' }, 0.3)
   }
 })
 
@@ -44,26 +42,36 @@ onUnmounted(() => {
 
 <template>
   <div class="app-menu-panel" :class="{ 'is-open': menuOpen }">
-    <div ref="containerRef" class="app-menu-panel__container">
-      <div class="app-menu-panel__background" />
-      <nav ref="navRef" class="app-menu-panel__nav">
-        <UtilsBaseLink>
-          <TextsCTAXL :color="menuTheme">
-            Catalogue
-          </TextsCTAXL>
-        </UtilsBaseLink>
-        <UtilsBaseLink>
-          <TextsCTAXL :color="menuTheme">
-            Services
-          </TextsCTAXL>
-        </UtilsBaseLink>
-        <UtilsBaseLink>
-          <TextsCTAXL :color="menuTheme">
-            Reprise
-          </TextsCTAXL>
-        </UtilsBaseLink>
-      </nav>
-    </div>
+    <div ref="backgroundRef" class="app-menu-panel__background" />
+    <nav ref="navRef" class="app-menu-panel__nav">
+      <div class="app-menu-panel__nav-mask">
+        <div class="app-menu-panel__nav-inner">
+          <UtilsBaseLink>
+            <TextsCTAXL :color="menuTheme">
+              Catalogue
+            </TextsCTAXL>
+          </UtilsBaseLink>
+        </div>
+      </div>
+      <div class="app-menu-panel__nav-mask">
+        <div class="app-menu-panel__nav-inner">
+          <UtilsBaseLink>
+            <TextsCTAXL :color="menuTheme">
+              Services
+            </TextsCTAXL>
+          </UtilsBaseLink>
+        </div>
+      </div>
+      <div class="app-menu-panel__nav-mask">
+        <div class="app-menu-panel__nav-inner">
+          <UtilsBaseLink>
+            <TextsCTAXL :color="menuTheme">
+              Reprise
+            </TextsCTAXL>
+          </UtilsBaseLink>
+        </div>
+      </div>
+    </nav>
   </div>
 </template>
 
@@ -79,15 +87,13 @@ onUnmounted(() => {
     pointer-events: auto;
   }
 
-  &__container {
-    border-radius: 12px;
-  }
-
   &__background {
     position: absolute;
     inset: 0;
     background: var(--c-beige-100);
     backdrop-filter: blur(12px);
+    border-radius: 12px;
+    transform-origin: top center;
   }
 
   &__nav {
@@ -96,6 +102,14 @@ onUnmounted(() => {
     flex-direction: column;
     padding: desktop-vw(28px) desktop-vw(26px);
     gap: desktop-vw(16px);
+  }
+
+  &__nav-mask {
+    overflow: hidden;
+  }
+
+  &__nav-inner {
+    display: block;
   }
 }
 </style>
