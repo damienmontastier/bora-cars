@@ -6,6 +6,7 @@ import { useLenis } from 'lenis/vue'
 
 const appStore = useAppStore()
 const { menuTheme, menuOpen } = toRefs(appStore)
+const { menuAnimating } = toRefs(appStore)
 
 const lenis = useLenis()
 
@@ -29,8 +30,7 @@ let savedLogoWidth = 0
 let ignoreMenuWatch = false
 
 const heroCTABus = useEventBus('hero-cta')
-
-heroCTABus.on((event) => {
+const offHeroCTABus = heroCTABus.on((event) => {
   if (event === 'enter')
     expandMain()
   if (event === 'leave')
@@ -83,6 +83,7 @@ function collapseMain() {
   if (menuOpen.value) {
     menuAnim?.kill()
     menuAnim = null
+    menuAnimating.value = false
     const logoEl = logoWrapRef.value
     const mainEl = mainRef.value
     if (logoEl)
@@ -138,6 +139,7 @@ function openMenu() {
     return
 
   menuAnim?.kill()
+  menuAnimating.value = true
 
   savedClipWidth = clipEl.offsetWidth
   savedLogoWidth = logoEl.offsetWidth
@@ -165,7 +167,10 @@ function openMenu() {
   // 4. Flip moves clip from old right-of-center position → new centered position
   //    Logo fades out near the end once clip has passed over it
   menuAnim = gsap.timeline({
-    onComplete: () => { menuAnim = null },
+    onComplete: () => {
+      menuAnim = null
+      menuAnimating.value = false
+    },
   })
     .add(Flip.from(state, { duration: 0.5, ease: 'power3.inOut', simple: true }), 0)
     .to(logoEl, { opacity: 0, duration: 0.2, ease: 'power2.in' }, 0.3)
@@ -180,6 +185,7 @@ function closeMenu() {
     return
 
   menuAnim?.kill()
+  menuAnimating.value = true
 
   const gap = Number.parseFloat(getComputedStyle(innerEl).gap) || 0
   // Clip is centered alone → with logo in flex flow it sits (logoWidth + gap) / 2 to the right
@@ -194,6 +200,7 @@ function closeMenu() {
       gsap.set(clipEl, { clearProps: 'x', width: 'auto' })
       gsap.set(mainEl, { clearProps: 'width' })
       menuAnim = null
+      menuAnimating.value = false
     },
   })
     // Clip shrinks and drifts right toward its natural position beside the logo
@@ -211,8 +218,10 @@ watch(menuOpen, (open) => {
 })
 
 onUnmounted(() => {
+  offHeroCTABus()
   expandAnim?.kill()
   menuAnim?.kill()
+  lenis.value?.start() // ensure scroll is re-enabled if unmounted while menu was open
 })
 </script>
 

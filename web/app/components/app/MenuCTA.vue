@@ -1,8 +1,9 @@
 <script setup>
 const appStore = useAppStore()
-const { menuTheme, menuOpen } = toRefs(appStore)
+const { menuTheme, menuOpen, menuAnimating } = toRefs(appStore)
 
 function onClick() {
+  if (menuAnimating.value) return
   menuOpen.value = !menuOpen.value
 }
 

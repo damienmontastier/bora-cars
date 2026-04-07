@@ -9,5 +9,6 @@ export const useAppStore = defineStore('app', {
     preloaderDone: false,
     menuTheme: 'orange' as 'white' | 'orange' | 'black',
     menuOpen: false,
+    menuAnimating: false,
   }),
 })

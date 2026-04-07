@@ -94,6 +94,7 @@ onUnmounted(() => {
     backdrop-filter: blur(12px);
     border-radius: 12px;
     transform-origin: top center;
+    will-change: transform;
   }
 
   &__nav {
@@ -110,6 +111,7 @@ onUnmounted(() => {
 
   &__nav-inner {
     display: block;
+    will-change: transform;
   }
 }
 </style>
