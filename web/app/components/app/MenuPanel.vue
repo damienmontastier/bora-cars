@@ -9,8 +9,12 @@ const navRef = ref(null)
 
 let anim = null
 
+const CLIP_CLOSED_OPEN = 'inset(0% 50% 100% 50% round 12px)'
+const CLIP_CLOSED_CLOSE = 'inset(0% 0% 100% 0% round 12px)'
+const CLIP_OPEN = 'inset(0% 0% 0% 0% round 12px)'
+
 onMounted(() => {
-  gsap.set(containerRef.value, { scale: 0 })
+  gsap.set(containerRef.value, { clipPath: CLIP_CLOSED_OPEN })
   gsap.set(navRef.value.children, { opacity: 0 })
 })
 
@@ -21,7 +25,7 @@ watch(menuOpen, (open) => {
     anim = gsap.timeline({
       onComplete: () => { anim = null },
     })
-      .fromTo(containerRef.value, { scale: 0 }, { scale: 1, duration: 0.5, ease: 'power3.inOut', transformOrigin: 'top center' }, 0)
+      .fromTo(containerRef.value, { clipPath: CLIP_CLOSED_OPEN }, { clipPath: CLIP_OPEN, duration: 0.5, ease: 'power3.inOut' }, 0)
       .fromTo(navRef.value.children, { opacity: 0 }, { opacity: 1, duration: 0.3, ease: 'power2.out', stagger: 0.06 }, 0.2)
   }
   else {
@@ -29,7 +33,7 @@ watch(menuOpen, (open) => {
       onComplete: () => { anim = null },
     })
       .to(navRef.value.children, { opacity: 0, duration: 0.2, ease: 'power2.in', stagger: 0.04 }, 0)
-      .to(containerRef.value, { scale: 0, duration: 0.4, ease: 'power3.inOut', transformOrigin: 'top center' }, 0.05)
+      .to(containerRef.value, { clipPath: CLIP_CLOSED_CLOSE, duration: 0.4, ease: 'power3.inOut' }, 0.05)
   }
 })
 
@@ -76,10 +80,7 @@ onUnmounted(() => {
   }
 
   &__container {
-    overflow: hidden;
     border-radius: 12px;
-    transform: scale(0);
-    transform-origin: top center;
   }
 
   &__background {

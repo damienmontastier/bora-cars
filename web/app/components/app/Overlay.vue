@@ -24,12 +24,13 @@ const { menuOpen } = toRefs(appStore)
     background-color: var(--c-black-20);
     opacity: 0;
     transition: opacity 0.3s var(--ease-out-cubic);
-    pointer-events: auto;
+    pointer-events: none;
   }
 
   &.is-active {
     .app-overlay__background {
       opacity: 1;
+      pointer-events: auto;
     }
   }
 }

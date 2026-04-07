@@ -1,4 +1,5 @@
 <script setup>
+import { useResizeObserver } from '@vueuse/core'
 import gsap from 'gsap'
 import { Flip } from 'gsap/Flip'
 
@@ -37,16 +38,32 @@ const textRef = useTemplateRef('textRef')
 
 let tl = null
 let initialized = false
+let originalText = ''
+
+function reset() {
+  tl?.kill()
+  tl = null
+  initialized = false
+  const el = textRef.value?.root
+  if (el && originalText) {
+    el.textContent = originalText
+  }
+  if (rootRef.value?.$el) {
+    rootRef.value.$el.style.minWidth = ''
+  }
+}
 
 function init() {
   if (initialized) return
-  // Don't init while hidden — offsetWidth would be 0, breaking minWidth measurement
   if (!rootRef.value?.$el || rootRef.value.$el.offsetWidth === 0) return
 
   initialized = true
 
   const el = textRef.value.root
-  const wordsList = el.textContent.trim().split(' ')
+
+  if (!originalText) originalText = el.textContent.trim()
+
+  const wordsList = originalText.split(' ')
 
   el.innerHTML = wordsList.map((word, i) => {
     const span = `<span class="app-atoms-cta__word">${word}</span>`
@@ -84,10 +101,15 @@ function init() {
 
 onMounted(() => {
   if (!props.animated) return
-  // init() is idempotent — safe to call on every truthy tick (immediate covers already-loaded case)
   watch(fontsLoaded, (loaded) => {
     if (loaded) init()
   }, { immediate: true })
+})
+
+useResizeObserver(rootRef, () => {
+  if (!props.animated || !initialized) return
+  reset()
+  init()
 })
 
 onUnmounted(() => {
