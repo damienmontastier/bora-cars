@@ -24,6 +24,8 @@ watch(fontsReady, (ready) => {
     <!-- <AppPreloader /> -->
     <AppMenu />
 
+    <AppOverlay />
+
     <!-- <DevOnly>
       <AppMenuDev />
     </DevOnly> -->

@@ -2,9 +2,17 @@
 import { useEventBus, useResizeObserver } from '@vueuse/core'
 import gsap from 'gsap'
 import { Flip } from 'gsap/Flip'
+import { useLenis } from 'lenis/vue'
 
 const appStore = useAppStore()
 const { menuTheme, menuOpen } = toRefs(appStore)
+
+const lenis = useLenis()
+
+watch(menuOpen, (open) => {
+  if (open) lenis.value?.stop()
+  else lenis.value?.start()
+})
 
 const { setTargetRect } = useMenuCtaSync()
 
