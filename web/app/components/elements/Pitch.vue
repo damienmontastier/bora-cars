@@ -1,22 +1,15 @@
 <script setup lang="ts">
-interface PitchLink {
-  type: 'external' | 'email' | 'phone' | 'internal'
-  text?: string
-  url?: string
-  email?: string
-  phone?: string
-}
-
 interface PitchData {
   eyebrow?: string
   heading?: string
   subtext?: string
-  cta?: PitchLink
 }
 
 interface Props { data: PitchData | null }
 
 defineProps<Props>()
+
+const settings = useSettings()
 </script>
 
 <template>
@@ -35,8 +28,8 @@ defineProps<Props>()
         {{ data.subtext }}
       </TextsP2>
 
-      <AtomsCTA v-if="data?.cta?.text" theme="orange" :to="data.cta">
-        {{ data.cta.text }}
+      <AtomsCTA v-if="settings?.contactLink?.text" theme="orange" :to="settings.contactLink">
+        {{ settings.contactLink.text }}
       </AtomsCTA>
     </div>
   </div>

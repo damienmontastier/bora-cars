@@ -1,18 +1,20 @@
 <script setup lang="ts">
-import { onClickOutside, onKeyStroke, useEventBus, useResizeObserver } from '@vueuse/core'
 import type { MenuData } from '~/queries/menu'
+import { onClickOutside, onKeyStroke, useEventBus, useResizeObserver } from '@vueuse/core'
+import gsap from 'gsap'
+import { Flip } from 'gsap/Flip'
+import { useLenis } from 'lenis/vue'
 
 interface Props {
   data: MenuData | null
 }
 
 const props = defineProps<Props>()
-import gsap from 'gsap'
-import { Flip } from 'gsap/Flip'
-import { useLenis } from 'lenis/vue'
 
 const appStore = useAppStore()
 const { menuTheme, menuOpen, menuAnimating } = toRefs(appStore)
+
+const settings = useSettings()
 
 const ctaTheme = computed(() => menuOpen.value && menuTheme.value === 'white' ? 'black' : menuTheme.value)
 
@@ -311,8 +313,8 @@ onUnmounted(() => {
           <div ref="mainRef" class="app-menu__main" :class="{ 'is-open': menuOpen }">
             <AppMenuCTA ref="menuBtnRef" class="app-menu__btn" :menu-label="props.data?.menuLabel" :close-label="props.data?.closeLabel" />
 
-            <AtomsCTA ref="menuCtaRef" :to="props.data?.cta" :theme="ctaTheme" class="app-menu__cta">
-              {{ props.data?.cta?.text ?? 'Contacter un conseiller' }}
+            <AtomsCTA ref="menuCtaRef" :to="settings?.contactLink" :theme="ctaTheme" class="app-menu__cta">
+              {{ settings?.contactLink?.text }}
             </AtomsCTA>
           </div>
         </div>

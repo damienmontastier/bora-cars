@@ -3,25 +3,17 @@ import { useEventBus } from '@vueuse/core'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
-interface HeroLink {
-  type: 'external' | 'email' | 'phone' | 'internal'
-  text?: string
-  url?: string
-  email?: string
-  phone?: string
-}
-
 interface HeroData {
   heading?: string
   tagline?: string
   subtext?: string
-  cta?: HeroLink
 }
 
 interface Props { data: HeroData | null }
 
 const props = defineProps<Props>()
 
+const settings = useSettings()
 const heroCTABus = useEventBus('hero-cta')
 const { getTargetRect } = useMenuCtaSync()
 
@@ -212,8 +204,8 @@ onUnmounted(() => {
             {{ data.subtext }}
           </TextsP2>
 
-          <AtomsCTA v-if="data?.cta?.text" ref="ctaRef" theme="orange" class="app-elements-hero__cta" :to="data.cta">
-            {{ data.cta.text }}
+          <AtomsCTA v-if="settings?.contactLink?.text" ref="ctaRef" theme="orange" class="app-elements-hero__cta" :to="settings.contactLink">
+            {{ settings.contactLink.text }}
           </AtomsCTA>
         </div>
       </div>

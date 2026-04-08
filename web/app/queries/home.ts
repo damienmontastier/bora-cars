@@ -28,7 +28,6 @@ export interface HomepageData {
     heading?: string
     tagline?: string
     subtext?: string
-    cta?: SanityLink
   } | null
   serviceCards: {
     cards: ServiceCard[]
@@ -37,7 +36,6 @@ export interface HomepageData {
     eyebrow?: string
     heading?: string
     subtext?: string
-    cta?: SanityLink
   } | null
   process: {
     steps: Array<{ _key: string, title: string, description?: string }>
@@ -48,8 +46,7 @@ export const HOMEPAGE_QUERY = `*[_type == "homepage"][0]{
   "hero": modules[_type == "hero"][0]{
     heading,
     tagline,
-    subtext,
-    cta{ type, text, url, email, phone }
+    subtext
   },
   "serviceCards": modules[_type == "serviceCards"][0]{
     cards[]{
@@ -64,8 +61,7 @@ export const HOMEPAGE_QUERY = `*[_type == "homepage"][0]{
   "pitch": modules[_type == "pitch"][0]{
     eyebrow,
     heading,
-    subtext,
-    cta{ type, text, url, email, phone }
+    subtext
   },
   "process": modules[_type == "process"][0]{
     steps[]{_key, title, description}

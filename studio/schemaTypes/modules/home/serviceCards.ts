@@ -10,8 +10,9 @@ export const serviceCardsType = defineType({
   fields: [
     defineField({
       name: 'cards',
-      title: 'Cards',
+      title: 'Cartes de service',
       type: 'array',
+      description: 'Chaque carte représente un service ou une catégorie de véhicules. Faites glisser pour réorganiser.',
       validation: (Rule) => Rule.required().min(1),
       components: { input: GridMakerInput },
       of: [
@@ -20,31 +21,33 @@ export const serviceCardsType = defineType({
           fields: [
             defineField({
               name: 'media',
-              title: 'Media',
+              title: 'Média',
               type: 'customMedia',
               validation: (Rule) => Rule.required(),
             }),
             defineField({
               name: 'categoryLabel',
-              title: 'Category label',
+              title: 'Catégorie',
               type: 'string',
+              description: 'Ex: "Citadines", "SUV Premium"…',
               validation: (Rule) => Rule.required().max(20),
             }),
             defineField({
               name: 'subtitle',
-              title: 'Subtitle',
+              title: 'Sous-titre',
               type: 'string',
               validation: (Rule) => Rule.max(30),
             }),
             defineField({
               name: 'url',
-              title: 'URL',
+              title: 'URL de destination',
               type: 'url',
+              description: 'Lien vers lequel renvoie la carte au clic',
               validation: (Rule) => Rule.required(),
             }),
             defineField({
               name: 'grid',
-              title: 'Position grille',
+              title: 'Position dans la grille',
               type: 'object',
               hidden: true,
               fields: [
@@ -65,7 +68,7 @@ export const serviceCardsType = defineType({
   preview: {
     select: { cards: 'cards' },
     prepare({ cards }) {
-      return { title: 'Service Cards', subtitle: `${cards?.length ?? 0} cards` }
+      return { title: 'Service Cards', subtitle: `${cards?.length ?? 0} cartes` }
     },
   },
 })

@@ -9,7 +9,6 @@ export interface MenuLocation {
 export interface MenuData {
   menuLabel?: string
   closeLabel?: string
-  cta?: SanityLink
   links?: SanityLink[]
   locations?: MenuLocation[]
 }
@@ -17,7 +16,6 @@ export interface MenuData {
 export const MENU_QUERY = `*[_type == "menu"][0]{
   menuLabel,
   closeLabel,
-  cta,
   links[],
   "locations": locations[]->{city}
 }`

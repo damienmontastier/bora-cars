@@ -5,6 +5,7 @@ import { homepageType } from './singletons/homepage'
 import { footerType } from './singletons/footer'
 import { menuType } from './singletons/menu'
 import { proprietaireType } from './singletons/proprietaire'
+import { settingsType } from './singletons/settings'
 
 // Documents
 import { locationType } from './documents/location'
@@ -28,6 +29,7 @@ export const schemaTypes: SchemaTypeDefinition[] = [
   footerType,
   menuType,
   proprietaireType,
+  settingsType,
 
   // Documents
   locationType,

@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import type { MenuData } from '~/queries/menu'
 import { MENU_QUERY } from '~/queries/menu'
+import type { SettingsData } from '~/queries/settings'
+import { SETTINGS_QUERY } from '~/queries/settings'
 
 const appStore = useAppStore()
 const { fontsLoaded } = toRefs(appStore)
@@ -19,12 +21,18 @@ watch(fontsReady, (ready) => {
   }
 })
 
-const { data: menu } = await useSanityQuery<MenuData>(MENU_QUERY)
+const sanity = useSanity()
+const settings = useSettings()
 
-const lenis = useLenis()
+const [{ data: menu }, settingsData] = await Promise.all([
+  useSanityQuery<MenuData>(MENU_QUERY),
+  sanity.fetch<SettingsData>(SETTINGS_QUERY),
+])
+
+settings.value = settingsData
 
 function onBeforeEnter() {
-  lenis.value?.scrollTo(0, { immediate: true, force: true })
+  window.lenis?.scrollTo(0, { immediate: true, force: true })
 }
 </script>
 

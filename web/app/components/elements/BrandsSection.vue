@@ -30,6 +30,8 @@ const brandsRight = [
   { name: '50+', image: '/img/placeholder/brands/collection.jpg' },
 ]
 
+const settings = useSettings()
+
 const rootRef = ref<HTMLElement | null>(null)
 const hoveredBrand = ref<string | null>(null)
 let ctx: gsap.Context | null = null
@@ -169,8 +171,8 @@ onUnmounted(() => {
           Nous orchestrons l'ensemble de la prestation pour vous garantir une expérience fluide, précise et sans compromis.
         </TextsH3>
 
-        <AtomsCTA theme="white" :tiret-after="0">
-          Contacter un conseiller
+        <AtomsCTA v-if="settings?.contactLink?.text" theme="white" :tiret-after="0" :to="settings.contactLink">
+          {{ settings.contactLink.text }}
         </AtomsCTA>
       </div>
     </div>

@@ -8,12 +8,34 @@ export const footerType = defineType({
   title: TITLE,
   type: 'document',
   icon: ThListIcon,
+  fieldsets: [
+    {
+      name: 'contact',
+      title: 'Colonne Contact',
+      options: { collapsible: true, collapsed: false },
+    },
+    {
+      name: 'sitemap',
+      title: 'Colonne Sitemap',
+      options: { collapsible: true, collapsed: false },
+    },
+    {
+      name: 'socials',
+      title: 'Colonne Réseaux sociaux',
+      options: { collapsible: true, collapsed: false },
+    },
+    {
+      name: 'legal',
+      title: 'Mentions légales',
+      options: { collapsible: true, collapsed: false },
+    },
+  ],
   fields: [
-    // --- Colonne Contact ---
     defineField({
       name: 'contactTitle',
-      title: 'Titre colonne Contact',
+      title: 'Titre',
       type: 'string',
+      fieldset: 'contact',
       initialValue: 'Contact',
       validation: (Rule) => Rule.required(),
     }),
@@ -21,6 +43,8 @@ export const footerType = defineType({
       name: 'locations',
       title: 'Lieux',
       type: 'array',
+      fieldset: 'contact',
+      description: 'Agences affichées dans la colonne Contact',
       of: [
         defineArrayMember({
           type: 'reference',
@@ -31,8 +55,9 @@ export const footerType = defineType({
     defineField({
       name: 'contactLinks',
       title: 'Liens de contact',
-      description: 'Email, téléphone, ou tout autre lien de contact',
       type: 'array',
+      fieldset: 'contact',
+      description: 'Email, téléphone, ou tout autre lien de contact',
       of: [
         defineArrayMember({
           type: 'customLink',
@@ -41,18 +66,20 @@ export const footerType = defineType({
       ],
     }),
 
-    // --- Colonne Sitemap ---
     defineField({
       name: 'sitemapTitle',
-      title: 'Titre colonne Sitemap',
+      title: 'Titre',
       type: 'string',
+      fieldset: 'sitemap',
       initialValue: 'Sitemap',
       validation: (Rule) => Rule.required(),
     }),
     defineField({
       name: 'sitemap',
-      title: 'Liens sitemap',
+      title: 'Liens',
       type: 'array',
+      fieldset: 'sitemap',
+      description: 'Pages principales du site',
       of: [
         defineArrayMember({
           type: 'customLink',
@@ -61,18 +88,20 @@ export const footerType = defineType({
       ],
     }),
 
-    // --- Colonne Réseaux sociaux ---
     defineField({
       name: 'socialsTitle',
-      title: 'Titre colonne Réseaux sociaux',
+      title: 'Titre',
       type: 'string',
+      fieldset: 'socials',
       initialValue: 'Socials',
       validation: (Rule) => Rule.required(),
     }),
     defineField({
       name: 'socials',
-      title: 'Liens réseaux sociaux',
+      title: 'Liens',
       type: 'array',
+      fieldset: 'socials',
+      description: 'Liens vers les réseaux sociaux (Instagram, LinkedIn…)',
       of: [
         defineArrayMember({
           type: 'customLink',
@@ -81,11 +110,11 @@ export const footerType = defineType({
       ],
     }),
 
-    // --- Légal ---
     defineField({
       name: 'legalLink',
       title: 'Lien mentions légales',
       type: 'customLink',
+      fieldset: 'legal',
       options: { enableText: true },
     }),
   ],

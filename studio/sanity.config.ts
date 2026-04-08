@@ -4,7 +4,7 @@ import { visionTool } from '@sanity/vision'
 import { linkField } from 'sanity-plugin-link-field'
 import { schemaTypes } from './schemaTypes'
 
-const SINGLETONS = new Set(['homepage', 'footer', 'menu', 'proprietaire'])
+const SINGLETONS = new Set(['homepage', 'footer', 'menu', 'proprietaire', 'settings'])
 
 export default defineConfig({
   name: 'default',
@@ -51,6 +51,14 @@ export default defineConfig({
                 S.document()
                   .schemaType('proprietaire')
                   .documentId('proprietaire'),
+              ),
+            S.listItem()
+              .title('Paramètres')
+              .id('settings')
+              .child(
+                S.document()
+                  .schemaType('settings')
+                  .documentId('settings'),
               ),
             S.divider(),
             S.documentTypeListItem('location').title('Lieux'),

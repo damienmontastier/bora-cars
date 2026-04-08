@@ -8,34 +8,48 @@ export const menuType = defineType({
   title: TITLE,
   type: 'document',
   icon: MenuIcon,
+  fieldsets: [
+    {
+      name: 'labels',
+      title: 'Labels du bouton burger',
+      options: { collapsible: true, collapsed: false },
+    },
+    {
+      name: 'navigation',
+      title: 'Navigation',
+      options: { collapsible: true, collapsed: false },
+    },
+    {
+      name: 'locations',
+      title: 'Emplacements',
+      description: 'Agences affichées en bas du panneau de navigation',
+      options: { collapsible: true, collapsed: false },
+    },
+  ],
   fields: [
-    // Labels du bouton burger
     defineField({
       name: 'menuLabel',
-      title: 'Label "Menu"',
+      title: 'Label "Ouvrir"',
       type: 'string',
+      fieldset: 'labels',
+      description: 'Texte affiché sur le bouton pour ouvrir le menu',
       initialValue: 'Menu',
     }),
     defineField({
       name: 'closeLabel',
-      title: 'Label "Close"',
+      title: 'Label "Fermer"',
       type: 'string',
+      fieldset: 'labels',
+      description: 'Texte affiché sur le bouton pour fermer le menu',
       initialValue: 'Close',
     }),
 
-    // CTA dans la barre du menu
-    defineField({
-      name: 'cta',
-      title: 'CTA',
-      type: 'customLink',
-      options: { enableText: true },
-    }),
-
-    // Liens de navigation dans le panel
     defineField({
       name: 'links',
-      title: 'Liens de navigation',
+      title: 'Liens',
       type: 'array',
+      fieldset: 'navigation',
+      description: 'Pages accessibles depuis le panneau de navigation',
       of: [
         defineArrayMember({
           type: 'customLink',
@@ -44,11 +58,11 @@ export const menuType = defineType({
       ],
     }),
 
-    // Lieux affichés en bas du panel
     defineField({
       name: 'locations',
       title: 'Lieux',
       type: 'array',
+      fieldset: 'locations',
       of: [
         defineArrayMember({
           type: 'reference',

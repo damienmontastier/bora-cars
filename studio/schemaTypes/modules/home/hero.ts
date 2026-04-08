@@ -6,38 +6,55 @@ export const heroType = defineType({
   title: 'Hero',
   type: 'object',
   icon: ImagesIcon,
+  fieldsets: [
+    {
+      name: 'media',
+      title: 'Média',
+      options: { collapsible: true, collapsed: false },
+    },
+    {
+      name: 'content',
+      title: 'Contenu',
+      options: { collapsible: true, collapsed: false },
+    },
+    {
+      name: 'cta',
+      title: 'Appel à l\'action',
+      options: { collapsible: true, collapsed: false },
+    },
+  ],
   fields: [
     defineField({
       name: 'backgroundMedia',
-      title: 'Background media',
+      title: 'Média de fond',
       type: 'customMedia',
+      fieldset: 'media',
       validation: (Rule) => Rule.required(),
     }),
+
     defineField({
       name: 'heading',
-      title: 'Heading',
+      title: 'Titre principal',
       type: 'string',
+      fieldset: 'content',
       validation: (Rule) => Rule.required().max(65),
     }),
     defineField({
       name: 'tagline',
       title: 'Tagline',
       type: 'text',
+      fieldset: 'content',
       rows: 3,
       validation: (Rule) => Rule.required().max(160),
     }),
+
     defineField({
       name: 'subtext',
-      title: 'Subtext',
-      description: 'Texte affiché au-dessus du CTA',
+      title: 'Texte au-dessus du CTA',
       type: 'string',
+      fieldset: 'cta',
+      description: 'Courte phrase affichée juste au-dessus du bouton. Le bouton lui-même est défini dans Paramètres → Global.',
       validation: (Rule) => Rule.max(80),
-    }),
-    defineField({
-      name: 'cta',
-      title: 'CTA',
-      type: 'customLink',
-      options: { enableText: true },
     }),
   ],
   preview: {
