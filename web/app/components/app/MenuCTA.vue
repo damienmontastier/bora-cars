@@ -3,19 +3,25 @@ const appStore = useAppStore()
 const { menuTheme, menuOpen, menuAnimating } = toRefs(appStore)
 
 function onClick() {
-  if (menuAnimating.value) return
+  if (menuAnimating.value)
+    return
   menuOpen.value = !menuOpen.value
 }
 
-const themeColors = computed(() => ({
-  white: { icon: 'beige-100', text: 'beige-100' },
-  orange: { icon: 'orange-100', text: 'orange-100' },
-  black: { icon: 'black-100', text: 'black-100' },
-}[menuTheme.value]))
+const themeColors = computed(() => {
+  if (menuTheme.value === 'white' && menuOpen.value)
+    return { icon: 'black-100', text: 'black-100' }
+
+  return {
+    white: { icon: 'beige-100', text: 'beige-100' },
+    orange: { icon: 'orange-100', text: 'orange-100' },
+    black: { icon: 'black-100', text: 'black-100' },
+  }[menuTheme.value]
+})
 </script>
 
 <template>
-  <UtilsBaseLink class="app-menu-cta" :class="`app-menu-cta--${menuTheme}`" @click="onClick">
+  <UtilsBaseLink class="app-menu-cta" :class="[{ 'is-open': menuOpen }, `app-menu-cta--${menuTheme}`]" @click="onClick">
     <div class="app-menu-cta__inner">
       <SvgIconBurger class="app-menu-cta__icon" :color="themeColors.icon" :open="menuOpen" />
 
@@ -57,7 +63,11 @@ const themeColors = computed(() => ({
     border-color: var(--c-black-20);
   }
 
-  &:hover {
+  &.is-open {
+    border-color: transparent;
+  }
+
+  &:hover:not(.is-open) {
     &.app-menu-cta--white {
       border-color: var(--c-beige-100);
     }

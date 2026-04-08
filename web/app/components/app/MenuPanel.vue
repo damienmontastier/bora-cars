@@ -4,6 +4,8 @@ import gsap from 'gsap'
 const appStore = useAppStore()
 const { menuOpen, menuTheme } = toRefs(appStore)
 
+const panelTextColor = computed(() => menuTheme.value === 'white' ? 'black' : menuTheme.value)
+
 const backgroundRef = ref(null)
 const navRef = ref(null)
 const itemsRef = ref(null)
@@ -49,7 +51,7 @@ onUnmounted(() => {
         <div class="app-menu-panel__nav-mask">
           <div class="app-menu-panel__nav-inner">
             <UtilsBaseLink>
-              <TextsCTAXL :color="menuTheme">
+              <TextsCTAXL :color="panelTextColor">
                 Propriétaire
               </TextsCTAXL>
             </UtilsBaseLink>
@@ -58,7 +60,7 @@ onUnmounted(() => {
         <div class="app-menu-panel__nav-mask">
           <div class="app-menu-panel__nav-inner">
             <UtilsBaseLink>
-              <TextsCTAXL :color="menuTheme">
+              <TextsCTAXL :color="panelTextColor">
                 Professionnel
               </TextsCTAXL>
             </UtilsBaseLink>
@@ -67,7 +69,7 @@ onUnmounted(() => {
         <div class="app-menu-panel__nav-mask">
           <div class="app-menu-panel__nav-inner">
             <UtilsBaseLink>
-              <TextsCTAXL :color="menuTheme">
+              <TextsCTAXL :color="panelTextColor">
                 Particulier
               </TextsCTAXL>
             </UtilsBaseLink>
@@ -77,7 +79,7 @@ onUnmounted(() => {
         <div class="app-menu-panel__nav-mask">
           <div class="app-menu-panel__nav-inner">
             <UtilsBaseLink>
-              <TextsCTAXL :color="menuTheme">
+              <TextsCTAXL :color="panelTextColor">
                 Contact
               </TextsCTAXL>
             </UtilsBaseLink>
@@ -86,19 +88,15 @@ onUnmounted(() => {
       </div>
       <div class="app-menu-panel__nav-mask">
         <div class="app-menu-panel__nav-inner app-menu-panel__nav__bottom">
-          <UtilsBaseLink>
-            <TextsCTA :color="menuTheme">
-              Génève
-            </TextsCTA>
-          </UtilsBaseLink>
+          <AtomsCTASecondary :theme="panelTextColor">
+            Génève
+          </AtomsCTASecondary>
 
-          <div class="app-menu-panel__nav__bottom-divider" :style="{ background: menuTheme }" />
+          <div class="app-menu-panel__nav__bottom-divider" :style="{ background: panelTextColor }" />
 
-          <UtilsBaseLink>
-            <TextsCTA :color="menuTheme">
-              Paris
-            </TextsCTA>
-          </UtilsBaseLink>
+          <AtomsCTASecondary :theme="panelTextColor">
+            Paris
+          </AtomsCTASecondary>
         </div>
       </div>
     </div>
@@ -138,7 +136,7 @@ onUnmounted(() => {
   &__items {
     display: flex;
     flex-direction: column;
-    gap: desktop-vw(16px);
+    gap: 0;
   }
 
   &__nav-mask {
@@ -149,6 +147,7 @@ onUnmounted(() => {
     display: block;
     will-change: transform;
     transition: opacity 0.35s var(--ease-out-cubic);
+    padding: desktop-vw(10px) 0;
   }
 
   &__nav__bottom {
@@ -162,7 +161,7 @@ onUnmounted(() => {
     height: 2px;
   }
 
-  &__nav:has(.app-menu-panel__nav-inner:hover) {
+  &__items:has(.app-menu-panel__nav-inner:hover) {
     .app-menu-panel__nav-inner {
       opacity: 0.2;
 

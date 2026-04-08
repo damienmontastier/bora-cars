@@ -7,6 +7,8 @@ import { useLenis } from 'lenis/vue'
 const appStore = useAppStore()
 const { menuTheme, menuOpen, menuAnimating } = toRefs(appStore)
 
+const ctaTheme = computed(() => menuOpen.value && menuTheme.value === 'white' ? 'black' : menuTheme.value)
+
 const lenis = useLenis()
 
 watch(menuOpen, (open) => {
@@ -266,7 +268,7 @@ onUnmounted(() => {
           <div ref="mainRef" class="app-menu__main" :class="{ 'is-open': menuOpen }">
             <AppMenuCTA ref="menuBtnRef" class="app-menu__btn" />
 
-            <AtomsCTA ref="menuCtaRef" :theme="menuTheme" class="app-menu__cta">
+            <AtomsCTA ref="menuCtaRef" :theme="ctaTheme" class="app-menu__cta">
               Contacter un conseiller
             </AtomsCTA>
           </div>
