@@ -3,10 +3,10 @@ import gsap from 'gsap'
 import { useLenis } from 'lenis/vue'
 
 const items = [
-  { number: '(A)', label: 'Prise de contact' },
-  { number: '(B)', label: 'Accompagnement & sélection' },
-  { number: '(C)', label: 'Validation' },
-  { number: '(D)', label: 'Confirmation' },
+  { number: '(A)', label: 'Prise de contact', description: 'Vous nous exposez votre besoin et le contexte.' },
+  { number: '(B)', label: 'Accompagnement & sélection', description: 'Gestion administrative' },
+  { number: '(C)', label: 'Validation', description: 'Maîtrise de l’usage & du contexte' },
+  { number: '(D)', label: 'Confirmation', description: 'Suivi & restitution du véhicule' },
 ]
 
 const rootRef = ref<HTMLElement | null>(null)
@@ -20,7 +20,7 @@ onMounted(async () => {
   if (lenis.value && rootRef.value) {
     snap = new LenisSnap(lenis.value, {
       type: 'proximity',
-      distanceThreshold: '15%',
+      distanceThreshold: '10%',
       debounce: 650,
     })
 
@@ -36,7 +36,13 @@ onMounted(async () => {
     items.forEach((item) => {
       const bg = item.querySelector<HTMLElement>('.process-step__bg')
       const bgContent = item.querySelector<HTMLElement>('.process-step__bg-content')
+      const labels = item.querySelectorAll<HTMLElement>('.process-step__label')
+      const descriptions = item.querySelectorAll<HTMLElement>('.process-step__description')
 
+      gsap.set(descriptions, { yPercent: 100 })
+      gsap.set(labels, { yPercent: 0 })
+
+      // Background mask sweep
       const tl = gsap.timeline({
         scrollTrigger: {
           trigger: item,
@@ -48,6 +54,40 @@ onMounted(async () => {
 
       tl.fromTo(bg, { yPercent: -100 }, { yPercent: 100, ease: 'none' }, 0)
       tl.fromTo(bgContent, { yPercent: 100 }, { yPercent: -100, ease: 'none' }, 0)
+
+      // Label ↔ description swap
+      let swapTl: gsap.core.Timeline | null = null
+      let leaving = false
+
+      const showDescription = () => {
+        if (leaving)
+          return
+        swapTl?.kill()
+        swapTl = gsap.timeline()
+          .to(labels, { yPercent: -100, duration: 0.35, ease: 'power2.in' }, 0)
+          .fromTo(descriptions, { yPercent: 100 }, { yPercent: 0, duration: 0.5, ease: 'power2.out' }, 0.25)
+      }
+
+      const showLabel = () => {
+        leaving = true
+        swapTl?.kill()
+        swapTl = gsap.timeline()
+          .to(descriptions, { yPercent: 100, duration: 0.3, ease: 'power2.in' }, 0)
+          .to(labels, { yPercent: 0, duration: 0.4, ease: 'power2.out' }, 0.2)
+          .call(() => { leaving = false })
+      }
+
+      gsap.timeline({
+        scrollTrigger: {
+          trigger: item,
+          start: 'center-=25% center',
+          end: 'center+=25% center',
+          onEnter: showDescription,
+          onEnterBack: showDescription,
+          onLeave: showLabel,
+          onLeaveBack: showLabel,
+        },
+      })
     })
   }, rootRef.value)
 })
@@ -66,22 +106,32 @@ onUnmounted(() => {
         :key="step.number"
         class="process-step"
       >
-        <!-- Dim text, always visible beneath -->
         <TextsH3 class="process-step__number" color="orange-100">
           {{ step.number }}
         </TextsH3>
-        <TextsH3 tag="span" class="process-step__label" color="orange-100">
-          {{ step.label }}
-        </TextsH3>
+
+        <div class="process-step__main">
+          <TextsH3 tag="span" class="process-step__label" color="orange-100">
+            {{ step.label }}
+          </TextsH3>
+          <TextsH3 tag="span" class="process-step__description" color="orange-100">
+            {{ step.description }}
+          </TextsH3>
+        </div>
 
         <div aria-hidden="true" class="process-step__bg">
           <div class="process-step__bg-content">
             <TextsH3 class="process-step__number" color="beige-100">
               {{ step.number }}
             </TextsH3>
-            <TextsH3 tag="span" class="process-step__label" color="beige-100">
-              {{ step.label }}
-            </TextsH3>
+            <div class="process-step__main">
+              <TextsH3 tag="span" class="process-step__label" color="beige-100">
+                {{ step.label }}
+              </TextsH3>
+              <TextsH3 tag="span" class="process-step__description" color="beige-100">
+                {{ step.description }}
+              </TextsH3>
+            </div>
           </div>
         </div>
       </li>
@@ -149,6 +199,23 @@ onUnmounted(() => {
 
   &__number {
     flex-shrink: 0;
+  }
+
+  &__main {
+    position: relative;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  &__label,
+  &__description {
+    display: block;
+  }
+
+  &__description {
+    position: absolute;
+    top: 0;
+    left: 0;
   }
 }
 </style>
