@@ -160,7 +160,7 @@ onUnmounted(() => {
 <style lang="scss">
 .app-elements-process-steps {
   width: 100%;
-  padding: 0 desktop-vw(24px);
+  padding: desktop-vw(24px) desktop-vw(24px);
 
   &__list {
     width: 100%;

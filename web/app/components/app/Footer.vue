@@ -42,16 +42,16 @@ function scrollToTop() {
         <div class="app-footer__column">
           <span class="app-footer__column-title P2">Sitemap</span>
           <div class="app-footer__column-items">
-            <AtomsCTASecondary theme="white" to="/proprietaire" class="app-footer__link CTA-TEXT">
+            <AtomsCTASecondary theme="white" to="/" class="app-footer__link CTA-TEXT">
               Propriétaire
             </AtomsCTASecondary>
-            <AtomsCTASecondary theme="white" to="/professionnel" class="app-footer__link CTA-TEXT">
+            <AtomsCTASecondary theme="white" to="/" class="app-footer__link CTA-TEXT">
               Professionnel
             </AtomsCTASecondary>
-            <AtomsCTASecondary theme="white" to="/particulier" class="app-footer__link CTA-TEXT">
+            <AtomsCTASecondary theme="white" to="/" class="app-footer__link CTA-TEXT">
               Particulier
             </AtomsCTASecondary>
-            <AtomsCTASecondary theme="white" to="/contact" class="app-footer__link CTA-TEXT">
+            <AtomsCTASecondary theme="white" to="/" class="app-footer__link CTA-TEXT">
               Contact
             </AtomsCTASecondary>
           </div>
@@ -79,7 +79,7 @@ function scrollToTop() {
 
     <div class="app-footer__bottom">
       <span class="app-footer__copyright CTA-TEXT">© Bora Cars {{ currentYear }}</span>
-      <AtomsCTASecondary theme="white" to="/mentions-legales" class="app-footer__link CTA-TEXT">
+      <AtomsCTASecondary theme="white" to="/" class="app-footer__link CTA-TEXT">
         Mentions légales
       </AtomsCTASecondary>
       <AtomsCTASecondary theme="white" class="app-footer__link CTA-TEXT" @click="scrollToTop">

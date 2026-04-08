@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { useEventListener } from '@vueuse/core'
 import gsap from 'gsap'
 
 const brandsLeft = [
@@ -30,70 +29,64 @@ const brandsRight = [
   { name: '50+', image: '/img/placeholder/brands/collection.jpg' },
 ]
 
-const allBrands = [...brandsLeft, ...brandsRight]
-
 const rootRef = ref<HTMLElement | null>(null)
-const cursorImageRef = ref<{ $el: HTMLElement } | null>(null)
 const hoveredBrand = ref<string | null>(null)
-
-const cursorSrc = computed(
-  () => allBrands.find(b => b.name === hoveredBrand.value)?.image ?? '',
-)
-
-let setX: gsap.QuickToFunc | null = null
-let setY: gsap.QuickToFunc | null = null
-let fade: gsap.core.Tween | null = null
-let stopFollow: (() => void) | null = null
-let firstEnter = false
 let ctx: gsap.Context | null = null
-
-function align(e: MouseEvent) {
-  if (firstEnter) {
-    setX?.(e.clientX, e.clientX)
-    setY?.(e.clientY, e.clientY)
-    firstEnter = false
-  }
-  else {
-    setX?.(e.clientX)
-    setY?.(e.clientY)
-  }
-}
-
-function onBrandEnter(name: string, e: MouseEvent) {
-  hoveredBrand.value = name
-  firstEnter = true
-  fade?.play()
-  stopFollow = useEventListener(document, 'mousemove', align)
-  align(e)
-}
-
-function onBrandLeave() {
-  hoveredBrand.value = null
-  fade?.reverse()
-}
 
 onMounted(async () => {
   await nextTick()
 
   ctx = gsap.context(() => {
-    const image = cursorImageRef.value?.$el
-    if (!image)
-      return
+    let firstEnter = false
 
-    gsap.set(image, { xPercent: -50, yPercent: -50 })
+    gsap.utils.toArray<HTMLElement>('.brand-item').forEach((el) => {
+      const image = el.querySelector<HTMLElement>('.brand-item__cursor')
+      if (!image)
+        return
 
-    setX = gsap.quickTo(image, 'x', { duration: 0.4, ease: 'power3' })
-    setY = gsap.quickTo(image, 'y', { duration: 0.4, ease: 'power3' })
+      gsap.set(image, { xPercent: -50, yPercent: -50 })
 
-    fade = gsap.to(image, {
-      autoAlpha: 1,
-      ease: 'none',
-      paused: true,
-      duration: 0.1,
-      onReverseComplete: () => {
-        stopFollow?.()
-        stopFollow = null
-      },
+      const setX = gsap.quickTo(image, 'x', { duration: 0.4, ease: 'power3' })
+      const setY = gsap.quickTo(image, 'y', { duration: 0.4, ease: 'power3' })
+
+      function align(e: MouseEvent) {
+        if (firstEnter) {
+          setX(e.clientX, e.clientX)
+          setY(e.clientY, e.clientY)
+          firstEnter = false
+        }
+        else {
+          setX(e.clientX)
+          setY(e.clientY)
+        }
+      }
+
+      const startFollow = () => document.addEventListener('mousemove', align)
+      const stopFollow = () => document.removeEventListener('mousemove', align)
+
+      const brandName = el.dataset.brand ?? null
+
+      const fade = gsap.to(image, {
+        autoAlpha: 1,
+        ease: 'none',
+        paused: true,
+        duration: 0.1,
+        onReverseComplete: () => {
+          stopFollow()
+          if (hoveredBrand.value === brandName)
+            hoveredBrand.value = null
+        },
+      })
+
+      el.addEventListener('mouseenter', (e) => {
+        hoveredBrand.value = el.dataset.brand ?? null
+        firstEnter = true
+        fade.play()
+        startFollow()
+        align(e as MouseEvent)
+      })
+
+      el.addEventListener('mouseleave', () => fade.reverse())
     })
   }, rootRef.value ?? undefined)
 })
@@ -105,22 +98,19 @@ onUnmounted(() => {
 
 <template>
   <section ref="rootRef" v-menu-theme="'white'" class="app-elements-brands-section">
-    <ElementsMedia
-      ref="cursorImageRef"
-      class="app-elements-brands-section__cursor"
-      :src="cursorSrc"
-    />
-
     <div class="app-elements-brands-section__inner">
       <ul class="app-elements-brands-section__list">
         <li
           v-for="brand in brandsLeft"
           :key="brand.name"
           class="brand-item"
+          :data-brand="brand.name"
           :class="{ 'is-hovered': hoveredBrand === brand.name }"
-          @mouseenter="(e) => onBrandEnter(brand.name, e)"
-          @mouseleave="onBrandLeave"
         >
+          <ElementsMedia
+            class="brand-item__cursor"
+            :src="brand.image"
+          />
           <TextsH3 :selectable="false" :color="hoveredBrand === brand.name ? 'orange' : 'beige-100'">
             {{ brand.name }}
           </TextsH3>
@@ -134,10 +124,13 @@ onUnmounted(() => {
           v-for="brand in brandsRight"
           :key="brand.name"
           class="brand-item"
+          :data-brand="brand.name"
           :class="{ 'is-hovered': hoveredBrand === brand.name }"
-          @mouseenter="(e) => onBrandEnter(brand.name, e)"
-          @mouseleave="onBrandLeave"
         >
+          <ElementsMedia
+            class="brand-item__cursor"
+            :src="brand.image"
+          />
           <TextsH3 :selectable="false" :color="hoveredBrand === brand.name ? 'orange' : 'beige-100'">
             {{ brand.name }}
           </TextsH3>
@@ -176,18 +169,6 @@ onUnmounted(() => {
 .app-elements-brands-section {
   width: 100%;
   background: var(--c-black-100);
-
-  &__cursor {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: desktop-vw(350px);
-    height: desktop-vw(350px);
-    z-index: 9;
-    opacity: 0;
-    visibility: hidden;
-    pointer-events: none;
-  }
 
   &__inner {
     display: flex;
@@ -244,9 +225,22 @@ onUnmounted(() => {
 }
 
 .brand-item {
+  position: relative;
   cursor: pointer;
 
-  &.is-hovered {
+  &__cursor {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: desktop-vw(350px);
+    height: desktop-vw(350px);
+    z-index: 9;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  &.is-hovered .H3 {
     position: relative;
     z-index: 10;
   }
