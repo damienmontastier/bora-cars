@@ -2,12 +2,22 @@
 import gsap from 'gsap'
 import { useLenis } from 'lenis/vue'
 
-const items = [
-  { number: '(A)', label: 'Prise de contact', description: 'Vous nous exposez votre besoin et le contexte.' },
-  { number: '(B)', label: 'Accompagnement & sélection', description: 'Gestion administrative' },
-  { number: '(C)', label: 'Validation', description: 'Maîtrise de l’usage & du contexte' },
-  { number: '(D)', label: 'Confirmation', description: 'Suivi & restitution du véhicule' },
-]
+interface ProcessStep {
+  _key: string
+  title: string
+  description?: string
+}
+
+interface Props { steps: ProcessStep[] }
+
+const props = defineProps<Props>()
+
+const items = computed(() =>
+  props.steps.map((step, index) => ({
+    ...step,
+    number: `(${String.fromCharCode(65 + index)})`,
+  })),
+)
 
 // 'click' = snap au click uniquement | 'scroll' = snap au scroll + click
 const SNAP_MODE: 'click' | 'scroll' = 'click'
@@ -120,7 +130,7 @@ onUnmounted(() => {
     <ol class="app-elements-process-steps__list">
       <li
         v-for="(step, index) in items"
-        :key="step.number"
+        :key="step._key"
         class="process-step"
         @click="snapToStep(index)"
       >
@@ -130,7 +140,7 @@ onUnmounted(() => {
 
         <div class="process-step__main">
           <TextsH3 tag="span" :selectable="false" class="process-step__label" color="orange-100">
-            {{ step.label }}
+            {{ step.title }}
           </TextsH3>
           <TextsH3 tag="span" :selectable="false" class="process-step__description" color="orange-100">
             {{ step.description }}
@@ -144,7 +154,7 @@ onUnmounted(() => {
             </TextsH3>
             <div class="process-step__main">
               <TextsH3 tag="span" :selectable="false" class="process-step__label" color="beige-100">
-                {{ step.label }}
+                {{ step.title }}
               </TextsH3>
               <TextsH3 tag="span" :selectable="false" class="process-step__description" color="beige-100">
                 {{ step.description }}

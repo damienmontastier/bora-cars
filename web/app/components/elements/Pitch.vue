@@ -1,21 +1,42 @@
+<script setup lang="ts">
+interface PitchLink {
+  type: 'external' | 'email' | 'phone' | 'internal'
+  text?: string
+  url?: string
+  email?: string
+  phone?: string
+}
+
+interface PitchData {
+  eyebrow?: string
+  heading?: string
+  subtext?: string
+  cta?: PitchLink
+}
+
+interface Props { data: PitchData | null }
+
+defineProps<Props>()
+</script>
+
 <template>
   <div class="app-elements-pitch">
     <div class="app-elements-pitch__top">
-      <TextsP2 color="orange-100">
-        (Clé en main)
+      <TextsP2 v-if="data?.eyebrow" color="orange-100">
+        {{ data.eyebrow }}
       </TextsP2>
-      <TextsH2 color="orange-100">
-        Trouvez le véhicule qu'il vous faut, on s'occupe du reste.
+      <TextsH2 v-if="data?.heading" color="orange-100">
+        {{ data.heading }}
       </TextsH2>
     </div>
 
     <div class="app-elements-pitch__bottom">
-      <TextsP2 color="orange-100">
-        Un conseiller <br> vous répond sous 24h
+      <TextsP2 v-if="data?.subtext" color="orange-100">
+        {{ data.subtext }}
       </TextsP2>
 
-      <AtomsCTA theme="orange">
-        Contacter un conseiller
+      <AtomsCTA v-if="data?.cta?.text" theme="orange" :to="data.cta">
+        {{ data.cta.text }}
       </AtomsCTA>
     </div>
   </div>

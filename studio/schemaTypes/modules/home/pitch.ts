@@ -27,16 +27,10 @@ export const pitchType = defineType({
       validation: (Rule) => Rule.max(60),
     }),
     defineField({
-      name: 'ctaLabel',
-      title: 'CTA label',
-      type: 'string',
-      validation: (Rule) => Rule.required().max(30),
-    }),
-    defineField({
-      name: 'ctaUrl',
-      title: 'CTA URL',
-      type: 'url',
-      validation: (Rule) => Rule.required(),
+      name: 'cta',
+      title: 'CTA',
+      type: 'customLink',
+      options: { enableText: true },
     }),
   ],
   preview: {

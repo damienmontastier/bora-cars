@@ -1,19 +1,28 @@
 <script lang="ts" setup>
+import type { HomepageData } from '~/queries/home'
+import { HOMEPAGE_QUERY } from '~/queries/home'
+
 const appStore = useAppStore()
 const { fontsLoaded } = toRefs(appStore)
+
+const { data: homepage } = await useSanityQuery<HomepageData>(HOMEPAGE_QUERY)
 </script>
 
 <template>
   <main class="page-main">
-    <ElementsHero />
+    <ElementsHero :data="homepage?.hero ?? null" />
 
+    <!-- NOT GOOD -->
     <ElementsServicesCards />
+    <!-- NOT GOOD -->
 
-    <ElementsPitch />
+    <ElementsPitch :data="homepage?.pitch ?? null" />
 
-    <ElementsProcessSteps />
+    <ElementsProcessSteps :steps="homepage?.process?.steps ?? []" />
 
+    <!-- NOT GOOD -->
     <ElementsBrandsSection />
+    <!-- NOT GOOD -->
 
     <!-- <div class="app-debug-wip" style="width: 100%;height: 300vh;background-color: var(--c-beige-20);">
       <TextsH1 v-for="i in 3" :key="i">

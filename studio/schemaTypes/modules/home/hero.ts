@@ -26,6 +26,19 @@ export const heroType = defineType({
       rows: 3,
       validation: (Rule) => Rule.required().max(160),
     }),
+    defineField({
+      name: 'subtext',
+      title: 'Subtext',
+      description: 'Texte affiché au-dessus du CTA',
+      type: 'string',
+      validation: (Rule) => Rule.max(80),
+    }),
+    defineField({
+      name: 'cta',
+      title: 'CTA',
+      type: 'customLink',
+      options: { enableText: true },
+    }),
   ],
   preview: {
     select: { subtitle: 'heading' },

@@ -2,6 +2,10 @@ import type { SchemaTypeDefinition } from 'sanity'
 
 // Singletons
 import { homepageType } from './singletons/homepage'
+import { footerType } from './singletons/footer'
+
+// Documents
+import { locationType } from './documents/location'
 
 // Modules — Home
 import { heroType } from './modules/home/hero'
@@ -14,10 +18,15 @@ import { servicePitchType } from './modules/home/servicePitch'
 // Objects
 import { customImage } from './objects/customImage'
 import { customMedia } from './objects/customMedia'
+import { customLink } from './objects/customLink'
 
 export const schemaTypes: SchemaTypeDefinition[] = [
   // Singletons
   homepageType,
+  footerType,
+
+  // Documents
+  locationType,
 
   // Modules — Home
   heroType,
@@ -30,4 +39,5 @@ export const schemaTypes: SchemaTypeDefinition[] = [
   // Objects
   customImage,
   customMedia,
+  customLink,
 ]

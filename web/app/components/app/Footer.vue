@@ -1,8 +1,10 @@
-<script setup>
+<script setup lang="ts">
 import { useLenis } from 'lenis/vue'
+import { FOOTER_QUERY, type FooterData } from '~/queries/footer'
+
+const { data: footer } = await useSanityQuery<FooterData>(FOOTER_QUERY)
 
 const lenis = useLenis()
-
 const currentYear = new Date().getFullYear()
 
 function scrollToTop() {
@@ -20,57 +22,58 @@ function scrollToTop() {
 
     <div class="app-footer__content">
       <div class="app-footer__columns">
+        <!-- Contact -->
         <div class="app-footer__column">
-          <span class="app-footer__column-title P2">Contact</span>
+          <span class="app-footer__column-title P2">{{ footer?.contactTitle }}</span>
           <div class="app-footer__column-items">
-            <div class="app-footer__cities">
-              <span class="app-footer__city CTA-TEXT">Genève</span>
-              <span class="app-footer__city-separator" />
-              <span class="app-footer__city CTA-TEXT">Paris</span>
+            <div v-if="footer?.locations?.length" class="app-footer__cities">
+              <template v-for="(loc, i) in footer.locations" :key="loc.city">
+                <span class="app-footer__city CTA-TEXT">{{ loc.city }}</span>
+                <span v-if="i < footer.locations.length - 1" class="app-footer__city-separator" />
+              </template>
             </div>
-            <div class="app-footer__contact-info">
-              <AtomsCTASecondary theme="white" to="mailto:contact@boracars.com" class="app-footer__link CTA-TEXT">
-                contact@boracars.com
-              </AtomsCTASecondary>
-              <AtomsCTASecondary theme="white" to="tel:+41615282475" class="app-footer__link CTA-TEXT">
-                +41 (0)6 15 28 24 75
+            <div v-if="footer?.contactLinks?.length" class="app-footer__contact-info">
+              <AtomsCTASecondary
+                v-for="link in footer.contactLinks"
+                :key="link._key"
+                theme="white"
+                :to="link"
+                class="app-footer__link CTA-TEXT"
+              >
+                {{ link.text }}
               </AtomsCTASecondary>
             </div>
           </div>
         </div>
 
+        <!-- Sitemap -->
         <div class="app-footer__column">
-          <span class="app-footer__column-title P2">Sitemap</span>
+          <span class="app-footer__column-title P2">{{ footer?.sitemapTitle }}</span>
           <div class="app-footer__column-items">
-            <AtomsCTASecondary theme="white" to="/proprietaire" class="app-footer__link CTA-TEXT">
-              Propriétaire
-            </AtomsCTASecondary>
-            <AtomsCTASecondary theme="white" to="/" class="app-footer__link CTA-TEXT">
-              Professionnel
-            </AtomsCTASecondary>
-            <AtomsCTASecondary theme="white" to="/" class="app-footer__link CTA-TEXT">
-              Particulier
-            </AtomsCTASecondary>
-            <AtomsCTASecondary theme="white" to="/" class="app-footer__link CTA-TEXT">
-              Contact
+            <AtomsCTASecondary
+              v-for="link in footer?.sitemap"
+              :key="link._key"
+              theme="white"
+              :to="link"
+              class="app-footer__link CTA-TEXT"
+            >
+              {{ link.text }}
             </AtomsCTASecondary>
           </div>
         </div>
 
+        <!-- Socials -->
         <div class="app-footer__column">
-          <span class="app-footer__column-title P2">Socials</span>
+          <span class="app-footer__column-title P2">{{ footer?.socialsTitle }}</span>
           <div class="app-footer__column-items">
-            <AtomsCTASecondary theme="white" to="https://facebook.com" class="app-footer__link CTA-TEXT">
-              Facebook
-            </AtomsCTASecondary>
-            <AtomsCTASecondary theme="white" to="https://instagram.com" class="app-footer__link CTA-TEXT">
-              Instagram
-            </AtomsCTASecondary>
-            <AtomsCTASecondary theme="white" to="https://linkedin.com" class="app-footer__link CTA-TEXT">
-              Linkedin
-            </AtomsCTASecondary>
-            <AtomsCTASecondary theme="white" to="https://tiktok.com" class="app-footer__link CTA-TEXT">
-              TikTok
+            <AtomsCTASecondary
+              v-for="link in footer?.socials"
+              :key="link._key"
+              theme="white"
+              :to="link"
+              class="app-footer__link CTA-TEXT"
+            >
+              {{ link.text }}
             </AtomsCTASecondary>
           </div>
         </div>
@@ -79,8 +82,13 @@ function scrollToTop() {
 
     <div class="app-footer__bottom">
       <span class="app-footer__copyright CTA-TEXT">© Bora Cars {{ currentYear }}</span>
-      <AtomsCTASecondary theme="white" to="/" class="app-footer__link CTA-TEXT">
-        Mentions légales
+      <AtomsCTASecondary
+        v-if="footer?.legalLink?.text"
+        theme="white"
+        :to="footer.legalLink"
+        class="app-footer__link CTA-TEXT"
+      >
+        {{ footer.legalLink.text }}
       </AtomsCTASecondary>
       <AtomsCTASecondary theme="white" class="app-footer__link CTA-TEXT" @click="scrollToTop">
         Back to top

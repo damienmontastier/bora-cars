@@ -1,7 +1,26 @@
-<script setup>
+<script setup lang="ts">
 import { useEventBus } from '@vueuse/core'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
+
+interface HeroLink {
+  type: 'external' | 'email' | 'phone' | 'internal'
+  text?: string
+  url?: string
+  email?: string
+  phone?: string
+}
+
+interface HeroData {
+  heading?: string
+  tagline?: string
+  subtext?: string
+  cta?: HeroLink
+}
+
+interface Props { data: HeroData | null }
+
+const props = defineProps<Props>()
 
 const heroCTABus = useEventBus('hero-cta')
 const { getTargetRect } = useMenuCtaSync()
@@ -12,10 +31,8 @@ const ctaInView = ref(false)
 let st = null
 let currentAnim = null
 let clone = null
-let menuCtaEl = null // cached cross-component ref, set once in onMounted
+let menuCtaEl = null
 
-// Propriétés posées par GSAP sur les enfants (transforms Flip, position, min-width)
-// qu'on doit retirer sans toucher aux styles Vue (:style="{ color: ... }")
 const GSAP_LAYOUT_PROPS = ['transform', 'position', 'top', 'left', 'right', 'bottom', 'min-width', 'width', 'height']
 
 function buildClone(sourceEl) {
@@ -35,7 +52,7 @@ function snapToMenu() {
   currentAnim?.kill()
   currentAnim = null
   heroCTABus.emit('enter:snap')
-  buildClone(heroCta) // nécessaire pour que animateToHero() puisse faire le retour
+  buildClone(heroCta)
   gsap.set(clone, { visibility: 'hidden' })
   gsap.set(menuCtaEl, { opacity: 1 })
   gsap.set(heroCta, { visibility: 'hidden' })
@@ -48,20 +65,13 @@ function animateToMenu() {
 
   currentAnim?.kill()
 
-  // Émettre EN PREMIER — Menu.vue montre le CTA et sauvegarde son rect final
-  // AVANT que Flip.from() applique ses transforms sur mainEl (parent de menuCta).
-  // Flip.from() est synchrone : il applique immédiatement des transforms qui fausseraient
-  // getBoundingClientRect() si on le lisait après l'emit.
   heroCTABus.emit('enter')
 
-  // Clone créé ici pour toujours refléter le DOM courant (après AtomsCTA.init + fonts)
   buildClone(heroCta)
 
   const heroRect = heroCta.getBoundingClientRect()
-  // Rect capturé dans expandMain() avant animation — position layout correcte
   const menuRect = getTargetRect() || menuCtaEl.getBoundingClientRect()
 
-  // Menu CTA à 0 dès le départ — pendant le vol seul le clone est visible, pas de double layer
   gsap.set(menuCtaEl, { opacity: 0 })
   gsap.set(clone, { top: heroRect.top, left: heroRect.left, width: heroRect.width, height: heroRect.height, visibility: 'visible' })
   gsap.set(heroCta, { visibility: 'hidden' })
@@ -88,7 +98,6 @@ function animateToHero() {
 
   currentAnim?.kill()
 
-  // Lire le rect AVANT d'émettre — collapseMain va cacher le CTA (display:none)
   const menuRect = menuCtaEl.getBoundingClientRect()
 
   heroCTABus.emit('leave')
@@ -96,11 +105,8 @@ function animateToHero() {
   const startRect = { top: menuRect.top, left: menuRect.left, width: menuRect.width, height: menuRect.height }
 
   gsap.set(menuCtaEl, { opacity: 0 })
-  // Reset opacity ici (et non dans le onComplete du forward) pour éviter le flash
   gsap.set(clone, { ...startRect, opacity: 1, visibility: 'visible' })
 
-  // Proxy tween: recalculate hero CTA's current viewport position each frame
-  // so the clone tracks the scrolling element and lands exactly on it
   const proxy = { t: 0 }
   currentAnim = gsap.to(proxy, {
     t: 1,
@@ -133,7 +139,6 @@ function onResize() {
   currentAnim?.kill()
   currentAnim = null
 
-  // Snap to correct state with updated coordinates
   if (clone)
     gsap.set(clone, { visibility: 'hidden' })
 
@@ -148,8 +153,6 @@ function onResize() {
 }
 
 onMounted(() => {
-  // Defensive cleanup — on HMR, Menu.vue is not remounted so GSAP inline styles
-  // from the previous lifecycle linger. Reset both elements to their CSS-default state.
   clone?.remove()
   clone = null
   menuCtaEl = document.querySelector('.app-menu__cta')
@@ -200,23 +203,24 @@ onUnmounted(() => {
       </div>
 
       <div class="app-elements-hero__middle">
-        <TextsH1 color="beige-100">
-          Une conciergerie sur mesure.
+        <TextsH1 v-if="data?.heading" color="beige-100">
+          {{ data.heading }}
         </TextsH1>
+
         <div class="app-elements-hero__middle-content">
-          <TextsP2 color="beige-100">
-            Des véhicules d’exception pour des moments uniques.
+          <TextsP2 v-if="data?.subtext" color="beige-100">
+            {{ data.subtext }}
           </TextsP2>
 
-          <AtomsCTA ref="ctaRef" theme="orange" class="app-elements-hero__cta">
-            Contacter un conseiller
+          <AtomsCTA v-if="data?.cta?.text" ref="ctaRef" theme="orange" class="app-elements-hero__cta" :to="data.cta">
+            {{ data.cta.text }}
           </AtomsCTA>
         </div>
       </div>
 
       <div class="app-elements-hero__bottom">
-        <TextsH3 color="beige-100">
-          Nous accompagnons des instants clés personnels ou professionnels, avec un niveau d’exigence où chaque détail compte.
+        <TextsH3 v-if="data?.tagline" color="beige-100">
+          {{ data.tagline }}
         </TextsH3>
       </div>
     </div>

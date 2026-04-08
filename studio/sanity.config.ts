@@ -1,9 +1,10 @@
 import { defineConfig } from 'sanity'
 import { structureTool } from 'sanity/structure'
 import { visionTool } from '@sanity/vision'
+import { linkField } from 'sanity-plugin-link-field'
 import { schemaTypes } from './schemaTypes'
 
-const SINGLETONS = new Set(['homepage'])
+const SINGLETONS = new Set(['homepage', 'footer'])
 
 export default defineConfig({
   name: 'default',
@@ -13,6 +14,7 @@ export default defineConfig({
   dataset: 'production',
 
   plugins: [
+    linkField({ linkableSchemaTypes: ['homepage'] }),
     structureTool({
       structure: (S) =>
         S.list()
@@ -26,6 +28,16 @@ export default defineConfig({
                   .schemaType('homepage')
                   .documentId('homepage'),
               ),
+            S.listItem()
+              .title('Footer')
+              .id('footer')
+              .child(
+                S.document()
+                  .schemaType('footer')
+                  .documentId('footer'),
+              ),
+            S.divider(),
+            S.documentTypeListItem('location').title('Lieux'),
           ]),
     }),
     visionTool(),

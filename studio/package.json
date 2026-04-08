@@ -12,6 +12,7 @@
     "react": "^19",
     "react-dom": "^19",
     "sanity": "^4",
+    "sanity-plugin-link-field": "^1.5.1",
     "styled-components": "^6.1.15"
   },
   "devDependencies": {

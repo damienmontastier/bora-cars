@@ -7,29 +7,47 @@ const props = defineProps({
 
 const { to } = toRefs(props)
 
+// Si `to` est un objet lien Sanity, on le résout en string
+const resolvedTo = computed(() => {
+  const val = to.value
+  if (!val || typeof val === 'string') return val
+
+  if (['external', 'email', 'phone'].includes(val.type)) {
+    if (val.type === 'email') return val.email ? `mailto:${val.email}` : undefined
+    if (val.type === 'phone') return val.phone ? `tel:${val.phone}` : undefined
+    return val.url // external
+  }
+
+  return val // vue-router object
+})
+
 const isExternal = computed(() => {
-  if (typeof to.value === 'string') {
-    return isValidURL(to.value)
+  if (typeof resolvedTo.value === 'string') {
+    return isValidURL(resolvedTo.value) || resolvedTo.value.startsWith('mailto:') || resolvedTo.value.startsWith('tel:')
   }
   return false
 })
 
 const tag = computed(() => {
-  if (!to.value)
+  if (!resolvedTo.value)
     return 'button'
 
   return isExternal.value ? 'a' : resolveComponent('NuxtLinkLocale')
 })
 
 const componentProps = computed(() => {
-  if (!to.value)
+  if (!resolvedTo.value)
     return { type: 'button' }
 
   if (isExternal.value) {
-    return { href: to.value, target: '_blank', rel: 'noopener noreferrer' }
+    const blank = typeof to.value === 'object' ? to.value?.blank : true
+    return {
+      href: resolvedTo.value,
+      ...(blank !== false && { target: '_blank', rel: 'noopener noreferrer' }),
+    }
   }
 
-  return { to: to.value }
+  return { to: resolvedTo.value }
 })
 </script>
 

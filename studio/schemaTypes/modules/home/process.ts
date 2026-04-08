@@ -37,6 +37,12 @@ export const processType = defineType({
         }),
       ],
     }),
+    defineField({
+      name: 'cta',
+      title: 'CTA',
+      type: 'customLink',
+      options: { enableText: true },
+    }),
   ],
   preview: {
     select: { steps: 'steps' },
