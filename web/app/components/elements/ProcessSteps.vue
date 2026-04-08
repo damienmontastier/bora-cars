@@ -1,29 +1,51 @@
-<script setup>
+<script setup lang="ts">
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import { useLenis } from 'lenis/vue'
 
-defineProps({
-  steps: {
-    type: Array,
-    default: () => [
-      { number: '(A)', label: 'Recherche du véhicule' },
-      { number: '(B)', label: 'Sélection & validation' },
-      { number: '(C)', label: 'Prise en charge' },
-      { number: '(D)', label: 'Livraison' },
-    ],
-  },
+interface Step {
+  number: string
+  label: string
+}
+
+withDefaults(defineProps<{
+  steps?: Step[]
+}>(), {
+  steps: () => [
+    { number: '(A)', label: 'Recherche du véhicule' },
+    { number: '(B)', label: 'Sélection & validation' },
+    { number: '(C)', label: 'Prise en charge' },
+    { number: '(D)', label: 'Livraison' },
+  ],
 })
 
-const rootRef = ref(null)
-let ctx = null
+const rootRef = ref<HTMLElement | null>(null)
+const lenis = useLenis()
+let ctx: gsap.Context | null = null
+let snap: { destroy: () => void } | null = null
 
-onMounted(() => {
+onMounted(async () => {
+  const { default: LenisSnap } = await import('lenis/snap')
+
+  if (lenis.value && rootRef.value) {
+    snap = new LenisSnap(lenis.value, {
+      type: 'proximity',
+      distanceThreshold: '15%',
+      debounce: 500,
+    })
+
+    snap.addElements(
+      rootRef.value.querySelectorAll('.process-step'),
+      { align: ['center'] },
+    )
+  }
+
   ctx = gsap.context(() => {
-    const items = gsap.utils.toArray('.process-step', rootRef.value)
+    const items = gsap.utils.toArray<HTMLElement>('.process-step', rootRef.value)
 
     items.forEach((item) => {
-      const bg = item.querySelector('.process-step__bg')
-      const bgContent = item.querySelector('.process-step__bg-content')
+      const bg = item.querySelector<HTMLElement>('.process-step__bg')
+      const bgContent = item.querySelector<HTMLElement>('.process-step__bg-content')
 
       const tl = gsap.timeline({
         scrollTrigger: {
@@ -31,11 +53,9 @@ onMounted(() => {
           start: 'top-=15% center',
           end: 'bottom+=15% center',
           scrub: true,
-          markers: true,
         },
       })
 
-      // bg slides down, content counter-slides up → text stays fixed in viewport
       tl.fromTo(bg, { yPercent: -100 }, { yPercent: 100, ease: 'none' }, 0)
       tl.fromTo(bgContent, { yPercent: 100 }, { yPercent: -100, ease: 'none' }, 0)
     })
@@ -43,6 +63,7 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
+  snap?.destroy()
   ctx?.revert()
 })
 </script>
@@ -100,21 +121,30 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   padding: desktop-vw(32px) 0;
-  border-top: 1px solid var(--c-black-20);
   position: relative;
   overflow: hidden;
-  color: var(--c-black-30);
   gap: desktop-vw(64px);
 
-  &:last-child {
-    border-bottom: 1px solid var(--c-black-20);
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--c-orange-100);
+    pointer-events: none;
+    z-index: 2;
+    mix-blend-mode: screen;
   }
 
   &__bg {
     position: absolute;
-    inset: 0;
+    top: -3px;
+    bottom: -3px;
+    left: 0;
+    right: 0;
     background: var(--c-orange);
-    color: var(--c-beige);
     pointer-events: none;
     z-index: 1;
     overflow: hidden;
