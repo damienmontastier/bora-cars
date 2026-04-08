@@ -3,6 +3,8 @@ import type { SchemaTypeDefinition } from 'sanity'
 // Singletons
 import { homepageType } from './singletons/homepage'
 import { footerType } from './singletons/footer'
+import { menuType } from './singletons/menu'
+import { proprietaireType } from './singletons/proprietaire'
 
 // Documents
 import { locationType } from './documents/location'
@@ -24,6 +26,8 @@ export const schemaTypes: SchemaTypeDefinition[] = [
   // Singletons
   homepageType,
   footerType,
+  menuType,
+  proprietaireType,
 
   // Documents
   locationType,

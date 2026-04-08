@@ -7,12 +7,31 @@ export interface SanityLink {
   phone?: string
 }
 
+export interface CardGrid {
+  x: number
+  y: number
+  w: number
+  h: number
+}
+
+export interface ServiceCard {
+  _key: string
+  categoryLabel: string
+  subtitle?: string
+  url: string
+  media: unknown
+  grid?: CardGrid
+}
+
 export interface HomepageData {
   hero: {
     heading?: string
     tagline?: string
     subtext?: string
     cta?: SanityLink
+  } | null
+  serviceCards: {
+    cards: ServiceCard[]
   } | null
   pitch: {
     eyebrow?: string
@@ -31,6 +50,16 @@ export const HOMEPAGE_QUERY = `*[_type == "homepage"][0]{
     tagline,
     subtext,
     cta{ type, text, url, email, phone }
+  },
+  "serviceCards": modules[_type == "serviceCards"][0]{
+    cards[]{
+      _key,
+      categoryLabel,
+      subtitle,
+      url,
+      media,
+      grid{ x, y, w, h }
+    }
   },
   "pitch": modules[_type == "pitch"][0]{
     eyebrow,

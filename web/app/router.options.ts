@@ -56,42 +56,27 @@ export default <RouterConfig>{
       return { top: 0, behavior: 'smooth' }
     }
 
-    // 2. Gestion des Transitions + Lenis (changement de page)
+    // 2. Changement de page sans ancre → scroll géré par onBeforeEnter dans app.vue
+    if (!to.hash)
+      return false
+
+    // 3. Ancre sur une autre page → attendre que la nouvelle page soit montée
     return new Promise((resolve) => {
-      let resolved = false
-
-      const scrollToTarget = async () => {
-        if (resolved) return
-        resolved = true
-
+      nuxtApp.hooks.hookOnce('page:transition:finish', async () => {
         await new Promise(r => setTimeout(r, 0))
 
-        if (to.hash) {
-          if (lenis) {
-            lenis.scrollTo(to.hash, { offset: -getHashElementScrollMarginTop(to.hash), force: true })
-            resolve(false)
-          }
-          else {
-            resolve({
-              el: to.hash,
-              top: getHashElementScrollMarginTop(to.hash),
-              behavior: 'smooth',
-            })
-          }
-          return
-        }
-
         if (lenis) {
-          lenis.scrollTo(0, { immediate: true, force: true })
+          lenis.scrollTo(to.hash, { offset: -getHashElementScrollMarginTop(to.hash), force: true })
           resolve(false)
         }
         else {
-          resolve({ top: 0, left: 0 })
+          resolve({
+            el: to.hash,
+            top: getHashElementScrollMarginTop(to.hash),
+            behavior: 'smooth',
+          })
         }
-      }
-
-      nuxtApp.hooks.hookOnce('page:transition:finish', scrollToTarget)
-      nuxtApp.hooks.hookOnce('page:finish', scrollToTarget)
+      })
     })
   },
 }

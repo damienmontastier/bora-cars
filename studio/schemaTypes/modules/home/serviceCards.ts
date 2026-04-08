@@ -1,5 +1,6 @@
 import { ImagesIcon } from '@sanity/icons'
 import { defineArrayMember, defineField, defineType } from 'sanity'
+import { GridMakerInput } from '../../../components/GridMakerInput'
 
 export const serviceCardsType = defineType({
   name: 'serviceCards',
@@ -12,6 +13,7 @@ export const serviceCardsType = defineType({
       title: 'Cards',
       type: 'array',
       validation: (Rule) => Rule.required().min(1),
+      components: { input: GridMakerInput },
       of: [
         defineArrayMember({
           type: 'object',
@@ -39,6 +41,18 @@ export const serviceCardsType = defineType({
               title: 'URL',
               type: 'url',
               validation: (Rule) => Rule.required(),
+            }),
+            defineField({
+              name: 'grid',
+              title: 'Position grille',
+              type: 'object',
+              hidden: true,
+              fields: [
+                defineField({ name: 'x', title: 'X', type: 'number', initialValue: 0 }),
+                defineField({ name: 'y', title: 'Y', type: 'number', initialValue: 0 }),
+                defineField({ name: 'w', title: 'Largeur (colonnes)', type: 'number', initialValue: 4 }),
+                defineField({ name: 'h', title: 'Hauteur (lignes)', type: 'number', initialValue: 3 }),
+              ],
             }),
           ],
           preview: {

@@ -20,6 +20,12 @@ watch(fontsReady, (ready) => {
 })
 
 const { data: menu } = await useSanityQuery<MenuData>(MENU_QUERY)
+
+const lenis = useLenis()
+
+function onBeforeEnter() {
+  lenis.value?.scrollTo(0, { immediate: true, force: true })
+}
 </script>
 
 <template>
@@ -37,7 +43,7 @@ const { data: menu } = await useSanityQuery<MenuData>(MENU_QUERY)
     <!-- <AppTransitionOverlay /> -->
 
     <div id="app-page" class="app-page">
-      <NuxtPage />
+      <NuxtPage :transition="{ name: 'page', mode: 'out-in', onBeforeEnter }" />
     </div>
 
     <DevOnly>
@@ -47,6 +53,16 @@ const { data: menu } = await useSanityQuery<MenuData>(MENU_QUERY)
 </template>
 
 <style lang="scss">
+.page-enter-active,
+.page-leave-active {
+  transition: opacity 0.5s var(--ease-out-cubic);
+}
+
+.page-enter-from,
+.page-leave-to {
+  opacity: 0;
+}
+
 .app {
   height: 100%;
   width: 100%;

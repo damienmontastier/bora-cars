@@ -115,6 +115,10 @@ function collapseMain() {
   if (!clipEl || !menuCtaEl)
     return
 
+  // Clip déjà à 0 (ex: resetMenu au changement de page) → rien à faire
+  if (clipEl.offsetWidth === 0)
+    return
+
   // If menu is open, snap logo/main back instantly — clip collapses to 0 anyway
   if (menuOpen.value) {
     menuAnim?.kill()
@@ -252,6 +256,38 @@ watch(menuOpen, (open) => {
     openMenu()
   else closeMenu()
 })
+
+function resetMenu() {
+  expandAnim?.kill()
+  expandAnim = null
+  menuAnim?.kill()
+  menuAnim = null
+  menuAnimating.value = false
+
+  const logoEl = logoWrapRef.value
+  const mainEl = mainRef.value
+  const clipEl = mainClipRef.value
+  const menuCtaEl = menuCtaRef.value?.$el
+
+  // 1. Cacher le CTA et coller le clip à 0 en premier —
+  //    le logo repasse dans le flux seulement après, sans saut visible
+  if (menuCtaEl)
+    menuCtaEl.style.display = 'none'
+  if (clipEl)
+    gsap.set(clipEl, { width: 0, clearProps: 'x' })
+  if (mainEl)
+    gsap.set(mainEl, { clearProps: 'x,width' })
+  if (logoEl)
+    gsap.set(logoEl, { clearProps: 'position,left,top,width,opacity' })
+
+  lenis.value?.start()
+  ignoreMenuWatch = true
+  menuOpen.value = false
+  nextTick(() => { ignoreMenuWatch = false })
+}
+
+const router = useRouter()
+router.beforeEach(resetMenu)
 
 onUnmounted(() => {
   offHeroCTABus()

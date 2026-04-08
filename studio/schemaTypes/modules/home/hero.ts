@@ -17,7 +17,7 @@ export const heroType = defineType({
       name: 'heading',
       title: 'Heading',
       type: 'string',
-      validation: (Rule) => Rule.required().max(40),
+      validation: (Rule) => Rule.required().max(65),
     }),
     defineField({
       name: 'tagline',

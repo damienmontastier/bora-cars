@@ -1,4 +1,10 @@
 <script setup>
+// Map Sanity document IDs → route paths
+const INTERNAL_ROUTES = {
+  homepage: '/',
+  proprietaire: '/proprietaire',
+}
+
 const props = defineProps({
   to: {
     type: [String, Object],
@@ -10,12 +16,18 @@ const { to } = toRefs(props)
 // Si `to` est un objet lien Sanity, on le résout en string
 const resolvedTo = computed(() => {
   const val = to.value
-  if (!val || typeof val === 'string') return val
+  if (!val || typeof val === 'string')
+    return val
 
-  if (['external', 'email', 'phone'].includes(val.type)) {
-    if (val.type === 'email') return val.email ? `mailto:${val.email}` : undefined
-    if (val.type === 'phone') return val.phone ? `tel:${val.phone}` : undefined
-    return val.url // external
+  if (val.type === 'email')
+    return val.email ? `mailto:${val.email}` : undefined
+  if (val.type === 'phone')
+    return val.phone ? `tel:${val.phone}` : undefined
+  if (val.type === 'external')
+    return val.url
+  if (val.type === 'internal') {
+    const ref = val.internalLink?._ref
+    return ref ? (INTERNAL_ROUTES[ref] ?? `/${ref}`) : undefined
   }
 
   return val // vue-router object
