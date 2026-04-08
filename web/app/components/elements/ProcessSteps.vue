@@ -124,29 +124,29 @@ onUnmounted(() => {
         class="process-step"
         @click="snapToStep(index)"
       >
-        <TextsH3 class="process-step__number" color="orange-100">
+        <TextsH3 :selectable="false" class="process-step__number" color="orange-100">
           {{ step.number }}
         </TextsH3>
 
         <div class="process-step__main">
-          <TextsH3 tag="span" class="process-step__label" color="orange-100">
+          <TextsH3 tag="span" :selectable="false" class="process-step__label" color="orange-100">
             {{ step.label }}
           </TextsH3>
-          <TextsH3 tag="span" class="process-step__description" color="orange-100">
+          <TextsH3 tag="span" :selectable="false" class="process-step__description" color="orange-100">
             {{ step.description }}
           </TextsH3>
         </div>
 
         <div aria-hidden="true" class="process-step__bg">
           <div class="process-step__bg-content">
-            <TextsH3 class="process-step__number" color="beige-100">
+            <TextsH3 :selectable="false" class="process-step__number" color="beige-100">
               {{ step.number }}
             </TextsH3>
             <div class="process-step__main">
-              <TextsH3 tag="span" class="process-step__label" color="beige-100">
+              <TextsH3 tag="span" :selectable="false" class="process-step__label" color="beige-100">
                 {{ step.label }}
               </TextsH3>
-              <TextsH3 tag="span" class="process-step__description" color="beige-100">
+              <TextsH3 tag="span" :selectable="false" class="process-step__description" color="beige-100">
                 {{ step.description }}
               </TextsH3>
             </div>
