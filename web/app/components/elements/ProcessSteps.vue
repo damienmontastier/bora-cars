@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import gsap from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { useLenis } from 'lenis/vue'
 
 interface Step {
@@ -31,7 +30,7 @@ onMounted(async () => {
     snap = new LenisSnap(lenis.value, {
       type: 'proximity',
       distanceThreshold: '15%',
-      debounce: 500,
+      debounce: 650,
     })
 
     snap.addElements(
@@ -84,7 +83,6 @@ onUnmounted(() => {
           {{ step.label }}
         </TextsH3>
 
-        <!-- Sliding bg — text inside counter-animates to stay aligned with base text -->
         <div aria-hidden="true" class="process-step__bg">
           <div class="process-step__bg-content">
             <TextsH3 class="process-step__number" color="beige-100">

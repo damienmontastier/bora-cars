@@ -6,9 +6,14 @@ const { fontsLoaded } = toRefs(appStore)
 <template>
   <main class="page-main">
     <ElementsHero />
+
+    <ElementsServicesCards />
+
     <ElementsPitch />
 
     <ElementsProcessSteps />
+
+    <ElementsBrandsSection />
 
     <div class="app-debug-wip" style="width: 100%;height: 300vh;background-color: var(--c-beige-20);">
       <TextsH1 v-for="i in 3" :key="i">
