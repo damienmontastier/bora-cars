@@ -47,8 +47,12 @@ function createTrigger(el: MenuThemeEl, binding: DirectiveBinding<MenuTheme | Me
     trigger: el,
     start,
     end,
-    onEnter: () => { appStore.menuTheme = theme },
-    onEnterBack: () => { appStore.menuTheme = theme },
+    onEnter: () => {
+      appStore.menuTheme = theme
+    },
+    onEnterBack: () => {
+      appStore.menuTheme = theme
+    },
   })
 }
 

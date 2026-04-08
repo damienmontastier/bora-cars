@@ -3,6 +3,8 @@ import { useLenis } from 'lenis/vue'
 
 const lenis = useLenis()
 
+const currentYear = new Date().getFullYear()
+
 function scrollToTop() {
   lenis.value?.scrollTo(0, { duration: 1.2 })
 }
@@ -27,12 +29,12 @@ function scrollToTop() {
               <span class="app-footer__city CTA-TEXT">Paris</span>
             </div>
             <div class="app-footer__contact-info">
-              <UtilsBaseLink to="mailto:contact@boracars.com" class="app-footer__link CTA-TEXT">
+              <AtomsCTASecondary theme="white" to="mailto:contact@boracars.com" class="app-footer__link CTA-TEXT">
                 contact@boracars.com
-              </UtilsBaseLink>
-              <UtilsBaseLink to="tel:+41615282475" class="app-footer__link CTA-TEXT">
+              </AtomsCTASecondary>
+              <AtomsCTASecondary theme="white" to="tel:+41615282475" class="app-footer__link CTA-TEXT">
                 +41 (0)6 15 28 24 75
-              </UtilsBaseLink>
+              </AtomsCTASecondary>
             </div>
           </div>
         </div>
@@ -40,29 +42,49 @@ function scrollToTop() {
         <div class="app-footer__column">
           <span class="app-footer__column-title P2">Sitemap</span>
           <div class="app-footer__column-items">
-            <UtilsBaseLink to="/proprietaire" class="app-footer__link CTA-TEXT">Propriétaire</UtilsBaseLink>
-            <UtilsBaseLink to="/professionnel" class="app-footer__link CTA-TEXT">Professionnel</UtilsBaseLink>
-            <UtilsBaseLink to="/particulier" class="app-footer__link CTA-TEXT">Particulier</UtilsBaseLink>
-            <UtilsBaseLink to="/contact" class="app-footer__link CTA-TEXT">Contact</UtilsBaseLink>
+            <AtomsCTASecondary theme="white" to="/proprietaire" class="app-footer__link CTA-TEXT">
+              Propriétaire
+            </AtomsCTASecondary>
+            <AtomsCTASecondary theme="white" to="/professionnel" class="app-footer__link CTA-TEXT">
+              Professionnel
+            </AtomsCTASecondary>
+            <AtomsCTASecondary theme="white" to="/particulier" class="app-footer__link CTA-TEXT">
+              Particulier
+            </AtomsCTASecondary>
+            <AtomsCTASecondary theme="white" to="/contact" class="app-footer__link CTA-TEXT">
+              Contact
+            </AtomsCTASecondary>
           </div>
         </div>
 
         <div class="app-footer__column">
           <span class="app-footer__column-title P2">Socials</span>
           <div class="app-footer__column-items">
-            <UtilsBaseLink to="https://facebook.com" class="app-footer__link CTA-TEXT">Facebook</UtilsBaseLink>
-            <UtilsBaseLink to="https://instagram.com" class="app-footer__link CTA-TEXT">Instagram</UtilsBaseLink>
-            <UtilsBaseLink to="https://linkedin.com" class="app-footer__link CTA-TEXT">Linkedin</UtilsBaseLink>
-            <UtilsBaseLink to="https://tiktok.com" class="app-footer__link CTA-TEXT">TikTok</UtilsBaseLink>
+            <AtomsCTASecondary theme="white" to="https://facebook.com" class="app-footer__link CTA-TEXT">
+              Facebook
+            </AtomsCTASecondary>
+            <AtomsCTASecondary theme="white" to="https://instagram.com" class="app-footer__link CTA-TEXT">
+              Instagram
+            </AtomsCTASecondary>
+            <AtomsCTASecondary theme="white" to="https://linkedin.com" class="app-footer__link CTA-TEXT">
+              Linkedin
+            </AtomsCTASecondary>
+            <AtomsCTASecondary theme="white" to="https://tiktok.com" class="app-footer__link CTA-TEXT">
+              TikTok
+            </AtomsCTASecondary>
           </div>
         </div>
       </div>
     </div>
 
     <div class="app-footer__bottom">
-      <span class="app-footer__copyright CTA-TEXT">© Bora Cars 2026</span>
-      <UtilsBaseLink to="/mentions-legales" class="app-footer__link CTA-TEXT">Mentions légales</UtilsBaseLink>
-      <UtilsBaseLink class="app-footer__link CTA-TEXT" @click="scrollToTop">Back to top</UtilsBaseLink>
+      <span class="app-footer__copyright CTA-TEXT">© Bora Cars {{ currentYear }}</span>
+      <AtomsCTASecondary theme="white" to="/mentions-legales" class="app-footer__link CTA-TEXT">
+        Mentions légales
+      </AtomsCTASecondary>
+      <AtomsCTASecondary theme="white" class="app-footer__link CTA-TEXT" @click="scrollToTop">
+        Back to top
+      </AtomsCTASecondary>
     </div>
   </footer>
 </template>
