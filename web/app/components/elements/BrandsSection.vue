@@ -148,6 +148,27 @@ onUnmounted(() => {
         Une collection soigneusement sélectionnée.
       </TextsP2>
     </div>
+
+    <div class="app-elements-brands-section__text">
+      <div class="app-elements-brands-section__text-content">
+        <div class="app-elements-brands-section__text-headline">
+          <TextsP2 color="beige-100">
+            (de A à Z)
+          </TextsP2>
+          <TextsH3 color="beige-100">
+            Chaque réservation est prise en charge par un conseiller dédié.
+          </TextsH3>
+        </div>
+
+        <TextsH3 color="beige-100">
+          Nous orchestrons l'ensemble de la prestation pour vous garantir une expérience fluide, précise et sans compromis.
+        </TextsH3>
+
+        <AtomsCTA theme="white" :tiret-after="0">
+          Contacter un conseiller
+        </AtomsCTA>
+      </div>
+    </div>
   </section>
 </template>
 
@@ -155,7 +176,6 @@ onUnmounted(() => {
 .app-elements-brands-section {
   width: 100%;
   background: var(--c-black-100);
-  padding: desktop-vw(40px) desktop-vw(24px);
 
   &__cursor {
     position: fixed;
@@ -173,6 +193,7 @@ onUnmounted(() => {
     display: flex;
     align-items: flex-start;
     gap: desktop-vw(36px);
+    padding: desktop-vw(40px) desktop-vw(24px);
   }
 
   &__list {
@@ -192,6 +213,33 @@ onUnmounted(() => {
   &__description {
     flex-shrink: 0;
     width: desktop-vw(312px);
+  }
+
+  &__text {
+    display: flex;
+    justify-content: flex-end;
+    padding: desktop-vw(80px) desktop-vw(24px);
+
+    &-content {
+      width: 60%;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: desktop-vw(32px);
+    }
+
+    &-headline {
+      width: 100%;
+
+      .P2,
+      .H3 {
+        display: inline;
+      }
+
+      .P2 {
+        margin-right: desktop-vw(16px);
+      }
+    }
   }
 }
 
