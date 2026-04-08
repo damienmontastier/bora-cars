@@ -27,8 +27,8 @@ onMounted(async () => {
   if (lenis.value && rootRef.value) {
     snap = new LenisSnap(lenis.value, {
       type: 'proximity',
-      distanceThreshold: '25%',
-      debounce: 150,
+      distanceThreshold: '12.5%',
+      debounce: 300,
       onSnapStart: () => { isSnapping.value = true },
       onSnapComplete: () => { isSnapping.value = false },
     })
