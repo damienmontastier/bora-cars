@@ -246,6 +246,7 @@ onUnmounted(() => {
     left: 0;
     width: desktop-vw(350px);
     height: desktop-vw(350px);
+    aspect-ratio: 1 / 1;
     z-index: 9;
     opacity: 0;
     visibility: hidden;

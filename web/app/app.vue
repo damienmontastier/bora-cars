@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import type { MenuData } from '~/queries/menu'
+import { MENU_QUERY } from '~/queries/menu'
+
 const appStore = useAppStore()
 const { fontsLoaded } = toRefs(appStore)
 
@@ -15,6 +18,8 @@ watch(fontsReady, (ready) => {
     fontsLoaded.value = true
   }
 })
+
+const { data: menu } = await useSanityQuery<MenuData>(MENU_QUERY)
 </script>
 
 <template>
@@ -22,7 +27,7 @@ watch(fontsReady, (ready) => {
     <AppLenis />
 
     <!-- <AppPreloader /> -->
-    <AppMenu />
+    <AppMenu :data="menu" />
 
     <AppOverlay />
 

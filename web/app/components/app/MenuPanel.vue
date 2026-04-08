@@ -1,5 +1,13 @@
-<script setup>
+<script setup lang="ts">
 import gsap from 'gsap'
+import type { SanityLink, MenuLocation } from '~/queries/menu'
+
+interface Props {
+  links: SanityLink[]
+  locations: MenuLocation[]
+}
+
+const props = defineProps<Props>()
 
 const appStore = useAppStore()
 const { menuOpen, menuTheme } = toRefs(appStore)
@@ -48,55 +56,24 @@ onUnmounted(() => {
     <div ref="backgroundRef" class="app-menu-panel__background" />
     <div ref="navRef" class="app-menu-panel__nav">
       <div ref="itemsRef" class="app-menu-panel__items">
-        <div class="app-menu-panel__nav-mask">
+        <div v-for="link in props.links" :key="link._key" class="app-menu-panel__nav-mask">
           <div class="app-menu-panel__nav-inner">
-            <UtilsBaseLink to="/proprietaire">
+            <UtilsBaseLink :to="link">
               <TextsCTAXL :color="panelTextColor">
-                Propriétaire
-              </TextsCTAXL>
-            </UtilsBaseLink>
-          </div>
-        </div>
-        <div class="app-menu-panel__nav-mask">
-          <div class="app-menu-panel__nav-inner">
-            <UtilsBaseLink>
-              <TextsCTAXL :color="panelTextColor">
-                Professionnel
-              </TextsCTAXL>
-            </UtilsBaseLink>
-          </div>
-        </div>
-        <div class="app-menu-panel__nav-mask">
-          <div class="app-menu-panel__nav-inner">
-            <UtilsBaseLink>
-              <TextsCTAXL :color="panelTextColor">
-                Particulier
-              </TextsCTAXL>
-            </UtilsBaseLink>
-          </div>
-        </div>
-
-        <div class="app-menu-panel__nav-mask">
-          <div class="app-menu-panel__nav-inner">
-            <UtilsBaseLink>
-              <TextsCTAXL :color="panelTextColor">
-                Contact
+                {{ link.text }}
               </TextsCTAXL>
             </UtilsBaseLink>
           </div>
         </div>
       </div>
-      <div class="app-menu-panel__nav-mask">
+      <div v-if="props.locations.length" class="app-menu-panel__nav-mask">
         <div class="app-menu-panel__nav-inner app-menu-panel__nav__bottom">
-          <AtomsCTASecondary :theme="panelTextColor">
-            Génève
-          </AtomsCTASecondary>
-
-          <div class="app-menu-panel__nav__bottom-divider" :style="{ background: panelTextColor }" />
-
-          <AtomsCTASecondary :theme="panelTextColor">
-            Paris
-          </AtomsCTASecondary>
+          <template v-for="(loc, i) in props.locations" :key="loc.city">
+            <AtomsCTASecondary :theme="panelTextColor">
+              {{ loc.city }}
+            </AtomsCTASecondary>
+            <div v-if="i < props.locations.length - 1" class="app-menu-panel__nav__bottom-divider" :style="{ background: panelTextColor }" />
+          </template>
         </div>
       </div>
     </div>

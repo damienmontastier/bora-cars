@@ -1,5 +1,12 @@
-<script setup>
+<script setup lang="ts">
 import { onClickOutside, onKeyStroke, useEventBus, useResizeObserver } from '@vueuse/core'
+import type { MenuData } from '~/queries/menu'
+
+interface Props {
+  data: MenuData | null
+}
+
+const props = defineProps<Props>()
 import gsap from 'gsap'
 import { Flip } from 'gsap/Flip'
 import { useLenis } from 'lenis/vue'
@@ -266,15 +273,15 @@ onUnmounted(() => {
       <div ref="clipWrapRef" class="app-menu__clip-wrap">
         <div ref="mainClipRef" class="app-menu__main-clip">
           <div ref="mainRef" class="app-menu__main" :class="{ 'is-open': menuOpen }">
-            <AppMenuCTA ref="menuBtnRef" class="app-menu__btn" />
+            <AppMenuCTA ref="menuBtnRef" class="app-menu__btn" :menu-label="props.data?.menuLabel" :close-label="props.data?.closeLabel" />
 
-            <AtomsCTA ref="menuCtaRef" :theme="ctaTheme" class="app-menu__cta">
-              Contacter un conseiller
+            <AtomsCTA ref="menuCtaRef" :to="props.data?.cta" :theme="ctaTheme" class="app-menu__cta">
+              {{ props.data?.cta?.text ?? 'Contacter un conseiller' }}
             </AtomsCTA>
           </div>
         </div>
 
-        <AppMenuPanel />
+        <AppMenuPanel :links="props.data?.links ?? []" :locations="props.data?.locations ?? []" />
       </div>
     </div>
   </div>

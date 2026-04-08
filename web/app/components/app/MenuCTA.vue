@@ -1,4 +1,11 @@
-<script setup>
+<script setup lang="ts">
+interface Props {
+  menuLabel?: string
+  closeLabel?: string
+}
+
+const props = defineProps<Props>()
+
 const appStore = useAppStore()
 const { menuTheme, menuOpen, menuAnimating } = toRefs(appStore)
 
@@ -27,14 +34,14 @@ const themeColors = computed(() => {
 
       <div class="app-menu-cta__label">
         <TextsCTA class="app-menu-cta__label-sizer" tag="div" aria-hidden="true">
-          Close
+          {{ props.closeLabel ?? 'Close' }}
         </TextsCTA>
         <Transition name="label">
           <TextsCTA v-if="!menuOpen" key="menu" tag="div" :color="themeColors.text">
-            Menu
+            {{ props.menuLabel ?? 'Menu' }}
           </TextsCTA>
           <TextsCTA v-else key="close" tag="div" :color="themeColors.text">
-            Close
+            {{ props.closeLabel ?? 'Close' }}
           </TextsCTA>
         </Transition>
       </div>
