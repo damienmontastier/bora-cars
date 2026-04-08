@@ -9,13 +9,11 @@ const props = defineProps({
     default: 'alt-default',
   },
 })
-
-const isExternal = computed(() => props.src.startsWith('http'))
 </script>
 
 <template>
   <div class="app-elements-media">
-    <img v-if="!props.src || isExternal" :src="props.src || '/img/placeholder/hero.png'" :alt="props.alt">
+    <div v-if="!props.src" class="app-elements-media__placeholder" />
     <NuxtPicture v-else :src="props.src" :alt="props.alt" />
   </div>
 </template>
@@ -29,6 +27,12 @@ const isExternal = computed(() => props.src.startsWith('http'))
     width: 100%;
     height: 100%;
     object-fit: cover;
+  }
+
+  &__placeholder {
+    width: 100%;
+    height: 100%;
+    background: var(--c-beige-20);
   }
 }
 </style>
