@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import gsap from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
 const brandsLeft = [
   { name: 'Ferrari', image: '/img/placeholder/brands/ferrari.jpg' },
@@ -38,6 +39,15 @@ onMounted(async () => {
 
   ctx = gsap.context(() => {
     let firstEnter = false
+    let activeFade: gsap.core.Tween | null = null
+
+    ScrollTrigger.create({
+      trigger: rootRef.value,
+      start: 'top bottom',
+      end: 'bottom top',
+      onLeave: () => activeFade?.reverse(),
+      onLeaveBack: () => activeFade?.reverse(),
+    })
 
     gsap.utils.toArray<HTMLElement>('.brand-item').forEach((el) => {
       const image = el.querySelector<HTMLElement>('.brand-item__cursor')
@@ -73,6 +83,7 @@ onMounted(async () => {
         duration: 0.1,
         onReverseComplete: () => {
           stopFollow()
+          activeFade = null
           if (hoveredBrand.value === brandName)
             hoveredBrand.value = null
         },
@@ -81,6 +92,7 @@ onMounted(async () => {
       el.addEventListener('mouseenter', (e) => {
         hoveredBrand.value = el.dataset.brand ?? null
         firstEnter = true
+        activeFade = fade
         fade.play()
         startFollow()
         align(e as MouseEvent)
