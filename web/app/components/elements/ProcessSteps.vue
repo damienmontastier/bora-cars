@@ -2,21 +2,12 @@
 import gsap from 'gsap'
 import { useLenis } from 'lenis/vue'
 
-interface Step {
-  number: string
-  label: string
-}
-
-withDefaults(defineProps<{
-  steps?: Step[]
-}>(), {
-  steps: () => [
-    { number: '(A)', label: 'Recherche du véhicule' },
-    { number: '(B)', label: 'Sélection & validation' },
-    { number: '(C)', label: 'Prise en charge' },
-    { number: '(D)', label: 'Livraison' },
-  ],
-})
+const items = [
+  { number: '(A)', label: 'Prise de contact' },
+  { number: '(B)', label: 'Accompagnement & sélection' },
+  { number: '(C)', label: 'Validation' },
+  { number: '(D)', label: 'Confirmation' },
+]
 
 const rootRef = ref<HTMLElement | null>(null)
 const lenis = useLenis()
@@ -49,8 +40,8 @@ onMounted(async () => {
       const tl = gsap.timeline({
         scrollTrigger: {
           trigger: item,
-          start: 'top-=15% center',
-          end: 'bottom+=15% center',
+          start: 'top-=12.5% center',
+          end: 'bottom+=12.5% center',
           scrub: true,
         },
       })
@@ -71,7 +62,7 @@ onUnmounted(() => {
   <section ref="rootRef" class="app-elements-process-steps">
     <ol class="app-elements-process-steps__list">
       <li
-        v-for="step in steps"
+        v-for="step in items"
         :key="step.number"
         class="process-step"
       >
