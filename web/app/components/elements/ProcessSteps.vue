@@ -10,9 +10,16 @@ const items = [
 ]
 
 const rootRef = ref<HTMLElement | null>(null)
+const isSnapping = ref(false)
 const lenis = useLenis()
 let ctx: gsap.Context | null = null
-let snap: { destroy: () => void } | null = null
+let snap: { destroy: () => void, goTo: (index: number) => void, addElements: (elements: HTMLElement[], options?: object) => void } | null = null
+
+function snapToStep(index: number) {
+  // if (isSnapping.value)
+  //   return
+  snap?.goTo(index)
+}
 
 onMounted(async () => {
   const { default: LenisSnap } = await import('lenis/snap')
@@ -20,12 +27,14 @@ onMounted(async () => {
   if (lenis.value && rootRef.value) {
     snap = new LenisSnap(lenis.value, {
       type: 'proximity',
-      distanceThreshold: '10%',
-      debounce: 650,
+      distanceThreshold: '25%',
+      debounce: 150,
+      onSnapStart: () => { isSnapping.value = true },
+      onSnapComplete: () => { isSnapping.value = false },
     })
 
     snap.addElements(
-      rootRef.value.querySelectorAll('.process-step'),
+      Array.from(rootRef.value.querySelectorAll<HTMLElement>('.process-step')),
       { align: ['center'] },
     )
   }
@@ -89,7 +98,7 @@ onMounted(async () => {
         },
       })
     })
-  }, rootRef.value)
+  }, rootRef.value ?? undefined)
 })
 
 onUnmounted(() => {
@@ -99,12 +108,13 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <section ref="rootRef" class="app-elements-process-steps">
+  <section ref="rootRef" class="app-elements-process-steps" :class="{ 'is-snapping': isSnapping }">
     <ol class="app-elements-process-steps__list">
       <li
-        v-for="step in items"
+        v-for="(step, index) in items"
         :key="step.number"
         class="process-step"
+        @click="snapToStep(index)"
       >
         <TextsH3 class="process-step__number" color="orange-100">
           {{ step.number }}
@@ -154,6 +164,10 @@ onUnmounted(() => {
     margin: 0;
     padding: 0;
   }
+
+  &.is-snapping .process-step {
+    // pointer-events: none;
+  }
 }
 
 .process-step {
@@ -163,6 +177,7 @@ onUnmounted(() => {
   position: relative;
   overflow: hidden;
   gap: desktop-vw(64px);
+  cursor: pointer;
 
   &::after {
     content: '';
