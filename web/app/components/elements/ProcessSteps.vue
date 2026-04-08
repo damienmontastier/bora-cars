@@ -116,7 +116,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <section ref="rootRef" class="app-elements-process-steps" :class="{ 'is-snapping': isSnapping }">
+  <section ref="rootRef" v-menu-theme="'orange'" class="app-elements-process-steps" :class="{ 'is-snapping': isSnapping }">
     <ol class="app-elements-process-steps__list">
       <li
         v-for="(step, index) in items"

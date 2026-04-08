@@ -104,7 +104,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <section ref="rootRef" class="app-elements-brands-section">
+  <section ref="rootRef" v-menu-theme="'white'" class="app-elements-brands-section">
     <ElementsMedia
       ref="cursorImageRef"
       class="app-elements-brands-section__cursor"
