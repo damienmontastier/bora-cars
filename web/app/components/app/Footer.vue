@@ -42,7 +42,7 @@ function scrollToTop() {
         <div class="app-footer__column">
           <span class="app-footer__column-title P2">Sitemap</span>
           <div class="app-footer__column-items">
-            <AtomsCTASecondary theme="white" to="/" class="app-footer__link CTA-TEXT">
+            <AtomsCTASecondary theme="white" to="/proprietaire" class="app-footer__link CTA-TEXT">
               Propriétaire
             </AtomsCTASecondary>
             <AtomsCTASecondary theme="white" to="/" class="app-footer__link CTA-TEXT">

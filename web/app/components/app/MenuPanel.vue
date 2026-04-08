@@ -50,7 +50,7 @@ onUnmounted(() => {
       <div ref="itemsRef" class="app-menu-panel__items">
         <div class="app-menu-panel__nav-mask">
           <div class="app-menu-panel__nav-inner">
-            <UtilsBaseLink>
+            <UtilsBaseLink to="/proprietaire">
               <TextsCTAXL :color="panelTextColor">
                 Propriétaire
               </TextsCTAXL>
