@@ -9,15 +9,18 @@ const items = [
   { number: '(D)', label: 'Confirmation', description: 'Suivi & restitution du véhicule' },
 ]
 
+// 'click' = snap au click uniquement | 'scroll' = snap au scroll + click
+const SNAP_MODE: 'click' | 'scroll' = 'click'
+
 const rootRef = ref<HTMLElement | null>(null)
 const isSnapping = ref(false)
 const lenis = useLenis()
 let ctx: gsap.Context | null = null
-let snap: { destroy: () => void, goTo: (index: number) => void, addElements: (elements: HTMLElement[], options?: object) => void } | null = null
+let snap: { destroy: () => void, goTo: (index: number) => void, stop: () => void, start: () => void, addElements: (elements: HTMLElement[], options?: object) => void } | null = null
 
 function snapToStep(index: number) {
-  // if (isSnapping.value)
-  //   return
+  isSnapping.value = true
+  snap?.start()
   snap?.goTo(index)
 }
 
@@ -27,16 +30,23 @@ onMounted(async () => {
   if (lenis.value && rootRef.value) {
     snap = new LenisSnap(lenis.value, {
       type: 'proximity',
-      distanceThreshold: '12.5%',
+      distanceThreshold: '15%',
       debounce: 300,
       onSnapStart: () => { isSnapping.value = true },
-      onSnapComplete: () => { isSnapping.value = false },
+      onSnapComplete: () => {
+        isSnapping.value = false
+        if (SNAP_MODE === 'click')
+          snap?.stop()
+      },
     })
 
     snap.addElements(
       Array.from(rootRef.value.querySelectorAll<HTMLElement>('.process-step')),
       { align: ['center'] },
     )
+
+    if (SNAP_MODE === 'click')
+      snap.stop()
   }
 
   ctx = gsap.context(() => {
@@ -58,6 +68,7 @@ onMounted(async () => {
           start: 'top-=12.5% center',
           end: 'bottom+=12.5% center',
           scrub: true,
+          invalidateOnRefresh: true,
         },
       })
 
@@ -66,35 +77,32 @@ onMounted(async () => {
 
       // Label ↔ description swap
       let swapTl: gsap.core.Timeline | null = null
-      let leaving = false
 
       const showDescription = () => {
-        if (leaving)
-          return
         swapTl?.kill()
         swapTl = gsap.timeline()
           .to(labels, { yPercent: -100, duration: 0.35, ease: 'power2.in' }, 0)
-          .fromTo(descriptions, { yPercent: 100 }, { yPercent: 0, duration: 0.5, ease: 'power2.out' }, 0.25)
+          .to(descriptions, { yPercent: 0, duration: 0.5, ease: 'power2.out' }, 0.25)
       }
 
       const showLabel = () => {
-        leaving = true
         swapTl?.kill()
         swapTl = gsap.timeline()
           .to(descriptions, { yPercent: 100, duration: 0.3, ease: 'power2.in' }, 0)
           .to(labels, { yPercent: 0, duration: 0.4, ease: 'power2.out' }, 0.2)
-          .call(() => { leaving = false })
       }
 
       gsap.timeline({
         scrollTrigger: {
           trigger: item,
-          start: 'center-=25% center',
-          end: 'center+=25% center',
+          start: 'center-=35% center',
+          end: 'center+=50% center',
           onEnter: showDescription,
           onEnterBack: showDescription,
           onLeave: showLabel,
           onLeaveBack: showLabel,
+          fastScrollEnd: true,
+          preventOverlaps: true,
         },
       })
     })
@@ -154,19 +162,11 @@ onUnmounted(() => {
   width: 100%;
   padding: 0 desktop-vw(24px);
 
-  @include mobile {
-    padding: 0 mobile-vw(24px);
-  }
-
   &__list {
     width: 100%;
     list-style: none;
     margin: 0;
     padding: 0;
-  }
-
-  &.is-snapping .process-step {
-    // pointer-events: none;
   }
 }
 
