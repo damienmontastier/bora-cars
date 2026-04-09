@@ -1,14 +1,15 @@
+import imageUrlBuilder from '@sanity/image-url'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { GridLayout, noCompactor, useContainerWidth } from 'react-grid-layout'
-import type { EventCallback, Layout, LayoutItem } from 'react-grid-layout'
-import { set } from 'sanity'
+import type { EventCallback, Layout } from 'react-grid-layout'
+import { set, useClient } from 'sanity'
 import type { ArrayOfObjectsInputProps } from 'sanity'
 import 'react-grid-layout/css/styles.css'
 
 const COLS = 12
-const ROW_HEIGHT = 50
+const ROW_HEIGHT = 120
 const MARGIN: [number, number] = [6, 6]
-const MIN_ROWS = 8
+const MIN_ROWS = 4
 
 interface CardGrid {
   x: number
@@ -17,87 +18,165 @@ interface CardGrid {
   h: number
 }
 
+type CardType = 'xxl' | 'xl' | 'l' | 'm'
+
+interface SanityImageRef {
+  _type: 'image'
+  asset?: { _ref?: string; _type?: string; url?: string }
+}
+
+interface CardMedia {
+  mediaType?: 'image' | 'video'
+  image?: SanityImageRef
+}
+
 interface CardValue {
   _key: string
   _type: string
+  cardType?: CardType
   categoryLabel?: string
   subtitle?: string
   grid?: CardGrid
+  media?: CardMedia
 }
 
-function getDefaultPosition(index: number): CardGrid {
-  const perRow = 3
-  return {
-    x: (index % perRow) * 4,
-    y: Math.floor(index / perRow) * 3,
-    w: 4,
-    h: 3,
+const CARD_TYPE_SIZE: Record<CardType, { w: number, h: number }> = {
+  xxl: { w: 6, h: 1 },
+  xl:  { w: 6, h: 1 },
+  l:   { w: 3, h: 1 },
+  m:   { w: 3, h: 1 },
+}
+
+function getSizeFromType(cardType?: CardType): { w: number, h: number } {
+  return CARD_TYPE_SIZE[cardType ?? 'xl']
+}
+
+// Trouve le premier slot libre dans la grille sans overlap
+function findFreeSlot(occupied: boolean[][], w: number, h: number): { x: number, y: number } {
+  let y = 0
+  while (true) {
+    for (let x = 0; x <= COLS - w; x++) {
+      let fits = true
+      outer: for (let row = y; row < y + h; row++) {
+        for (let col = x; col < x + w; col++) {
+          if (occupied[row]?.[col]) { fits = false; break outer }
+        }
+      }
+      if (fits) return { x, y }
+    }
+    y++
   }
 }
 
-const CARD_COLORS = ['#b91c1c', '#1e3a5f', '#1e3d2f', '#3b1f54', '#1a3550', '#7c2d12']
+function occupySlot(occupied: boolean[][], x: number, y: number, w: number, h: number) {
+  for (let row = y; row < y + h; row++) {
+    if (!occupied[row]) occupied[row] = []
+    for (let col = x; col < x + w; col++) {
+      occupied[row][col] = true
+    }
+  }
+}
 
-function GridCard({
-  card,
-  layoutItem,
-  color,
-}: {
-  card: CardValue
-  layoutItem?: LayoutItem
-  color: string
-}) {
+const TYPE_LABEL: Record<CardType, string> = { xxl: 'XXL', xl: 'XL', l: 'L', m: 'M' }
+
+function GridCard({ card, imageUrl }: { card: CardValue; imageUrl?: string }) {
+  const typeLabel = TYPE_LABEL[card.cardType ?? 'xl']
   return (
     <div
       style={{
-        background: color,
+        background: '#1c1c1c',
         borderRadius: 4,
         display: 'flex',
         flexDirection: 'column',
-        justifyContent: 'flex-end',
-        padding: '10px 12px',
+        justifyContent: 'space-between',
         height: '100%',
         overflow: 'hidden',
-        border: '1px solid rgba(255,255,255,0.08)',
+        border: '1px solid rgba(255,255,255,0.1)',
         boxSizing: 'border-box',
         userSelect: 'none',
+        cursor: 'grab',
       }}
     >
-      <span
-        style={{
-          color: 'rgba(255,255,255,0.35)',
-          fontSize: 9,
-          fontFamily: 'monospace',
-          marginBottom: 3,
-          letterSpacing: '0.05em',
-        }}
-      >
-        {layoutItem
-          ? `${layoutItem.w} col × ${layoutItem.h} row — [${layoutItem.x}, ${layoutItem.y}]`
-          : ''}
-      </span>
-      <span
-        style={{
-          color: '#fff',
-          fontSize: 13,
-          fontWeight: 600,
-          lineHeight: 1.2,
-          fontFamily: 'sans-serif',
-        }}
-      >
-        {card.categoryLabel || 'Sans titre'}
-      </span>
-      {card.subtitle && (
-        <span
+      {/* Image area */}
+      <div style={{ flex: 1, position: 'relative', overflow: 'hidden' }}>
+        {imageUrl && (
+          <img
+            src={imageUrl}
+            alt=""
+            style={{
+              position: 'absolute',
+              inset: 0,
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+              pointerEvents: 'none',
+            }}
+          />
+        )}
+        {/* Type badge */}
+        <div
           style={{
-            color: 'rgba(255,255,255,0.55)',
-            fontSize: 10,
-            fontFamily: 'sans-serif',
-            marginTop: 2,
+            position: 'absolute',
+            top: 8,
+            left: 8,
+            background: 'rgba(0,0,0,0.5)',
+            backdropFilter: 'blur(4px)',
+            color: 'rgba(255,255,255,0.9)',
+            fontSize: 9,
+            fontFamily: 'monospace',
+            fontWeight: 700,
+            letterSpacing: '0.1em',
+            padding: '2px 6px',
+            borderRadius: 3,
           }}
         >
-          {card.subtitle}
+          {typeLabel}
+        </div>
+      </div>
+
+      {/* Label area */}
+      <div
+        style={{
+          background: '#e6e7df',
+          padding: '6px 10px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 6,
+          flexShrink: 0,
+        }}
+      >
+        <span
+          style={{
+            color: '#0c0c0a',
+            fontSize: 10,
+            fontWeight: 600,
+            fontFamily: 'sans-serif',
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+          }}
+        >
+          {card.categoryLabel || 'Sans titre'}
         </span>
-      )}
+        {card.subtitle && (
+          <>
+            <span style={{ color: '#0c0c0a', fontSize: 9, opacity: 0.4 }}>—</span>
+            <span
+              style={{
+                color: '#0c0c0a',
+                fontSize: 9,
+                fontFamily: 'sans-serif',
+                opacity: 0.6,
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+              }}
+            >
+              {card.subtitle}
+            </span>
+          </>
+        )}
+      </div>
     </div>
   )
 }
@@ -106,10 +185,12 @@ function GridMakerInner({
   cards,
   layout,
   onLayoutCommit,
+  imageUrls,
 }: {
   cards: CardValue[]
   layout: Layout
   onLayoutCommit: (layout: Layout) => void
+  imageUrls: Record<string, string>
 }) {
   const { width, containerRef, mounted } = useContainerWidth()
 
@@ -125,18 +206,32 @@ function GridMakerInner({
     const currentKeys = new Set(current.map((l) => l.i))
     const nextKeys = new Set(layout.map((l) => l.i))
 
-    const kept = current.filter((l) => nextKeys.has(l.i))
+    // Sync w/h for existing items whose type changed
+    const kept = current
+      .filter((l) => nextKeys.has(l.i))
+      .map((currentItem) => {
+        const nextItem = layout.find((l) => l.i === currentItem.i)
+        if (nextItem && (nextItem.w !== currentItem.w || nextItem.h !== currentItem.h)) {
+          return { ...currentItem, w: nextItem.w, h: nextItem.h }
+        }
+        return currentItem
+      })
+
     const newItems = layout.filter((l) => !currentKeys.has(l.i))
+    const sizeChanged = kept.some((k) => {
+      const prev = current.find(c => c.i === k.i)
+      return prev && (prev.w !== k.w || prev.h !== k.h)
+    })
 
-    if (newItems.length === 0 && kept.length === current.length) return
+    if (newItems.length === 0 && !sizeChanged && kept.length === current.length) return
 
-    // Place new items at the bottom of the current committed layout
-    const bottomY = kept.reduce((max, l) => Math.max(max, l.y + l.h), 0)
-    const appended = newItems.map((item, i) => ({
-      ...item,
-      x: 0,
-      y: bottomY + i * (item.h ?? 3),
-    }))
+    // Place new items at the bottom without overlapping
+    let nextY = kept.reduce((max, l) => Math.max(max, l.y + l.h), 0)
+    const appended = newItems.map((item) => {
+      const placed = { ...item, x: 0, y: nextY }
+      nextY += item.h
+      return placed
+    })
 
     const next = [...kept, ...appended]
     currentRef.current = next
@@ -194,7 +289,7 @@ function GridMakerInner({
           </span>
         </div>
         <span style={{ color: '#444', fontSize: 11, fontFamily: 'monospace' }}>
-          glisser · redimensionner
+          glisser pour repositionner
         </span>
       </div>
 
@@ -232,10 +327,7 @@ function GridMakerInner({
             <GridLayout
               layout={localLayout}
               gridConfig={{ cols: COLS, rowHeight: ROW_HEIGHT }}
-              resizeConfig={{
-                enabled: true,
-                handles: ['se', 'sw', 'ne', 'nw', 'e', 'w', 's', 'n'],
-              }}
+              resizeConfig={{ enabled: false }}
               compactor={noCompactor}
               width={width}
               onDragStop={handleCommit}
@@ -244,13 +336,9 @@ function GridMakerInner({
             >
               {cards
                 .filter((card) => Boolean(card._key))
-                .map((card, i) => (
+                .map((card) => (
                   <div key={card._key}>
-                    <GridCard
-                      card={card}
-                      color={CARD_COLORS[i % CARD_COLORS.length]}
-                      layoutItem={localLayout.find((l) => l.i === card._key)}
-                    />
+                    <GridCard card={card} imageUrl={imageUrls[card._key]} />
                   </div>
                 ))}
             </GridLayout>
@@ -258,49 +346,33 @@ function GridMakerInner({
         </div>
       </div>
 
-      {/* Footer legend */}
+      {/* Footer */}
       <div
         style={{
           display: 'flex',
           alignItems: 'center',
-          gap: 16,
-          marginTop: 12,
-          paddingTop: 12,
+          gap: 8,
+          marginTop: 10,
+          paddingTop: 10,
           borderTop: '1px solid rgba(255,255,255,0.06)',
           flexWrap: 'wrap',
         }}
       >
-        <span style={{ color: '#444', fontSize: 10, fontFamily: 'monospace' }}>
-          1 row = {ROW_HEIGHT}px · {maxRow} rangée{maxRow > 1 ? 's' : ''}
-        </span>
-        {cards.map((card, i) => {
-          const item = localLayout.find((l) => l.i === card._key)
-          return (
-            <span
-              key={card._key}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 4,
-                color: '#555',
-                fontSize: 10,
-                fontFamily: 'monospace',
-              }}
-            >
-              <span
-                style={{
-                  width: 8,
-                  height: 8,
-                  borderRadius: 2,
-                  background: CARD_COLORS[i % CARD_COLORS.length],
-                  flexShrink: 0,
-                }}
-              />
-              {card.categoryLabel || `carte ${i + 1}`}
-              {item ? ` (${item.w}×${item.h})` : ''}
-            </span>
-          )
-        })}
+        {cards.map((card) => (
+          <span
+            key={card._key}
+            style={{
+              color: '#555',
+              fontSize: 10,
+              fontFamily: 'monospace',
+              background: 'rgba(255,255,255,0.04)',
+              padding: '2px 6px',
+              borderRadius: 3,
+            }}
+          >
+            {TYPE_LABEL[card.cardType ?? 'xl']} · {card.categoryLabel || '—'}
+          </span>
+        ))}
       </div>
     </div>
   )
@@ -309,25 +381,50 @@ function GridMakerInner({
 export function GridMakerInput(props: ArrayOfObjectsInputProps) {
   const { value = [], onChange, renderDefault } = props
   const cards = value as CardValue[]
+  const client = useClient({ apiVersion: '2024-01-01' })
+  const builder = useMemo(() => imageUrlBuilder(client), [client])
 
-  const layout = useMemo<Layout>(
-    () =>
-      cards
-        .filter((card) => Boolean(card._key))
-        .map((card, i) => {
-          const grid = card.grid ?? getDefaultPosition(i)
-          return {
-            i: card._key,
-            x: grid.x ?? 0,
-            y: grid.y ?? 0,
-            w: grid.w ?? 4,
-            h: grid.h ?? 3,
-            minW: 1,
-            minH: 1,
+  const imageUrls = useMemo<Record<string, string>>(() => {
+    const result: Record<string, string> = {}
+    for (const card of cards) {
+      if (!card._key) continue
+      const ref = card.media?.image?.asset?._ref
+      if (ref) {
+        result[card._key] = builder.image(ref).width(400).auto('format').url()
+      }
+    }
+    return result
+  }, [cards, builder])
+
+  const layout = useMemo<Layout>(() => {
+    const occupied: boolean[][] = []
+    const result: Array<{ i: string, x: number, y: number, w: number, h: number }> = []
+
+    for (const card of cards.filter(c => Boolean(c._key))) {
+      const { w, h } = getSizeFromType(card.cardType)
+      const saved = card.grid
+
+      if (saved) {
+        let fits = true
+        outer: for (let row = saved.y; row < saved.y + h; row++) {
+          for (let col = saved.x; col < saved.x + w; col++) {
+            if (occupied[row]?.[col]) { fits = false; break outer }
           }
-        }),
-    [cards]
-  )
+        }
+        if (fits) {
+          occupySlot(occupied, saved.x, saved.y, w, h)
+          result.push({ i: card._key, x: saved.x, y: saved.y, w, h })
+          continue
+        }
+      }
+
+      const { x, y } = findFreeSlot(occupied, w, h)
+      occupySlot(occupied, x, y, w, h)
+      result.push({ i: card._key, x, y, w, h })
+    }
+
+    return result as Layout
+  }, [cards])
 
   const handleLayoutChange = useCallback(
     (newLayout: Layout) => {
@@ -349,6 +446,7 @@ export function GridMakerInput(props: ArrayOfObjectsInputProps) {
         cards={cards}
         layout={layout}
         onLayoutCommit={handleLayoutChange}
+        imageUrls={imageUrls}
       />
       {renderDefault(props)}
     </div>

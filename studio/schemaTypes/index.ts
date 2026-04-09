@@ -9,6 +9,7 @@ import { settingsType } from './singletons/settings'
 
 // Documents
 import { locationType } from './documents/location'
+import { carType } from './documents/car'
 
 // Modules — Home
 import { heroType } from './modules/home/hero'
@@ -33,6 +34,7 @@ export const schemaTypes: SchemaTypeDefinition[] = [
 
   // Documents
   locationType,
+  carType,
 
   // Modules — Home
   heroType,

@@ -1,34 +1,11 @@
 <script setup lang="ts">
+import type { BrandsSection } from '~/queries/home'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
-const brandsLeft = [
-  { name: 'Ferrari', image: '/img/placeholder/brands/ferrari.jpg' },
-  { name: 'Lamborghini', image: '/img/placeholder/brands/lamborghini.jpg' },
-  { name: 'McLaren', image: '/img/placeholder/brands/mclaren.jpg' },
-  { name: 'Aston Martin', image: '/img/placeholder/brands/aston-martin.jpg' },
-  { name: 'Alfa Romeo', image: '/img/placeholder/brands/alfa-romeo.jpg' },
-  { name: 'Jaguar', image: '/img/placeholder/brands/jaguar.jpg' },
-  { name: 'Chevrolet Corvette', image: '/img/placeholder/brands/corvette.jpg' },
-  { name: 'Dodge', image: '/img/placeholder/brands/dodge.jpg' },
-  { name: 'Mustang', image: '/img/placeholder/brands/mustang.jpg' },
-  { name: 'Koenigsegg', image: '/img/placeholder/brands/koenigsegg.jpg' },
-  { name: 'Pagani', image: '/img/placeholder/brands/pagani.jpg' },
-]
+interface Props { data: BrandsSection | null }
 
-const brandsRight = [
-  { name: 'Mercedes-Benz', image: '/img/placeholder/brands/mercedes.jpg' },
-  { name: 'Audi', image: '/img/placeholder/brands/audi.jpg' },
-  { name: 'Bentley', image: '/img/placeholder/brands/bentley.jpg' },
-  { name: 'Rolls-Royce', image: '/img/placeholder/brands/rolls-royce.jpg' },
-  { name: 'Maserati', image: '/img/placeholder/brands/maserati.jpg' },
-  { name: 'Lexus', image: '/img/placeholder/brands/lexus.jpg' },
-  { name: 'Nissan GT-R', image: '/img/placeholder/brands/nissan-gtr.jpg' },
-  { name: 'Toyota Supra', image: '/img/placeholder/brands/toyota-supra.jpg' },
-  { name: 'Honda NSX', image: '/img/placeholder/brands/honda-nsx.jpg' },
-  { name: 'Mazda RX-7', image: '/img/placeholder/brands/mazda-rx7.jpg' },
-  { name: '50+', image: '/img/placeholder/brands/collection.jpg' },
-]
+const props = defineProps<Props>()
 
 const settings = useSettings()
 
@@ -105,6 +82,8 @@ onMounted(async () => {
   }, rootRef.value ?? undefined)
 })
 
+console.log('data', props.data)
+
 onUnmounted(() => {
   ctx?.revert()
 })
@@ -115,18 +94,16 @@ onUnmounted(() => {
     <div class="app-elements-brands-section__inner">
       <ul class="app-elements-brands-section__list">
         <li
-          v-for="brand in brandsLeft"
-          :key="brand.name"
+          v-for="(car, i) in data?.carsLeft"
+          :key="`left-${i}`"
           class="brand-item"
-          :data-brand="brand.name"
-          :class="{ 'is-hovered': hoveredBrand === brand.name }"
+          :data-brand="`left-${i}`"
+          :class="{ 'is-hovered': hoveredBrand === `left-${i}` }"
         >
-          <ElementsMedia
-            class="brand-item__cursor"
-            :src="brand.image"
-          />
-          <TextsH3 :selectable="false" :color="hoveredBrand === brand.name ? 'orange' : 'beige-100'">
-            {{ brand.name }}
+          <NuxtImg v-if="car.imageUrl" class="brand-item__cursor" :src="car.imageUrl" :alt="`${car.marque} ${car.modele}`" loading="eager" />
+          <div v-else class="brand-item__cursor" />
+          <TextsH3 :selectable="false" :color="hoveredBrand === `left-${i}` ? 'orange' : 'beige-100'">
+            {{ car.marque }} {{ car.modele }}
           </TextsH3>
         </li>
       </ul>
@@ -135,41 +112,35 @@ onUnmounted(() => {
 
       <ul class="app-elements-brands-section__list">
         <li
-          v-for="brand in brandsRight"
-          :key="brand.name"
+          v-for="(car, i) in data?.carsRight"
+          :key="`right-${i}`"
           class="brand-item"
-          :data-brand="brand.name"
-          :class="{ 'is-hovered': hoveredBrand === brand.name }"
+          :data-brand="`right-${i}`"
+          :class="{ 'is-hovered': hoveredBrand === `right-${i}` }"
         >
-          <ElementsMedia
-            class="brand-item__cursor"
-            :src="brand.image"
-          />
-          <TextsH3 :selectable="false" :color="hoveredBrand === brand.name ? 'orange' : 'beige-100'">
-            {{ brand.name }}
+          <NuxtImg v-if="car.imageUrl" class="brand-item__cursor" :src="car.imageUrl" :alt="`${car.marque} ${car.modele}`" loading="eager" />
+          <div v-else class="brand-item__cursor" />
+          <TextsH3 :selectable="false" :color="hoveredBrand === `right-${i}` ? 'orange' : 'beige-100'">
+            {{ car.marque }} {{ car.modele }}
           </TextsH3>
         </li>
       </ul>
 
-      <TextsP2 class="app-elements-brands-section__description" color="beige-100">
-        Une collection soigneusement sélectionnée.
+      <TextsP2 v-if="data?.description" class="app-elements-brands-section__description" color="beige-100">
+        {{ data.description }}
       </TextsP2>
     </div>
 
     <div class="app-elements-brands-section__text">
       <div class="app-elements-brands-section__text-content">
         <div class="app-elements-brands-section__text-headline">
-          <TextsP2 color="beige-100">
-            (de A à Z)
+          <TextsP2 v-if="data?.surtitle" color="beige-100">
+            {{ data.surtitle }}
           </TextsP2>
-          <TextsH3 color="beige-100">
-            Chaque réservation est prise en charge par un conseiller dédié.
+          <TextsH3 v-if="data?.heading" color="beige-100">
+            {{ data.heading }}
           </TextsH3>
         </div>
-
-        <TextsH3 color="beige-100">
-          Nous orchestrons l'ensemble de la prestation pour vous garantir une expérience fluide, précise et sans compromis.
-        </TextsH3>
 
         <AtomsCTA v-if="settings?.contactLink?.text" theme="white" :tiret-after="0" :to="settings.contactLink">
           {{ settings.contactLink.text }}
@@ -253,6 +224,7 @@ onUnmounted(() => {
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
+    object-fit: cover;
   }
 
   &.is-hovered .H3 {

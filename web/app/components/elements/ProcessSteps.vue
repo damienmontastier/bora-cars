@@ -30,7 +30,6 @@ let snap: { destroy: () => void, goTo: (index: number) => void, stop: () => void
 
 function snapToStep(index: number) {
   isSnapping.value = true
-  snap?.start()
   snap?.goTo(index)
 }
 

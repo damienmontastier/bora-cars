@@ -7,20 +7,41 @@ export interface SanityLink {
   phone?: string
 }
 
-export interface CardGrid {
-  x: number
-  y: number
-  w: number
-  h: number
-}
+
+export type CardType = 'xxl' | 'xl' | 'l' | 'm'
 
 export interface ServiceCard {
   _key: string
+  cardType: CardType
   categoryLabel: string
   subtitle?: string
-  url: string
-  media: unknown
-  grid?: CardGrid
+  link: SanityLink
+  media: {
+    mediaType: 'image' | 'video'
+    imageUrl?: string
+    imageAlt?: string
+  } | null
+  grid?: {
+    x: number
+    y: number
+    w: number
+    h: number
+  }
+}
+
+export interface Car {
+  _id: string
+  marque: string
+  modele: string
+  imageUrl?: string
+}
+
+export interface BrandsSection {
+  carsLeft: Car[]
+  carsRight: Car[]
+  description?: string
+  surtitle?: string
+  heading?: string
 }
 
 export interface HomepageData {
@@ -40,6 +61,7 @@ export interface HomepageData {
   process: {
     steps: Array<{ _key: string, title: string, description?: string }>
   } | null
+  brandsSection: BrandsSection | null
 }
 
 export const HOMEPAGE_QUERY = `*[_type == "homepage"][0]{
@@ -51,11 +73,16 @@ export const HOMEPAGE_QUERY = `*[_type == "homepage"][0]{
   "serviceCards": modules[_type == "serviceCards"][0]{
     cards[]{
       _key,
+      cardType,
       categoryLabel,
       subtitle,
-      url,
-      media,
-      grid{ x, y, w, h }
+      link{ type, text, url, email, phone },
+      media {
+        mediaType,
+        "imageUrl": image.asset->url,
+        "imageAlt": image.alt
+      },
+      grid { x, y, w, h }
     }
   },
   "pitch": modules[_type == "pitch"][0]{
@@ -65,5 +92,12 @@ export const HOMEPAGE_QUERY = `*[_type == "homepage"][0]{
   },
   "process": modules[_type == "process"][0]{
     steps[]{_key, title, description}
+  },
+  "brandsSection": modules[_type == "brandsSection"][0]{
+    carsLeft[]->{_id, marque, modele, "imageUrl": image.asset->url},
+    carsRight[]->{_id, marque, modele, "imageUrl": image.asset->url},
+    description,
+    surtitle,
+    heading
   }
 }`

@@ -20,6 +20,21 @@ export const serviceCardsType = defineType({
           type: 'object',
           fields: [
             defineField({
+              name: 'cardType',
+              title: 'Format',
+              type: 'string',
+              options: {
+                list: [
+                  { title: 'XXL — Large paysage', value: 'xxl' },
+                  { title: 'XL — Paysage', value: 'xl' },
+                  { title: 'L — Portrait grand', value: 'l' },
+                  { title: 'M — Portrait', value: 'm' },
+                ],
+                layout: 'radio',
+              },
+              validation: (Rule) => Rule.required(),
+            }),
+            defineField({
               name: 'media',
               title: 'Média',
               type: 'customMedia',
@@ -29,7 +44,7 @@ export const serviceCardsType = defineType({
               name: 'categoryLabel',
               title: 'Catégorie',
               type: 'string',
-              description: 'Ex: "Citadines", "SUV Premium"…',
+              description: 'Ex: "Mariage", "SUV Premium"…',
               validation: (Rule) => Rule.required().max(20),
             }),
             defineField({
@@ -39,10 +54,9 @@ export const serviceCardsType = defineType({
               validation: (Rule) => Rule.max(30),
             }),
             defineField({
-              name: 'url',
-              title: 'URL de destination',
-              type: 'url',
-              description: 'Lien vers lequel renvoie la carte au clic',
+              name: 'link',
+              title: 'Lien',
+              type: 'customLink',
               validation: (Rule) => Rule.required(),
             }),
             defineField({
@@ -53,13 +67,17 @@ export const serviceCardsType = defineType({
               fields: [
                 defineField({ name: 'x', title: 'X', type: 'number', initialValue: 0 }),
                 defineField({ name: 'y', title: 'Y', type: 'number', initialValue: 0 }),
-                defineField({ name: 'w', title: 'Largeur (colonnes)', type: 'number', initialValue: 4 }),
-                defineField({ name: 'h', title: 'Hauteur (lignes)', type: 'number', initialValue: 3 }),
+                defineField({ name: 'w', title: 'Largeur', type: 'number', initialValue: 4 }),
+                defineField({ name: 'h', title: 'Hauteur', type: 'number', initialValue: 8 }),
               ],
             }),
           ],
           preview: {
-            select: { title: 'categoryLabel', subtitle: 'subtitle' },
+            select: { title: 'categoryLabel', subtitle: 'cardType' },
+            prepare({ title, subtitle }) {
+              const labels: Record<string, string> = { xxl: 'XXL', xl: 'XL', l: 'L', m: 'M' }
+              return { title, subtitle: labels[subtitle] ?? subtitle }
+            },
           },
         }),
       ],

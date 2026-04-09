@@ -8,52 +8,58 @@ export const brandsSectionType = defineType({
   icon: TagIcon,
   fieldsets: [
     {
-      name: 'intro',
-      title: 'Introduction',
+      name: 'lists',
+      title: 'Listes de voitures',
       options: { collapsible: true, collapsed: false },
     },
     {
-      name: 'brands',
-      title: 'Marques',
+      name: 'text',
+      title: 'Texte',
       options: { collapsible: true, collapsed: false },
     },
   ],
   fields: [
     defineField({
-      name: 'description',
-      title: 'Description',
-      type: 'text',
-      fieldset: 'intro',
-      description: 'Texte d\'accroche affiché au-dessus du défilé de marques',
-      rows: 2,
-      validation: (Rule) => Rule.required().max(60),
+      name: 'carsLeft',
+      title: 'Colonne gauche',
+      type: 'array',
+      fieldset: 'lists',
+      of: [defineArrayMember({ type: 'reference', to: [{ type: 'car' }] })],
+    }),
+    defineField({
+      name: 'carsRight',
+      title: 'Colonne droite',
+      type: 'array',
+      fieldset: 'lists',
+      of: [defineArrayMember({ type: 'reference', to: [{ type: 'car' }] })],
     }),
 
     defineField({
-      name: 'brands',
-      title: 'Marques',
-      type: 'array',
-      fieldset: 'brands',
-      description: 'Noms des marques automobiles affichés dans le défilé',
-      validation: (Rule) => Rule.required().min(1),
-      of: [
-        defineArrayMember({
-          type: 'object',
-          fields: [
-            defineField({
-              name: 'name',
-              title: 'Nom de la marque',
-              type: 'string',
-              validation: (Rule) => Rule.required(),
-            }),
-          ],
-          preview: { select: { title: 'name' } },
-        }),
-      ],
+      name: 'description',
+      title: 'Description',
+      type: 'string',
+      fieldset: 'text',
+      description: 'Texte affiché en bas des listes (ex: "Une collection soigneusement sélectionnée.")',
+      validation: (Rule) => Rule.required(),
+    }),
+    defineField({
+      name: 'surtitle',
+      title: 'Surtitle',
+      type: 'string',
+      fieldset: 'text',
+      description: 'Petit texte avant le heading (ex: "de A à Z")',
+    }),
+    defineField({
+      name: 'heading',
+      title: 'Heading',
+      type: 'text',
+      fieldset: 'text',
+      rows: 3,
+      validation: (Rule) => Rule.required(),
     }),
   ],
   preview: {
-    select: { subtitle: 'description' },
+    select: { subtitle: 'heading' },
     prepare({ subtitle }) {
       return { title: 'Brands Section', subtitle }
     },

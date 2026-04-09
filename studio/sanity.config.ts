@@ -62,6 +62,7 @@ export default defineConfig({
               ),
             S.divider(),
             S.documentTypeListItem('location').title('Lieux'),
+            S.documentTypeListItem('car').title('Voitures'),
           ]),
     }),
     visionTool(),
