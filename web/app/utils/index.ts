@@ -135,6 +135,17 @@ export function getRandomBetween(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min
 }
 
+/**
+ * Convert a Sanity CDN image URL to an asset ID for @nuxt/image sanity provider.
+ * e.g. https://cdn.sanity.io/images/proj/dataset/abc123-700x700.jpg → image-abc123-700x700-jpg
+ */
+export function sanityUrlToAssetId(url: string): string | null {
+  if (!url?.includes('cdn.sanity.io')) return null
+  const match = url.match(/\/([a-f0-9]+-\d+x\d+\.\w+)(?:\?.*)?$/)
+  if (!match) return null
+  return `image-${match[1].replace(/\.(\w+)$/, '-$1')}`
+}
+
 export function objectToUID(obj) {
   // Helper function to generate a hash from a string
   function generateHash(str) {

@@ -79,7 +79,7 @@ export const HOMEPAGE_QUERY = `*[_type == "homepage"][0]{
       link{ type, text, url, email, phone },
       media {
         mediaType,
-        "imageUrl": image.asset->url,
+        "imageUrl": image.asset._ref,
         "imageAlt": image.alt
       },
       grid { x, y, w, h }
@@ -94,8 +94,8 @@ export const HOMEPAGE_QUERY = `*[_type == "homepage"][0]{
     steps[]{_key, title, description}
   },
   "brandsSection": modules[_type == "brandsSection"][0]{
-    carsLeft[]->{_id, marque, modele, "imageUrl": image.asset->url},
-    carsRight[]->{_id, marque, modele, "imageUrl": image.asset->url},
+    carsLeft[]->{_id, marque, modele, "imageUrl": image.asset._ref},
+    carsRight[]->{_id, marque, modele, "imageUrl": image.asset._ref},
     description,
     surtitle,
     heading

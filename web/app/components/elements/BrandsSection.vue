@@ -100,7 +100,7 @@ onUnmounted(() => {
           :data-brand="`left-${i}`"
           :class="{ 'is-hovered': hoveredBrand === `left-${i}` }"
         >
-          <NuxtImg v-if="car.imageUrl" class="brand-item__cursor" :src="car.imageUrl" :alt="`${car.marque} ${car.modele}`" loading="eager" />
+          <NuxtImg v-if="car.imageUrl" class="brand-item__cursor" :src="car.imageUrl" :alt="`${car.marque} ${car.modele}`" provider="sanity" loading="eager" />
           <div v-else class="brand-item__cursor" />
           <TextsH3 :selectable="false" :color="hoveredBrand === `left-${i}` ? 'orange' : 'beige-100'">
             {{ car.marque }} {{ car.modele }}
@@ -118,7 +118,7 @@ onUnmounted(() => {
           :data-brand="`right-${i}`"
           :class="{ 'is-hovered': hoveredBrand === `right-${i}` }"
         >
-          <NuxtImg v-if="car.imageUrl" class="brand-item__cursor" :src="car.imageUrl" :alt="`${car.marque} ${car.modele}`" loading="eager" />
+          <NuxtImg v-if="car.imageUrl" class="brand-item__cursor" :src="car.imageUrl" :alt="`${car.marque} ${car.modele}`" provider="sanity" loading="eager" />
           <div v-else class="brand-item__cursor" />
           <TextsH3 :selectable="false" :color="hoveredBrand === `right-${i}` ? 'orange' : 'beige-100'">
             {{ car.marque }} {{ car.modele }}

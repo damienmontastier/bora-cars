@@ -2,32 +2,83 @@
 const props = defineProps({
   src: {
     type: String,
-    default: '/img/placeholder/hero.png',
+    required: false,
   },
   alt: {
     type: String,
-    default: 'alt-default',
+    default: '',
+  },
+  lazy: {
+    type: Boolean,
+    default: true,
+  },
+  preload: {
+    type: Boolean,
+    default: false,
+  },
+  sizes: {
+    type: String,
+    default: undefined,
+  },
+  modifiers: {
+    type: Object,
+    default: undefined,
   },
 })
 
-const isSanity = computed(() =>
-  !!props.src && props.src.includes('cdn.sanity.io')
-)
+const isLoaded = ref(false)
+
+function onLoad() {
+  isLoaded.value = true
+}
+
+const loading = computed(() => props.lazy ? 'lazy' : 'eager')
+
+const hasSrc = computed(() => !!props.src)
+
+const resolvedProvider = computed(() => {
+  if (props.src?.startsWith('image-'))
+    return 'sanity'
+  return undefined // ipx by default
+})
+
+const localModifiers = computed(() => props.modifiers ?? {})
+
+const mainRef = useTemplateRef<HTMLElement>('mainRef')
+const pictureRef = ref<any>(null)
+
+onMounted(() => {
+  const el = pictureRef.value?.$el ?? pictureRef.value
+  const img = el?.querySelector?.('img') ?? el
+  if (img?.complete)
+    onLoad()
+})
+
+defineExpose({ mainRef, pictureRef })
 </script>
 
 <template>
-  <div class="app-elements-media">
-    <div v-if="!src" class="app-elements-media__placeholder" />
+  <div ref="mainRef" class="app-elements-media">
     <NuxtPicture
-      v-else-if="isSanity"
-      :src="src"
+      v-if="hasSrc"
+      ref="pictureRef"
+      class="app-elements-media__image"
+      :src="src!"
+      :sizes="sizes"
+      :loading="loading"
+      :preload="preload"
+      :provider="resolvedProvider"
+      format="webp"
       :alt="alt"
-      provider="sanity"
+      :modifiers="localModifiers"
+      :class="{ 'not-loaded': !isLoaded }"
+      @load="onLoad"
     />
-    <NuxtPicture
+
+    <div
       v-else
-      :src="src"
-      :alt="alt"
+      ref="pictureRef"
+      class="app-elements-media__fallback"
     />
   </div>
 </template>
@@ -35,18 +86,66 @@ const isSanity = computed(() =>
 <style lang="scss">
 .app-elements-media {
   position: relative;
+  overflow: hidden;
 
-  picture,
-  img {
+  &__image,
+  &__fallback {
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    display: block;
+    overflow: hidden;
   }
 
-  &__placeholder {
+  &__image {
+    position: relative;
+    background-color: var(--c-beige-20);
+
+    :deep(picture),
+    :deep(img) {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    :deep(img) {
+      opacity: 1;
+      transition: opacity 0.35s ease-out;
+      object-fit: cover;
+    }
+
+    &::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+      background: linear-gradient(90deg, var(--c-beige-20) 0%, var(--c-beige-40) 50%, var(--c-beige-20) 100%);
+      background-size: 200% 100%;
+      opacity: 0;
+      transition: opacity 0.35s ease-out;
+      pointer-events: none;
+    }
+
+    &.not-loaded {
+      :deep(img) {
+        opacity: 0;
+      }
+
+      &::after {
+        opacity: 1;
+        animation: media-skeleton 1.5s infinite linear;
+      }
+    }
+  }
+
+  &__fallback {
     width: 100%;
     height: 100%;
     background: var(--c-beige-20);
+  }
+
+  @keyframes media-skeleton {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
   }
 }
 </style>
