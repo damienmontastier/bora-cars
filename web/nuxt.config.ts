@@ -49,6 +49,7 @@ export default defineNuxtConfig({
 
   image: {
     format: ['avif', 'webp'],
+    domains: ['cdn.sanity.io'],
 
     screens: {
       sm: 800,
