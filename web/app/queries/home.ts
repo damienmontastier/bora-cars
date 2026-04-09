@@ -1,3 +1,5 @@
+import { imageFields, imageRef, type SanityImage } from './fragments'
+
 export interface SanityLink {
   _key?: string
   type: 'external' | 'email' | 'phone' | 'internal'
@@ -7,7 +9,6 @@ export interface SanityLink {
   phone?: string
 }
 
-
 export type CardType = 'xxl' | 'xl' | 'l' | 'm'
 
 export interface ServiceCard {
@@ -16,11 +17,7 @@ export interface ServiceCard {
   categoryLabel: string
   subtitle?: string
   link: SanityLink
-  media: {
-    mediaType: 'image' | 'video'
-    imageUrl?: string
-    imageAlt?: string
-  } | null
+  media: ({ mediaType: 'image' | 'video' } & Partial<SanityImage>) | null
   grid?: {
     x: number
     y: number
@@ -79,8 +76,7 @@ export const HOMEPAGE_QUERY = `*[_type == "homepage"][0]{
       link{ type, text, url, email, phone },
       media {
         mediaType,
-        "imageUrl": image.asset._ref,
-        "imageAlt": image.alt
+        ${imageFields()}
       },
       grid { x, y, w, h }
     }
@@ -94,8 +90,8 @@ export const HOMEPAGE_QUERY = `*[_type == "homepage"][0]{
     steps[]{_key, title, description}
   },
   "brandsSection": modules[_type == "brandsSection"][0]{
-    carsLeft[]->{_id, marque, modele, "imageUrl": image.asset._ref},
-    carsRight[]->{_id, marque, modele, "imageUrl": image.asset._ref},
+    carsLeft[]->{_id, marque, modele, ${imageRef()}},
+    carsRight[]->{_id, marque, modele, ${imageRef()}},
     description,
     surtitle,
     heading

@@ -29,6 +29,9 @@ const gridStyle = computed(() => {
         v-if="card.media?.imageUrl"
         :src="card.media.imageUrl"
         :alt="card.media.imageAlt ?? card.categoryLabel"
+        provider="sanity"
+        :hotspot="card.media.imageHotspot"
+        :crop="card.media.imageCrop"
       />
     </div>
 

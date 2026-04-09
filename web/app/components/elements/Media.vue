@@ -20,6 +20,18 @@ const props = defineProps({
     type: String,
     default: undefined,
   },
+  provider: {
+    type: String as () => 'sanity' | 'ipx' | undefined,
+    default: undefined,
+  },
+  hotspot: {
+    type: Object as () => { x: number, y: number, width: number, height: number } | undefined,
+    default: undefined,
+  },
+  crop: {
+    type: Object as () => { top: number, bottom: number, left: number, right: number } | undefined,
+    default: undefined,
+  },
   modifiers: {
     type: Object,
     default: undefined,
@@ -36,13 +48,13 @@ const loading = computed(() => props.lazy ? 'lazy' : 'eager')
 
 const hasSrc = computed(() => !!props.src)
 
-const resolvedProvider = computed(() => {
-  if (props.src?.startsWith('image-'))
-    return 'sanity'
-  return undefined // ipx by default
-})
+const resolvedProvider = computed(() => props.provider ?? undefined)
 
-const localModifiers = computed(() => props.modifiers ?? {})
+const localModifiers = computed(() => ({
+  ...props.modifiers,
+  ...(props.hotspot && { hotspot: props.hotspot }),
+  ...(props.crop && { crop: props.crop }),
+}))
 
 const mainRef = useTemplateRef<HTMLElement>('mainRef')
 const pictureRef = ref<any>(null)
@@ -98,7 +110,7 @@ defineExpose({ mainRef, pictureRef })
 
   &__image {
     position: relative;
-    background-color: var(--c-beige-20);
+    background-color: var(--c-orange-10);
 
     :deep(picture),
     :deep(img) {
@@ -118,7 +130,7 @@ defineExpose({ mainRef, pictureRef })
       position: absolute;
       inset: 0;
       z-index: 2;
-      background: linear-gradient(90deg, var(--c-beige-20) 0%, var(--c-beige-40) 50%, var(--c-beige-20) 100%);
+      background: linear-gradient(90deg, var(--c-orange-10) 0%, var(--c-orange-20) 50%, var(--c-orange-10) 100%);
       background-size: 200% 100%;
       opacity: 0;
       transition: opacity 0.35s ease-out;
@@ -140,7 +152,7 @@ defineExpose({ mainRef, pictureRef })
   &__fallback {
     width: 100%;
     height: 100%;
-    background: var(--c-beige-20);
+    background: var(--c-orange-10);
   }
 
   @keyframes media-skeleton {
