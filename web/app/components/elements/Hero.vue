@@ -186,7 +186,7 @@ onUnmounted(() => {
 <template>
   <div class="app-elements-hero">
     <div class="app-elements-hero__background-wrapper">
-      <ElementsMedia class="app-elements-hero__background" src="/img/placeholder/hero.png" alt="test" />
+      <ElementsMedia class="app-elements-hero__background" src="/img/placeholder/hero.png" alt="test" :preload="true" />
     </div>
 
     <div class="app-elements-hero__content">
