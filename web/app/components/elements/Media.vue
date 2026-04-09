@@ -13,7 +13,7 @@ const props = defineProps({
     default: true,
   },
   preload: {
-    type: Boolean,
+    type: [Boolean, Object] as unknown as () => boolean | { fetchPriority?: 'high' | 'low' | 'auto' },
     default: false,
   },
   sizes: {

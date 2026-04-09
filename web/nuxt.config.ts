@@ -49,7 +49,7 @@ export default defineNuxtConfig({
 
   image: {
     format: ['avif', 'webp'],
-    provider: 'ipxStatic',
+    provider: 'ipx',
 
     sanity: {
       projectId: process.env.NUXT_PUBLIC_SANITY_PROJECT_ID,
