@@ -9,12 +9,26 @@ const props = defineProps({
     default: 'alt-default',
   },
 })
+
+const isSanity = computed(() =>
+  !!props.src && props.src.includes('cdn.sanity.io')
+)
 </script>
 
 <template>
   <div class="app-elements-media">
-    <div v-if="!props.src" class="app-elements-media__placeholder" />
-    <NuxtPicture v-else :src="props.src" :alt="props.alt" />
+    <div v-if="!src" class="app-elements-media__placeholder" />
+    <NuxtPicture
+      v-else-if="isSanity"
+      :src="src"
+      :alt="alt"
+      provider="sanity"
+    />
+    <NuxtPicture
+      v-else
+      :src="src"
+      :alt="alt"
+    />
   </div>
 </template>
 

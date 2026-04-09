@@ -49,7 +49,12 @@ export default defineNuxtConfig({
 
   image: {
     format: ['avif', 'webp'],
-    domains: ['cdn.sanity.io'],
+    provider: 'ipx',
+
+    sanity: {
+      projectId: process.env.NUXT_PUBLIC_SANITY_PROJECT_ID,
+      dataset: process.env.NUXT_PUBLIC_SANITY_DATASET || 'production',
+    },
 
     screens: {
       sm: 800,
