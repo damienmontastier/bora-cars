@@ -13,6 +13,10 @@
   @return calc(math.div($pixels * 100vw, $base-vw));
 }
 
+@function font-vw($pixels, $base-vw: $desktop-width) {
+  @return min(#{math.div($pixels * 100vw, $base-vw)}, #{$pixels});
+}
+
 @function desktop-vw-native($pixels, $base-vw: $desktop-width) {
   @return math.div($pixels * 100vw, $base-vw);
 }
