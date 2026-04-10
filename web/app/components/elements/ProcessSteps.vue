@@ -177,69 +177,69 @@ onUnmounted(() => {
     margin: 0;
     padding: 0;
   }
-}
 
-.process-step {
-  display: flex;
-  align-items: center;
-  padding: desktop-vw(32px) 0;
-  position: relative;
-  overflow: hidden;
-  gap: desktop-vw(64px);
-  cursor: pointer;
-
-  &::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 3px;
-    background: var(--c-orange-100);
-    pointer-events: none;
-    z-index: 2;
-    mix-blend-mode: screen;
-  }
-
-  &__bg {
-    position: absolute;
-    top: -3px;
-    bottom: -3px;
-    left: 0;
-    right: 0;
-    background: var(--c-orange);
-    pointer-events: none;
-    z-index: 1;
-    overflow: hidden;
-  }
-
-  &__bg-content {
+  .process-step {
     display: flex;
     align-items: center;
     padding: desktop-vw(32px) 0;
-    height: 100%;
-    gap: desktop-vw(64px);
-  }
-
-  &__number {
-    flex-shrink: 0;
-  }
-
-  &__main {
     position: relative;
-    flex: 1;
     overflow: hidden;
-  }
+    gap: desktop-vw(64px);
+    cursor: pointer;
 
-  &__label,
-  &__description {
-    display: block;
-  }
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: var(--c-orange-100);
+      pointer-events: none;
+      z-index: 2;
+      mix-blend-mode: screen;
+    }
 
-  &__description {
-    position: absolute;
-    top: 0;
-    left: 0;
+    &__bg {
+      position: absolute;
+      top: -3px;
+      bottom: -3px;
+      left: 0;
+      right: 0;
+      background: var(--c-orange);
+      pointer-events: none;
+      z-index: 1;
+      overflow: hidden;
+    }
+
+    &__bg-content {
+      display: flex;
+      align-items: center;
+      padding: desktop-vw(32px) 0;
+      height: 100%;
+      gap: desktop-vw(64px);
+    }
+
+    &__number {
+      flex-shrink: 0;
+    }
+
+    &__main {
+      position: relative;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    &__label,
+    &__description {
+      display: block;
+    }
+
+    &__description {
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
   }
 }
 </style>

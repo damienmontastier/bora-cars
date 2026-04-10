@@ -10,6 +10,11 @@ export interface ProprietaireData {
   process: {
     steps: Array<{ _key: string, title: string, description?: string }>
   } | null
+  cardsColumn: {
+    heading?: string
+    subtext?: string
+    cards: Array<{ _key: string, title: string, description?: string }>
+  } | null
 }
 
 export const PROPRIETAIRE_QUERY = `*[_type == "proprietaire"][0]{
@@ -34,5 +39,10 @@ export const PROPRIETAIRE_QUERY = `*[_type == "proprietaire"][0]{
   },
   "process": modules[_type == "process"][0]{
     steps[]{_key, title, description}
+  },
+  "cardsColumn": modules[_type == "cardsColumn"][0]{
+    heading,
+    subtext,
+    cards[]{_key, title, description}
   }
 }`

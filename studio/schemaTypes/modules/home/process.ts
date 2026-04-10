@@ -6,47 +6,15 @@ export const processType = defineType({
   title: 'Process Steps',
   type: 'object',
   icon: OlistIcon,
-  fieldsets: [
-    {
-      name: 'steps',
-      title: 'Étapes',
-      options: { collapsible: true, collapsed: false },
-    },
-  ],
   fields: [
     defineField({
       name: 'steps',
       title: 'Étapes du processus',
       type: 'array',
-      fieldset: 'steps',
       description: 'Chaque étape représente une ligne dans la liste numérotée',
       validation: (Rule) => Rule.required().min(1),
-      of: [
-        defineArrayMember({
-          type: 'object',
-          fields: [
-            defineField({
-              name: 'title',
-              title: 'Intitulé',
-              type: 'string',
-              validation: (Rule) => Rule.required().max(40),
-            }),
-            defineField({
-              name: 'description',
-              title: 'Description',
-              description: 'Affiché sur mobile uniquement',
-              type: 'text',
-              rows: 2,
-              validation: (Rule) => Rule.max(100),
-            }),
-          ],
-          preview: {
-            select: { title: 'title', subtitle: 'description' },
-          },
-        }),
-      ],
+      of: [defineArrayMember({ type: 'processStep' })],
     }),
-
   ],
   preview: {
     select: { steps: 'steps' },

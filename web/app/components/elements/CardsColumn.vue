@@ -2,20 +2,26 @@
 import gsap from 'gsap'
 import { useLenis } from 'lenis/vue'
 
-interface ProcessStep {
+interface CardItem {
   _key: string
   title: string
   description?: string
 }
 
-interface Props { steps: ProcessStep[] }
+interface Props {
+  heading?: string
+  subtext?: string
+  cards: CardItem[]
+}
 
 const props = defineProps<Props>()
 
+const settings = useSettings()
+
 const items = computed(() =>
-  props.steps.map((step, index) => ({
-    ...step,
-    number: `(${String.fromCharCode(65 + index)})`,
+  props.cards.map((card, index) => ({
+    ...card,
+    number: `(${index + 1}.)`,
   })),
 )
 
@@ -28,7 +34,7 @@ const lenis = useLenis()
 let ctx: gsap.Context | null = null
 let snap: { destroy: () => void, goTo: (index: number) => void, stop: () => void, start: () => void, addElements: (elements: HTMLElement[], options?: object) => void } | null = null
 
-function snapToStep(index: number) {
+function snapToItem(index: number) {
   isSnapping.value = true
   snap?.goTo(index)
 }
@@ -50,7 +56,7 @@ onMounted(async () => {
     })
 
     snap.addElements(
-      Array.from(rootRef.value.querySelectorAll<HTMLElement>('.process-step')),
+      Array.from(rootRef.value.querySelectorAll<HTMLElement>('.cards-column__item')),
       { align: ['center'] },
     )
 
@@ -59,18 +65,12 @@ onMounted(async () => {
   }
 
   ctx = gsap.context(() => {
-    const items = gsap.utils.toArray<HTMLElement>('.process-step', rootRef.value)
+    const cardItems = gsap.utils.toArray<HTMLElement>('.cards-column__item', rootRef.value)
 
-    items.forEach((item) => {
-      const bg = item.querySelector<HTMLElement>('.process-step__bg')
-      const bgContent = item.querySelector<HTMLElement>('.process-step__bg-content')
-      const labels = item.querySelectorAll<HTMLElement>('.process-step__label')
-      const descriptions = item.querySelectorAll<HTMLElement>('.process-step__description')
+    cardItems.forEach((item) => {
+      const bg = item.querySelector<HTMLElement>('.cards-column__item-bg')
+      const bgContent = item.querySelector<HTMLElement>('.cards-column__item-bg-content')
 
-      gsap.set(descriptions, { yPercent: 100 })
-      gsap.set(labels, { yPercent: 0 })
-
-      // Background mask sweep
       const tl = gsap.timeline({
         scrollTrigger: {
           trigger: item,
@@ -83,37 +83,6 @@ onMounted(async () => {
 
       tl.fromTo(bg, { yPercent: -100 }, { yPercent: 100, ease: 'none' }, 0)
       tl.fromTo(bgContent, { yPercent: 100 }, { yPercent: -100, ease: 'none' }, 0)
-
-      // Label ↔ description swap
-      let swapTl: gsap.core.Timeline | null = null
-
-      const showDescription = () => {
-        swapTl?.kill()
-        swapTl = gsap.timeline()
-          .to(labels, { yPercent: -100, duration: 0.35, ease: 'power2.in' }, 0)
-          .to(descriptions, { yPercent: 0, duration: 0.5, ease: 'power2.out' }, 0.25)
-      }
-
-      const showLabel = () => {
-        swapTl?.kill()
-        swapTl = gsap.timeline()
-          .to(descriptions, { yPercent: 100, duration: 0.3, ease: 'power2.in' }, 0)
-          .to(labels, { yPercent: 0, duration: 0.4, ease: 'power2.out' }, 0.2)
-      }
-
-      gsap.timeline({
-        scrollTrigger: {
-          trigger: item,
-          start: 'center-=35% center',
-          end: 'center+=50% center',
-          onEnter: showDescription,
-          onEnterBack: showDescription,
-          onLeave: showLabel,
-          onLeaveBack: showLabel,
-          fastScrollEnd: true,
-          preventOverlaps: true,
-        },
-      })
     })
   }, rootRef.value ?? undefined)
 })
@@ -125,39 +94,54 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <section ref="rootRef" v-menu-theme="'orange'" class="app-elements-process-steps" :class="{ 'is-snapping': isSnapping }">
-    <ol class="app-elements-process-steps__list">
+  <section ref="rootRef" class="app-elements-cards-column" :class="{ 'is-snapping': isSnapping }">
+    <div class="app-elements-cards-column__left">
+      <TextsH3 v-if="heading" tag="h2" :selectable="false" class="app-elements-cards-column__left-heading" color="beige-100">
+        {{ heading }}
+      </TextsH3>
+
+      <div class="app-elements-cards-column__left-bottom">
+        <TextsP1 v-if="subtext" color="beige-100">
+          {{ subtext }}
+        </TextsP1>
+        <AtomsCTA v-if="settings?.contactLink?.text" theme="white" :to="settings.contactLink" :tiret-after="0">
+          {{ settings.contactLink.text }}
+        </AtomsCTA>
+      </div>
+    </div>
+
+    <ol class="app-elements-cards-column__list">
       <li
-        v-for="(step, index) in items"
-        :key="step._key"
-        class="process-step"
-        @click="snapToStep(index)"
+        v-for="(item, index) in items"
+        :key="item._key"
+        class="cards-column__item"
+        @click="snapToItem(index)"
       >
-        <TextsH3 :selectable="false" class="process-step__number" color="orange-100">
-          {{ step.number }}
+        <TextsH3 :selectable="false" class="cards-column__item-number" color="beige-100">
+          {{ item.number }}
         </TextsH3>
 
-        <div class="process-step__main">
-          <TextsH3 tag="span" :selectable="false" class="process-step__label" color="orange-100">
-            {{ step.title }}
+        <div class="cards-column__item-content">
+          <TextsH3 tag="span" :selectable="false" class="cards-column__item-title" color="beige-100">
+            {{ item.title }}
           </TextsH3>
-          <TextsH3 tag="span" :selectable="false" class="process-step__description" color="orange-100">
-            {{ step.description }}
-          </TextsH3>
+          <TextsP1 :selectable="false" class="cards-column__item-description" color="beige-100">
+            {{ item.description }}
+          </TextsP1>
         </div>
 
-        <div aria-hidden="true" class="process-step__bg">
-          <div class="process-step__bg-content">
-            <TextsH3 :selectable="false" class="process-step__number" color="beige-100">
-              {{ step.number }}
+        <div aria-hidden="true" class="cards-column__item-bg">
+          <div class="cards-column__item-bg-content">
+            <TextsH3 :selectable="false" class="cards-column__item-number" color="black-100">
+              {{ item.number }}
             </TextsH3>
-            <div class="process-step__main">
-              <TextsH3 tag="span" :selectable="false" class="process-step__label" color="beige-100">
-                {{ step.title }}
+            <div class="cards-column__item-content">
+              <TextsH3 tag="span" :selectable="false" class="cards-column__item-title" color="black-100">
+                {{ item.title }}
               </TextsH3>
-              <TextsH3 tag="span" :selectable="false" class="process-step__description" color="beige-100">
-                {{ step.description }}
-              </TextsH3>
+              <TextsP1 :selectable="false" class="cards-column__item-description" color="black-100">
+                {{ item.description }}
+              </TextsP1>
             </div>
           </div>
         </div>
@@ -167,79 +151,95 @@ onUnmounted(() => {
 </template>
 
 <style lang="scss">
-.app-elements-process-steps {
+.app-elements-cards-column {
   width: 100%;
-  padding: desktop-vw(24px) desktop-vw(24px);
+  background: var(--c-black);
+  display: flex;
+  align-items: flex-end;
+  gap: desktop-vw(40px);
+  padding: desktop-vw(40px) desktop-vw(24px);
+  background: var(--c-black-100);
+
+  &__left {
+    display: flex;
+    flex-direction: column;
+    align-self: stretch;
+    flex-shrink: 0;
+    width: desktop-vw(656px);
+    gap: desktop-vw(40px);
+  }
+
+  &__left-heading {
+    flex: 1;
+  }
+
+  &__left-bottom {
+    display: flex;
+    flex-direction: column;
+    gap: desktop-vw(24px);
+    align-items: flex-start;
+
+    .P1 {
+      width: 65%;
+    }
+  }
 
   &__list {
-    width: 100%;
+    flex: 1;
+    min-width: 0;
     list-style: none;
     margin: 0;
     padding: 0;
+    margin-top: desktop-vw(200px);
   }
 }
 
-.process-step {
+.cards-column__item {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   padding: desktop-vw(32px) 0;
   position: relative;
   overflow: hidden;
   gap: desktop-vw(64px);
+  border-bottom: 3px solid var(--c-beige-100);
   cursor: pointer;
 
-  &::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 3px;
-    background: var(--c-orange-100);
-    pointer-events: none;
-    z-index: 2;
-    mix-blend-mode: screen;
+  &-number {
+    flex-shrink: 0;
+    width: desktop-vw(72px);
   }
 
-  &__bg {
+  &-content {
+    display: flex;
+    flex-direction: column;
+    gap: desktop-vw(20px);
+    flex: 1;
+    min-width: 0;
+    padding-right: desktop-vw(120px);
+  }
+
+  &-bg {
     position: absolute;
     top: -3px;
     bottom: -3px;
     left: 0;
     right: 0;
-    background: var(--c-orange);
+    background: var(--c-beige);
     pointer-events: none;
     z-index: 1;
     overflow: hidden;
   }
 
-  &__bg-content {
+  &-bg-content {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     padding: desktop-vw(32px) 0;
     height: 100%;
     gap: desktop-vw(64px);
-  }
 
-  &__number {
-    flex-shrink: 0;
-  }
-
-  &__main {
-    position: relative;
-    flex: 1;
-    overflow: hidden;
-  }
-
-  &__label,
-  &__description {
-    display: block;
-  }
-
-  &__description {
-    position: absolute;
-    top: 0;
-    left: 0;
+    .cards-column__item-content {
+      padding-right: desktop-vw(120px);
+    }
   }
 }
 </style>

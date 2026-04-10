@@ -18,11 +18,13 @@ import { pitchType } from './modules/home/pitch'
 import { processType } from './modules/home/process'
 import { brandsSectionType } from './modules/home/brandsSection'
 import { servicePitchType } from './modules/home/servicePitch'
+import { cardsColumnType } from './modules/home/cardsColumn'
 
 // Objects
 import { customImage } from './objects/customImage'
 import { customMedia } from './objects/customMedia'
 import { customLink } from './objects/customLink'
+import { processStepType } from './objects/processStep'
 
 export const schemaTypes: SchemaTypeDefinition[] = [
   // Singletons
@@ -43,9 +45,11 @@ export const schemaTypes: SchemaTypeDefinition[] = [
   processType,
   brandsSectionType,
   servicePitchType,
+  cardsColumnType,
 
   // Objects
   customImage,
   customMedia,
   customLink,
+  processStepType,
 ]
