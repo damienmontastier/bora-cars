@@ -19,6 +19,7 @@ import { processType } from './modules/home/process'
 import { brandsSectionType } from './modules/home/brandsSection'
 import { servicePitchType } from './modules/home/servicePitch'
 import { cardsColumnType } from './modules/home/cardsColumn'
+import { testimonialsType } from './modules/home/testimonials'
 
 // Objects
 import { customImage } from './objects/customImage'
@@ -46,6 +47,7 @@ export const schemaTypes: SchemaTypeDefinition[] = [
   brandsSectionType,
   servicePitchType,
   cardsColumnType,
+  testimonialsType,
 
   // Objects
   customImage,

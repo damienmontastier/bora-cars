@@ -84,6 +84,12 @@ export default defineNuxtConfig({
         weight: 600,
         global: true,
       },
+      {
+        name: 'HaasGrotDispRegular',
+        src: '/fonts/HaasGrotDispRegular.woff2',
+        weight: 400,
+        global: true,
+      },
     ],
   },
 

@@ -96,7 +96,7 @@ onUnmounted(() => {
 <template>
   <section ref="rootRef" class="app-elements-cards-column" :class="{ 'is-snapping': isSnapping }">
     <div class="app-elements-cards-column__left">
-      <TextsH3 v-if="heading" tag="h2" :selectable="false" class="app-elements-cards-column__left-heading" color="beige-100">
+      <TextsH3 v-if="heading" tag="h2" class="app-elements-cards-column__left-heading" color="beige-100">
         {{ heading }}
       </TextsH3>
 
@@ -125,9 +125,9 @@ onUnmounted(() => {
           <TextsH3 tag="span" :selectable="false" class="cards-column__item-title" color="beige-100">
             {{ item.title }}
           </TextsH3>
-          <TextsP1 :selectable="false" class="cards-column__item-description" color="beige-100">
+          <TextsP2 :selectable="false" class="cards-column__item-description" color="beige-100">
             {{ item.description }}
-          </TextsP1>
+          </TextsP2>
         </div>
 
         <div aria-hidden="true" class="cards-column__item-bg">
@@ -139,9 +139,9 @@ onUnmounted(() => {
               <TextsH3 tag="span" :selectable="false" class="cards-column__item-title" color="black-100">
                 {{ item.title }}
               </TextsH3>
-              <TextsP1 :selectable="false" class="cards-column__item-description" color="black-100">
+              <TextsP2 :selectable="false" class="cards-column__item-description" color="black-100">
                 {{ item.description }}
-              </TextsP1>
+              </TextsP2>
             </div>
           </div>
         </div>
@@ -157,7 +157,7 @@ onUnmounted(() => {
   display: flex;
   align-items: flex-end;
   gap: desktop-vw(40px);
-  padding: desktop-vw(40px) desktop-vw(24px);
+  padding: desktop-vw(40px) desktop-vw(24px) desktop-vw(50px) desktop-vw(24px);
   background: var(--c-black-100);
 
   &__left {
@@ -201,8 +201,20 @@ onUnmounted(() => {
   position: relative;
   overflow: hidden;
   gap: desktop-vw(64px);
-  border-bottom: 3px solid var(--c-beige-100);
   cursor: pointer;
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--c-beige-100);
+    pointer-events: none;
+    z-index: 2;
+    mix-blend-mode: screen;
+  }
 
   &-number {
     flex-shrink: 0;

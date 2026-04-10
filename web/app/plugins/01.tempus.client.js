@@ -1,7 +1,7 @@
 import Tempus from 'tempus'
 
 export default defineNuxtPlugin((nuxtApp) => {
-  Tempus.patch()
+  // Tempus.patch()
 
   nuxtApp.provide('tempus', Tempus)
 })
