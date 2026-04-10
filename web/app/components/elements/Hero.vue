@@ -1,13 +1,8 @@
 <script setup lang="ts">
+import type { HeroData } from '~/queries/home'
 import { useEventBus } from '@vueuse/core'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
-
-interface HeroData {
-  heading?: string
-  tagline?: string
-  subtext?: string
-}
 
 interface Props { data: HeroData | null }
 
@@ -187,11 +182,25 @@ onUnmounted(() => {
   <div class="app-elements-hero">
     <div class="app-elements-hero__background-wrapper">
       <ElementsMedia
+        v-if="data?.backgroundMedia?.mediaType === 'image'"
         class="app-elements-hero__background"
-        src="/img/placeholder/hero.png"
-        alt="test"
+        :src="data.backgroundMedia.imageUrl"
+        :alt="data.backgroundMedia.imageAlt ?? ''"
+        provider="sanity"
+        :hotspot="data.backgroundMedia.imageHotspot"
+        :crop="data.backgroundMedia.imageCrop"
         :lazy="false"
         :preload="{ fetchPriority: 'high' }"
+      />
+      <video
+        v-else-if="data?.backgroundMedia?.mediaType === 'video' && data.backgroundMedia.videoUrl"
+        class="app-elements-hero__background app-elements-hero__background--video"
+        :src="data.backgroundMedia.videoUrl"
+        :aria-label="data.backgroundMedia.videoAlt ?? ''"
+        autoplay
+        muted
+        loop
+        playsinline
       />
     </div>
 
@@ -305,11 +314,16 @@ onUnmounted(() => {
     }
   }
 
-  &__background.app-elements-media {
+  &__background.app-elements-media,
+  &__background--video {
     position: sticky;
     top: 0;
     width: 100%;
     height: 100vh;
+  }
+
+  &__background--video {
+    object-fit: cover;
   }
 }
 </style>

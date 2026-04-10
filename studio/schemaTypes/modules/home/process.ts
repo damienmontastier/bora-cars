@@ -12,11 +12,6 @@ export const processType = defineType({
       title: 'Étapes',
       options: { collapsible: true, collapsed: false },
     },
-    {
-      name: 'cta',
-      title: 'Appel à l\'action',
-      options: { collapsible: true, collapsed: false },
-    },
   ],
   fields: [
     defineField({
@@ -52,13 +47,6 @@ export const processType = defineType({
       ],
     }),
 
-    defineField({
-      name: 'cta',
-      title: 'Bouton',
-      type: 'customLink',
-      fieldset: 'cta',
-      options: { enableText: true },
-    }),
   ],
   preview: {
     select: { steps: 'steps' },

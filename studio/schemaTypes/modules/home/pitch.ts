@@ -30,17 +30,19 @@ export const pitchType = defineType({
     defineField({
       name: 'heading',
       title: 'Titre',
-      type: 'string',
-      fieldset: 'content',
-      validation: (Rule) => Rule.required().max(80),
-    }),
-    defineField({
-      name: 'subtext',
-      title: 'Sous-titre',
       type: 'text',
       fieldset: 'content',
       rows: 2,
-      validation: (Rule) => Rule.max(60),
+      validation: (Rule) => Rule.required().max(200),
+    }),
+    defineField({
+      name: 'subtext',
+      title: 'Texte au-dessus du CTA (texte affiché au-dessus du CTA)',
+      type: 'text',
+      description: 'Courte phrase affichée juste au-dessus du bouton. Le bouton lui-même est défini dans Paramètres → Global.',
+      fieldset: 'content',
+      rows: 2,
+      validation: (Rule) => Rule.max(85),
     }),
 
     defineField({

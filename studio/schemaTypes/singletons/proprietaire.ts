@@ -13,16 +13,15 @@ export const proprietaireType = defineType({
   groups: GROUPS,
   fields: [
     defineField({
-      name: 'hero',
-      title: 'Hero',
-      type: 'hero',
+      name: 'modules',
+      title: 'Modules',
+      type: 'array',
       group: 'editorial',
-    }),
-    defineField({
-      name: 'process',
-      title: 'Process Steps',
-      type: 'process',
-      group: 'editorial',
+      of: [
+        defineArrayMember({ type: 'hero' }),
+        defineArrayMember({ type: 'pitch' }),
+        defineArrayMember({ type: 'process' }),
+      ],
     }),
     seoType,
   ],

@@ -71,7 +71,7 @@ const settings = useSettings()
     }
 
     .P2 {
-      width: 65%;
+      width: 75%;
     }
   }
 }

@@ -41,12 +41,25 @@ export interface BrandsSection {
   heading?: string
 }
 
+export interface HeroBackgroundMedia {
+  mediaType: 'image' | 'video'
+  imageUrl?: string
+  imageAlt?: string
+  imageHotspot?: { x: number, y: number, width: number, height: number }
+  imageCrop?: { top: number, bottom: number, left: number, right: number }
+  videoUrl?: string
+  videoAlt?: string
+}
+
+export interface HeroData {
+  heading?: string
+  tagline?: string
+  subtext?: string
+  backgroundMedia?: HeroBackgroundMedia
+}
+
 export interface HomepageData {
-  hero: {
-    heading?: string
-    tagline?: string
-    subtext?: string
-  } | null
+  hero: HeroData | null
   serviceCards: {
     cards: ServiceCard[]
   } | null
@@ -65,7 +78,16 @@ export const HOMEPAGE_QUERY = `*[_type == "homepage"][0]{
   "hero": modules[_type == "hero"][0]{
     heading,
     tagline,
-    subtext
+    subtext,
+    "backgroundMedia": backgroundMedia {
+      mediaType,
+      "imageUrl": image.asset._ref,
+      "imageAlt": image.alt,
+      "imageHotspot": image.hotspot,
+      "imageCrop": image.crop,
+      "videoUrl": video.asset->url,
+      "videoAlt": video.alt
+    }
   },
   "serviceCards": modules[_type == "serviceCards"][0]{
     cards[]{
