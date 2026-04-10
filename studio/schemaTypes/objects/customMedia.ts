@@ -24,6 +24,12 @@ export const customMedia = defineType({
       title: 'Image',
       type: 'customImage',
       hidden: ({ parent }) => parent?.mediaType !== 'image',
+      validation: (Rule) =>
+        Rule.custom((value, { parent }: any) => {
+          if (parent?.mediaType === 'image' && !value)
+            return 'Une image est requise.'
+          return true
+        }),
     }),
     defineField({
       name: 'video',
@@ -31,6 +37,12 @@ export const customMedia = defineType({
       type: 'file',
       options: { accept: 'video/*' },
       hidden: ({ parent }) => parent?.mediaType !== 'video',
+      validation: (Rule) =>
+        Rule.custom((value, { parent }: any) => {
+          if (parent?.mediaType === 'video' && !value)
+            return 'Une vidéo est requise.'
+          return true
+        }),
       fields: [
         defineField({
           name: 'alt',

@@ -41,15 +41,19 @@ export interface BrandsSection {
   heading?: string
 }
 
-export interface HeroBackgroundMedia {
-  mediaType: 'image' | 'video'
-  imageUrl?: string
-  imageAlt?: string
-  imageHotspot?: { x: number, y: number, width: number, height: number }
-  imageCrop?: { top: number, bottom: number, left: number, right: number }
-  videoUrl?: string
-  videoAlt?: string
-}
+export type HeroBackgroundMedia =
+  | {
+      mediaType: 'image'
+      imageUrl: string
+      imageAlt?: string
+      imageHotspot?: { x: number, y: number, width: number, height: number }
+      imageCrop?: { top: number, bottom: number, left: number, right: number }
+    }
+  | {
+      mediaType: 'video'
+      videoUrl: string
+      videoAlt?: string
+    }
 
 export interface HeroData {
   heading?: string

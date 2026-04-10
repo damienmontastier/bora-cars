@@ -5,6 +5,7 @@ import { homepageType } from './singletons/homepage'
 import { footerType } from './singletons/footer'
 import { menuType } from './singletons/menu'
 import { proprietaireType } from './singletons/proprietaire'
+import { professionnelType } from './singletons/professionnel'
 import { settingsType } from './singletons/settings'
 
 // Documents
@@ -20,6 +21,9 @@ import { brandsSectionType } from './modules/home/brandsSection'
 import { servicePitchType } from './modules/home/servicePitch'
 import { cardsColumnType } from './modules/home/cardsColumn'
 import { testimonialsType } from './modules/home/testimonials'
+import { titleType } from './modules/shared/title'
+import { textType } from './modules/shared/text'
+import { faqType } from './modules/shared/faq'
 
 // Objects
 import { customImage } from './objects/customImage'
@@ -33,6 +37,7 @@ export const schemaTypes: SchemaTypeDefinition[] = [
   footerType,
   menuType,
   proprietaireType,
+  professionnelType,
   settingsType,
 
   // Documents
@@ -48,6 +53,9 @@ export const schemaTypes: SchemaTypeDefinition[] = [
   servicePitchType,
   cardsColumnType,
   testimonialsType,
+  titleType,
+  textType,
+  faqType,
 
   // Objects
   customImage,

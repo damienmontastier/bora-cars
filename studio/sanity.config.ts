@@ -5,6 +5,7 @@ import { linkField } from 'sanity-plugin-link-field'
 import {
   HomeIcon,
   UserIcon,
+  CaseIcon,
   MenuIcon,
   StackCompactIcon,
   ControlsIcon,
@@ -15,7 +16,7 @@ import {
 } from '@sanity/icons'
 import { schemaTypes } from './schemaTypes'
 
-const SINGLETONS = new Set(['homepage', 'footer', 'menu', 'proprietaire', 'settings'])
+const SINGLETONS = new Set(['homepage', 'footer', 'menu', 'proprietaire', 'professionnel', 'settings'])
 
 export default defineConfig({
   name: 'default',
@@ -25,7 +26,7 @@ export default defineConfig({
   dataset: 'production',
 
   plugins: [
-    linkField({ linkableSchemaTypes: ['homepage', 'proprietaire'] }),
+    linkField({ linkableSchemaTypes: ['homepage', 'proprietaire', 'professionnel'] }),
     structureTool({
       structure: (S) =>
         S.list()
@@ -56,6 +57,15 @@ export default defineConfig({
                         S.document()
                           .schemaType('proprietaire')
                           .documentId('proprietaire'),
+                      ),
+                    S.listItem()
+                      .title('Professionnel')
+                      .id('professionnel')
+                      .icon(CaseIcon)
+                      .child(
+                        S.document()
+                          .schemaType('professionnel')
+                          .documentId('professionnel'),
                       ),
                   ]),
               ),

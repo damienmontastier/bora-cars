@@ -298,7 +298,7 @@ onUnmounted(() => {
 
     .H1 {
       flex: 0 0 auto;
-      max-width: desktop-vw(900px);
+      max-width: desktop-vw(945px);
     }
   }
 
