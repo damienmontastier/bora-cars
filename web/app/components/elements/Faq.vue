@@ -32,6 +32,9 @@ useResizeObserver(itemRefs, () => {
 })
 
 function toggle(key: string, index: number) {
+  if (isSnapping.value)
+    return
+
   const wasOpen = expanded.value === key
   const prevKey = expanded.value
   const itemEl = itemRefs.value[index]
