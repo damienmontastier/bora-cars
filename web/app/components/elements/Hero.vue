@@ -16,6 +16,7 @@ const props = withDefaults(defineProps<Props>(), {
 const settings = useSettings()
 const { menuTheme } = storeToRefs(useAppStore())
 const ctaTheme = computed(() => menuTheme.value === 'black' ? 'white' : menuTheme.value)
+const logoColor = computed(() => menuTheme.value === 'white' ? 'beige-100' : `${menuTheme.value}-100`)
 const heroCTABus = useEventBus('hero-cta')
 const { getTargetRect } = useMenuCtaSync()
 
@@ -233,7 +234,7 @@ onUnmounted(() => {
 
     <div class="app-elements-hero__content">
       <div class="app-elements-hero__top">
-        <SvgLogo color="beige-100" class="app-elements-hero__logo" />
+        <SvgLogo :color="logoColor" class="app-elements-hero__logo" />
       </div>
 
       <div class="app-elements-hero__middle">

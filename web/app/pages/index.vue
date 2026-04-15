@@ -9,7 +9,7 @@ const { data: homepage } = await useSanityQuery<HomepageData>(HOMEPAGE_QUERY)
 </script>
 
 <template>
-  <main class="page-main">
+  <main v-menu-theme="'orange'" class="page-main">
     <ElementsHero :data="homepage?.hero ?? null" />
 
     <ElementsServicesCards :cards="homepage?.serviceCards?.cards ?? []" />
