@@ -26,7 +26,7 @@ export default defineConfig({
   dataset: 'production',
 
   plugins: [
-    linkField({ linkableSchemaTypes: ['homepage', 'proprietaire', 'professionnel'] }),
+    linkField({ linkableSchemaTypes: ['homepage', 'proprietaire', 'professionnel', 'car'] }),
     structureTool({
       structure: (S) =>
         S.list()

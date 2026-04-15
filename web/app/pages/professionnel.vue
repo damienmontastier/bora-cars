@@ -15,11 +15,10 @@ const { data: page } = await useSanityQuery<ProfessionnelData>(PROFESSIONNEL_QUE
       :cards="page?.cardsColumn?.cards ?? []"
     />
 
-    <div class="app-debug-wip" style="width: 100%;height: 100vh;background-color: var(--c-beige-20);">
-      <TextsH2 v-for="i in 3" :key="i">
-        ...FULLSCREEN — MARQUEE...
-      </TextsH2>
-    </div>
+    <ElementsFullscreenMarquee
+      v-if="page?.fullscreenMarquee"
+      :data="page.fullscreenMarquee"
+    />
 
     <ElementsTitle
       :eyebrow="page?.title?.eyebrow"

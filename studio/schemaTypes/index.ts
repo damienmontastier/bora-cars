@@ -21,6 +21,7 @@ import { brandsSectionType } from './modules/home/brandsSection'
 import { servicePitchType } from './modules/home/servicePitch'
 import { cardsColumnType } from './modules/home/cardsColumn'
 import { testimonialsType } from './modules/home/testimonials'
+import { fullscreenMarqueeType } from './modules/home/fullscreenMarquee'
 import { titleType } from './modules/shared/title'
 import { textType } from './modules/shared/text'
 import { faqType } from './modules/shared/faq'
@@ -54,6 +55,7 @@ export const schemaTypes: SchemaTypeDefinition[] = [
   servicePitchType,
   cardsColumnType,
   testimonialsType,
+  fullscreenMarqueeType,
   titleType,
   textType,
   faqType,

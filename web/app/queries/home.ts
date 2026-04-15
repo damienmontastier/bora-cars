@@ -1,5 +1,16 @@
 import { imageFields, imageRef, type SanityImage } from './fragments'
 
+export interface MarqueeItem {
+  _key: string
+  label: string
+}
+
+export interface FullscreenMarqueeData {
+  items: MarqueeItem[]
+  cta?: SanityLink
+  backgroundMedia?: HeroBackgroundMedia
+}
+
 export interface SanityLink {
   _key?: string
   type: 'external' | 'email' | 'phone' | 'internal'
@@ -76,6 +87,7 @@ export interface HomepageData {
     steps: Array<{ _key: string, title: string, description?: string }>
   } | null
   brandsSection: BrandsSection | null
+  fullscreenMarquee: FullscreenMarqueeData | null
 }
 
 export const HOMEPAGE_QUERY = `*[_type == "homepage"][0]{
@@ -121,5 +133,21 @@ export const HOMEPAGE_QUERY = `*[_type == "homepage"][0]{
     description,
     surtitle,
     heading
+  },
+  "fullscreenMarquee": modules[_type == "fullscreenMarquee"][0]{
+    "items": items[]->{
+      "_key": _id,
+      "label": marque + " " + modele
+    },
+    "cta": cta { type, text, url, email, phone },
+    "backgroundMedia": backgroundMedia {
+      mediaType,
+      "imageUrl": image.asset._ref,
+      "imageAlt": image.alt,
+      "imageHotspot": image.hotspot,
+      "imageCrop": image.crop,
+      "videoUrl": video.asset->url,
+      "videoAlt": video.alt
+    }
   }
 }`

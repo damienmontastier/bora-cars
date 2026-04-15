@@ -1,4 +1,4 @@
-import type { HeroData } from './home'
+import type { HeroData, FullscreenMarqueeData } from './home'
 
 export interface ProfessionnelData {
   hero: HeroData | null
@@ -18,6 +18,7 @@ export interface ProfessionnelData {
     subtext?: string
     cards: Array<{ _key: string, title: string, description?: string }>
   } | null
+  fullscreenMarquee: FullscreenMarqueeData | null
 }
 
 export const PROFESSIONNEL_QUERY = `*[_type == "professionnel"][0]{
@@ -50,5 +51,21 @@ export const PROFESSIONNEL_QUERY = `*[_type == "professionnel"][0]{
     heading,
     subtext,
     cards[]{_key, title, description}
+  },
+  "fullscreenMarquee": modules[_type == "fullscreenMarquee"][0]{
+    "items": items[]->{
+      "_key": _id,
+      "label": marque + " " + modele
+    },
+    "cta": cta { type, text, url, email, phone },
+    "backgroundMedia": backgroundMedia {
+      mediaType,
+      "imageUrl": image.asset._ref,
+      "imageAlt": image.alt,
+      "imageHotspot": image.hotspot,
+      "imageCrop": image.crop,
+      "videoUrl": video.asset->url,
+      "videoAlt": video.alt
+    }
   }
 }`

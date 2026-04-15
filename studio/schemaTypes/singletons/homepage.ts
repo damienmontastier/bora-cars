@@ -24,6 +24,7 @@ export const homepageType = defineType({
         defineArrayMember({ type: 'process' }),
         defineArrayMember({ type: 'brandsSection' }),
         defineArrayMember({ type: 'servicePitch' }),
+        defineArrayMember({ type: 'fullscreenMarquee' }),
       ],
     }),
     seoType,

@@ -23,6 +23,7 @@ export const professionnelType = defineType({
         defineArrayMember({ type: 'textBlock' }),
         defineArrayMember({ type: 'faq' }),
         defineArrayMember({ type: 'cardsColumn' }),
+        defineArrayMember({ type: 'fullscreenMarquee' }),
       ],
     }),
     seoType,

@@ -65,6 +65,9 @@ function init() {
 
   const wordsList = originalText.split(' ')
 
+  if (wordsList.length <= 1)
+    return
+
   el.innerHTML = wordsList.map((word, i) => {
     const span = `<span class="app-atoms-cta__word">${word}</span>`
     if (i === props.tiretAfter) {
