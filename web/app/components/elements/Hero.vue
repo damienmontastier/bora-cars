@@ -207,8 +207,8 @@ onUnmounted(() => {
         class="app-elements-hero__background"
         position="top"
         :trigger="mainRef"
-        :speed="0.5"
-        :scale="1.1"
+        :speed="0.35"
+        :scale="1.025"
       >
         <ElementsMedia
           v-if="data.backgroundMedia.mediaType === 'image'"
