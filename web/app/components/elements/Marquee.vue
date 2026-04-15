@@ -30,7 +30,7 @@ const props = defineProps({
   },
   scrollVelocitySpeed: {
     type: Number,
-    default: 0.4,
+    default: 0.5,
   },
   trigger: {
     type: Object as PropType<HTMLElement | null>,
@@ -42,12 +42,17 @@ let ctx: gsap.Context | null = null
 let tween: gsap.core.Tween | null = null
 
 const lenis = useLenis()
+const { fontsLoaded } = toRefs(useAppStore())
 
 const mainRef = useTemplateRef<HTMLElement>('mainRef')
 const wrapperRef = useTemplateRef<HTMLElement>('wrapperRef')
 const elementsRef = ref<HTMLElement[]>([])
 
-const { isOutside } = useMouseInElement(mainRef)
+// Only set up mouse tracking when actually needed
+const { isOutside } = props.pauseOnHover
+  ? useMouseInElement(mainRef)
+  : { isOutside: readonly(ref(true)) }
+
 const { isMobile } = useBreakpoint()
 
 const uidInstance = useId()
@@ -91,6 +96,15 @@ function teardownAnimation() {
   tween = null
 }
 
+// Re-measure singleWidth on resize (stale after window resize)
+useResizeObserver(mainRef, useDebounceFn(async () => {
+  if (!shouldAnimate.value)
+    return
+  teardownAnimation()
+  await nextTick()
+  setupAnimation()
+}, 200))
+
 watch(isOutside, () => {
   if (!props.pauseOnHover || !tween)
     return
@@ -98,7 +112,6 @@ watch(isOutside, () => {
   gsap.to(tween, { timeScale: isOutside.value ? 1 : 0, duration: 1 })
 })
 
-// Accelerate on scroll velocity via timeScale
 watchEffect((onInvalidate) => {
   if (!props.scrollVelocity)
     return
@@ -110,9 +123,14 @@ watchEffect((onInvalidate) => {
   const onScroll = ({ velocity }: { velocity: number }) => {
     if (!tween)
       return
-    // Set timeScale instantly (snappy), then decelerate back to 1
-    tween.timeScale(1 + Math.abs(velocity) * 0.4)
-    gsap.to(tween, { timeScale: 1, duration: 0.8, ease: 'power2.out', overwrite: true })
+    // Smooth tracking — Lenis inertia gradually reduces velocity to 0,
+    // so successive calls naturally bring timeScale back to 1
+    gsap.to(tween, {
+      timeScale: 1 + Math.abs(velocity) * props.scrollVelocitySpeed,
+      duration: 0.8,
+      ease: 'power3.out',
+      overwrite: true,
+    })
   }
 
   l.on('scroll', onScroll)
@@ -134,7 +152,6 @@ onMounted(async () => {
   if (!shouldAnimate.value)
     return
 
-  const { fontsLoaded } = toRefs(useAppStore())
   if (!fontsLoaded.value) {
     await until(fontsLoaded).toBe(true)
   }

@@ -39,9 +39,10 @@ onMounted(async () => {
         ease: 'none',
         scrollTrigger: {
           trigger: rootRef.value,
-          start: 'top bottom',
+          start: 'top bottom-=10%',
           end: 'bottom top',
           scrub: true,
+          markers: true,
           invalidateOnRefresh: true,
         },
       },
@@ -61,7 +62,8 @@ onUnmounted(() => {
       <UtilsParallax
         v-if="data.backgroundMedia"
         class="app-elements-fullscreen-marquee__background"
-        :speed="0.3"
+        :speed="0.65"
+        :scale="1.1"
       >
         <ElementsMedia
           v-if="data.backgroundMedia.mediaType === 'image'"
@@ -88,7 +90,7 @@ onUnmounted(() => {
     <div ref="rowsRef" class="app-elements-fullscreen-marquee__rows">
       <!-- Row 1 — first half, scrolls left -->
       <ElementsMarquee
-        :duration="20"
+        :duration="25"
         :repeat="4"
         :animated-on-mobile="true"
         :pause-on-hover="true"
@@ -118,7 +120,7 @@ onUnmounted(() => {
 
       <!-- Row 2 — second half + CTA, scrolls right -->
       <ElementsMarquee
-        :duration="20"
+        :duration="25"
         :reversed="true"
         :repeat="4"
         :animated-on-mobile="true"
@@ -182,7 +184,6 @@ onUnmounted(() => {
     z-index: 1;
     display: flex;
     flex-direction: column;
-    gap: desktop-vw(0px);
     will-change: transform;
   }
 
