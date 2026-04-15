@@ -1,11 +1,12 @@
 import { defineField, defineType } from 'sanity'
 
-export const customImage = defineType({
-  name: 'customImage',
-  title: 'Image',
-  type: 'image',
+export const customVideo = defineType({
+  name: 'customVideo',
+  title: 'Vidéo',
+  type: 'file',
   options: {
-    hotspot: true,
+    accept: 'video/*',
+    collapsible: false,
   },
   fields: [
     defineField({
@@ -14,12 +15,17 @@ export const customImage = defineType({
       type: 'string',
       description: 'Pour l\'accessibilité',
       validation: (Rule) => Rule.required().error('Texte alternatif est requis.'),
-      hidden: ({ parent }) => !parent?.asset,
+    }),
+    defineField({
+      name: 'poster',
+      title: 'Image de couverture',
+      description: 'Affichée avant que la vidéo ne soit chargée',
+      type: 'image',
+      options: { hotspot: true },
     }),
   ],
   preview: {
     select: {
-      imageUrl: 'asset.url',
       title: 'alt',
     },
   },

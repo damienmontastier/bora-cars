@@ -27,6 +27,7 @@ import { faqType } from './modules/shared/faq'
 
 // Objects
 import { customImage } from './objects/customImage'
+import { customVideo } from './objects/customVideo'
 import { customMedia } from './objects/customMedia'
 import { customLink } from './objects/customLink'
 import { processStepType } from './objects/processStep'
@@ -59,6 +60,7 @@ export const schemaTypes: SchemaTypeDefinition[] = [
 
   // Objects
   customImage,
+  customVideo,
   customMedia,
   customLink,
   processStepType,

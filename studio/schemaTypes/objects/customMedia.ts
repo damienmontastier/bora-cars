@@ -4,6 +4,7 @@ export const customMedia = defineType({
   name: 'customMedia',
   title: 'Media',
   type: 'object',
+  options: { collapsible: false },
   fields: [
     defineField({
       name: 'mediaType',
@@ -23,6 +24,7 @@ export const customMedia = defineType({
       name: 'image',
       title: 'Image',
       type: 'customImage',
+      options: { collapsible: false },
       hidden: ({ parent }) => parent?.mediaType !== 'image',
       validation: (Rule) =>
         Rule.custom((value, { parent }: any) => {
@@ -34,8 +36,8 @@ export const customMedia = defineType({
     defineField({
       name: 'video',
       title: 'Vidéo',
-      type: 'file',
-      options: { accept: 'video/*' },
+      type: 'customVideo',
+      options: { collapsible: false },
       hidden: ({ parent }) => parent?.mediaType !== 'video',
       validation: (Rule) =>
         Rule.custom((value, { parent }: any) => {
@@ -43,22 +45,6 @@ export const customMedia = defineType({
             return 'Une vidéo est requise.'
           return true
         }),
-      fields: [
-        defineField({
-          name: 'alt',
-          title: 'Texte alternatif',
-          type: 'string',
-          description: 'Pour l\'accessibilité',
-          validation: (Rule) => Rule.required().error('Texte alternatif est requis.'),
-        }),
-        defineField({
-          name: 'poster',
-          title: 'Image de couverture',
-          description: 'Affichée avant que la vidéo ne soit chargée',
-          type: 'image',
-          options: { hotspot: true },
-        }),
-      ],
     }),
   ],
   preview: {
