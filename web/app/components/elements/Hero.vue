@@ -14,6 +14,13 @@ const { getTargetRect } = useMenuCtaSync()
 
 const ctaRef = ref(null)
 const ctaInView = ref(false)
+const mainRef = useTemplateRef('mainRef')
+const middleRef = useTemplateRef('middleRef')
+const backgroundWrapperRef = useTemplateRef('backgroundWrapperRef')
+const bottomRef = useTemplateRef('bottomRef')
+
+let ctx: gsap.Context
+let tlClipPath: gsap.core.Timeline
 
 let st = null
 let currentAnim = null
@@ -168,6 +175,21 @@ onMounted(() => {
     },
   })
   mounted = true
+
+  ctx = gsap.context(() => {
+    tlClipPath = gsap.timeline({
+      scrollTrigger: {
+        id: 'hero-clip',
+        trigger: bottomRef.value,
+        markers: true,
+        start: 'top-=100% center',
+        end: 'bottom+=100% top',
+        scrub: true,
+      },
+    })
+
+    tlClipPath.to(mainRef.value, { clipPath: 'inset(0 0% 5% 0)', yPercent: -5 })
+  }, mainRef.value as HTMLElement)
 })
 
 onUnmounted(() => {
@@ -175,33 +197,43 @@ onUnmounted(() => {
   currentAnim?.kill()
   st?.kill()
   clone?.remove()
+  ctx?.revert()
 })
 </script>
 
 <template>
-  <div class="app-elements-hero">
-    <div class="app-elements-hero__background-wrapper">
-      <ElementsMedia
-        v-if="data?.backgroundMedia?.mediaType === 'image'"
+  <div ref="mainRef" class="app-elements-hero">
+    <div ref="backgroundWrapperRef" class="app-elements-hero__background-wrapper">
+      <UtilsParallax
+        v-if="data?.backgroundMedia"
+        id="hero-bg"
         class="app-elements-hero__background"
-        :src="data.backgroundMedia.imageUrl"
-        :alt="data.backgroundMedia.imageAlt ?? ''"
-        provider="sanity"
-        :hotspot="data.backgroundMedia.imageHotspot"
-        :crop="data.backgroundMedia.imageCrop"
-        :lazy="false"
-        :preload="{ fetchPriority: 'high' }"
-      />
-      <video
-        v-else-if="data?.backgroundMedia?.mediaType === 'video' && data.backgroundMedia.videoUrl"
-        class="app-elements-hero__background app-elements-hero__background--video"
-        :src="data.backgroundMedia.videoUrl"
-        :aria-label="data.backgroundMedia.videoAlt ?? ''"
-        autoplay
-        muted
-        loop
-        playsinline
-      />
+        position="top"
+        :trigger="mainRef"
+        :speed="0.65"
+        :scale="1.1"
+      >
+        <ElementsMedia
+          v-if="data.backgroundMedia.mediaType === 'image'"
+          :src="data.backgroundMedia.imageUrl"
+          :alt="data.backgroundMedia.imageAlt ?? ''"
+          provider="sanity"
+          :hotspot="data.backgroundMedia.imageHotspot"
+          :crop="data.backgroundMedia.imageCrop"
+          :lazy="false"
+          :preload="{ fetchPriority: 'high' }"
+        />
+        <video
+          v-else-if="data.backgroundMedia.mediaType === 'video' && data.backgroundMedia.videoUrl"
+          class="app-elements-hero__background--video"
+          :src="data.backgroundMedia.videoUrl"
+          :aria-label="data.backgroundMedia.videoAlt ?? ''"
+          autoplay
+          muted
+          loop
+          playsinline
+        />
+      </UtilsParallax>
     </div>
 
     <div class="app-elements-hero__content">
@@ -225,7 +257,7 @@ onUnmounted(() => {
         </div>
       </div>
 
-      <div class="app-elements-hero__bottom">
+      <div ref="bottomRef" class="app-elements-hero__bottom">
         <TextsH3 v-if="data?.tagline" color="beige-100">
           {{ data.tagline }}
         </TextsH3>
@@ -248,6 +280,10 @@ onUnmounted(() => {
     left: 0;
     width: 100%;
     height: 100%;
+
+    .app-elements-media {
+      transform: scale(1.1);
+    }
   }
 
   &__content {
@@ -315,7 +351,7 @@ onUnmounted(() => {
   }
 
   &__background.app-elements-media,
-  &__background--video {
+  &__background.utils-parallax {
     position: sticky;
     top: 0;
     width: 100%;
@@ -323,6 +359,8 @@ onUnmounted(() => {
   }
 
   &__background--video {
+    width: 100%;
+    height: 100%;
     object-fit: cover;
   }
 }

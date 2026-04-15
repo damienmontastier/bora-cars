@@ -45,11 +45,8 @@ function onLoad() {
 }
 
 const loading = computed(() => props.lazy ? 'lazy' : 'eager')
-
 const hasSrc = computed(() => !!props.src)
-
 const resolvedProvider = computed(() => props.provider ?? undefined)
-
 const localModifiers = computed(() => ({
   ...props.modifiers,
   ...(props.hotspot && { hotspot: props.hotspot }),

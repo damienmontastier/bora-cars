@@ -82,7 +82,7 @@ function init() {
   const finalState = Flip.getState(words)
   gsap.set(tiretEl, { display: 'inline-block' })
 
-  tl = gsap.timeline({ paused: true })
+  tl = gsap.timeline({ paused: true, defaults: { easeReverse: true } })
     .to(tiretEl, {
       scaleX: 0,
       duration: 0.45,
