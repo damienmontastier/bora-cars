@@ -17,10 +17,9 @@ const settings = useSettings()
 const heroCTABus = useEventBus('hero-cta')
 const { getTargetRect } = useMenuCtaSync()
 
-const ctaRef = ref(null)
+const ctaRef = ref<{ $el: HTMLElement } | null>(null)
 const ctaInView = ref(false)
 const mainRef = useTemplateRef('mainRef')
-const backgroundWrapperRef = useTemplateRef('backgroundWrapperRef')
 const bottomRef = useTemplateRef('bottomRef')
 
 let ctx: gsap.Context
@@ -201,7 +200,7 @@ onUnmounted(() => {
 
 <template>
   <div ref="mainRef" class="app-elements-hero">
-    <div ref="backgroundWrapperRef" class="app-elements-hero__background-wrapper">
+    <div class="app-elements-hero__background-wrapper">
       <UtilsParallax
         v-if="data?.backgroundMedia"
         id="hero-bg"
