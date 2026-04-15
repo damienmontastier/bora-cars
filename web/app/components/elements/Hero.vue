@@ -4,9 +4,14 @@ import { useEventBus } from '@vueuse/core'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
-interface Props { data: HeroData | null }
+interface Props {
+  data: HeroData | null
+  clipPath?: boolean
+}
 
-const props = defineProps<Props>()
+const props = withDefaults(defineProps<Props>(), {
+  clipPath: true,
+})
 
 const settings = useSettings()
 const heroCTABus = useEventBus('hero-cta')
@@ -15,24 +20,20 @@ const { getTargetRect } = useMenuCtaSync()
 const ctaRef = ref(null)
 const ctaInView = ref(false)
 const mainRef = useTemplateRef('mainRef')
-const middleRef = useTemplateRef('middleRef')
 const backgroundWrapperRef = useTemplateRef('backgroundWrapperRef')
 const bottomRef = useTemplateRef('bottomRef')
 
 let ctx: gsap.Context
-let tlClipPath: gsap.core.Timeline
-
-let st = null
-let currentAnim = null
-let clone = null
-let menuCtaEl = null
+let currentAnim: gsap.core.Tween | null = null
+let clone: HTMLElement | null = null
+let menuCtaEl: HTMLElement | null = null
 
 const GSAP_LAYOUT_PROPS = ['transform', 'position', 'top', 'left', 'right', 'bottom', 'min-width', 'width', 'height']
 
-function buildClone(sourceEl) {
+function buildClone(sourceEl: HTMLElement) {
   clone?.remove()
-  clone = sourceEl.cloneNode(true)
-  clone.querySelectorAll('[style]').forEach((el) => {
+  clone = sourceEl.cloneNode(true) as HTMLElement
+  clone.querySelectorAll<HTMLElement>('[style]').forEach((el) => {
     GSAP_LAYOUT_PROPS.forEach(prop => el.style.removeProperty(prop))
   })
   gsap.set(clone, { position: 'fixed', visibility: 'hidden', margin: 0, zIndex: 1000, pointerEvents: 'none' })
@@ -58,9 +59,7 @@ function animateToMenu() {
     return
 
   currentAnim?.kill()
-
   heroCTABus.emit('enter')
-
   buildClone(heroCta)
 
   const heroRect = heroCta.getBoundingClientRect()
@@ -91,11 +90,9 @@ function animateToHero() {
     return
 
   currentAnim?.kill()
-
-  const menuRect = menuCtaEl.getBoundingClientRect()
-
   heroCTABus.emit('leave')
 
+  const menuRect = menuCtaEl.getBoundingClientRect()
   const startRect = { top: menuRect.top, left: menuRect.left, width: menuRect.width, height: menuRect.height }
 
   gsap.set(menuCtaEl, { opacity: 0 })
@@ -147,55 +144,56 @@ function onResize() {
 }
 
 onMounted(() => {
-  clone?.remove()
-  clone = null
-  menuCtaEl = document.querySelector('.app-menu__cta')
+  menuCtaEl = document.querySelector<HTMLElement>('.app-menu__cta')
+
   if (menuCtaEl)
     gsap.set(menuCtaEl, { clearProps: 'display,opacity,visibility' })
+
   const heroCta = ctaRef.value?.$el
   if (heroCta)
     gsap.set(heroCta, { clearProps: 'visibility' })
 
-  ScrollTrigger.addEventListener('refresh', onResize)
-
-  let mounted = false
-  st = ScrollTrigger.create({
-    trigger: ctaRef.value?.$el,
-    start: 'top top+=25%',
-    onEnter: () => {
-      ctaInView.value = true
-      if (mounted)
-        animateToMenu()
-      else
-        snapToMenu()
-    },
-    onLeaveBack: () => {
-      ctaInView.value = false
-      animateToHero()
-    },
-  })
-  mounted = true
-
   ctx = gsap.context(() => {
-    tlClipPath = gsap.timeline({
-      scrollTrigger: {
-        id: 'hero-clip',
-        trigger: bottomRef.value,
-        markers: true,
-        start: 'top-=100% center',
-        end: 'bottom+=100% top',
-        scrub: true,
+    ScrollTrigger.addEventListener('refresh', onResize)
+
+    let mounted = false
+    ScrollTrigger.create({
+      trigger: ctaRef.value?.$el,
+      start: 'top top+=25%',
+      onEnter: () => {
+        ctaInView.value = true
+        if (mounted)
+          animateToMenu()
+        else
+          snapToMenu()
+      },
+      onLeaveBack: () => {
+        ctaInView.value = false
+        animateToHero()
       },
     })
+    mounted = true
 
-    tlClipPath.to(mainRef.value, { clipPath: 'inset(0 0% 5% 0)', yPercent: -5 })
+    if (props.clipPath) {
+      gsap.timeline({
+        scrollTrigger: {
+          id: 'hero-clip',
+          trigger: bottomRef.value,
+          start: 'top-=100% center',
+          end: 'bottom+=100% top',
+          scrub: true,
+        },
+      }).to(mainRef.value, { clipPath: 'inset(0 0% 5% 0)', yPercent: -5 })
+    }
+
+    return () => {
+      ScrollTrigger.removeEventListener('refresh', onResize)
+    }
   }, mainRef.value as HTMLElement)
 })
 
 onUnmounted(() => {
-  ScrollTrigger.removeEventListener('refresh', onResize)
   currentAnim?.kill()
-  st?.kill()
   clone?.remove()
   ctx?.revert()
 })
@@ -304,7 +302,7 @@ onUnmounted(() => {
 
   &__middle {
     width: 100%;
-    height: 85vh;
+    height: 75vh;
     display: flex;
     flex-direction: row;
     align-items: flex-end;

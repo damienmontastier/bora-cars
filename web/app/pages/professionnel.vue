@@ -45,5 +45,6 @@ const { data: page } = await useSanityQuery<ProfessionnelData>(PROFESSIONNEL_QUE
   justify-content: center;
   height: 100%;
   gap: 0px;
+  background: var(--c-black-100);
 }
 </style>

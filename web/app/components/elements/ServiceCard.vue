@@ -16,13 +16,13 @@ const gridStyle = computed(() => {
   }
 })
 
-const parallaxProps = computed(() => {
+const parallaxProps = computed((): { speed: number, scale: number, position?: 'top' | 'default' } => {
   switch (card.cardType) {
-    case 'xxl': return { speed: 0.3, scale: 1.03 } // grand carré — effet marqué
-    case 'xl': return { speed: 0.2, scale: 1.03 } // large mais court — plus de scale
-    case 'l': return { speed: 0.35, scale: 1.02 } // portrait tall — fort déplacement Y
-    case 'm': return { speed: 0.2, scale: 1.03, position: 'top' } // petit carré — subtil
-    default: return { speed: 0.25, scale: 1.03 }
+    case 'xxl': return { speed: 0.3, scale: 1.03 }
+    case 'xl':  return { speed: 0.2, scale: 1.03 }
+    case 'l':   return { speed: 0.35, scale: 1.02 }
+    case 'm':   return { speed: 0.2, scale: 1.03 }
+    default:    return { speed: 0.25, scale: 1.03 }
   }
 })
 </script>

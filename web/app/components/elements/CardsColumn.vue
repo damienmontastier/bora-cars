@@ -153,7 +153,6 @@ onUnmounted(() => {
 <style lang="scss">
 .app-elements-cards-column {
   width: 100%;
-  background: var(--c-black);
   display: flex;
   align-items: flex-end;
   gap: desktop-vw(40px);
