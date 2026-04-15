@@ -6,7 +6,7 @@ const { data: page } = await useSanityQuery<ProfessionnelData>(PROFESSIONNEL_QUE
 </script>
 
 <template>
-  <main class="page-professionnel">
+  <main v-menu-theme="'white'" class="page-professionnel">
     <ElementsHero :data="page?.hero ?? null" />
 
     <ElementsCardsColumn
@@ -33,7 +33,7 @@ const { data: page } = await useSanityQuery<ProfessionnelData>(PROFESSIONNEL_QUE
       :body="page?.textBlock?.body"
     />
 
-    <AppFooter />
+    <AppFooter theme="black" />
   </main>
 </template>
 

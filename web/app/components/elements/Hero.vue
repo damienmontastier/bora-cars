@@ -14,6 +14,8 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 const settings = useSettings()
+const { menuTheme } = storeToRefs(useAppStore())
+const ctaTheme = computed(() => menuTheme.value === 'black' ? 'white' : menuTheme.value)
 const heroCTABus = useEventBus('hero-cta')
 const { getTargetRect } = useMenuCtaSync()
 
@@ -244,7 +246,7 @@ onUnmounted(() => {
             {{ data.subtext }}
           </TextsP2>
 
-          <AtomsCTA v-if="settings?.contactLink?.text" ref="ctaRef" theme="orange" class="app-elements-hero__cta" :to="settings.contactLink">
+          <AtomsCTA v-if="settings?.contactLink?.text" ref="ctaRef" :theme="ctaTheme" class="app-elements-hero__cta" :to="settings.contactLink">
             {{ settings.contactLink.text }}
           </AtomsCTA>
         </div>

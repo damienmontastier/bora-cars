@@ -362,7 +362,7 @@ onUnmounted(() => {
     gap: desktop-vw(8px); // read by JS to compute --menu-btn-extra
     position: relative; // anchor for absolute .app-menu__btn
 
-    background: var(--c-beige-20);
+    background: var(--c-black-50);
     // padding-left reserves space for the absolute burger + gap
     padding: desktop-vw(8px);
     padding-left: calc(desktop-vw(8px) + var(--menu-btn-extra, 0px));

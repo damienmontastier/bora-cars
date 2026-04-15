@@ -2,10 +2,21 @@
 import { useLenis } from 'lenis/vue'
 import { FOOTER_QUERY, type FooterData } from '~/queries/footer'
 
+interface Props {
+  theme?: 'black' | 'white' | 'orange'
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  theme: 'orange',
+})
+
 const { data: footer } = await useSanityQuery<FooterData>(FOOTER_QUERY)
 
 const lenis = useLenis()
 const currentYear = new Date().getFullYear()
+
+const ctaTheme = computed(() => props.theme === 'white' ? 'black' : 'white')
+const logoColor = computed(() => props.theme === 'white' ? 'black-100' : 'beige-100')
 
 function scrollToTop() {
   lenis.value?.scrollTo(0, { duration: 1.2 })
@@ -13,9 +24,9 @@ function scrollToTop() {
 </script>
 
 <template>
-  <footer class="app-footer">
+  <footer class="app-footer" :class="`--theme-${theme}`">
     <div class="app-footer__logo-section">
-      <SvgLogo color="beige-100" class="app-footer__logo" />
+      <SvgLogo :color="logoColor" class="app-footer__logo" />
     </div>
 
     <div class="app-footer__divider" />
@@ -36,7 +47,7 @@ function scrollToTop() {
               <AtomsCTASecondary
                 v-for="link in footer.contactLinks"
                 :key="link._key"
-                theme="white"
+                :theme="ctaTheme"
                 :to="link"
                 class="app-footer__link CTA-TEXT"
               >
@@ -53,7 +64,7 @@ function scrollToTop() {
             <AtomsCTASecondary
               v-for="link in footer?.sitemap"
               :key="link._key"
-              theme="white"
+              :theme="ctaTheme"
               :to="link"
               class="app-footer__link CTA-TEXT"
             >
@@ -69,7 +80,7 @@ function scrollToTop() {
             <AtomsCTASecondary
               v-for="link in footer?.socials"
               :key="link._key"
-              theme="white"
+              :theme="ctaTheme"
               :to="link"
               class="app-footer__link CTA-TEXT"
             >
@@ -84,13 +95,13 @@ function scrollToTop() {
       <span class="app-footer__copyright CTA-TEXT">© Bora Cars {{ currentYear }}</span>
       <AtomsCTASecondary
         v-if="footer?.legalLink?.text"
-        theme="white"
+        :theme="ctaTheme"
         :to="footer.legalLink"
         class="app-footer__link CTA-TEXT"
       >
         {{ footer.legalLink.text }}
       </AtomsCTASecondary>
-      <AtomsCTASecondary theme="white" class="app-footer__link CTA-TEXT" @click="scrollToTop">
+      <AtomsCTASecondary :theme="ctaTheme" class="app-footer__link CTA-TEXT" @click="scrollToTop">
         Back to top
       </AtomsCTASecondary>
     </div>
@@ -104,6 +115,32 @@ function scrollToTop() {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+
+  &.--theme-black {
+    background-color: var(--c-black-100);
+  }
+
+  &.--theme-white {
+    background-color: var(--c-beige-100);
+
+    .app-footer__divider {
+      background-color: var(--c-black-100);
+    }
+
+    .app-footer__column-title {
+      color: var(--c-black-70);
+    }
+
+    .app-footer__city,
+    .app-footer__link,
+    .app-footer__copyright {
+      color: var(--c-black-100);
+    }
+
+    .app-footer__city-separator {
+      background-color: var(--c-black-100);
+    }
+  }
 
   &__logo-section {
     width: 100%;
