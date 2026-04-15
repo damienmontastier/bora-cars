@@ -12,9 +12,12 @@ interface Props {
   heading?: string
   subtext?: string
   cards: CardItem[]
+  theme?: 'black' | 'white'
 }
 
-const props = defineProps<Props>()
+const props = withDefaults(defineProps<Props>(), {
+  theme: 'black',
+})
 
 const settings = useSettings()
 
@@ -94,17 +97,17 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <section ref="rootRef" class="app-elements-cards-column" :class="{ 'is-snapping': isSnapping }">
+  <section ref="rootRef" class="app-elements-cards-column" :class="[`--theme-${theme}`, { 'is-snapping': isSnapping }]">
     <div class="app-elements-cards-column__left">
-      <TextsH3 v-if="heading" tag="h2" class="app-elements-cards-column__left-heading" color="beige-100">
+      <TextsH3 v-if="heading" tag="h2" class="app-elements-cards-column__left-heading" :color="theme === 'white' ? 'black-100' : 'beige-100'">
         {{ heading }}
       </TextsH3>
 
       <div class="app-elements-cards-column__left-bottom">
-        <TextsP1 v-if="subtext" color="beige-100">
+        <TextsP1 v-if="subtext" :color="theme === 'white' ? 'black-100' : 'beige-100'">
           {{ subtext }}
         </TextsP1>
-        <AtomsCTA v-if="settings?.contactLink?.text" theme="white" :to="settings.contactLink" :tiret-after="0">
+        <AtomsCTA v-if="settings?.contactLink?.text" :theme="theme === 'white' ? 'black' : 'white'" :to="settings.contactLink" :tiret-after="0">
           {{ settings.contactLink.text }}
         </AtomsCTA>
       </div>
@@ -117,29 +120,29 @@ onUnmounted(() => {
         class="cards-column__item"
         @click="snapToItem(index)"
       >
-        <TextsH3 :selectable="false" class="cards-column__item-number" color="beige-100">
+        <TextsH3 :selectable="false" class="cards-column__item-number" :color="theme === 'white' ? 'black-100' : 'beige-100'">
           {{ item.number }}
         </TextsH3>
 
         <div class="cards-column__item-content">
-          <TextsH3 tag="span" :selectable="false" class="cards-column__item-title" color="beige-100">
+          <TextsH3 tag="span" :selectable="false" class="cards-column__item-title" :color="theme === 'white' ? 'black-100' : 'beige-100'">
             {{ item.title }}
           </TextsH3>
-          <TextsP2 :selectable="false" class="cards-column__item-description" color="beige-100">
+          <TextsP2 :selectable="false" class="cards-column__item-description" :color="theme === 'white' ? 'black-100' : 'beige-100'">
             {{ item.description }}
           </TextsP2>
         </div>
 
         <div aria-hidden="true" class="cards-column__item-bg">
           <div class="cards-column__item-bg-content">
-            <TextsH3 :selectable="false" class="cards-column__item-number" color="black-100">
+            <TextsH3 :selectable="false" class="cards-column__item-number" :color="theme === 'white' ? 'beige-100' : 'black-100'">
               {{ item.number }}
             </TextsH3>
             <div class="cards-column__item-content">
-              <TextsH3 tag="span" :selectable="false" class="cards-column__item-title" color="black-100">
+              <TextsH3 tag="span" :selectable="false" class="cards-column__item-title" :color="theme === 'white' ? 'beige-100' : 'black-100'">
                 {{ item.title }}
               </TextsH3>
-              <TextsP2 :selectable="false" class="cards-column__item-description" color="black-100">
+              <TextsP2 :selectable="false" class="cards-column__item-description" :color="theme === 'white' ? 'beige-100' : 'black-100'">
                 {{ item.description }}
               </TextsP2>
             </div>
@@ -158,6 +161,21 @@ onUnmounted(() => {
   gap: desktop-vw(40px);
   padding: desktop-vw(40px) desktop-vw(24px) desktop-vw(50px) desktop-vw(24px);
   background: var(--c-black-100);
+
+  &.--theme-white {
+    background: var(--c-beige-100);
+
+    .cards-column__item {
+      &::after {
+        background: var(--c-black-100);
+        mix-blend-mode: multiply;
+      }
+
+      &-bg {
+        background: var(--c-black);
+      }
+    }
+  }
 
   &__left {
     display: flex;

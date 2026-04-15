@@ -73,15 +73,11 @@ onUnmounted(() => {
           :hotspot="data.backgroundMedia.imageHotspot"
           :crop="data.backgroundMedia.imageCrop"
         />
-        <video
+        <ElementsVideo
           v-else-if="data.backgroundMedia.mediaType === 'video' && data.backgroundMedia.videoUrl"
           class="app-elements-fullscreen-marquee__background--video"
           :src="data.backgroundMedia.videoUrl"
           :aria-label="data.backgroundMedia.videoAlt ?? ''"
-          autoplay
-          muted
-          loop
-          playsinline
         />
       </UtilsParallax>
     </div>
@@ -173,7 +169,6 @@ onUnmounted(() => {
   &__background--video {
     width: 100%;
     height: 100%;
-    object-fit: cover;
   }
 
   &__rows {

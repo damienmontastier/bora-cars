@@ -220,15 +220,11 @@ onUnmounted(() => {
           :lazy="false"
           :preload="{ fetchPriority: 'high' }"
         />
-        <video
+        <ElementsVideo
           v-else-if="data.backgroundMedia.mediaType === 'video' && data.backgroundMedia.videoUrl"
           class="app-elements-hero__background--video"
           :src="data.backgroundMedia.videoUrl"
           :aria-label="data.backgroundMedia.videoAlt ?? ''"
-          autoplay
-          muted
-          loop
-          playsinline
         />
       </UtilsParallax>
     </div>
@@ -354,7 +350,6 @@ onUnmounted(() => {
   &__background--video {
     width: 100%;
     height: 100%;
-    object-fit: cover;
   }
 }
 </style>

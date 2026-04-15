@@ -13,6 +13,7 @@ const { data: page } = await useSanityQuery<ProfessionnelData>(PROFESSIONNEL_QUE
       :heading="page?.cardsColumn?.heading"
       :subtext="page?.cardsColumn?.subtext"
       :cards="page?.cardsColumn?.cards ?? []"
+      theme="white"
     />
 
     <ElementsFullscreenMarquee
@@ -44,6 +45,6 @@ const { data: page } = await useSanityQuery<ProfessionnelData>(PROFESSIONNEL_QUE
   justify-content: center;
   height: 100%;
   gap: 0px;
-  background: var(--c-black-100);
+  background: var(--c-beige-100);
 }
 </style>

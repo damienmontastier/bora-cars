@@ -40,9 +40,34 @@ const props = defineProps({
 
 let ctx: gsap.Context | null = null
 let tween: gsap.core.Tween | null = null
+let velocityResetTimeout: ReturnType<typeof setTimeout> | null = null
 
-const lenis = useLenis()
 const { fontsLoaded } = toRefs(useAppStore())
+
+// useLenis callback is automatically registered/cleaned up by the composable
+useLenis((lenis) => {
+  if (!props.scrollVelocity || !tween)
+    return
+
+  if (velocityResetTimeout) {
+    clearTimeout(velocityResetTimeout)
+    velocityResetTimeout = null
+  }
+
+  gsap.to(tween, {
+    timeScale: 1 + Math.abs(lenis.velocity) * props.scrollVelocitySpeed,
+    duration: 0.15,
+    ease: 'power2.out',
+    overwrite: true,
+  })
+
+  velocityResetTimeout = setTimeout(() => {
+    if (!tween)
+      return
+    gsap.to(tween, { timeScale: 1, duration: 1, ease: 'power3.out', overwrite: true })
+    velocityResetTimeout = null
+  }, 100)
+})
 
 const mainRef = useTemplateRef<HTMLElement>('mainRef')
 const wrapperRef = useTemplateRef<HTMLElement>('wrapperRef')
@@ -112,30 +137,6 @@ watch(isOutside, () => {
   gsap.to(tween, { timeScale: isOutside.value ? 1 : 0, duration: 1 })
 })
 
-watchEffect((onInvalidate) => {
-  if (!props.scrollVelocity)
-    return
-
-  const l = lenis.value
-  if (!l)
-    return
-
-  const onScroll = ({ velocity }: { velocity: number }) => {
-    if (!tween)
-      return
-    // Smooth tracking — Lenis inertia gradually reduces velocity to 0,
-    // so successive calls naturally bring timeScale back to 1
-    gsap.to(tween, {
-      timeScale: 1 + Math.abs(velocity) * props.scrollVelocitySpeed,
-      duration: 0.8,
-      ease: 'power3.out',
-      overwrite: true,
-    })
-  }
-
-  l.on('scroll', onScroll)
-  onInvalidate(() => l.off('scroll', onScroll))
-})
 
 watch(isMobile, async () => {
   teardownAnimation()
@@ -161,6 +162,8 @@ onMounted(async () => {
 
 onUnmounted(() => {
   teardownAnimation()
+  if (velocityResetTimeout)
+    clearTimeout(velocityResetTimeout)
 })
 
 defineExpose({ mainRef, wrapperRef })
