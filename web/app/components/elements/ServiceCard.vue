@@ -15,6 +15,16 @@ const gridStyle = computed(() => {
     gridRowStart: card.grid.y + 1,
   }
 })
+
+const parallaxProps = computed(() => {
+  switch (card.cardType) {
+    case 'xxl': return { speed: 0.3, scale: 1.03 } // grand carré — effet marqué
+    case 'xl': return { speed: 0.2, scale: 1.03 } // large mais court — plus de scale
+    case 'l': return { speed: 0.35, scale: 1.02 } // portrait tall — fort déplacement Y
+    case 'm': return { speed: 0.2, scale: 1.03, position: 'top' } // petit carré — subtil
+    default: return { speed: 0.25, scale: 1.03 }
+  }
+})
 </script>
 
 <template>
@@ -25,14 +35,16 @@ const gridStyle = computed(() => {
     :class="`app-elements-service-card--${card.cardType}`"
   >
     <div class="app-elements-service-card__media">
-      <ElementsMedia
-        v-if="card.media?.imageUrl"
-        :src="card.media.imageUrl"
-        :alt="card.media.imageAlt ?? card.categoryLabel"
-        provider="sanity"
-        :hotspot="card.media.imageHotspot"
-        :crop="card.media.imageCrop"
-      />
+      <UtilsParallax v-bind="parallaxProps">
+        <ElementsMedia
+          v-if="card.media?.imageUrl"
+          :src="card.media.imageUrl"
+          :alt="card.media.imageAlt ?? card.categoryLabel"
+          provider="sanity"
+          :hotspot="card.media.imageHotspot"
+          :crop="card.media.imageCrop"
+        />
+      </UtilsParallax>
     </div>
 
     <div class="app-elements-service-card__label">
@@ -62,11 +74,9 @@ const gridStyle = computed(() => {
     width: 100%;
     overflow: hidden;
 
-    .app-elements-media {
+    .utils-parallax {
       position: absolute;
       inset: 0;
-      width: 100%;
-      height: 100%;
     }
   }
 

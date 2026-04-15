@@ -210,7 +210,7 @@ onUnmounted(() => {
         class="app-elements-hero__background"
         position="top"
         :trigger="mainRef"
-        :speed="0.65"
+        :speed="0.5"
         :scale="1.1"
       >
         <ElementsMedia
@@ -280,10 +280,6 @@ onUnmounted(() => {
     left: 0;
     width: 100%;
     height: 100%;
-
-    .app-elements-media {
-      transform: scale(1.1);
-    }
   }
 
   &__content {

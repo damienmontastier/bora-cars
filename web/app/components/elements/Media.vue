@@ -96,6 +96,8 @@ defineExpose({ mainRef, pictureRef })
 .app-elements-media {
   position: relative;
   overflow: hidden;
+  width: 100%;
+  height: 100%;
 
   &__image,
   &__fallback {
@@ -153,8 +155,12 @@ defineExpose({ mainRef, pictureRef })
   }
 
   @keyframes media-skeleton {
-    0% { background-position: 200% 0; }
-    100% { background-position: -200% 0; }
+    0% {
+      background-position: 200% 0;
+    }
+    100% {
+      background-position: -200% 0;
+    }
   }
 }
 </style>
