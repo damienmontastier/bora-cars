@@ -45,7 +45,7 @@ export const serviceCardsType = defineType({
               title: 'Catégorie',
               type: 'string',
               description: 'Ex: "Mariage", "SUV Premium"…',
-              validation: (Rule) => Rule.required().max(20),
+              validation: (Rule) => Rule.required().max(35),
             }),
             defineField({
               name: 'subtitle',
