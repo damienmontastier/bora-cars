@@ -233,7 +233,7 @@ onUnmounted(() => {
 
     <div class="app-elements-hero__content">
       <div class="app-elements-hero__top">
-        <SvgLogo class="app-elements-hero__logo" />
+        <SvgLogo color="beige-100" class="app-elements-hero__logo" />
       </div>
 
       <div class="app-elements-hero__middle">
