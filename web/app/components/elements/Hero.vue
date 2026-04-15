@@ -185,7 +185,7 @@ onMounted(() => {
           end: 'bottom+=100% top',
           scrub: true,
         },
-      }).to(mainRef.value, { clipPath: 'inset(0 0% 5% 0)', yPercent: -5 })
+      }).to(mainRef.value, { clipPath: 'inset(0 0% 2.5% 0)', y: '-50px' })
     }
 
     return () => {

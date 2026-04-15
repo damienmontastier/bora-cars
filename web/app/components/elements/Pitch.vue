@@ -46,7 +46,7 @@ const settings = useSettings()
   gap: desktop-vw(40px);
 
   &__top {
-    width: 90%;
+    width: 60%;
     align-self: flex-start;
 
     .P2,

@@ -27,7 +27,7 @@ defineProps<Props>()
   background: var(--c-beige-100);
 
   &__inner {
-    width: 95%;
+    width: 65%;
   }
 
   &__eyebrow {
