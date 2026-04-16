@@ -1,5 +1,8 @@
 <script setup lang="ts">
+import type UtilsParallax from '~/components/utils/Parallax.vue'
 import type { ServiceCard } from '~/queries/home'
+
+type ParallaxProps = InstanceType<typeof UtilsParallax>['$props']
 
 interface Props {
   card: ServiceCard
@@ -16,13 +19,13 @@ const gridStyle = computed(() => {
   }
 })
 
-const parallaxProps = computed((): { speed: number, scale: number, position?: 'top' | 'default' } => {
+const parallaxProps = computed((): Partial<ParallaxProps> => {
   switch (card.cardType) {
-    case 'xxl': return { speed: 0.3, scale: 1.03 }
-    case 'xl':  return { speed: 0.2, scale: 1.03 }
-    case 'l':   return { speed: 0.35, scale: 1.02 }
-    case 'm':   return { speed: 0.2, scale: 1.03 }
-    default:    return { speed: 0.25, scale: 1.03 }
+    case 'xxl': return { speed: 0.2, scale: 1.03 }
+    case 'xl': return { speed: 0.15, scale: 1.02, reversed: true }
+    case 'l': return { speed: 0.2, scale: 1.02 }
+    case 'm': return { speed: 0.15, scale: 1.02, reversed: true }
+    default: return { speed: 0.25, scale: 1.03 }
   }
 })
 </script>
@@ -105,7 +108,6 @@ const parallaxProps = computed((): { speed: number, scale: number, position?: 't
     white-space: nowrap;
   }
 
-  // ─── Aspect ratio de l'image ──────────────────────
   &--xxl &__media {
     aspect-ratio: 706 / 706;
   }
