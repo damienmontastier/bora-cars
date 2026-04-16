@@ -31,8 +31,18 @@ const [{ data: menu }, settingsData] = await Promise.all([
 
 settings.value = settingsData
 
+const transitionRef = useTemplateRef('transitionRef')
+
 function onBeforeEnter() {
   window.lenis?.scrollTo(0, { immediate: true, force: true })
+}
+
+function onLeave(_el: Element, done: () => void) {
+  transitionRef.value?.enter(done)
+}
+
+function onEnter(_el: Element, done: () => void) {
+  transitionRef.value?.leave(done)
 }
 </script>
 
@@ -45,13 +55,14 @@ function onBeforeEnter() {
 
     <AppOverlay />
 
+    <AppTransition ref="transitionRef" />
+
     <!-- <DevOnly>
       <AppMenuDev />
     </DevOnly> -->
-    <!-- <AppTransitionOverlay /> -->
 
     <div id="app-page" class="app-page">
-      <NuxtPage :transition="{ name: 'page', mode: 'out-in', onBeforeEnter }" />
+      <NuxtPage :transition="{ mode: 'out-in', onBeforeEnter, onLeave, onEnter }" />
     </div>
 
     <DevOnly>
@@ -61,16 +72,6 @@ function onBeforeEnter() {
 </template>
 
 <style lang="scss">
-.page-enter-active,
-.page-leave-active {
-  transition: opacity 0.5s var(--ease-out-cubic);
-}
-
-.page-enter-from,
-.page-leave-to {
-  opacity: 0;
-}
-
 .app {
   height: 100%;
   width: 100%;

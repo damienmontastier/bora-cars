@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import gsap from 'gsap'
+import { SplitText } from 'gsap/SplitText'
+
 interface PitchData {
   eyebrow?: string
   heading?: string
@@ -10,6 +13,26 @@ interface Props { data: PitchData | null }
 defineProps<Props>()
 
 const settings = useSettings()
+const { fontsLoaded } = storeToRefs(useAppStore())
+
+const headingRef = useTemplateRef<{ $el: HTMLElement }>('headingRef')
+let split: SplitText | null = null
+
+function initSplitText() {
+  if (!headingRef.value?.$el)
+    return
+  split?.revert()
+  split = new SplitText(headingRef.value.$el, { type: 'lines' })
+}
+
+watch(fontsLoaded, (loaded) => {
+  if (loaded)
+    initSplitText()
+}, { immediate: true })
+
+onUnmounted(() => {
+  split?.revert()
+})
 </script>
 
 <template>
@@ -18,7 +41,7 @@ const settings = useSettings()
       <TextsP2 v-if="data?.eyebrow" color="orange-100">
         {{ data.eyebrow }}
       </TextsP2>
-      <TextsH2 v-if="data?.heading" color="orange-100">
+      <TextsH2 v-if="data?.heading" ref="headingRef" color="orange-100">
         {{ data.heading }}
       </TextsH2>
     </div>
