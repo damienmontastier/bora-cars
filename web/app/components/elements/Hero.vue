@@ -7,10 +7,12 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 interface Props {
   data: HeroData | null
   clipPath?: boolean
+  variant?: 'variant-1' | 'variant-2' | 'variant-3'
 }
 
 const props = withDefaults(defineProps<Props>(), {
   clipPath: true,
+  variant: 'variant-1',
 })
 
 const settings = useSettings()
@@ -202,7 +204,9 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div ref="mainRef" class="app-elements-hero">
+  <div ref="mainRef" class="app-elements-hero" :class="`app-elements-hero--${props.variant}`">
+    <div class="app-elements-hero__overlay" />
+
     <div class="app-elements-hero__background-wrapper">
       <UtilsParallax
         v-if="data?.backgroundMedia"
@@ -210,8 +214,9 @@ onUnmounted(() => {
         class="app-elements-hero__background"
         position="top"
         :trigger="mainRef"
-        :speed="0.35"
-        :scale="1.025"
+        :speed="0.5"
+        :scale="1.02"
+        :reversed="true"
       >
         <ElementsMedia
           v-if="data.backgroundMedia.mediaType === 'image'"
@@ -270,17 +275,30 @@ onUnmounted(() => {
   width: 100%;
   position: relative;
 
+  &__overlay {
+    position: absolute;
+    inset: 0;
+    background-color: var(--c-black-20);
+    z-index: 1;
+    pointer-events: none;
+  }
+
   &__background-wrapper {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
+
+    .app-elements-media,
+    .app-elements-video {
+    }
   }
 
   &__content {
     position: relative;
-    z-index: 1;
+    z-index: 2;
+    width: 100%;
   }
 
   &__top {
@@ -338,8 +356,22 @@ onUnmounted(() => {
     justify-content: flex-end;
 
     .H3 {
-      width: 57.5%;
+      width: 37.5%;
     }
+  }
+
+  // Variants
+  &--variant-1 {
+  }
+
+  &--variant-2 {
+  }
+
+  &--variant-3 {
+  }
+
+  &__background .utils-parallax__target {
+    transform-origin: center top;
   }
 
   &__background.app-elements-media,

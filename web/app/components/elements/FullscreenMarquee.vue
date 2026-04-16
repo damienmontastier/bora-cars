@@ -23,6 +23,18 @@ const row2Items = computed<MarqueeItem[]>(() => {
   return allItems.value.slice(half)
 })
 
+// ─── Shared marquee props ─────────────────────────────────────────────────────
+
+const sharedMarqueeProps = computed(() => ({
+  duration: 25,
+  repeat: 4,
+  animatedOnMobile: true,
+  pauseOnHover: true,
+  scrollVelocity: true,
+  scrollVelocitySpeed: 2,
+  trigger: rootRef.value,
+}))
+
 // ─── Scroll: rows translate from top to bottom of section ────────────────────
 
 let ctx: gsap.Context | null = null
@@ -85,12 +97,7 @@ onUnmounted(() => {
     <div ref="rowsRef" class="app-elements-fullscreen-marquee__rows">
       <!-- Row 1 — first half, scrolls left -->
       <ElementsMarquee
-        :duration="25"
-        :repeat="4"
-        :animated-on-mobile="true"
-        :pause-on-hover="true"
-        :scroll-velocity="true"
-        :trigger="rootRef"
+        v-bind="sharedMarqueeProps"
         class="app-elements-fullscreen-marquee__row"
       >
         <div class="app-elements-fullscreen-marquee__row-wrapper">
@@ -115,13 +122,8 @@ onUnmounted(() => {
 
       <!-- Row 2 — second half + CTA, scrolls right -->
       <ElementsMarquee
-        :duration="25"
+        v-bind="sharedMarqueeProps"
         :reversed="true"
-        :repeat="4"
-        :animated-on-mobile="true"
-        :pause-on-hover="true"
-        :scroll-velocity="true"
-        :trigger="rootRef"
         class="app-elements-fullscreen-marquee__row"
       >
         <div class="app-elements-fullscreen-marquee__row-wrapper">

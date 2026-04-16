@@ -51,7 +51,7 @@ const portableTextComponents = getPortableTextComponents()
   }
 
   &__top {
-    width: 100%;
+    width: 70%;
   }
 
   &__eyebrow {
