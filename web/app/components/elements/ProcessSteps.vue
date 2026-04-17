@@ -105,7 +105,7 @@ onMounted(async () => {
         scrollTrigger: {
           trigger: item,
           start: 'center-=35% center',
-          end: 'center+=50% center',
+          end: 'center+=85% center',
           onEnter: showDescription,
           onEnterBack: showDescription,
           onLeave: showLabel,
