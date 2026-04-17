@@ -20,7 +20,7 @@ const themeTextColor = computed(() => ({
 <template>
   <div class="app-switch-langue" :class="`app-switch-langue--${theme}`">
     <template v-for="(loc, i) in locales" :key="loc.code">
-      <UtilsBaseLink
+      <NuxtLink
         :to="switchLocalePath(loc.code)"
         class="app-switch-langue__item"
         :class="{ 'is-active': locale === loc.code }"
@@ -28,7 +28,7 @@ const themeTextColor = computed(() => ({
         <TextsCTA :color="themeTextColor">
           {{ loc.code.toUpperCase() }}
         </TextsCTA>
-      </UtilsBaseLink>
+      </NuxtLink>
       <span
         v-if="i < locales.length - 1"
         class="app-switch-langue__divider"

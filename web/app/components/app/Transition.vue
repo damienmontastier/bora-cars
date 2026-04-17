@@ -6,17 +6,27 @@ const lenis = () => window.lenis as Lenis | undefined
 
 const overlayRef = useTemplateRef('overlayRef')
 
+let ctx: gsap.Context | undefined
+
 onMounted(() => {
-  gsap.set(overlayRef.value, { scaleY: 0, transformOrigin: 'bottom' })
+  ctx = gsap.context(() => {
+    gsap.set(overlayRef.value, { scaleY: 0, transformOrigin: 'bottom' })
+  }, overlayRef.value!)
+})
+
+onUnmounted(() => {
+  ctx?.revert()
 })
 
 function onLeave(_el: Element, done: () => void) {
   lenis()?.stop()
-  gsap.to(overlayRef.value, {
-    scaleY: 1,
-    duration: 0.75,
-    ease: 'expo.inOut',
-    onComplete: () => gsap.delayedCall(0.1, done),
+  ctx?.add(() => {
+    gsap.timeline({ onComplete: () => gsap.delayedCall(0.1, done) })
+      .to(overlayRef.value, {
+        scaleY: 1,
+        duration: 0.75,
+        ease: 'expo.inOut',
+      })
   })
 }
 
@@ -26,15 +36,20 @@ function onBeforeEnter() {
 }
 
 function onEnter(_el: Element, done: () => void) {
-  gsap.set(overlayRef.value, { transformOrigin: 'top' })
-  gsap.to(overlayRef.value, {
-    scaleY: 0,
-    duration: 0.9,
-    ease: 'expo.inOut',
-    onComplete: () => {
-      lenis()?.start()
-      done()
-    },
+  ctx?.add(() => {
+    gsap.timeline({
+      onComplete: () => {
+        lenis()?.start()
+        done()
+      },
+    })
+      .set(overlayRef.value, { transformOrigin: 'top' })
+      .to(overlayRef.value, {
+        scaleY: 0,
+        duration: 0.9,
+        ease: 'expo.inOut',
+      })
+      .set(overlayRef.value, { transformOrigin: 'bottom' })
   })
 }
 

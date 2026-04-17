@@ -62,10 +62,6 @@ const structure = (S: any) =>
     ])
 
 const createWorkspace = (lang: 'fr' | 'en', flag: string) => {
-  const pluginLanguages = lang === 'en'
-    ? SUPPORTED_LANGUAGES
-    : SUPPORTED_LANGUAGES.filter((l) => l.id === lang)
-
   const lockOtherLangs = ({ parent }: { parent?: { language?: string } }) =>
     typeof parent?.language === 'string' && parent.language !== lang
 
@@ -77,9 +73,9 @@ const createWorkspace = (lang: 'fr' | 'en', flag: string) => {
     projectId: 'xyw8hnp3',
     dataset: 'production',
     plugins: [
-      linkField({ linkableSchemaTypes: ['homepage', 'proprietaire', 'professionnel', 'car'] }),
+      linkField({ linkableSchemaTypes: ['homepage', 'proprietaire', 'professionnel', 'car', 'contact'] }),
       internationalizedArray({
-        languages: pluginLanguages,
+        languages: SUPPORTED_LANGUAGES,
         defaultLanguages: SUPPORTED_LANGUAGES.map((l) => l.id),
         fieldTypes: [
           defineField({ name: 'string', type: 'string', readOnly: lockOtherLangs }),

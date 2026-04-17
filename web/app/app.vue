@@ -21,6 +21,8 @@ watch(fontsReady, (ready) => {
   }
 })
 
+const { finalizePendingLocaleChange } = useI18n()
+
 const sanity = useSanity()
 const settings = useSettings()
 const lang = useSanityLang()
@@ -46,7 +48,10 @@ const transitionRef = useTemplateRef('transitionRef')
 const pageTransition = {
   mode: 'out-in' as const,
   onLeave: (el: Element, done: () => void) => transitionRef.value?.onLeave(el, done),
-  onBeforeEnter: () => transitionRef.value?.onBeforeEnter(),
+  onBeforeEnter: async () => {
+    await finalizePendingLocaleChange()
+    transitionRef.value?.onBeforeEnter()
+  },
   onEnter: (el: Element, done: () => void) => transitionRef.value?.onEnter(el, done),
 }
 </script>

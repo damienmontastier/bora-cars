@@ -52,6 +52,7 @@ export default defineNuxtConfig({
     },
     locales,
     defaultLocale: 'fr',
+    skipSettingLocaleOnNavigate: true,
   },
 
   site: { indexable: false },

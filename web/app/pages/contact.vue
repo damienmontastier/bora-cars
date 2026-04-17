@@ -13,11 +13,11 @@ const { data: page } = await useSanityQuery<ContactData>(CONTACT_QUERY, params)
 
 <template>
   <main v-menu-theme="'white'" class="page-contact">
-    <h1 v-if="page?.heading" class="page-contact__heading">
-      {{ page.heading }}
-    </h1>
-
-    <AppSwitchLangue theme="orange" />
+    <div style="height: 50vh; width: 100%; display: flex; align-items: center; justify-content: center;background-color: red;">
+      <h1 v-if="page?.heading" class="page-contact__heading">
+        {{ page.heading }}
+      </h1>
+    </div>
 
     <AppFooter theme="black" />
   </main>

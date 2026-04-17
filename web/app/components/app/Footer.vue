@@ -1,6 +1,7 @@
 <script setup lang="ts">
+import type { FooterData } from '~/queries/footer'
 import { useLenis } from 'lenis/vue'
-import { FOOTER_QUERY, type FooterData } from '~/queries/footer'
+import { FOOTER_QUERY } from '~/queries/footer'
 
 interface Props {
   theme?: 'black' | 'white' | 'orange'
@@ -99,6 +100,9 @@ function scrollToTop() {
 
     <div class="app-footer__bottom">
       <span class="app-footer__copyright CTA-TEXT">© Bora Cars {{ currentYear }}</span>
+
+      <AppSwitchLangue :theme="ctaTheme" />
+
       <AtomsCTASecondary
         v-if="footer?.legalLink?.text"
         :theme="ctaTheme"
