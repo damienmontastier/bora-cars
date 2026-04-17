@@ -115,9 +115,15 @@ onClickOutside(itemsRef, () => {
             </template>
             <template #value>
               <select v-model="menuTheme">
-                <option value="white">white</option>
-                <option value="orange">orange</option>
-                <option value="black">black</option>
+                <option value="white">
+                  white
+                </option>
+                <option value="orange">
+                  orange
+                </option>
+                <option value="black">
+                  black
+                </option>
               </select>
             </template>
           </DebugPatrolLabel>
@@ -132,7 +138,7 @@ onClickOutside(itemsRef, () => {
   position: fixed;
   top: 0;
   left: 0;
-  z-index: 20;
+  z-index: 999999999999;
   width: 100%;
   height: 100%;
   display: flex;

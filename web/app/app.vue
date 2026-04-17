@@ -45,11 +45,23 @@ useHead({
 
 const transitionRef = useTemplateRef('transitionRef')
 
+watch(
+  () => appStore.menuThemePending,
+  (v) => {
+    if (!appStore.menuTransitioning) appStore.menuTheme = v
+  },
+)
+
 const pageTransition = {
   mode: 'out-in' as const,
-  onLeave: (el: Element, done: () => void) => transitionRef.value?.onLeave(el, done),
+  onLeave: (el: Element, done: () => void) => {
+    appStore.menuTransitioning = true
+    transitionRef.value?.onLeave(el, done)
+  },
   onBeforeEnter: async () => {
     await finalizePendingLocaleChange()
+    appStore.menuTheme = appStore.menuThemePending
+    appStore.menuTransitioning = false
     transitionRef.value?.onBeforeEnter()
   },
   onEnter: (el: Element, done: () => void) => transitionRef.value?.onEnter(el, done),

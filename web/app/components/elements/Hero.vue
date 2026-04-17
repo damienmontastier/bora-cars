@@ -290,7 +290,7 @@ onUnmounted(() => {
   &__overlay {
     position: absolute;
     inset: 0;
-    background-color: var(--c-black-20);
+    background-color: var(--c-black-50);
     z-index: 1;
     pointer-events: none;
   }

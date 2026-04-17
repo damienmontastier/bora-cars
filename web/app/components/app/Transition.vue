@@ -21,7 +21,13 @@ onUnmounted(() => {
 function onLeave(_el: Element, done: () => void) {
   lenis()?.stop()
   ctx?.add(() => {
-    gsap.timeline({ onComplete: () => gsap.delayedCall(0.1, done) })
+    gsap.timeline({
+      onComplete: () => {
+        lenis()?.scrollTo(0, { immediate: true, force: true })
+        window.scrollTo(0, 0)
+        gsap.delayedCall(0.1, done)
+      },
+    })
       .to(overlayRef.value, {
         scaleY: 1,
         duration: 0.75,
@@ -30,10 +36,7 @@ function onLeave(_el: Element, done: () => void) {
   })
 }
 
-function onBeforeEnter() {
-  window.scrollTo(0, 0)
-  lenis()?.scrollTo(0, { immediate: true, force: true })
-}
+function onBeforeEnter() {}
 
 function onEnter(_el: Element, done: () => void) {
   ctx?.add(() => {

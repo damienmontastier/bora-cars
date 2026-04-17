@@ -48,10 +48,13 @@ function createTrigger(el: MenuThemeEl, binding: DirectiveBinding<MenuTheme | Me
     start,
     end,
     onEnter: () => {
-      appStore.menuTheme = theme
+      appStore.menuThemePending = theme
     },
     onEnterBack: () => {
-      appStore.menuTheme = theme
+      appStore.menuThemePending = theme
+    },
+    onRefresh: (self) => {
+      if (self.isActive) appStore.menuThemePending = theme
     },
   })
 }
