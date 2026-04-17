@@ -26,12 +26,12 @@ const row2Items = computed<MarqueeItem[]>(() => {
 // ─── Shared marquee props ─────────────────────────────────────────────────────
 
 const sharedMarqueeProps = computed(() => ({
-  duration: 25,
+  duration: 30,
   repeat: 4,
   animatedOnMobile: true,
   pauseOnHover: true,
   scrollVelocity: true,
-  scrollVelocitySpeed: 2,
+  scrollVelocitySpeed: 1.5,
   trigger: rootRef.value,
 }))
 

@@ -40,34 +40,17 @@ const props = defineProps({
 
 let ctx: gsap.Context | null = null
 let tween: gsap.core.Tween | null = null
-let velocityResetTimeout: ReturnType<typeof setTimeout> | null = null
+let quickTimeScale: gsap.QuickToFunc | null = null
 
 const { fontsLoaded } = toRefs(useAppStore())
 
-// useLenis callback is automatically registered/cleaned up by the composable
-useLenis((lenis) => {
-  if (!props.scrollVelocity || !tween)
+const lenis = useLenis()
+
+function velocityTick() {
+  if (!quickTimeScale || !lenis.value)
     return
-
-  if (velocityResetTimeout) {
-    clearTimeout(velocityResetTimeout)
-    velocityResetTimeout = null
-  }
-
-  gsap.to(tween, {
-    timeScale: 1 + Math.abs(lenis.velocity) * props.scrollVelocitySpeed,
-    duration: 0.15,
-    ease: 'power2.out',
-    overwrite: true,
-  })
-
-  velocityResetTimeout = setTimeout(() => {
-    if (!tween)
-      return
-    gsap.to(tween, { timeScale: 1, duration: 1, ease: 'power3.out', overwrite: true })
-    velocityResetTimeout = null
-  }, 100)
-})
+  quickTimeScale(1 + Math.abs(lenis.value.velocity) * props.scrollVelocitySpeed)
+}
 
 const mainRef = useTemplateRef<HTMLElement>('mainRef')
 const wrapperRef = useTemplateRef<HTMLElement>('wrapperRef')
@@ -112,13 +95,23 @@ function setupAnimation() {
         },
       },
     )
+
+    if (props.scrollVelocity) {
+      quickTimeScale = gsap.quickTo(tween, 'timeScale', {
+        duration: 0.3,
+        ease: 'power2.out',
+      })
+      gsap.ticker.add(velocityTick)
+    }
   }, mainRef.value!)
 }
 
 function teardownAnimation() {
+  gsap.ticker.remove(velocityTick)
   ctx?.revert()
   ctx = null
   tween = null
+  quickTimeScale = null
 }
 
 // Re-measure singleWidth on resize (stale after window resize)
@@ -162,8 +155,6 @@ onMounted(async () => {
 
 onUnmounted(() => {
   teardownAnimation()
-  if (velocityResetTimeout)
-    clearTimeout(velocityResetTimeout)
 })
 
 defineExpose({ mainRef, wrapperRef })
