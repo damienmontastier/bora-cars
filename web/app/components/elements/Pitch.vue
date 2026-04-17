@@ -1,7 +1,4 @@
 <script setup lang="ts">
-import gsap from 'gsap'
-import { SplitText } from 'gsap/SplitText'
-
 interface PitchData {
   eyebrow?: string
   heading?: string
@@ -13,60 +10,12 @@ interface Props { data: PitchData | null }
 defineProps<Props>()
 
 const settings = useSettings()
-const { fontsLoaded } = storeToRefs(useAppStore())
-
 const headingRef = useTemplateRef<{ $el: HTMLElement }>('headingRef')
-let split: SplitText | null = null
-let ctx: gsap.Context | null = null
 
-function initAnimation() {
-  if (!headingRef.value?.$el)
-    return
-
-  ctx?.revert()
-  split?.revert()
-
-  split = new SplitText(headingRef.value.$el, {
-    type: 'chars',
-    mask: 'chars',
-    autoSplit: true,
-    charsClass: 'char',
-    smartWrap: true,
-  })
-
-  ctx = gsap.context(() => {
-    gsap.fromTo(
-      split!.chars,
-      {
-        transformOrigin: '0% 50%',
-        xPercent: 105,
-      },
-      {
-        xPercent: 0,
-        duration: 1,
-        ease: 'expo',
-        stagger: 0.042,
-        scrollTrigger: {
-          trigger: headingRef.value!.$el,
-          start: 'top bottom',
-          markers: true,
-          end: 'bottom center',
-          toggleActions: 'play resume resume reset',
-          scrub: true,
-        },
-      },
-    )
-  }, headingRef.value.$el)
-}
-
-watch(fontsLoaded, (loaded) => {
-  if (loaded)
-    initAnimation()
-}, { immediate: true })
-
-onUnmounted(() => {
-  ctx?.revert()
-  split?.revert()
+useSplitTextAnimation(() => headingRef.value?.$el, {
+  style: 'fade',
+  to: { duration: 0.6, stagger: 0.025 },
+  scrollTrigger: { start: 'top 85%', scrub: true, toggleActions: 'play resume reset resume' },
 })
 </script>
 

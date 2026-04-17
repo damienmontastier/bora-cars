@@ -26,6 +26,18 @@ const ctaRef = ref<{ $el: HTMLElement } | null>(null)
 const ctaInView = ref(false)
 const mainRef = useTemplateRef('mainRef')
 const bottomRef = useTemplateRef('bottomRef')
+const headingRef = useTemplateRef<{ $el: HTMLElement }>('headingRef')
+const taglineRef = useTemplateRef<{ $el: HTMLElement }>('taglineRef')
+
+useSplitTextAnimation(() => headingRef.value?.$el, {
+  style: 'slide-x',
+  scrollTrigger: { start: 'top 85%', end: 'bottom center' },
+})
+
+useSplitTextAnimation(() => taglineRef.value?.$el, {
+  style: 'slide-x',
+  scrollTrigger: { start: 'top 95%', end: 'center 75%' },
+})
 
 let ctx: gsap.Context
 let currentAnim: gsap.core.Tween | null = null
@@ -243,7 +255,7 @@ onUnmounted(() => {
       </div>
 
       <div class="app-elements-hero__middle">
-        <TextsH1 v-if="data?.heading" color="beige-100">
+        <TextsH1 v-if="data?.heading" ref="headingRef" color="beige-100">
           {{ data.heading }}
         </TextsH1>
 
@@ -259,7 +271,7 @@ onUnmounted(() => {
       </div>
 
       <div ref="bottomRef" class="app-elements-hero__bottom">
-        <TextsH3 v-if="data?.tagline" color="beige-100">
+        <TextsH3 v-if="data?.tagline" ref="taglineRef" color="beige-100">
           {{ data.tagline }}
         </TextsH3>
       </div>
