@@ -1,6 +1,8 @@
-import type { TextAnimationStyle } from '~/config/TEXT_ANIMATION_CONFIG'
+import type { TextAnimationPreset, TextAnimationStyle } from '~/config/TEXT_ANIMATION_CONFIG'
 import gsap from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { SplitText } from 'gsap/SplitText'
+import { setupSplitTextPane } from '~/composables/pane/splitText'
 import { TEXT_ANIMATION_CONFIG } from '~/config/TEXT_ANIMATION_CONFIG'
 
 export type { TextAnimationStyle }
@@ -16,6 +18,10 @@ export interface SplitTextAnimationOptions {
   to?: gsap.TweenVars
   /** ScrollTrigger overrides, or false to disable */
   scrollTrigger?: false | ScrollTrigger.Vars
+  /** Tweakpane folder label (dev only, requires debug: true) */
+  label?: string
+  /** Show Tweakpane debug folder — default: false */
+  debug?: boolean
 }
 
 function resolveTargets(instance: SplitText, type: string): Element[] {
@@ -32,6 +38,8 @@ export function useSplitTextAnimation(
 ) {
   const { fontsLoaded } = storeToRefs(useAppStore())
 
+  const currentStyle = ref<TextAnimationStyle>(options.style ?? 'slide-x')
+
   let splitInstance: SplitText | null = null
   let ctx: gsap.Context | null = null
 
@@ -43,12 +51,13 @@ export function useSplitTextAnimation(
     ctx?.revert()
     splitInstance?.revert()
 
-    const preset = TEXT_ANIMATION_CONFIG[options.style ?? 'slide-x']
+    const preset = TEXT_ANIMATION_CONFIG[currentStyle.value] as TextAnimationPreset
 
+    const splitType = (options.split?.type ?? preset.split?.type ?? 'chars') as string
     const splitVars: SplitText.Vars = {
       autoSplit: true,
       smartWrap: true,
-      charsClass: 'char',
+      ...(splitType.includes('chars') ? { charsClass: 'char' } : {}),
       ...preset.split,
       ...options.split,
     }
@@ -58,40 +67,65 @@ export function useSplitTextAnimation(
     const type = splitVars.type ?? 'chars'
     const targets = resolveTargets(splitInstance, type)
 
-    preset.prepare?.(targets)
-
-    const from: gsap.TweenVars = { ...preset.from, ...options.from }
-    const to: gsap.TweenVars = { ...preset.to, ...options.to }
-
-    let scrollTriggerVars: ScrollTrigger.Vars | undefined
-    if (options.scrollTrigger !== false) {
-      const composableDefaults: ScrollTrigger.Vars = {
-        trigger: el,
-        start: 'top bottom',
-        end: 'center center',
-        toggleActions: 'play resume resume reset',
-        scrub: true,
-      }
-      scrollTriggerVars = {
-        ...composableDefaults,
-        ...preset.scrollTrigger,
-        ...(options.scrollTrigger || {}),
-        trigger: (options.scrollTrigger as ScrollTrigger.Vars)?.trigger ?? el,
-      }
+    const composableDefaults: ScrollTrigger.Vars = {
+      trigger: el,
+      start: 'top bottom',
+      end: 'center center',
+      scrub: true,
     }
 
-    ctx = gsap.context(() => {
-      gsap.fromTo(targets, from, {
-        ...to,
-        ...(scrollTriggerVars ? { scrollTrigger: scrollTriggerVars } : {}),
-      })
-    }, el)
+    const scrollTriggerVars: ScrollTrigger.Vars | undefined = options.scrollTrigger === false
+      ? undefined
+      : {
+          ...composableDefaults,
+          ...preset.scrollTrigger,
+          ...(options.scrollTrigger || {}),
+          trigger: (options.scrollTrigger as ScrollTrigger.Vars)?.trigger ?? el,
+        }
+
+    if (preset.animate) {
+      ctx = gsap.context(() => {
+        preset.animate!(
+          el,
+          splitInstance!.chars,
+          splitInstance!.words,
+          splitInstance!.lines,
+          scrollTriggerVars ?? composableDefaults,
+        )
+      }, el)
+    }
+    else {
+      const from: gsap.TweenVars = { ...(preset.from ?? {}), ...options.from }
+      const to: gsap.TweenVars = { ...(preset.to ?? {}), ...options.to }
+
+      ctx = gsap.context(() => {
+        // prepare is inside context so gsap.set() calls (e.g. perspective) are reverted on ctx.revert()
+        preset.prepare?.(targets)
+        gsap.fromTo(targets, from, {
+          ...to,
+          ...(scrollTriggerVars ? { scrollTrigger: scrollTriggerVars } : {}),
+        })
+      }, el)
+    }
+
+    nextTick(() => ScrollTrigger.refresh())
   }
 
+  // Fonts load while component is already mounted (initial page load)
   watch(fontsLoaded, (loaded) => {
     if (loaded)
       init()
-  }, { immediate: true })
+  })
+
+  // Component mounts after fonts are already loaded (SPA navigation)
+  onMounted(() => {
+    if (fontsLoaded.value)
+      init()
+
+    if (import.meta.dev && options.debug) {
+      setupSplitTextPane(currentStyle, init, options.label)
+    }
+  })
 
   onUnmounted(() => {
     ctx?.revert()

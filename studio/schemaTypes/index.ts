@@ -6,6 +6,7 @@ import { footerType } from './singletons/footer'
 import { menuType } from './singletons/menu'
 import { proprietaireType } from './singletons/proprietaire'
 import { professionnelType } from './singletons/professionnel'
+import { contactType } from './singletons/contact'
 import { settingsType } from './singletons/settings'
 
 // Documents
@@ -40,6 +41,7 @@ export const schemaTypes: SchemaTypeDefinition[] = [
   menuType,
   proprietaireType,
   professionnelType,
+  contactType,
   settingsType,
 
   // Documents

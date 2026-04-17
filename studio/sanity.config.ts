@@ -1,3 +1,4 @@
+import { createElement } from 'react'
 import { defineConfig } from 'sanity'
 import { structureTool } from 'sanity/structure'
 import { visionTool } from '@sanity/vision'
@@ -13,10 +14,13 @@ import {
   PinIcon,
   DocumentsIcon,
   CogIcon,
+  EnvelopeIcon,
 } from '@sanity/icons'
 import { schemaTypes } from './schemaTypes'
 
-const SINGLETONS = new Set(['homepage', 'footer', 'menu', 'proprietaire', 'professionnel', 'settings'])
+const CarIcon = () => createElement('span', null, '🚗')
+
+const SINGLETONS = new Set(['homepage', 'footer', 'menu', 'proprietaire', 'professionnel', 'contact', 'settings'])
 
 export default defineConfig({
   name: 'default',
@@ -67,52 +71,48 @@ export default defineConfig({
                           .schemaType('professionnel')
                           .documentId('professionnel'),
                       ),
-                  ]),
-              ),
-
-            // ── Catalogue ──────────────────────────────
-            S.listItem()
-              .title('Catalogue')
-              .icon(CubeIcon)
-              .child(
-                S.list()
-                  .title('Catalogue')
-                  .items([
-                    S.documentTypeListItem('car').title('Voitures').icon(CubeIcon),
-                    S.documentTypeListItem('location').title('Lieux').icon(PinIcon),
+                    S.listItem()
+                      .title('Contact')
+                      .id('contact')
+                      .icon(EnvelopeIcon)
+                      .child(
+                        S.document()
+                          .schemaType('contact')
+                          .documentId('contact'),
+                      ),
                   ]),
               ),
 
             S.divider(),
 
-            // ── Configuration ──────────────────────────
+            // ── Voitures ───────────────────────────────
+            S.documentTypeListItem('car').title('Voitures').icon(CarIcon),
+
+            // ── Lieux ──────────────────────────────────
+            S.documentTypeListItem('location').title('Lieux').icon(PinIcon),
+
+            S.divider(),
+
+            // ── Navigation ─────────────────────────────
             S.listItem()
-              .title('Navigation')
+              .title('Menu')
+              .id('menu')
               .icon(MenuIcon)
               .child(
-                S.list()
-                  .title('Navigation')
-                  .items([
-                    S.listItem()
-                      .title('Menu')
-                      .id('menu')
-                      .icon(MenuIcon)
-                      .child(
-                        S.document()
-                          .schemaType('menu')
-                          .documentId('menu'),
-                      ),
-                    S.listItem()
-                      .title('Footer')
-                      .id('footer')
-                      .icon(StackCompactIcon)
-                      .child(
-                        S.document()
-                          .schemaType('footer')
-                          .documentId('footer'),
-                      ),
-                  ]),
+                S.document()
+                  .schemaType('menu')
+                  .documentId('menu'),
               ),
+            S.listItem()
+              .title('Footer')
+              .id('footer')
+              .icon(StackCompactIcon)
+              .child(
+                S.document()
+                  .schemaType('footer')
+                  .documentId('footer'),
+              ),
+            S.divider(),
             S.listItem()
               .title('Paramètres')
               .id('settings')

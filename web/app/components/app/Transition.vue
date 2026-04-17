@@ -14,9 +14,9 @@ function onLeave(_el: Element, done: () => void) {
   lenis()?.stop()
   gsap.to(overlayRef.value, {
     scaleY: 1,
-    duration: 0.5,
-    ease: 'power3.inOut',
-    onComplete: done,
+    duration: 0.75,
+    ease: 'expo.inOut',
+    onComplete: () => gsap.delayedCall(0.1, done),
   })
 }
 
@@ -26,11 +26,11 @@ function onBeforeEnter() {
 }
 
 function onEnter(_el: Element, done: () => void) {
+  gsap.set(overlayRef.value, { transformOrigin: 'top' })
   gsap.to(overlayRef.value, {
     scaleY: 0,
-    duration: 0.5,
-    ease: 'power3.inOut',
-    transformOrigin: 'top',
+    duration: 0.9,
+    ease: 'expo.inOut',
     onComplete: () => {
       lenis()?.start()
       done()

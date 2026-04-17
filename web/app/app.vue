@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import type { SettingsData } from '~/queries/settings'
 import type { MenuData } from '~/queries/menu'
+import type { SettingsData } from '~/queries/settings'
 import { MENU_QUERY } from '~/queries/menu'
 import { SETTINGS_QUERY } from '~/queries/settings'
 

@@ -13,9 +13,11 @@ const settings = useSettings()
 const headingRef = useTemplateRef<{ $el: HTMLElement }>('headingRef')
 
 useSplitTextAnimation(() => headingRef.value?.$el, {
-  style: 'fade',
+  style: 'blur-in',
   to: { duration: 0.6, stagger: 0.025 },
   scrollTrigger: { start: 'top 85%', scrub: true, toggleActions: 'play resume reset resume' },
+  debug: true,
+  label: 'Pitch — Heading',
 })
 </script>
 
@@ -43,10 +45,6 @@ useSplitTextAnimation(() => headingRef.value?.$el, {
 </template>
 
 <style lang="scss">
-.char {
-  will-change: transform;
-}
-
 .app-elements-pitch {
   display: flex;
   flex-direction: column;

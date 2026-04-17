@@ -24,3 +24,8 @@
     display: none !important;
   }
 }
+
+// SplitText char elements — applied globally so all useSplitTextAnimation instances benefit
+.char {
+  will-change: transform;
+}
