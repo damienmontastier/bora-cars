@@ -27,6 +27,8 @@ const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, dragFree: false })
 
 const selectedIndex = ref(0)
 const progress = ref(0)
+const progressInstant = ref(false)
+const progressFillRef = ref<HTMLElement | null>(null)
 
 const currentItem = computed(() => props.items[selectedIndex.value] ?? null)
 
@@ -34,10 +36,35 @@ function onSelect() {
   const api = emblaApi.value
   if (!api)
     return
-  selectedIndex.value = api.selectedScrollSnap()
-  progress.value = props.items.length > 1
-    ? selectedIndex.value / (props.items.length - 1)
+
+  const newIndex = api.selectedScrollSnap()
+  const newProgress = props.items.length > 1
+    ? (newIndex + 1) / props.items.length
     : 1
+
+  if (newProgress < progress.value) {
+    // Animate to 1 (exit right), then reset and animate to new value
+    progress.value = 1
+
+    const el = progressFillRef.value
+    const onTransitionEnd = () => {
+      el?.removeEventListener('transitionend', onTransitionEnd)
+      progressInstant.value = true
+      progress.value = 0
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          progressInstant.value = false
+          progress.value = newProgress
+        })
+      })
+    }
+    el?.addEventListener('transitionend', onTransitionEnd, { once: true })
+  }
+  else {
+    progress.value = newProgress
+  }
+
+  selectedIndex.value = newIndex
 }
 
 watch(emblaApi, (api) => {
@@ -60,16 +87,16 @@ function scrollNext() {
 <template>
   <section class="app-elements-testimonials">
     <!-- Backgrounds (crossfade) -->
-    <div aria-hidden="true" class="testimonials__backgrounds">
+    <div aria-hidden="true" class="app-elements-testimonials__backgrounds">
       <div
         v-for="(item, i) in items"
         :key="item._key"
-        class="testimonials__bg"
+        class="app-elements-testimonials__bg"
         :class="{ 'is-active': i === selectedIndex }"
       >
         <ElementsMedia
           v-if="item.backgroundImage?.imageUrl"
-          class="testimonials__bg-media"
+          class="app-elements-testimonials__bg-media"
           :src="item.backgroundImage.imageUrl"
           :alt="item.backgroundImage.imageAlt ?? ''"
           provider="sanity"
@@ -78,48 +105,48 @@ function scrollNext() {
           :lazy="false"
         />
       </div>
-      <div class="testimonials__gradient" />
+      <div class="app-elements-testimonials__gradient" />
     </div>
 
     <!-- Content -->
-    <div class="testimonials__inner">
+    <div class="app-elements-testimonials__inner">
       <!-- Left: author + nav -->
-      <div class="testimonials__left">
+      <div class="app-elements-testimonials__left">
         <Transition name="t-fade" mode="out-in">
-          <div :key="selectedIndex" class="testimonials__author">
-            <TextsP1 :selectable="false" color="beige-100" class="testimonials__author-name">
+          <div :key="selectedIndex" class="app-elements-testimonials__author">
+            <TextsP1 :selectable="false" color="beige-100" class="app-elements-testimonials__author-name">
               {{ currentItem?.authorName }}
             </TextsP1>
-            <TextsP2 :selectable="false" color="beige-100" class="testimonials__author-role">
+            <TextsP2 :selectable="false" color="beige-100" class="app-elements-testimonials__author-role">
               {{ currentItem?.authorRole }}
             </TextsP2>
           </div>
         </Transition>
 
-        <div v-if="items.length > 1" class="testimonials__nav">
-          <button class="testimonials__nav-btn" aria-label="Témoignage précédent" @click="scrollPrev">
-            <SvgIconArrow color="beige-100" aria-hidden="true" />
+        <div v-if="items.length > 1" class="app-elements-testimonials__nav">
+          <button class="app-elements-testimonials__nav-btn" aria-label="Témoignage précédent" @click="scrollPrev">
+            <SvgIconArrow class="app-elements-testimonials__nav-icon" color="beige-100" aria-hidden="true" />
           </button>
-          <button class="testimonials__nav-btn testimonials__nav-btn--next" aria-label="Témoignage suivant" @click="scrollNext">
-            <SvgIconArrow color="beige-100" aria-hidden="true" />
+          <button class="app-elements-testimonials__nav-btn app-elements-testimonials__nav-btn--next" aria-label="Témoignage suivant" @click="scrollNext">
+            <SvgIconArrow class="app-elements-testimonials__nav-icon" color="beige-100" aria-hidden="true" />
           </button>
         </div>
       </div>
 
       <!-- Right: Embla quotes -->
-      <div class="testimonials__right">
-        <div ref="emblaRef" class="testimonials__embla">
-          <div class="testimonials__embla-container">
+      <div class="app-elements-testimonials__right">
+        <div ref="emblaRef" class="app-elements-testimonials__embla">
+          <div class="app-elements-testimonials__embla-container">
             <div
               v-for="item in items"
               :key="item._key"
-              class="testimonials__slide"
+              class="app-elements-testimonials__slide"
             >
-              <div class="testimonials__quote-wrap">
-                <TextsP2 v-if="item.car" :selectable="false" color="beige-100" class="testimonials__car-model">
+              <div class="app-elements-testimonials__quote-wrap">
+                <TextsP2 v-if="item.car" :selectable="false" color="beige-100" class="app-elements-testimonials__car-model">
                   {{ item.car.marque }} {{ item.car.modele }}
                 </TextsP2>
-                <TextsH3 tag="p" :selectable="false" color="beige-100" class="testimonials__quote">
+                <TextsH3 tag="p" :selectable="false" color="beige-100" class="app-elements-testimonials__quote">
                   {{ item.quote }}
                 </TextsH3>
               </div>
@@ -130,8 +157,8 @@ function scrollNext() {
     </div>
 
     <!-- Progress bar -->
-    <div aria-hidden="true" class="testimonials__progress">
-      <div class="testimonials__progress-fill" :style="{ width: `${progress * 100}%` }" />
+    <div aria-hidden="true" class="app-elements-testimonials__progress">
+      <div ref="progressFillRef" class="app-elements-testimonials__progress-fill" :style="{ transform: `scaleX(${progress})`, transition: progressInstant ? 'none' : undefined }" />
     </div>
   </section>
 </template>
@@ -140,14 +167,12 @@ function scrollNext() {
 .app-elements-testimonials {
   position: relative;
   width: 100%;
-  min-height: desktop-vw(800px);
+  min-height: desktop-vw(1080px);
   overflow: hidden;
   padding: desktop-vw(40px) desktop-vw(24px);
   display: flex;
   flex-direction: column;
-}
 
-.testimonials {
   &__backgrounds {
     position: absolute;
     inset: 0;
@@ -172,14 +197,15 @@ function scrollNext() {
   &__gradient {
     position: absolute;
     inset: 0;
-    background: linear-gradient(to bottom, var(--c-black) 0%, transparent 60%);
+    z-index: 1;
+    background: linear-gradient(0deg, rgba(12, 12, 10, 0) 0%, #0c0c0a 100%);
     pointer-events: none;
   }
 
   &__inner {
     position: relative;
     z-index: 1;
-    flex: 1;
+    flex: 2;
     display: flex;
     gap: desktop-vw(72px);
   }
@@ -199,10 +225,7 @@ function scrollNext() {
     gap: 0;
   }
 
-  &__author-name {
-    line-height: 1.2;
-  }
-
+  &__author-name,
   &__author-role {
     line-height: 1.2;
   }
@@ -228,17 +251,17 @@ function scrollNext() {
     cursor: pointer;
     transition: background 0.2s var(--ease-out-cubic);
 
-    .svg-logo {
-      width: desktop-vw(18px);
-      height: desktop-vw(18px);
-    }
-
-    &--next .svg-logo {
-      transform: rotate(180deg);
-    }
-
     &:hover {
       background: var(--c-beige-20);
+    }
+  }
+
+  &__nav-icon {
+    width: desktop-vw(18px);
+    height: desktop-vw(18px);
+
+    .app-elements-testimonials__nav-btn--next & {
+      transform: rotate(180deg);
     }
   }
 
@@ -246,9 +269,9 @@ function scrollNext() {
     flex: 0 0 desktop-vw(832px);
     display: flex;
     flex-direction: column;
-    justify-content: flex-end;
     align-items: flex-end;
     min-width: 0;
+    justify-content: flex-start;
   }
 
   &__embla {
@@ -264,9 +287,6 @@ function scrollNext() {
   &__slide {
     flex: 0 0 100%;
     min-width: 0;
-  }
-
-  &__quote-wrap {
   }
 
   &__car-model {
@@ -287,18 +307,22 @@ function scrollNext() {
   }
 
   &__progress {
-    position: relative;
+    position: absolute;
     z-index: 1;
     width: 100%;
     height: 3px;
-    background: var(--c-beige-20);
-    margin-top: desktop-vw(40px);
+    background: var(--c-beige-10);
+    bottom: 0;
+    height: 5px;
+    left: 0;
   }
 
   &__progress-fill {
     height: 100%;
+    width: 100%;
     background: var(--c-beige-100);
-    transition: width 0.4s ease;
+    transform-origin: left center;
+    transition: transform 0.4s ease;
   }
 }
 

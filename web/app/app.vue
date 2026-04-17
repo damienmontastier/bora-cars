@@ -1,7 +1,7 @@
 <script setup lang="ts">
+import type { SettingsData } from '~/queries/settings'
 import type { MenuData } from '~/queries/menu'
 import { MENU_QUERY } from '~/queries/menu'
-import type { SettingsData } from '~/queries/settings'
 import { SETTINGS_QUERY } from '~/queries/settings'
 
 const appStore = useAppStore()
@@ -33,16 +33,11 @@ settings.value = settingsData
 
 const transitionRef = useTemplateRef('transitionRef')
 
-function onBeforeEnter() {
-  window.lenis?.scrollTo(0, { immediate: true, force: true })
-}
-
-function onLeave(_el: Element, done: () => void) {
-  transitionRef.value?.enter(done)
-}
-
-function onEnter(_el: Element, done: () => void) {
-  transitionRef.value?.leave(done)
+const pageTransition = {
+  mode: 'out-in' as const,
+  onLeave: (el: Element, done: () => void) => transitionRef.value?.onLeave(el, done),
+  onBeforeEnter: () => transitionRef.value?.onBeforeEnter(),
+  onEnter: (el: Element, done: () => void) => transitionRef.value?.onEnter(el, done),
 }
 </script>
 
@@ -62,7 +57,7 @@ function onEnter(_el: Element, done: () => void) {
     </DevOnly> -->
 
     <div id="app-page" class="app-page">
-      <NuxtPage :transition="{ mode: 'out-in', onBeforeEnter, onLeave, onEnter }" />
+      <NuxtPage :transition="pageTransition" />
     </div>
 
     <DevOnly>

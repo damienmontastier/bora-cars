@@ -13,7 +13,7 @@ import Tempus from 'tempus'
 
 const lenisOptions = {
   autoRaf: false, // driven manually via Tempus
-  duration: 1,
+  duration: 0.85,
   easing: t => 1 - (1 - t) ** 5,
 }
 

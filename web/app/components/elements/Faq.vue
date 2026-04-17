@@ -240,7 +240,7 @@ onUnmounted(() => {
 
   &__answer-inner {
     overflow: hidden;
-    width: 75%;
+    width: 85%;
     display: block;
     white-space: pre-wrap;
   }

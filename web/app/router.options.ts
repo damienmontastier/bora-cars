@@ -46,17 +46,19 @@ export default <RouterConfig>{
         return false
 
       if (lenis) {
-        lenis.scrollTo(0, {
-          force: true,
-          lock: true,
-        })
+        if (lenis.scroll > 0) {
+          lenis.scrollTo(0, {
+            force: true,
+            lock: true,
+          })
+        }
         return false
       }
 
       return { top: 0, behavior: 'smooth' }
     }
 
-    // 2. Changement de page sans ancre → scroll géré par onBeforeEnter dans app.vue
+    // 2. Changement de page sans ancre → scroll géré par AppTransition.onBeforeEnter
     if (!to.hash)
       return false
 

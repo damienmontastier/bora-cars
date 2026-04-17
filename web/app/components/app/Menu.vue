@@ -23,7 +23,8 @@ const lenis = useLenis()
 watch(menuOpen, (open) => {
   if (open)
     lenis.value?.stop()
-  else lenis.value?.start()
+  else if (!ignoreMenuWatch)
+    lenis.value?.start()
 })
 
 const { setTargetRect } = useMenuCtaSync()

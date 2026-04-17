@@ -17,20 +17,55 @@ const { fontsLoaded } = storeToRefs(useAppStore())
 
 const headingRef = useTemplateRef<{ $el: HTMLElement }>('headingRef')
 let split: SplitText | null = null
+let ctx: gsap.Context | null = null
 
-function initSplitText() {
+function initAnimation() {
   if (!headingRef.value?.$el)
     return
+
+  ctx?.revert()
   split?.revert()
-  split = new SplitText(headingRef.value.$el, { type: 'lines' })
+
+  split = new SplitText(headingRef.value.$el, {
+    type: 'chars',
+    mask: 'chars',
+    autoSplit: true,
+    charsClass: 'char',
+    smartWrap: true,
+  })
+
+  ctx = gsap.context(() => {
+    gsap.fromTo(
+      split!.chars,
+      {
+        transformOrigin: '0% 50%',
+        xPercent: 105,
+      },
+      {
+        xPercent: 0,
+        duration: 1,
+        ease: 'expo',
+        stagger: 0.042,
+        scrollTrigger: {
+          trigger: headingRef.value!.$el,
+          start: 'top bottom',
+          markers: true,
+          end: 'bottom center',
+          toggleActions: 'play resume resume reset',
+          scrub: true,
+        },
+      },
+    )
+  }, headingRef.value.$el)
 }
 
 watch(fontsLoaded, (loaded) => {
   if (loaded)
-    initSplitText()
+    initAnimation()
 }, { immediate: true })
 
 onUnmounted(() => {
+  ctx?.revert()
   split?.revert()
 })
 </script>
@@ -59,6 +94,10 @@ onUnmounted(() => {
 </template>
 
 <style lang="scss">
+.char {
+  will-change: transform;
+}
+
 .app-elements-pitch {
   display: flex;
   flex-direction: column;
