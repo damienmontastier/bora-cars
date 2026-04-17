@@ -2,7 +2,13 @@
 import type { ContactData } from '~/queries/contact'
 import { CONTACT_QUERY } from '~/queries/contact'
 
-const { data: page } = await useSanityQuery<ContactData>(CONTACT_QUERY)
+const lang = useSanityLang()
+const params = reactive({ lang: lang.value })
+watch(lang, (v) => {
+  params.lang = v
+})
+
+const { data: page } = await useSanityQuery<ContactData>(CONTACT_QUERY, params)
 </script>
 
 <template>
@@ -10,6 +16,8 @@ const { data: page } = await useSanityQuery<ContactData>(CONTACT_QUERY)
     <h1 v-if="page?.heading" class="page-contact__heading">
       {{ page.heading }}
     </h1>
+
+    <AppSwitchLangue theme="orange" />
 
     <AppFooter theme="black" />
   </main>

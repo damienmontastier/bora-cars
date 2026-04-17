@@ -2,7 +2,13 @@
 import type { ProfessionnelData } from '~/queries/professionnel'
 import { PROFESSIONNEL_QUERY } from '~/queries/professionnel'
 
-const { data: page } = await useSanityQuery<ProfessionnelData>(PROFESSIONNEL_QUERY)
+const lang = useSanityLang()
+const params = reactive({ lang: lang.value })
+watch(lang, (v) => {
+  params.lang = v
+})
+
+const { data: page } = await useSanityQuery<ProfessionnelData>(PROFESSIONNEL_QUERY, params)
 </script>
 
 <template>

@@ -2,7 +2,13 @@
 import type { ProprietaireData } from '~/queries/proprietaire'
 import { PROPRIETAIRE_QUERY } from '~/queries/proprietaire'
 
-const { data: page } = await useSanityQuery<ProprietaireData>(PROPRIETAIRE_QUERY)
+const lang = useSanityLang()
+const params = reactive({ lang: lang.value })
+watch(lang, (v) => {
+  params.lang = v
+})
+
+const { data: page } = await useSanityQuery<ProprietaireData>(PROPRIETAIRE_QUERY, params)
 </script>
 
 <template>

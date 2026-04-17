@@ -1,4 +1,5 @@
 import type { SanityLink } from './home'
+import { i18n } from './i18n'
 
 export type { SanityLink }
 
@@ -14,8 +15,8 @@ export interface MenuData {
 }
 
 export const MENU_QUERY = `*[_type == "menu"][0]{
-  menuLabel,
-  closeLabel,
+  ${i18n('menuLabel')},
+  ${i18n('closeLabel')},
   links[],
-  "locations": locations[]->{city}
+  "locations": locations[]->{ ${i18n('city')} }
 }`

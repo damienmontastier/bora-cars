@@ -13,17 +13,12 @@ export const seoType = defineField({
     defineField({
       name: 'title',
       title: 'Meta title',
-      type: 'string',
-      validation: (Rule) =>
-        Rule.max(60).warning('Les titres trop longs peuvent être tronqués par les moteurs de recherche'),
+      type: 'internationalizedArrayString',
     }),
     defineField({
       name: 'description',
       title: 'Meta description',
-      type: 'text',
-      rows: 3,
-      validation: (Rule) =>
-        Rule.max(160).warning('Les descriptions trop longues peuvent être tronquées par les moteurs de recherche'),
+      type: 'internationalizedArrayText',
     }),
     defineField({
       name: 'image',

@@ -30,18 +30,16 @@ export const menuType = defineType({
     defineField({
       name: 'menuLabel',
       title: 'Label "Ouvrir"',
-      type: 'string',
+      type: 'internationalizedArrayString',
       fieldset: 'labels',
       description: 'Texte affiché sur le bouton pour ouvrir le menu',
-      initialValue: 'Menu',
     }),
     defineField({
       name: 'closeLabel',
       title: 'Label "Fermer"',
-      type: 'string',
+      type: 'internationalizedArrayString',
       fieldset: 'labels',
       description: 'Texte affiché sur le bouton pour fermer le menu',
-      initialValue: 'Close',
     }),
 
     defineField({

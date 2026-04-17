@@ -1,8 +1,8 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 
 const locales = [
-  { code: 'fr-fr', language: 'fr-fr', files: ['fr-fr.json'] },
-  { code: 'uk-en', language: 'uk-en', files: ['uk-en.json'] },
+  { code: 'fr', language: 'fr', files: ['fr.json'] },
+  { code: 'en', language: 'en', files: ['en.json'] },
 ]
 
 export default defineNuxtConfig({
@@ -51,7 +51,7 @@ export default defineNuxtConfig({
       escapeHtml: false,
     },
     locales,
-    defaultLocale: 'fr-fr',
+    defaultLocale: 'fr',
   },
 
   site: { indexable: false },

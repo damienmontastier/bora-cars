@@ -1,5 +1,6 @@
 import { BlockContentIcon } from '@sanity/icons'
 import { defineField, defineType } from 'sanity'
+import { pickLocalized } from '../../../lib/preview'
 
 export const pitchType = defineType({
   name: 'pitch',
@@ -22,27 +23,23 @@ export const pitchType = defineType({
     defineField({
       name: 'eyebrow',
       title: 'Eyebrow',
-      type: 'string',
+      type: 'internationalizedArrayString',
       fieldset: 'content',
       description: 'Petit texte affiché au-dessus du titre',
-      validation: (Rule) => Rule.max(20),
     }),
     defineField({
       name: 'heading',
       title: 'Titre',
-      type: 'text',
+      type: 'internationalizedArrayText',
       fieldset: 'content',
-      rows: 2,
-      validation: (Rule) => Rule.required().max(200),
+      validation: (Rule) => Rule.required(),
     }),
     defineField({
       name: 'subtext',
       title: 'Texte au-dessus du CTA (texte affiché au-dessus du CTA)',
-      type: 'text',
+      type: 'internationalizedArrayText',
       description: 'Courte phrase affichée juste au-dessus du bouton. Le bouton lui-même est défini dans Paramètres → Global.',
       fieldset: 'content',
-      rows: 2,
-      validation: (Rule) => Rule.max(85),
     }),
 
     defineField({
@@ -56,7 +53,7 @@ export const pitchType = defineType({
   preview: {
     select: { subtitle: 'heading' },
     prepare({ subtitle }) {
-      return { title: 'Pitch', subtitle }
+      return { title: 'Pitch', subtitle: pickLocalized(subtitle) }
     },
   },
 })

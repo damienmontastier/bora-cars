@@ -1,5 +1,6 @@
 import { ImagesIcon } from '@sanity/icons'
 import { defineField, defineType } from 'sanity'
+import { pickLocalized } from '../../../lib/preview'
 
 export const heroType = defineType({
   name: 'hero',
@@ -35,32 +36,30 @@ export const heroType = defineType({
     defineField({
       name: 'heading',
       title: 'Titre principal',
-      type: 'string',
+      type: 'internationalizedArrayString',
       fieldset: 'content',
-      validation: (Rule) => Rule.required().max(65),
+      validation: (Rule) => Rule.required(),
     }),
     defineField({
       name: 'tagline',
       title: 'Tagline',
-      type: 'text',
+      type: 'internationalizedArrayText',
       fieldset: 'content',
-      rows: 3,
-      validation: (Rule) => Rule.required().max(160),
+      validation: (Rule) => Rule.required(),
     }),
 
     defineField({
       name: 'subtext',
       title: 'Texte au-dessus du CTA',
-      type: 'string',
+      type: 'internationalizedArrayString',
       fieldset: 'cta',
       description: 'Courte phrase affichée juste au-dessus du bouton. Le bouton lui-même est défini dans Paramètres → Global.',
-      validation: (Rule) => Rule.max(80),
     }),
   ],
   preview: {
     select: { subtitle: 'heading' },
     prepare({ subtitle }) {
-      return { title: 'Hero', subtitle }
+      return { title: 'Hero', subtitle: pickLocalized(subtitle) }
     },
   },
 })

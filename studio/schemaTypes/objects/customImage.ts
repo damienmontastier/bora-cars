@@ -1,4 +1,5 @@
 import { defineField, defineType } from 'sanity'
+import { pickLocalized } from '../../lib/preview'
 
 export const customImage = defineType({
   name: 'customImage',
@@ -11,7 +12,7 @@ export const customImage = defineType({
     defineField({
       name: 'alt',
       title: 'Texte alternatif',
-      type: 'string',
+      type: 'internationalizedArrayString',
       description: 'Pour l\'accessibilité',
       validation: (Rule) => Rule.required().error('Texte alternatif est requis.'),
       hidden: ({ parent }) => !parent?.asset,
@@ -21,6 +22,9 @@ export const customImage = defineType({
     select: {
       imageUrl: 'asset.url',
       title: 'alt',
+    },
+    prepare({ imageUrl, title }) {
+      return { title: pickLocalized(title), media: imageUrl }
     },
   },
 })

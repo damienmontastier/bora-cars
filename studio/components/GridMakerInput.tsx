@@ -5,6 +5,7 @@ import type { EventCallback, Layout } from 'react-grid-layout'
 import { set, useClient } from 'sanity'
 import type { ArrayOfObjectsInputProps } from 'sanity'
 import 'react-grid-layout/css/styles.css'
+import { pickLocalized } from '../lib/preview'
 
 const COLS = 12
 const ROW_HEIGHT = 120
@@ -34,8 +35,8 @@ interface CardValue {
   _key: string
   _type: string
   cardType?: CardType
-  categoryLabel?: string
-  subtitle?: string
+  categoryLabel?: unknown
+  subtitle?: unknown
   grid?: CardGrid
   media?: CardMedia
 }
@@ -81,6 +82,8 @@ const TYPE_LABEL: Record<CardType, string> = { xxl: 'XXL', xl: 'XL', l: 'L', m: 
 
 function GridCard({ card, imageUrl }: { card: CardValue; imageUrl?: string }) {
   const typeLabel = TYPE_LABEL[card.cardType ?? 'xl']
+  const categoryLabel = pickLocalized(card.categoryLabel)
+  const subtitle = pickLocalized(card.subtitle)
   return (
     <div
       style={{
@@ -156,9 +159,9 @@ function GridCard({ card, imageUrl }: { card: CardValue; imageUrl?: string }) {
             textOverflow: 'ellipsis',
           }}
         >
-          {card.categoryLabel || 'Sans titre'}
+          {categoryLabel || 'Sans titre'}
         </span>
-        {card.subtitle && (
+        {subtitle && (
           <>
             <span style={{ color: '#0c0c0a', fontSize: 9, opacity: 0.4 }}>—</span>
             <span
@@ -172,7 +175,7 @@ function GridCard({ card, imageUrl }: { card: CardValue; imageUrl?: string }) {
                 textOverflow: 'ellipsis',
               }}
             >
-              {card.subtitle}
+              {subtitle}
             </span>
           </>
         )}
@@ -370,7 +373,7 @@ function GridMakerInner({
               borderRadius: 3,
             }}
           >
-            {TYPE_LABEL[card.cardType ?? 'xl']} · {card.categoryLabel || '—'}
+            {TYPE_LABEL[card.cardType ?? 'xl']} · {pickLocalized(card.categoryLabel) || '—'}
           </span>
         ))}
       </div>

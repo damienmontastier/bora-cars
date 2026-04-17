@@ -23,13 +23,23 @@ watch(fontsReady, (ready) => {
 
 const sanity = useSanity()
 const settings = useSettings()
+const lang = useSanityLang()
+
+const menuParams = reactive({ lang: lang.value })
+watch(lang, (v) => {
+  menuParams.lang = v
+})
 
 const [{ data: menu }, settingsData] = await Promise.all([
-  useSanityQuery<MenuData>(MENU_QUERY),
+  useSanityQuery<MenuData>(MENU_QUERY, menuParams),
   sanity.fetch<SettingsData>(SETTINGS_QUERY),
 ])
 
 settings.value = settingsData
+
+useHead({
+  htmlAttrs: { lang },
+})
 
 const transitionRef = useTemplateRef('transitionRef')
 

@@ -57,7 +57,7 @@ Single Pinia store `useAppStore()`:
 
 ### Routing & i18n
 
-Routes are locale-prefixed (`strategy: 'prefix'`). Default locale is `fr-fr`. Always use `NuxtLinkLocale` for internal navigation (handled automatically by `BaseLink`). Locale files: `i18n/locales/fr-fr.json` and `i18n/locales/uk-en.json`.
+Routes are locale-prefixed (`strategy: 'prefix'`). Default locale is `fr`. Always use `NuxtLinkLocale` for internal navigation (handled automatically by `BaseLink`). Locale files: `i18n/locales/fr.json` and `i18n/locales/en.json`. Sanity content is also localized FR/EN — see `app/queries/i18n.ts` and `app/composables/useSanityLang.ts`.
 
 ### Component conventions
 

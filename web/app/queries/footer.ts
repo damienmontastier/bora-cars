@@ -1,4 +1,5 @@
 import type { SanityLink } from './home'
+import { i18n } from './i18n'
 
 export type { SanityLink }
 
@@ -18,12 +19,12 @@ export interface FooterData {
 }
 
 export const FOOTER_QUERY = `*[_type == "footer"][0]{
-  contactTitle,
-  "locations": locations[]->{city},
+  ${i18n('contactTitle')},
+  "locations": locations[]->{ ${i18n('city')} },
   contactLinks[],
-  sitemapTitle,
+  ${i18n('sitemapTitle')},
   sitemap[],
-  socialsTitle,
+  ${i18n('socialsTitle')},
   socials[],
   legalLink
 }`

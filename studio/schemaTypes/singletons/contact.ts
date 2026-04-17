@@ -15,7 +15,7 @@ export const contactType = defineType({
     defineField({
       name: 'heading',
       title: 'Heading',
-      type: 'string',
+      type: 'internationalizedArrayString',
       group: 'editorial',
     }),
     seoType,

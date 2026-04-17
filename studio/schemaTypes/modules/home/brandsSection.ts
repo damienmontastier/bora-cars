@@ -1,5 +1,6 @@
 import { TagIcon } from '@sanity/icons'
 import { defineArrayMember, defineField, defineType } from 'sanity'
+import { pickLocalized } from '../../../lib/preview'
 
 export const brandsSectionType = defineType({
   name: 'brandsSection',
@@ -37,7 +38,7 @@ export const brandsSectionType = defineType({
     defineField({
       name: 'description',
       title: 'Description',
-      type: 'string',
+      type: 'internationalizedArrayString',
       fieldset: 'text',
       description: 'Texte affiché en bas des listes (ex: "Une collection soigneusement sélectionnée.")',
       validation: (Rule) => Rule.required(),
@@ -45,23 +46,22 @@ export const brandsSectionType = defineType({
     defineField({
       name: 'surtitle',
       title: 'Surtitle',
-      type: 'string',
+      type: 'internationalizedArrayString',
       fieldset: 'text',
       description: 'Petit texte avant le heading (ex: "de A à Z")',
     }),
     defineField({
       name: 'heading',
       title: 'Heading',
-      type: 'text',
+      type: 'internationalizedArrayText',
       fieldset: 'text',
-      rows: 3,
       validation: (Rule) => Rule.required(),
     }),
   ],
   preview: {
     select: { subtitle: 'heading' },
     prepare({ subtitle }) {
-      return { title: 'Brands Section', subtitle }
+      return { title: 'Brands Section', subtitle: pickLocalized(subtitle) }
     },
   },
 })

@@ -5,7 +5,13 @@ import { HOMEPAGE_QUERY } from '~/queries/home'
 const appStore = useAppStore()
 const { fontsLoaded } = toRefs(appStore)
 
-const { data: homepage } = await useSanityQuery<HomepageData>(HOMEPAGE_QUERY)
+const lang = useSanityLang()
+const params = reactive({ lang: lang.value })
+watch(lang, (v) => {
+  params.lang = v
+})
+
+const { data: homepage } = await useSanityQuery<HomepageData>(HOMEPAGE_QUERY, params)
 </script>
 
 <template>

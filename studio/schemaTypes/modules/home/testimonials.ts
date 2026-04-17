@@ -1,5 +1,6 @@
 import { CommentIcon } from '@sanity/icons'
 import { defineArrayMember, defineField, defineType } from 'sanity'
+import { pickLocalized } from '../../../lib/preview'
 
 export const testimonialsType = defineType({
   name: 'testimonials',
@@ -19,14 +20,13 @@ export const testimonialsType = defineType({
             defineField({
               name: 'authorName',
               title: 'Nom',
-              type: 'string',
-              validation: (Rule) => Rule.required().max(60),
+              type: 'internationalizedArrayString',
+              validation: (Rule) => Rule.required(),
             }),
             defineField({
               name: 'authorRole',
               title: 'Rôle',
-              type: 'string',
-              validation: (Rule) => Rule.max(60),
+              type: 'internationalizedArrayString',
             }),
             defineField({
               name: 'car',
@@ -37,9 +37,8 @@ export const testimonialsType = defineType({
             defineField({
               name: 'quote',
               title: 'Citation',
-              type: 'text',
-              rows: 4,
-              validation: (Rule) => Rule.required().max(300),
+              type: 'internationalizedArrayText',
+              validation: (Rule) => Rule.required(),
             }),
             defineField({
               name: 'backgroundImage',
@@ -49,6 +48,9 @@ export const testimonialsType = defineType({
           ],
           preview: {
             select: { title: 'authorName', subtitle: 'quote' },
+            prepare({ title, subtitle }) {
+              return { title: pickLocalized(title), subtitle: pickLocalized(subtitle) }
+            },
           },
         }),
       ],

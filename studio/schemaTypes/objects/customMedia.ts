@@ -1,4 +1,5 @@
 import { defineField, defineType } from 'sanity'
+import { pickLocalized } from '../../lib/preview'
 
 export const customMedia = defineType({
   name: 'customMedia',
@@ -57,7 +58,7 @@ export const customMedia = defineType({
     prepare({ mediaType, image, alt, videoAlt }) {
       return {
         title: mediaType === 'video' ? '🎬 Vidéo' : '🖼 Image',
-        subtitle: mediaType === 'video' ? videoAlt : alt,
+        subtitle: pickLocalized(mediaType === 'video' ? videoAlt : alt),
         media: image,
       }
     },

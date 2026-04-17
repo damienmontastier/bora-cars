@@ -1,4 +1,5 @@
 import { defineField, defineType } from 'sanity'
+import { pickLocalized } from '../../lib/preview'
 
 export const customVideo = defineType({
   name: 'customVideo',
@@ -12,7 +13,7 @@ export const customVideo = defineType({
     defineField({
       name: 'alt',
       title: 'Texte alternatif',
-      type: 'string',
+      type: 'internationalizedArrayString',
       description: 'Pour l\'accessibilité',
       validation: (Rule) => Rule.required().error('Texte alternatif est requis.'),
     }),
@@ -27,6 +28,9 @@ export const customVideo = defineType({
   preview: {
     select: {
       title: 'alt',
+    },
+    prepare({ title }) {
+      return { title: pickLocalized(title) }
     },
   },
 })

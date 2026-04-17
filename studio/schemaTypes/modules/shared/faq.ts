@@ -1,5 +1,6 @@
 import { HelpCircleIcon } from '@sanity/icons'
 import { defineArrayMember, defineField, defineType } from 'sanity'
+import { pickLocalized } from '../../../lib/preview'
 
 export const faqType = defineType({
   name: 'faq',
@@ -19,19 +20,21 @@ export const faqType = defineType({
             defineField({
               name: 'question',
               title: 'Question',
-              type: 'string',
-              validation: (Rule) => Rule.required().max(150),
+              type: 'internationalizedArrayString',
+              validation: (Rule) => Rule.required(),
             }),
             defineField({
               name: 'answer',
               title: 'Réponse',
-              type: 'text',
-              rows: 4,
-              validation: (Rule) => Rule.required().max(600),
+              type: 'internationalizedArrayText',
+              validation: (Rule) => Rule.required(),
             }),
           ],
           preview: {
             select: { title: 'question' },
+            prepare({ title }) {
+              return { title: pickLocalized(title) }
+            },
           },
         }),
       ],

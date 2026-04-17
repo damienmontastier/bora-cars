@@ -1,6 +1,7 @@
 import { ImagesIcon } from '@sanity/icons'
 import { defineArrayMember, defineField, defineType } from 'sanity'
 import { GridMakerInput } from '../../../components/GridMakerInput'
+import { pickLocalized } from '../../../lib/preview'
 
 export const serviceCardsType = defineType({
   name: 'serviceCards',
@@ -43,15 +44,14 @@ export const serviceCardsType = defineType({
             defineField({
               name: 'categoryLabel',
               title: 'Catégorie',
-              type: 'string',
+              type: 'internationalizedArrayString',
               description: 'Ex: "Mariage", "SUV Premium"…',
-              validation: (Rule) => Rule.required().max(35),
+              validation: (Rule) => Rule.required(),
             }),
             defineField({
               name: 'subtitle',
               title: 'Sous-titre',
-              type: 'string',
-              validation: (Rule) => Rule.max(30),
+              type: 'internationalizedArrayString',
             }),
             defineField({
               name: 'link',
@@ -76,7 +76,7 @@ export const serviceCardsType = defineType({
             select: { title: 'categoryLabel', subtitle: 'cardType' },
             prepare({ title, subtitle }) {
               const labels: Record<string, string> = { xxl: 'XXL', xl: 'XL', l: 'L', m: 'M' }
-              return { title, subtitle: labels[subtitle] ?? subtitle }
+              return { title: pickLocalized(title), subtitle: labels[subtitle] ?? subtitle }
             },
           },
         }),

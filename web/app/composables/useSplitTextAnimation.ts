@@ -80,6 +80,7 @@ export function useSplitTextAnimation(
           ...composableDefaults,
           ...preset.scrollTrigger,
           ...(options.scrollTrigger || {}),
+          markers: import.meta.dev && options.debug,
           trigger: (options.scrollTrigger as ScrollTrigger.Vars)?.trigger ?? el,
         }
 

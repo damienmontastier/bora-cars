@@ -1,5 +1,6 @@
 import { StackCompactIcon } from '@sanity/icons'
 import { defineArrayMember, defineField, defineType } from 'sanity'
+import { pickLocalized } from '../../../lib/preview'
 
 export const cardsColumnType = defineType({
   name: 'cardsColumn',
@@ -22,19 +23,16 @@ export const cardsColumnType = defineType({
     defineField({
       name: 'heading',
       title: 'Titre',
-      type: 'text',
+      type: 'internationalizedArrayText',
       fieldset: 'intro',
-      rows: 2,
-      validation: (Rule) => Rule.required().max(120),
+      validation: (Rule) => Rule.required(),
     }),
     defineField({
       name: 'subtext',
       title: 'Texte au-dessus du CTA',
-      type: 'text',
+      type: 'internationalizedArrayText',
       fieldset: 'intro',
-      rows: 2,
       description: 'Courte phrase affichée juste au-dessus du bouton.',
-      validation: (Rule) => Rule.max(85),
     }),
     defineField({
       name: 'cards',
@@ -49,7 +47,7 @@ export const cardsColumnType = defineType({
   preview: {
     select: { heading: 'heading' },
     prepare({ heading }) {
-      return { title: 'Cards Column', subtitle: heading }
+      return { title: 'Cards Column', subtitle: pickLocalized(heading) }
     },
   },
 })

@@ -1,3 +1,5 @@
+import { i18n } from './i18n'
+
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 export interface SanityImage {
@@ -26,7 +28,7 @@ export interface SanityImage {
 export function imageFields(field = 'image') {
   return `
     "imageUrl": ${field}.asset._ref,
-    "imageAlt": ${field}.alt,
+    ${i18n(`${field}.alt`, 'imageAlt')},
     "imageHotspot": ${field}.hotspot,
     "imageCrop": ${field}.crop
   `

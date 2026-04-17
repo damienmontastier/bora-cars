@@ -1,7 +1,9 @@
+import { i18n } from './i18n'
+
 export interface ContactData {
   heading: string | null
 }
 
 export const CONTACT_QUERY = `*[_type == "contact"][0]{
-  heading
+  ${i18n('heading')}
 }`

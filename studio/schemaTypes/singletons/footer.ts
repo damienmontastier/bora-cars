@@ -34,10 +34,8 @@ export const footerType = defineType({
     defineField({
       name: 'contactTitle',
       title: 'Titre',
-      type: 'string',
+      type: 'internationalizedArrayString',
       fieldset: 'contact',
-      initialValue: 'Contact',
-      validation: (Rule) => Rule.required(),
     }),
     defineField({
       name: 'locations',
@@ -69,10 +67,8 @@ export const footerType = defineType({
     defineField({
       name: 'sitemapTitle',
       title: 'Titre',
-      type: 'string',
+      type: 'internationalizedArrayString',
       fieldset: 'sitemap',
-      initialValue: 'Sitemap',
-      validation: (Rule) => Rule.required(),
     }),
     defineField({
       name: 'sitemap',
@@ -91,10 +87,8 @@ export const footerType = defineType({
     defineField({
       name: 'socialsTitle',
       title: 'Titre',
-      type: 'string',
+      type: 'internationalizedArrayString',
       fieldset: 'socials',
-      initialValue: 'Socials',
-      validation: (Rule) => Rule.required(),
     }),
     defineField({
       name: 'socials',

@@ -1,5 +1,6 @@
 import { BlockContentIcon } from '@sanity/icons'
-import { defineArrayMember, defineField, defineType } from 'sanity'
+import { defineField, defineType } from 'sanity'
+import { pickLocalized, pickLocalizedBlock } from '../../../lib/preview'
 
 export const textType = defineType({
   name: 'textBlock',
@@ -10,41 +11,24 @@ export const textType = defineType({
     defineField({
       name: 'eyebrow',
       title: 'Eyebrow',
-      type: 'string',
+      type: 'internationalizedArrayString',
       description: 'Petit label inline avec le premier bloc, ex: (de A à Z)',
-      validation: (Rule) => Rule.max(60),
     }),
     defineField({
       name: 'body',
       title: 'Contenu',
-      type: 'array',
-      validation: (Rule) => Rule.required().min(1),
-      of: [
-        defineArrayMember({
-          type: 'block',
-          styles: [
-            { title: 'H3', value: 'h3' },
-          ],
-          lists: [],
-          marks: {
-            decorators: [
-              { title: 'Gras', value: 'strong' },
-              { title: 'Italique', value: 'em' },
-            ],
-            annotations: [],
-          },
-        }),
-      ],
+      type: 'internationalizedArrayBlock',
+      validation: (Rule) => Rule.required(),
     }),
   ],
   preview: {
     select: { eyebrow: 'eyebrow', body: 'body' },
     prepare({ eyebrow, body }) {
-      const firstBlock = body?.[0]
-      const text = firstBlock?.children?.map((c: any) => c.text).join('') ?? ''
+      const e = pickLocalized(eyebrow)
+      const text = pickLocalizedBlock(body)
       return {
         title: 'Text',
-        subtitle: eyebrow ? `${eyebrow} — ${text}` : text,
+        subtitle: e ? `${e} — ${text}` : text,
       }
     },
   },

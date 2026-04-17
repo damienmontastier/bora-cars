@@ -10,14 +10,13 @@ export const locationType = defineType({
     defineField({
       name: 'city',
       title: 'Ville',
-      type: 'string',
+      type: 'internationalizedArrayString',
       validation: (Rule) => Rule.required(),
     }),
     defineField({
       name: 'address',
       title: 'Adresse',
-      type: 'text',
-      rows: 2,
+      type: 'internationalizedArrayText',
       description: 'Adresse postale complète de l\'agence',
     }),
     defineField({
@@ -36,6 +35,11 @@ export const locationType = defineType({
     }),
   ],
   preview: {
-    select: { title: 'city', subtitle: 'address' },
+    select: { city: 'city', address: 'address' },
+    prepare({ city, address }) {
+      const pickFr = (v: { language: string, value: string }[] | string | undefined) =>
+        Array.isArray(v) ? (v.find((x) => x.language === 'fr')?.value ?? v[0]?.value ?? '') : (v ?? '')
+      return { title: pickFr(city as never), subtitle: pickFr(address as never) }
+    },
   },
 })

@@ -10,7 +10,13 @@ const props = withDefaults(defineProps<Props>(), {
   theme: 'orange',
 })
 
-const { data: footer } = await useSanityQuery<FooterData>(FOOTER_QUERY)
+const lang = useSanityLang()
+const params = reactive({ lang: lang.value })
+watch(lang, (v) => {
+  params.lang = v
+})
+
+const { data: footer } = await useSanityQuery<FooterData>(FOOTER_QUERY, params)
 
 const lenis = useLenis()
 const currentYear = new Date().getFullYear()

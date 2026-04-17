@@ -1,3 +1,4 @@
+import { i18n } from './i18n'
 import { imageFields, imageRef, type SanityImage } from './fragments'
 
 export interface MarqueeItem {
@@ -90,27 +91,31 @@ export interface HomepageData {
   fullscreenMarquee: FullscreenMarqueeData | null
 }
 
+const HERO_PROJECTION = `{
+  ${i18n('heading')},
+  ${i18n('tagline')},
+  ${i18n('subtext')},
+  "backgroundMedia": backgroundMedia {
+    mediaType,
+    "imageUrl": image.asset._ref,
+    ${i18n('image.alt', 'imageAlt')},
+    "imageHotspot": image.hotspot,
+    "imageCrop": image.crop,
+    "videoUrl": video.asset->url,
+    ${i18n('video.alt', 'videoAlt')}
+  }
+}`
+
+export const CAR_LABEL_PROJECTION = `coalesce(marque[language == $lang][0].value, marque[language == "fr"][0].value) + " " + coalesce(modele[language == $lang][0].value, modele[language == "fr"][0].value)`
+
 export const HOMEPAGE_QUERY = `*[_type == "homepage"][0]{
-  "hero": modules[_type == "hero"][0]{
-    heading,
-    tagline,
-    subtext,
-    "backgroundMedia": backgroundMedia {
-      mediaType,
-      "imageUrl": image.asset._ref,
-      "imageAlt": image.alt,
-      "imageHotspot": image.hotspot,
-      "imageCrop": image.crop,
-      "videoUrl": video.asset->url,
-      "videoAlt": video.alt
-    }
-  },
+  "hero": modules[_type == "hero"][0]${HERO_PROJECTION},
   "serviceCards": modules[_type == "serviceCards"][0]{
     cards[]{
       _key,
       cardType,
-      categoryLabel,
-      subtitle,
+      ${i18n('categoryLabel')},
+      ${i18n('subtitle')},
       link{ type, text, url, email, phone },
       media {
         mediaType,
@@ -120,34 +125,36 @@ export const HOMEPAGE_QUERY = `*[_type == "homepage"][0]{
     }
   },
   "pitch": modules[_type == "pitch"][0]{
-    eyebrow,
-    heading,
-    subtext
+    ${i18n('eyebrow')},
+    ${i18n('heading')},
+    ${i18n('subtext')}
   },
   "process": modules[_type == "process"][0]{
-    steps[]{_key, title, description}
+    "steps": steps[]{ _key, ${i18n('title')}, ${i18n('description')} }
   },
   "brandsSection": modules[_type == "brandsSection"][0]{
-    carsLeft[]->{_id, marque, modele, ${imageRef()}},
-    carsRight[]->{_id, marque, modele, ${imageRef()}},
-    description,
-    surtitle,
-    heading
+    "carsLeft": carsLeft[]->{ _id, ${i18n('marque')}, ${i18n('modele')}, ${imageRef()} },
+    "carsRight": carsRight[]->{ _id, ${i18n('marque')}, ${i18n('modele')}, ${imageRef()} },
+    ${i18n('description')},
+    ${i18n('surtitle')},
+    ${i18n('heading')}
   },
   "fullscreenMarquee": modules[_type == "fullscreenMarquee"][0]{
     "items": items[]->{
       "_key": _id,
-      "label": marque + " " + modele
+      "label": ${CAR_LABEL_PROJECTION}
     },
     "cta": cta { type, text, url, email, phone },
     "backgroundMedia": backgroundMedia {
       mediaType,
       "imageUrl": image.asset._ref,
-      "imageAlt": image.alt,
+      ${i18n('image.alt', 'imageAlt')},
       "imageHotspot": image.hotspot,
       "imageCrop": image.crop,
       "videoUrl": video.asset->url,
-      "videoAlt": video.alt
+      ${i18n('video.alt', 'videoAlt')}
     }
   }
 }`
+
+export { HERO_PROJECTION }

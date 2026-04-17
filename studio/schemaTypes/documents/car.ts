@@ -10,13 +10,13 @@ export const carType = defineType({
     defineField({
       name: 'marque',
       title: 'Marque',
-      type: 'string',
+      type: 'internationalizedArrayString',
       validation: (Rule) => Rule.required(),
     }),
     defineField({
       name: 'modele',
       title: 'Modèle',
-      type: 'string',
+      type: 'internationalizedArrayString',
       validation: (Rule) => Rule.required(),
     }),
     defineField({
@@ -50,7 +50,9 @@ export const carType = defineType({
   preview: {
     select: { marque: 'marque', modele: 'modele' },
     prepare({ marque, modele }) {
-      return { title: [marque, modele].filter(Boolean).join(' ') }
+      const pickFr = (v: { language: string, value: string }[] | string | undefined) =>
+        Array.isArray(v) ? (v.find((x) => x.language === 'fr')?.value ?? v[0]?.value ?? '') : (v ?? '')
+      return { title: [pickFr(marque as never), pickFr(modele as never)].filter(Boolean).join(' ') }
     },
   },
 })

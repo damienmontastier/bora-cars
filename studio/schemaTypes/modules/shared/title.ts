@@ -1,5 +1,6 @@
 import { TextIcon } from '@sanity/icons'
 import { defineField, defineType } from 'sanity'
+import { pickLocalized } from '../../../lib/preview'
 
 export const titleType = defineType({
   name: 'title',
@@ -10,22 +11,22 @@ export const titleType = defineType({
     defineField({
       name: 'eyebrow',
       title: 'Eyebrow',
-      type: 'string',
+      type: 'internationalizedArrayString',
       description: 'Petit label inline avec le titre, ex: (FAQ)',
-      validation: (Rule) => Rule.max(60),
     }),
     defineField({
       name: 'heading',
       title: 'Titre',
-      type: 'text',
-      rows: 3,
-      validation: (Rule) => Rule.required().max(200),
+      type: 'internationalizedArrayText',
+      validation: (Rule) => Rule.required(),
     }),
   ],
   preview: {
     select: { heading: 'heading', eyebrow: 'eyebrow' },
     prepare({ heading, eyebrow }) {
-      return { title: 'Title', subtitle: eyebrow ? `${eyebrow} — ${heading}` : heading }
+      const h = pickLocalized(heading)
+      const e = pickLocalized(eyebrow)
+      return { title: 'Title', subtitle: e ? `${e} — ${h}` : h }
     },
   },
 })

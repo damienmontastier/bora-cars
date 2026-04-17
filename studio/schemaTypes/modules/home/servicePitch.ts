@@ -1,5 +1,6 @@
 import { BlockContentIcon } from '@sanity/icons'
 import { defineField, defineType } from 'sanity'
+import { pickLocalized } from '../../../lib/preview'
 
 export const servicePitchType = defineType({
   name: 'servicePitch',
@@ -22,33 +23,31 @@ export const servicePitchType = defineType({
     defineField({
       name: 'eyebrow',
       title: 'Eyebrow',
-      type: 'string',
+      type: 'internationalizedArrayString',
       fieldset: 'content',
       description: 'Petit texte affiché au-dessus du titre',
-      validation: (Rule) => Rule.max(20),
     }),
     defineField({
       name: 'heading',
       title: 'Titre',
-      type: 'string',
+      type: 'internationalizedArrayString',
       fieldset: 'content',
-      validation: (Rule) => Rule.required().max(80),
+      validation: (Rule) => Rule.required(),
     }),
     defineField({
       name: 'body',
       title: 'Corps de texte',
-      type: 'text',
+      type: 'internationalizedArrayText',
       fieldset: 'content',
-      rows: 4,
-      validation: (Rule) => Rule.required().max(160),
+      validation: (Rule) => Rule.required(),
     }),
 
     defineField({
       name: 'ctaLabel',
       title: 'Libellé du bouton',
-      type: 'string',
+      type: 'internationalizedArrayString',
       fieldset: 'cta',
-      validation: (Rule) => Rule.required().max(30),
+      validation: (Rule) => Rule.required(),
     }),
     defineField({
       name: 'ctaUrl',
@@ -61,7 +60,7 @@ export const servicePitchType = defineType({
   preview: {
     select: { subtitle: 'heading' },
     prepare({ subtitle }) {
-      return { title: 'Service Pitch', subtitle }
+      return { title: 'Service Pitch', subtitle: pickLocalized(subtitle) }
     },
   },
 })
