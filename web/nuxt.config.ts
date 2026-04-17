@@ -1,9 +1,11 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
+import { LANGUAGES, DEFAULT_LANGUAGE } from '../shared/languages'
 
-const locales = [
-  { code: 'fr', language: 'fr', files: ['fr.json'] },
-  { code: 'en', language: 'en', files: ['en.json'] },
-]
+const locales = LANGUAGES.map(({ id }) => ({
+  code: id,
+  language: id,
+  files: [`${id}.json`],
+}))
 
 export default defineNuxtConfig({
   compatibilityDate: '2025-05-15',
@@ -51,7 +53,7 @@ export default defineNuxtConfig({
       escapeHtml: false,
     },
     locales,
-    defaultLocale: 'fr',
+    defaultLocale: DEFAULT_LANGUAGE,
     skipSettingLocaleOnNavigate: true,
   },
 

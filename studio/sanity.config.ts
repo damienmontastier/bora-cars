@@ -17,7 +17,8 @@ import {
   EnvelopeIcon,
 } from '@sanity/icons'
 import { schemaTypes } from './schemaTypes'
-import { SUPPORTED_LANGUAGES } from './schemaTypes/constants'
+import { SUPPORTED_LANGUAGES, LOCALIZED_DOCUMENT_TYPES } from './schemaTypes/constants'
+import { LANGUAGES } from '../shared/languages'
 import { CustomNavbar } from './components/LangSwitcher'
 import { StudioLayout } from './components/StudioLayout'
 
@@ -61,14 +62,14 @@ const structure = (S: any) =>
         .child(S.document().schemaType('settings').documentId('settings')),
     ])
 
-const createWorkspace = (lang: 'fr' | 'en', flag: string) => {
+const createWorkspace = ({ id: lang, title, flag }: (typeof LANGUAGES)[number]) => {
   const lockOtherLangs = ({ parent }: { parent?: { language?: string } }) =>
     typeof parent?.language === 'string' && parent.language !== lang
 
   return {
     name: `bora-${lang}`,
     basePath: `/${lang}`,
-    title: `Bora · ${lang.toUpperCase()}`,
+    title: `Bora · ${title}`,
     icon: FlagIcon(flag),
     projectId: 'xyw8hnp3',
     dataset: 'production',
@@ -77,6 +78,8 @@ const createWorkspace = (lang: 'fr' | 'en', flag: string) => {
       internationalizedArray({
         languages: SUPPORTED_LANGUAGES,
         defaultLanguages: SUPPORTED_LANGUAGES.map((l) => l.id),
+        buttonLocations: [],
+        buttonAddAll: false,
         fieldTypes: [
           defineField({ name: 'string', type: 'string', readOnly: lockOtherLangs }),
           defineField({ name: 'text', type: 'text', readOnly: lockOtherLangs }),
@@ -88,6 +91,10 @@ const createWorkspace = (lang: 'fr' | 'en', flag: string) => {
             readOnly: lockOtherLangs,
           }),
         ],
+        languageFilter: {
+          documentTypes: LOCALIZED_DOCUMENT_TYPES,
+          defaultLanguages: [lang],
+        },
       }),
       assist(),
       structureTool({ structure }),
@@ -111,7 +118,4 @@ const createWorkspace = (lang: 'fr' | 'en', flag: string) => {
   }
 }
 
-export default defineConfig([
-  createWorkspace('fr', '🇫🇷'),
-  createWorkspace('en', '🇬🇧'),
-])
+export default defineConfig(LANGUAGES.map(createWorkspace))
