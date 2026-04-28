@@ -118,7 +118,7 @@ function scrollNext() {
               {{ currentItem?.authorName }}
             </TextsP1>
             <TextsP2 :selectable="false" color="beige-100" class="app-elements-testimonials__author-role">
-              {{ currentItem?.authorRole }}
+              {{ currentItem?.authorRole }} <span>—</span> {{ currentItem?.car ? `${currentItem.car.marque} ${currentItem.car.modele}` : '' }}
             </TextsP2>
           </div>
         </Transition>
@@ -143,9 +143,9 @@ function scrollNext() {
               class="app-elements-testimonials__slide"
             >
               <div class="app-elements-testimonials__quote-wrap">
-                <TextsP2 v-if="item.car" :selectable="false" color="beige-100" class="app-elements-testimonials__car-model">
+                <!-- <TextsP2 v-if="item.car" :selectable="false" color="beige-100" class="app-elements-testimonials__car-model">
                   {{ item.car.marque }} {{ item.car.modele }}
-                </TextsP2>
+                </TextsP2> -->
                 <TextsH3 tag="p" :selectable="false" color="beige-100" class="app-elements-testimonials__quote">
                   {{ item.quote }}
                 </TextsH3>
@@ -167,7 +167,7 @@ function scrollNext() {
 .app-elements-testimonials {
   position: relative;
   width: 100%;
-  min-height: desktop-vw(1080px);
+  min-height: desktop-vw(720px);
   overflow: hidden;
   padding: desktop-vw(40px) desktop-vw(24px);
   display: flex;
@@ -216,18 +216,27 @@ function scrollNext() {
     display: flex;
     flex-direction: column;
     align-self: flex-start;
-    gap: desktop-vw(16px);
+    gap: desktop-vw(24px);
   }
 
   &__author {
     display: flex;
     flex-direction: column;
-    gap: 0;
+    gap: 5px;
   }
 
   &__author-name,
   &__author-role {
     line-height: 1.2;
+    font-size: desktop-vw(26px);
+    line-height: desktop-vw(24px);
+  }
+
+  &__author-role {
+    span {
+      display: inline-block;
+      margin: 0 desktop-vw(8px);
+    }
   }
 
   &__nav {

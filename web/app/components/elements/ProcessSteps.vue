@@ -111,6 +111,7 @@ onMounted(async () => {
           onLeave: showLabel,
           onLeaveBack: showLabel,
           fastScrollEnd: true,
+          markers: true,
           preventOverlaps: true,
         },
       })
