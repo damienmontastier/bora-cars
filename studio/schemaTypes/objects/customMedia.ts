@@ -25,7 +25,7 @@ export const customMedia = defineType({
       name: 'image',
       title: 'Image',
       type: 'customImage',
-      options: { collapsible: false },
+      options: { collapsible: false, hotspot: true },
       hidden: ({ parent }) => parent?.mediaType !== 'image',
       validation: (Rule) =>
         Rule.custom((value, { parent }: any) => {

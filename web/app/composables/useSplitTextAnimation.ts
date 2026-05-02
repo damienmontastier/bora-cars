@@ -99,6 +99,9 @@ export function useSplitTextAnimation(
       const from: gsap.TweenVars = { ...(preset.from ?? {}), ...options.from }
       const to: gsap.TweenVars = { ...(preset.to ?? {}), ...options.to }
 
+      if (scrollTriggerVars?.scrub)
+        to.ease = 'none'
+
       ctx = gsap.context(() => {
         // prepare is inside context so gsap.set() calls (e.g. perspective) are reverted on ctx.revert()
         preset.prepare?.(targets)

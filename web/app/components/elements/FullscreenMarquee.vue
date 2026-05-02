@@ -109,18 +109,10 @@ onUnmounted(() => {
           >
             {{ item.label }}
           </TextsH1>
-          <AtomsCTA
-            v-if="data.cta?.text"
-            :to="data.cta"
-            theme="white"
-            class="app-elements-fullscreen-marquee__cta-item"
-          >
-            {{ data.cta.text }}
-          </AtomsCTA>
         </div>
       </ElementsMarquee>
 
-      <!-- Row 2 — second half + CTA, scrolls right -->
+      <!-- Row 2 — second half, scrolls right -->
       <ElementsMarquee
         v-bind="sharedMarqueeProps"
         :reversed="true"
@@ -135,16 +127,18 @@ onUnmounted(() => {
           >
             {{ item.label }}
           </TextsH1>
-          <AtomsCTA
-            v-if="data.cta?.text"
-            :to="data.cta"
-            theme="white"
-            class="app-elements-fullscreen-marquee__cta-item"
-          >
-            {{ data.cta.text }}
-          </AtomsCTA>
         </div>
       </ElementsMarquee>
+
+      <!-- CTA -->
+      <AtomsCTA
+        v-if="data.cta?.text"
+        :to="data.cta"
+        theme="white"
+        class="app-elements-fullscreen-marquee__cta"
+      >
+        {{ data.cta.text }}
+      </AtomsCTA>
     </div>
   </section>
 </template>
@@ -203,9 +197,11 @@ onUnmounted(() => {
     user-select: none;
   }
 
-  &__cta-item {
-    flex-shrink: 0;
-    align-self: center;
+  &__cta {
+    z-index: 2;
+    align-self: flex-end;
+    margin-top: desktop-vw(16px);
+    margin-right: desktop-vw(16px);
   }
 }
 </style>

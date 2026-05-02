@@ -57,9 +57,9 @@ export const heroType = defineType({
     }),
   ],
   preview: {
-    select: { subtitle: 'heading' },
-    prepare({ subtitle }) {
-      return { title: 'Hero', subtitle: pickLocalized(subtitle) }
+    select: { heading: 'heading' },
+    prepare({ heading }) {
+      return { title: 'Hero', subtitle: pickLocalized(heading) }
     },
   },
 })
