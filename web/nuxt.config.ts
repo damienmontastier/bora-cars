@@ -76,8 +76,9 @@ export default defineNuxtConfig({
   site: {
     url: process.env.NUXT_SITE_URL ?? 'https://bora-cars.netlify.app',
     name: 'BORA CARS',
-    description: 'Votre partenaire mobilité premium',
+    description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Chez BORA CARS, nous vous accompagnons dans tous vos projets mobilité avec des solutions premium adaptées à vos besoins.',
     defaultLocale: DEFAULT_LANGUAGE,
+    separator: '—',
     indexable: false,
   },
 

@@ -39,13 +39,6 @@ const [{ data: menu }, settingsData] = await Promise.all([
 
 settings.value = settingsData
 
-useHead({
-  titleTemplate: (pageTitle) => {
-    const site = settings.value?.seo?.title ?? 'BORA CARS'
-    return pageTitle ? `${pageTitle} — ${site}` : site
-  },
-})
-
 useSeoMeta({
   ogSiteName: 'BORA CARS',
   description: () => settings.value?.seo?.description ?? undefined,
@@ -67,10 +60,7 @@ useSeoMeta({
 
 const i18nHead = useLocaleHead()
 useHead(() => ({
-  htmlAttrs: {
-    lang: i18nHead.value.htmlAttrs?.lang,
-    dir: i18nHead.value.htmlAttrs?.dir,
-  },
+  htmlAttrs: i18nHead.value.htmlAttrs,
   link: [...(i18nHead.value.link ?? [])],
   meta: [...(i18nHead.value.meta ?? [])],
 }))

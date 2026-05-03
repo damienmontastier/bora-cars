@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import type { HeroData } from '~/queries/home'
 import gsap from 'gsap'
-import { Flip } from 'gsap/Flip'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
 interface Props {
@@ -27,21 +26,23 @@ onMounted(async () => {
 
   ctx = gsap.context(() => {
     const absolute = mainRef.value!.querySelector<HTMLElement>('.app-elements-hero-3__absolute')!
+    const bottom = mainRef.value!.querySelector<HTMLElement>('.app-elements-hero-3__bottom')!
 
-    absolute.classList.add('--fixed')
-    const fixedState = Flip.getState(absolute)
-    absolute.classList.remove('--fixed')
-
-    Flip.from(fixedState, {
-      ease: 'none',
-      immediateRender: true,
-      scrollTrigger: {
-        trigger: mainRef.value,
-        start: 'top top',
-        end: 'bottom bottom',
-        scrub: true,
+    gsap.fromTo(
+      absolute,
+      { y: 0 },
+      {
+        y: () => bottom.getBoundingClientRect().bottom - absolute.getBoundingClientRect().bottom,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: mainRef.value,
+          start: 'top top',
+          end: 'bottom bottom',
+          scrub: true,
+          invalidateOnRefresh: true,
+        },
       },
-    })
+    )
   }, mainRef.value as HTMLElement)
 
   ScrollTrigger.refresh()
@@ -91,12 +92,6 @@ onUnmounted(() => {
         <TextsH1 v-if="data?.heading" color="beige-100">
           {{ data.heading }}
         </TextsH1>
-      </div>
-
-      <div class="app-elements-hero-3__bottom">
-        <TextsH3 v-if="data?.tagline" color="beige-100">
-          {{ data.tagline }}
-        </TextsH3>
 
         <div class="app-elements-hero-3__absolute">
           <TextsP2 v-if="data?.subtext" color="beige-100">
@@ -107,6 +102,12 @@ onUnmounted(() => {
             {{ settings.contactLink.text }}
           </AtomsCTA>
         </div>
+      </div>
+
+      <div class="app-elements-hero-3__bottom">
+        <TextsH3 v-if="data?.tagline" color="beige-100">
+          {{ data.tagline }}
+        </TextsH3>
       </div>
     </div>
   </div>
@@ -146,27 +147,10 @@ onUnmounted(() => {
     width: 100%;
   }
 
-  &__absolute {
-    position: absolute;
-    right: desktop-vw(24px);
-    bottom: 0;
-    width: desktop-vw(310px);
-    display: flex;
-    flex-direction: column;
-    gap: desktop-vw(24px);
-
-    &.--fixed {
-      position: fixed;
-      bottom: desktop-vw(24px);
-      right: desktop-vw(24px);
-      top: auto;
-      left: auto;
-    }
-  }
-
   &__middle {
     width: 100%;
     height: 100vh;
+    position: relative;
     display: flex;
     flex-direction: row;
     align-items: flex-end;
@@ -188,8 +172,17 @@ onUnmounted(() => {
     }
   }
 
+  &__absolute {
+    position: absolute;
+    right: desktop-vw(24px);
+    bottom: desktop-vw(24px);
+    width: desktop-vw(310px);
+    display: flex;
+    flex-direction: column;
+    gap: desktop-vw(24px);
+  }
+
   &__bottom {
-    position: relative;
     margin-top: desktop-vw(170px);
     margin-bottom: desktop-vw(105px);
     padding: desktop-vw(24px) desktop-vw(24px) desktop-vw(24px) desktop-vw(24px);
