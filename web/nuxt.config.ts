@@ -76,7 +76,6 @@ export default defineNuxtConfig({
   site: {
     url: process.env.NUXT_SITE_URL ?? 'https://bora-cars.netlify.app',
     name: 'BORA CARS',
-    description: 'Chez BORA CARS, nous vous accompagnons dans tous vos projets mobilité avec des solutions premium adaptées à vos besoins.',
     defaultLocale: DEFAULT_LANGUAGE,
     separator: '—',
     indexable: false,
@@ -87,6 +86,7 @@ export default defineNuxtConfig({
       type: 'Organization',
       name: 'BORA CARS',
       logo: '/favicon.svg',
+      sameAs: ['https://www.google.com/search?kgmid=/g/11yp0wsnj5'],
     },
   },
 

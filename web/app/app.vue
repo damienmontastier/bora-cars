@@ -21,7 +21,7 @@ watch(fontsReady, (ready) => {
   }
 })
 
-const { finalizePendingLocaleChange } = useI18n()
+const { finalizePendingLocaleChange, t } = useI18n()
 
 const sanity = useSanity()
 const settings = useSettings()
@@ -39,10 +39,10 @@ const [{ data: menu }, settingsData] = await Promise.all([
 
 settings.value = settingsData
 
-const { description: siteDescription, url: siteUrl } = useSiteConfig()
+const { url: siteUrl } = useSiteConfig()
 
 useSeoMeta({
-  description: () => settings.value?.seo?.description || siteDescription || undefined,
+  description: () => settings.value?.seo?.description || t('seo.description'),
   ogImage: () => settings.value?.seo?.image || '/og-bora-cars.jpg',
   twitterCard: 'summary_large_image',
 })
@@ -54,10 +54,11 @@ useSchemaOrg([
     name: 'BORA CARS',
     url: siteUrl,
     logo: `${siteUrl}/favicon.svg`,
+    sameAs: ['https://www.google.com/search?kgmid=/g/11yp0wsnj5'],
   }),
   defineWebSite({
     name: () => settings.value?.seo?.title ?? 'BORA CARS',
-    description: () => settings.value?.seo?.description ?? siteDescription ?? '',
+    description: () => settings.value?.seo?.description || t('seo.description'),
     url: siteUrl,
   }),
 ])

@@ -2,7 +2,8 @@ import { useSiteConfig } from '#site-config/app/composables/useSiteConfig'
 import type { SeoData } from '~/queries/fragments'
 
 export function usePageSeo(seo: Ref<SeoData | undefined>) {
-  const { name: siteName, separator, description: siteDescription } = useSiteConfig()
+  const { name: siteName, separator } = useSiteConfig()
+  const { t } = useI18n()
 
   const fullTitle = computed(() => {
     const pageTitle = seo.value?.title
@@ -13,7 +14,7 @@ export function usePageSeo(seo: Ref<SeoData | undefined>) {
 
   useSeoMeta({
     title: () => seo.value?.title || undefined,
-    description: () => seo.value?.description || siteDescription || undefined,
+    description: () => seo.value?.description || t('seo.description'),
     ogImage: () => seo.value?.image || '/og-bora-cars.jpg',
     twitterTitle: () => fullTitle.value,
   })
@@ -22,7 +23,7 @@ export function usePageSeo(seo: Ref<SeoData | undefined>) {
   useSchemaOrg([
     defineWebPage({
       name: () => seo.value?.title ?? undefined,
-      description: () => seo.value?.description || siteDescription || undefined,
+      description: () => seo.value?.description || t('seo.description'),
     }),
   ])
 }
