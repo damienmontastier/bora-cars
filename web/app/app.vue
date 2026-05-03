@@ -98,26 +98,12 @@ const pageTransition = {
 
 <template>
   <div id="app" class="app">
-    <AppLenis />
-
-    <!-- <AppPreloader /> -->
-    <AppMenu :data="menu" />
-
-    <AppOverlay />
-
-    <AppTransition ref="transitionRef" />
-
-    <!-- <DevOnly>
-      <AppMenuDev />
-    </DevOnly> -->
-
-    <div id="app-page" class="app-page">
-      <NuxtPage :transition="pageTransition" />
+    <div class="app-wip">
+      <TextsH2 class="app-wip__title">Coming Soon</TextsH2>
+      <div class="app-wip__logo">
+        <SvgLogo color="orange" />
+      </div>
     </div>
-
-    <DevOnly>
-      <DebugPatrol />
-    </DevOnly>
   </div>
 </template>
 
@@ -128,12 +114,36 @@ const pageTransition = {
   z-index: 1;
   position: relative;
 
-  &-page {
-    position: relative;
-    z-index: 2;
+  &-wip {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
     width: 100%;
-    height: 100%;
-    // pointer-events: none;
+    height: 100vh;
+    background-color: var(--c-beige);
+
+    &__title.H2 {
+      text-align: center;
+    }
+
+    &__logo {
+      position: fixed;
+      bottom: 24px;
+      left: desktop-vw(16px);
+      right: desktop-vw(16px);
+
+      @include mobile {
+        left: mobile-vw(16px);
+        right: mobile-vw(16px);
+      }
+
+      .svg-logo {
+        width: 100%;
+        height: auto;
+        aspect-ratio: 1408 / 213;
+      }
+    }
   }
 }
 </style>
