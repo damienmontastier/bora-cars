@@ -26,6 +26,22 @@ export const heroType = defineType({
   ],
   fields: [
     defineField({
+      name: 'variant',
+      title: 'Variante',
+      type: 'string',
+      options: {
+        list: [
+          { title: 'Variante 1', value: 'variant-1' },
+          { title: 'Variante 2', value: 'variant-2' },
+          { title: 'Variante 3', value: 'variant-3' },
+        ],
+        layout: 'radio',
+      },
+      initialValue: 'variant-1',
+      validation: (Rule) => Rule.required(),
+    }),
+
+    defineField({
       name: 'backgroundMedia',
       title: 'Média de fond',
       type: 'customMedia',

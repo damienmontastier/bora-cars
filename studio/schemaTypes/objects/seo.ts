@@ -23,8 +23,7 @@ export const seoType = defineField({
     defineField({
       name: 'image',
       title: 'OG Image',
-      type: 'image',
-      options: { hotspot: true },
+      type: 'customImage',
     }),
   ],
 })

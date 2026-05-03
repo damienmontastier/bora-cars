@@ -31,6 +31,7 @@ export interface HeroData {
   tagline?: string
   subtext?: string
   backgroundMedia?: HeroBackgroundMedia
+  variant?: 'variant-1' | 'variant-2' | 'variant-3'
 }
 
 export type CardType = 'xxl' | 'xl' | 'l' | 'm'
@@ -104,6 +105,7 @@ export type PageModule =
 // ─── GROQ fragments ───────────────────────────────────────────────────────────
 
 export const HERO_PROJECTION = `{
+  variant,
   ${i18n('heading')},
   ${i18n('tagline')},
   ${i18n('subtext')},

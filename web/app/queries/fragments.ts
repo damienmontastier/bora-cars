@@ -2,6 +2,12 @@ import { i18n } from './i18n'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
+export interface SeoData {
+  title?: string
+  description?: string
+  image?: string
+}
+
 export interface SanityImage {
   imageUrl: string
   imageAlt?: string
@@ -45,4 +51,14 @@ export function imageFields(field = 'image') {
  */
 export function imageRef(field = 'image') {
   return `"imageUrl": ${field}.asset._ref`
+}
+
+export function seoFields() {
+  return `
+    "seo": {
+      ${i18n('seo.title', 'title')},
+      ${i18n('seo.description', 'description')},
+      "image": seo.image.asset->url
+    }
+  `
 }

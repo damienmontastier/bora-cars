@@ -34,21 +34,54 @@ watch(lang, (v) => {
 
 const [{ data: menu }, settingsData] = await Promise.all([
   useSanityQuery<MenuData>(MENU_QUERY, menuParams),
-  sanity.fetch<SettingsData>(SETTINGS_QUERY),
+  sanity.fetch<SettingsData>(SETTINGS_QUERY, { lang: lang.value }),
 ])
 
 settings.value = settingsData
 
 useHead({
-  htmlAttrs: { lang },
+  titleTemplate: (pageTitle) => {
+    const site = settings.value?.seo?.title ?? 'BORA CARS'
+    return pageTitle ? `${pageTitle} — ${site}` : site
+  },
 })
+
+useSeoMeta({
+  ogSiteName: 'BORA CARS',
+  description: () => settings.value?.seo?.description ?? undefined,
+  ogDescription: () => settings.value?.seo?.description ?? undefined,
+  ogImage: () => settings.value?.seo?.image ?? undefined,
+  twitterCard: 'summary_large_image',
+})
+
+// useSchemaOrg([
+//   defineOrganization({
+//     name: 'BORA CARS',
+//     logo: '/favicon.svg',
+//   }),
+//   defineWebSite({
+//     name: () => settings.value?.seo?.title ?? 'BORA CARS',
+//     description: () => settings.value?.seo?.description ?? '',
+//   }),
+// ])
+
+const i18nHead = useLocaleHead()
+useHead(() => ({
+  htmlAttrs: {
+    lang: i18nHead.value.htmlAttrs?.lang,
+    dir: i18nHead.value.htmlAttrs?.dir,
+  },
+  link: [...(i18nHead.value.link ?? [])],
+  meta: [...(i18nHead.value.meta ?? [])],
+}))
 
 const transitionRef = useTemplateRef('transitionRef')
 
 watch(
   () => appStore.menuThemePending,
   (v) => {
-    if (!appStore.menuTransitioning) appStore.menuTheme = v
+    if (!appStore.menuTransitioning)
+      appStore.menuTheme = v
   },
 )
 

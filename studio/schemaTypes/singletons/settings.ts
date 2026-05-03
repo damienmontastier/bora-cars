@@ -1,5 +1,6 @@
 import { CogIcon } from '@sanity/icons'
 import { defineField, defineType } from 'sanity'
+import { seoType } from '../objects/seo'
 
 const TITLE = 'Paramètres'
 
@@ -10,6 +11,7 @@ export const settingsType = defineType({
   icon: CogIcon,
   groups: [
     { name: 'global', title: 'Global', default: true },
+    { name: 'seo', title: 'SEO' },
   ],
   fields: [
     defineField({
@@ -20,6 +22,7 @@ export const settingsType = defineType({
       description: 'Utilisé pour tous les boutons "Contact" du site',
       options: { enableText: true },
     }),
+    seoType,
   ],
   preview: {
     prepare() {

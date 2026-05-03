@@ -9,10 +9,12 @@ watch(lang, (v) => {
 })
 
 const { data: page } = await useSanityQuery<ProprietaireData>(PROPRIETAIRE_QUERY, params)
+
+usePageSeo(computed(() => page.value?.seo))
 </script>
 
 <template>
-  <main class="page-proprietaire">
+  <main v-menu-theme="'white'" class="page-proprietaire">
     <PageModules :modules="page?.modules ?? []" />
     <AppFooter />
   </main>

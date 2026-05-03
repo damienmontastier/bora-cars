@@ -21,10 +21,11 @@ const { menuOpen } = toRefs(appStore)
   &__background {
     width: 100%;
     height: 100%;
-    background-color: var(--c-black-20);
+    background-color: var(--c-black-50);
     opacity: 0;
     transition: opacity 0.3s var(--ease-out-cubic);
     pointer-events: none;
+    backdrop-filter: blur(2.5px);
   }
 
   &.is-active {

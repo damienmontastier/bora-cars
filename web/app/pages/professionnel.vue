@@ -9,6 +9,8 @@ watch(lang, (v) => {
 })
 
 const { data: page } = await useSanityQuery<ProfessionnelData>(PROFESSIONNEL_QUERY, params)
+
+usePageSeo(computed(() => page.value?.seo))
 </script>
 
 <template>

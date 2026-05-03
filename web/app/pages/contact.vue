@@ -9,6 +9,8 @@ watch(lang, (v) => {
 })
 
 const { data: page } = await useSanityQuery<ContactData>(CONTACT_QUERY, params)
+
+usePageSeo(computed(() => page.value?.seo))
 </script>
 
 <template>

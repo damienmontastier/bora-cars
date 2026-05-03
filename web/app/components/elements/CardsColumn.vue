@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import gsap from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { useLenis } from 'lenis/vue'
 
 interface CardItem {
@@ -88,6 +89,9 @@ onMounted(async () => {
       tl.fromTo(bgContent, { yPercent: 100 }, { yPercent: -100, ease: 'none' }, 0)
     })
   }, rootRef.value ?? undefined)
+
+  await nextTick()
+  ScrollTrigger.refresh()
 })
 
 onUnmounted(() => {

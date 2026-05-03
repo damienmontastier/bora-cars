@@ -19,7 +19,7 @@ const otherModules = computed(() =>
 </script>
 
 <template>
-  <ElementsHero :data="heroModule" />
+  <ElementsHero :data="heroModule" :variant="heroModule?._type === 'hero' ? heroModule.variant : undefined" />
 
   <template v-for="module in otherModules" :key="module._key">
     <ElementsServicesCards v-if="module._type === 'serviceCards'" :cards="module.cards" />

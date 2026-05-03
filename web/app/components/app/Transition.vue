@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import type Lenis from 'lenis'
+import { useEventBus } from '@vueuse/core'
 import gsap from 'gsap'
 
 const lenis = () => window.lenis as Lenis | undefined
+const transitionBus = useEventBus('page-transition')
 
 const overlayRef = useTemplateRef('overlayRef')
 
@@ -23,6 +25,7 @@ function onLeave(_el: Element, done: () => void) {
   ctx?.add(() => {
     gsap.timeline({
       onComplete: () => {
+        transitionBus.emit('covered') // overlay fully covers screen — safe to reset menu
         lenis()?.scrollTo(0, { immediate: true, force: true })
         window.scrollTo(0, 0)
         gsap.delayedCall(0.1, done)
