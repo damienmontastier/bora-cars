@@ -37,8 +37,10 @@ const themeTextColor = computed(() => ({
   cursor: pointer;
   transition: opacity 0.35s var(--ease-out-cubic);
 
-  &:hover {
-    opacity: 0.5;
+  @include hover {
+    &:hover {
+      opacity: 0.5;
+    }
   }
 }
 </style>

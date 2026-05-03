@@ -138,12 +138,14 @@ onUnmounted(() => {
     height: 2px;
   }
 
-  &__items:has(.app-menu-panel__nav-inner:hover) {
-    .app-menu-panel__nav-inner {
-      opacity: 0.2;
+  @include hover {
+    &__items:has(.app-menu-panel__nav-inner:hover) {
+      .app-menu-panel__nav-inner {
+        opacity: 0.2;
 
-      &:hover {
-        opacity: 1;
+        &:hover {
+          opacity: 1;
+        }
       }
     }
   }

@@ -58,8 +58,7 @@ export const footerType = defineType({
       description: 'Email, téléphone, ou tout autre lien de contact',
       of: [
         defineArrayMember({
-          type: 'customLink',
-          options: { enableText: true },
+          type: 'navLink',
         }),
       ],
     }),
@@ -78,8 +77,7 @@ export const footerType = defineType({
       description: 'Pages principales du site',
       of: [
         defineArrayMember({
-          type: 'customLink',
-          options: { enableText: true },
+          type: 'navLink',
         }),
       ],
     }),
@@ -98,8 +96,7 @@ export const footerType = defineType({
       description: 'Liens vers les réseaux sociaux (Instagram, LinkedIn…)',
       of: [
         defineArrayMember({
-          type: 'customLink',
-          options: { enableText: true },
+          type: 'navLink',
         }),
       ],
     }),
@@ -107,9 +104,8 @@ export const footerType = defineType({
     defineField({
       name: 'legalLink',
       title: 'Lien mentions légales',
-      type: 'customLink',
+      type: 'navLink',
       fieldset: 'legal',
-      options: { enableText: true },
     }),
   ],
   preview: {

@@ -50,8 +50,7 @@ export const menuType = defineType({
       description: 'Pages accessibles depuis le panneau de navigation',
       of: [
         defineArrayMember({
-          type: 'customLink',
-          options: { enableText: true },
+          type: 'navLink',
         }),
       ],
     }),

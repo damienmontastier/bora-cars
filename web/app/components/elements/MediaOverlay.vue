@@ -6,13 +6,13 @@ const props = withDefaults(defineProps<{
   borderRadius?: string
 }>(), {
   threshold: 0.1,
-  color: 'beige',
+  color: 'orange-100',
   borderRadius: '0px',
 })
 
 const REVEAL_S_PER_1000PX = 1.5
-const REVEAL_DURATION_MIN_S = 0.7
-const REVEAL_DURATION_MAX_S = 1.6
+const REVEAL_DURATION_MIN_S = 0.6
+const REVEAL_DURATION_MAX_S = 1.2
 
 const overlayRef = useTemplateRef<HTMLElement>('overlayRef')
 const isInView = ref(false)
@@ -43,7 +43,7 @@ const revealDuration = computed(() => {
     :class="{ 'is-revealed': isRevealed, 'is-loading': !isRevealed }"
     :style="{
       borderRadius,
-      backgroundColor: `var(--c-${color})`,
+      'backgroundColor': `var(--c-${color})`,
       '--reveal-duration': `${revealDuration}s`,
     }"
   />
@@ -85,7 +85,11 @@ const revealDuration = computed(() => {
 }
 
 @keyframes media-overlay-shimmer {
-  0% { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
 }
 </style>

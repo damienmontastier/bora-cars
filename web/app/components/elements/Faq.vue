@@ -3,7 +3,6 @@ import { useResizeObserver } from '@vueuse/core'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { useLenis } from 'lenis/vue'
-import Tempus from 'tempus'
 
 interface FaqItem {
   _key: string
@@ -23,12 +22,17 @@ const lenis = useLenis()
 let ctx: gsap.Context | null = null
 const itemTimelines: gsap.core.Timeline[] = []
 
-// Throttled ScrollTrigger.refresh() via Tempus (one tick max per resize burst)
-let needsRefresh = false
-let rafUnsub: (() => void) | undefined
+// Debounce ST refresh to after the CSS transition (0.4s) to avoid per-frame
+// refresh thrash that causes yPercent jumps on the bg during accordion animation.
+let refreshTimer: ReturnType<typeof setTimeout> | null = null
 
 useResizeObserver(itemRefs, () => {
-  needsRefresh = true
+  if (refreshTimer)
+    clearTimeout(refreshTimer)
+  refreshTimer = setTimeout(() => {
+    ScrollTrigger.refresh()
+    refreshTimer = null
+  }, 420)
 })
 
 function toggle(key: string, index: number) {
@@ -79,13 +83,6 @@ function toggle(key: string, index: number) {
 }
 
 onMounted(() => {
-  rafUnsub = Tempus.add(() => {
-    if (!needsRefresh)
-      return
-    needsRefresh = false
-    ScrollTrigger.refresh()
-  }, { priority: 0 })
-
   ctx = gsap.context(() => {
     itemRefs.value.forEach((item, i) => {
       const bg = item.querySelector<HTMLElement>('.faq-item__bg')
@@ -107,9 +104,10 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
+  if (refreshTimer)
+    clearTimeout(refreshTimer)
   ctx?.revert()
   itemTimelines.length = 0
-  rafUnsub?.()
 })
 </script>
 

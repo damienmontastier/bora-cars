@@ -24,8 +24,7 @@ export const fullscreenMarqueeType = defineType({
       name: 'cta',
       title: 'Bouton CTA',
       description: 'Affiché au milieu de la deuxième ligne.',
-      type: 'customLink',
-      options: { enableText: true },
+      type: 'navLink',
     }),
     defineField({
       name: 'backgroundMedia',

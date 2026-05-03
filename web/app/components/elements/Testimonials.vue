@@ -260,8 +260,10 @@ function scrollNext() {
     cursor: pointer;
     transition: background 0.2s var(--ease-out-cubic);
 
-    &:hover {
-      background: var(--c-beige-20);
+    @include hover {
+      &:hover {
+        background: var(--c-beige-20);
+      }
     }
   }
 

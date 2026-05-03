@@ -39,25 +39,6 @@ export function StudioLayout(props: LayoutProps) {
   return (
     <>
       <style>{styles}</style>
-      <div
-        style={{
-          position: 'fixed',
-          top: 8,
-          right: 12,
-          zIndex: 10000,
-          padding: '4px 10px',
-          borderRadius: 999,
-          background: accent,
-          color: '#fff',
-          fontSize: 11,
-          fontWeight: 700,
-          letterSpacing: '0.1em',
-          pointerEvents: 'none',
-          boxShadow: '0 2px 6px rgba(0,0,0,0.25)',
-        }}
-      >
-        {lang?.flag} {langId.toUpperCase()}
-      </div>
       {props.renderDefault(props)}
     </>
   )

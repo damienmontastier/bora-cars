@@ -14,6 +14,20 @@ export const carType = defineType({
       validation: (Rule) => Rule.required(),
     }),
     defineField({
+      name: 'slug',
+      title: 'Slug',
+      type: 'slug',
+      options: {
+        source: (doc: any) => {
+          const pickFr = (v: { language: string, value: string }[]) =>
+            v?.find(x => x.language === 'fr')?.value ?? v?.[0]?.value ?? ''
+          return `${pickFr(doc.marque)}-${pickFr(doc.modele)}`
+        },
+        maxLength: 96,
+      },
+      validation: (Rule) => Rule.required(),
+    }),
+    defineField({
       name: 'modele',
       title: 'Modèle',
       type: 'internationalizedArrayString',

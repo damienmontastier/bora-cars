@@ -8,6 +8,7 @@ import { proprietaireType } from './singletons/proprietaire'
 import { professionnelType } from './singletons/professionnel'
 import { contactType } from './singletons/contact'
 import { settingsType } from './singletons/settings'
+import { catalogueType } from './singletons/catalogue'
 
 // Documents
 import { locationType } from './documents/location'
@@ -32,6 +33,7 @@ import { customImage } from './objects/customImage'
 import { customVideo } from './objects/customVideo'
 import { customMedia } from './objects/customMedia'
 import { customLink } from './objects/customLink'
+import { navLink } from './objects/navLink'
 import { processStepType } from './objects/processStep'
 
 export const schemaTypes: SchemaTypeDefinition[] = [
@@ -43,6 +45,7 @@ export const schemaTypes: SchemaTypeDefinition[] = [
   professionnelType,
   contactType,
   settingsType,
+  catalogueType,
 
   // Documents
   locationType,
@@ -67,5 +70,6 @@ export const schemaTypes: SchemaTypeDefinition[] = [
   customVideo,
   customMedia,
   customLink,
+  navLink,
   processStepType,
 ]

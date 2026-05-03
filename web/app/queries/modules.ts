@@ -154,7 +154,15 @@ export const MODULES_PROJECTION = `"modules": modules[]{
   },
   _type == "fullscreenMarquee" => {
     "items": items[]->{ "_key": _id, "label": ${CAR_LABEL_PROJECTION} },
-    "cta": cta { type, text, url, email, phone },
+    "cta": cta {
+      ${i18n('label', 'text')},
+      "type": link.type,
+      "blank": link.blank,
+      "url": link.url,
+      "email": link.email,
+      "phone": link.phone,
+      "internalLink": link.internalLink
+    },
     "backgroundMedia": backgroundMedia {
       mediaType,
       "imageUrl": image.asset._ref,

@@ -79,6 +79,7 @@ onUnmounted(() => {
 
 <style lang="scss">
 .utils-parallax {
+  position: relative;
   overflow: hidden;
   width: 100%;
   height: 100%;

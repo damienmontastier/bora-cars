@@ -15,6 +15,7 @@ import {
   DocumentsIcon,
   CogIcon,
   EnvelopeIcon,
+  ArchiveIcon,
 } from '@sanity/icons'
 import { schemaTypes } from './schemaTypes'
 import { SUPPORTED_LANGUAGES, LOCALIZED_DOCUMENT_TYPES } from './schemaTypes/constants'
@@ -24,7 +25,7 @@ import { StudioLayout } from './components/StudioLayout'
 
 const CarIcon = () => createElement('span', null, '🚗')
 
-const SINGLETONS = new Set(['homepage', 'footer', 'menu', 'proprietaire', 'professionnel', 'contact', 'settings'])
+const SINGLETONS = new Set(['homepage', 'footer', 'menu', 'proprietaire', 'professionnel', 'contact', 'settings', 'catalogue'])
 
 const FlagIcon = (emoji: string) => () => createElement('span', { style: { fontSize: '1.2em' } }, emoji)
 
@@ -47,6 +48,8 @@ const structure = (S: any) =>
                 .child(S.document().schemaType('professionnel').documentId('professionnel')),
               S.listItem().title('Contact').id('contact').icon(EnvelopeIcon)
                 .child(S.document().schemaType('contact').documentId('contact')),
+              S.listItem().title('Catalogue').id('catalogue').icon(ArchiveIcon)
+                .child(S.document().schemaType('catalogue').documentId('catalogue')),
             ]),
         ),
       S.divider(),
@@ -74,7 +77,7 @@ const createWorkspace = ({ id: lang, title, flag }: (typeof LANGUAGES)[number]) 
     projectId: 'xyw8hnp3',
     dataset: 'production',
     plugins: [
-      linkField({ linkableSchemaTypes: ['homepage', 'proprietaire', 'professionnel', 'car', 'contact'] }),
+      linkField({ linkableSchemaTypes: ['homepage', 'proprietaire', 'professionnel', 'car', 'contact', 'catalogue'] }),
       internationalizedArray({
         languages: SUPPORTED_LANGUAGES,
         defaultLanguages: SUPPORTED_LANGUAGES.map((l) => l.id),

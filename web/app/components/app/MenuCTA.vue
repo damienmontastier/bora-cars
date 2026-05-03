@@ -74,17 +74,19 @@ const themeColors = computed(() => {
     border-color: transparent;
   }
 
-  &:hover:not(.is-open) {
-    &.app-menu-cta--white {
-      border-color: var(--c-beige-100);
-    }
+  @include hover {
+    &:hover:not(.is-open) {
+      &.app-menu-cta--white {
+        border-color: var(--c-beige-100);
+      }
 
-    &.app-menu-cta--orange {
-      border-color: var(--c-orange-100);
-    }
+      &.app-menu-cta--orange {
+        border-color: var(--c-orange-100);
+      }
 
-    &.app-menu-cta--black {
-      border-color: var(--c-black-100);
+      &.app-menu-cta--black {
+        border-color: var(--c-black-100);
+      }
     }
   }
 

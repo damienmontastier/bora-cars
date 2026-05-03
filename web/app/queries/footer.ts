@@ -18,13 +18,24 @@ export interface FooterData {
   legalLink?: SanityLink
 }
 
+const linkProjection = `{
+  "_key": _key,
+  ${i18n('label', 'text')},
+  "type": link.type,
+  "blank": link.blank,
+  "url": link.url,
+  "email": link.email,
+  "phone": link.phone,
+  "internalLink": link.internalLink
+}`
+
 export const FOOTER_QUERY = `*[_type == "footer"][0]{
   ${i18n('contactTitle')},
   "locations": locations[]->{ ${i18n('city')} },
-  contactLinks[],
+  "contactLinks": contactLinks[]${linkProjection},
   ${i18n('sitemapTitle')},
-  sitemap[],
+  "sitemap": sitemap[]${linkProjection},
   ${i18n('socialsTitle')},
-  socials[],
-  legalLink
+  "socials": socials[]${linkProjection},
+  "legalLink": legalLink${linkProjection}
 }`

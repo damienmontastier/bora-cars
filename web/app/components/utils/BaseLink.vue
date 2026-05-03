@@ -3,7 +3,9 @@
 const INTERNAL_ROUTES = {
   homepage: '/',
   proprietaire: '/proprietaire',
+  professionnel: '/professionnel',
   contact: '/contact',
+  catalogue: '/catalogue',
 }
 
 const props = defineProps({

@@ -1,4 +1,6 @@
 <script setup lang="ts">
+defineOptions({ inheritAttrs: false })
+
 const props = defineProps({
   src: {
     type: String,
@@ -18,7 +20,7 @@ const props = defineProps({
   },
   sizes: {
     type: String,
-    default: undefined,
+    default: 'sm:100vw xl:100vw',
   },
   provider: {
     type: String as () => 'sanity' | 'ipx' | undefined,
@@ -42,9 +44,22 @@ const props = defineProps({
   },
   overlayColor: {
     type: String,
-    default: 'beige',
+    default: 'orange-100',
+  },
+  parallax: {
+    type: [Boolean, Object] as unknown as () => boolean | ParallaxProps,
+    default: false,
   },
 })
+
+interface ParallaxProps {
+  speed?: number
+  scale?: number
+  position?: 'top' | 'default'
+  reversed?: boolean
+  id?: string
+  trigger?: HTMLElement | null
+}
 
 const isLoaded = ref(false)
 
@@ -61,6 +76,8 @@ const localModifiers = computed(() => ({
   ...(props.crop && { crop: props.crop }),
 }))
 
+const wrapperProps = computed(() => (!props.parallax || props.parallax === true) ? {} : props.parallax as ParallaxProps)
+
 const mainRef = useTemplateRef<HTMLElement>('mainRef')
 const pictureRef = ref<any>(null)
 
@@ -75,7 +92,31 @@ defineExpose({ mainRef, pictureRef })
 </script>
 
 <template>
-  <div ref="mainRef" class="app-elements-media">
+  <UtilsParallax v-if="props.parallax" v-bind="wrapperProps">
+    <div ref="mainRef" class="app-elements-media" v-bind="$attrs">
+      <NuxtPicture
+        v-if="hasSrc"
+        ref="pictureRef"
+        class="app-elements-media__image"
+        :src="src!"
+        :sizes="sizes"
+        :loading="loading"
+        :preload="preload"
+        :provider="resolvedProvider"
+        format="webp"
+        :alt="alt"
+        :modifiers="localModifiers"
+        @load="onLoad"
+      />
+      <ElementsMediaOverlay
+        v-if="hasSrc && overlay"
+        :loaded="isLoaded"
+        :color="overlayColor"
+      />
+      <div v-if="!hasSrc" ref="pictureRef" class="app-elements-media__fallback" />
+    </div>
+  </UtilsParallax>
+  <div v-else ref="mainRef" class="app-elements-media" v-bind="$attrs">
     <NuxtPicture
       v-if="hasSrc"
       ref="pictureRef"
@@ -95,11 +136,7 @@ defineExpose({ mainRef, pictureRef })
       :loaded="isLoaded"
       :color="overlayColor"
     />
-    <div
-      v-if="!hasSrc"
-      ref="pictureRef"
-      class="app-elements-media__fallback"
-    />
+    <div v-if="!hasSrc" ref="pictureRef" class="app-elements-media__fallback" />
   </div>
 </template>
 

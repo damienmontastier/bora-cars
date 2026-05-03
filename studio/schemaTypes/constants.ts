@@ -15,6 +15,7 @@ export const LOCALIZED_DOCUMENT_TYPES = [
   'proprietaire',
   'professionnel',
   'contact',
+  'catalogue',
   'menu',
   'footer',
   'settings',

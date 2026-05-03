@@ -7,47 +7,24 @@ export const pitchType = defineType({
   title: 'Pitch',
   type: 'object',
   icon: BlockContentIcon,
-  fieldsets: [
-    {
-      name: 'content',
-      title: 'Contenu',
-      options: { collapsible: true, collapsed: false },
-    },
-    {
-      name: 'cta',
-      title: 'Appel à l\'action',
-      options: { collapsible: true, collapsed: false },
-    },
-  ],
   fields: [
     defineField({
       name: 'eyebrow',
       title: 'Eyebrow',
       type: 'internationalizedArrayString',
-      fieldset: 'content',
       description: 'Petit texte affiché au-dessus du titre',
     }),
     defineField({
       name: 'heading',
       title: 'Titre',
       type: 'internationalizedArrayText',
-      fieldset: 'content',
       validation: (Rule) => Rule.required(),
     }),
     defineField({
       name: 'subtext',
-      title: 'Texte au-dessus du CTA (texte affiché au-dessus du CTA)',
+      title: 'Texte au-dessus du CTA',
       type: 'internationalizedArrayText',
-      description: 'Courte phrase affichée juste au-dessus du bouton. Le bouton lui-même est défini dans Paramètres → Global.',
-      fieldset: 'content',
-    }),
-
-    defineField({
-      name: 'cta',
-      title: 'Bouton',
-      type: 'customLink',
-      fieldset: 'cta',
-      options: { enableText: true },
+      description: 'Courte phrase affichée juste au-dessus du bouton. Le bouton est défini dans Paramètres → Global.',
     }),
   ],
   preview: {

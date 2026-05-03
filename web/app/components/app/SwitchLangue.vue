@@ -50,9 +50,14 @@ const themeTextColor = computed(() => ({
     opacity: 0.4;
     transition: opacity 0.35s var(--ease-out-cubic);
 
-    &:hover,
     &.is-active {
       opacity: 1;
+    }
+
+    @include hover {
+      &:hover {
+        opacity: 1;
+      }
     }
   }
 
