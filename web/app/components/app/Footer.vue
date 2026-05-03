@@ -33,7 +33,7 @@ function scrollToTop() {
 <template>
   <footer class="app-footer" :class="`--theme-${theme}`">
     <div class="app-footer__logo-section">
-      <SvgLogo :color="logoColor" class="app-footer__logo" />
+      <AppFooterLogoAnimation :color="logoColor" />
     </div>
 
     <div class="app-footer__divider" />
@@ -154,18 +154,12 @@ function scrollToTop() {
 
   &__logo-section {
     width: 100%;
-    padding: desktop-vw(16px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    height: desktop-vw(160px);
     overflow: hidden;
-  }
 
-  &__logo {
-    width: desktop-vw(792px);
-    height: auto;
-    aspect-ratio: 1408 / 214;
-    flex-shrink: 0;
+    @include mobile {
+      height: mobile-vw(80px);
+    }
   }
 
   &__divider {

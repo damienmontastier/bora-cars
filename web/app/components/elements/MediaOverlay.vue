@@ -12,7 +12,7 @@ const props = withDefaults(defineProps<{
 
 const REVEAL_S_PER_1000PX = 1.5
 const REVEAL_DURATION_MIN_S = 0.6
-const REVEAL_DURATION_MAX_S = 1.2
+const REVEAL_DURATION_MAX_S = 1
 
 const overlayRef = useTemplateRef<HTMLElement>('overlayRef')
 const isInView = ref(false)

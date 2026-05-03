@@ -155,7 +155,7 @@ onUnmounted(() => {
     flex-direction: row;
     align-items: flex-end;
     gap: desktop-vw(72px);
-    padding: desktop-vw(24px);
+    padding: desktop-vw(35px) desktop-vw(24px);
 
     .P2 {
       width: 75%;
@@ -168,14 +168,14 @@ onUnmounted(() => {
 
     .H1 {
       flex: 0 0 auto;
-      max-width: desktop-vw(945px);
+      max-width: desktop-vw(1280px);
     }
   }
 
   &__absolute {
     position: absolute;
     right: desktop-vw(24px);
-    bottom: desktop-vw(24px);
+    bottom: desktop-vw(35px);
     width: desktop-vw(310px);
     display: flex;
     flex-direction: column;
@@ -184,11 +184,11 @@ onUnmounted(() => {
 
   &__bottom {
     margin-top: desktop-vw(170px);
-    margin-bottom: desktop-vw(105px);
-    padding: desktop-vw(24px) desktop-vw(24px) desktop-vw(24px) desktop-vw(24px);
+    margin-bottom: desktop-vw(120px);
+    margin-right: desktop-vw(24px);
     display: flex;
     justify-content: flex-start;
-    margin-left: 175px;
+    margin-left: desktop-vw(175px + 24px);
 
     .H3 {
       width: 50%;
