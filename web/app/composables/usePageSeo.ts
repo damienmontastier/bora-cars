@@ -2,7 +2,7 @@ import { useSiteConfig } from '#site-config/app/composables/useSiteConfig'
 import type { SeoData } from '~/queries/fragments'
 
 export function usePageSeo(seo: Ref<SeoData | undefined>) {
-  const { name: siteName, separator } = useSiteConfig()
+  const { name: siteName, separator, description: siteDescription } = useSiteConfig()
 
   const fullTitle = computed(() => {
     const pageTitle = seo.value?.title
@@ -13,12 +13,16 @@ export function usePageSeo(seo: Ref<SeoData | undefined>) {
 
   useSeoMeta({
     title: () => seo.value?.title || undefined,
-    description: () => seo.value?.description || undefined,
-    ogTitle: () => fullTitle.value,
-    ogDescription: () => seo.value?.description || undefined,
-    ogImage: () => seo.value?.image || undefined,
+    description: () => seo.value?.description || siteDescription || undefined,
+    ogImage: () => seo.value?.image || '/og-bora-cars.jpg',
     twitterTitle: () => fullTitle.value,
-    twitterDescription: () => seo.value?.description || undefined,
-    twitterImage: () => seo.value?.image || undefined,
   })
+  // og:title, og:description, twitter:description, twitter:image → auto-inférés (automaticOgAndTwitterTags)
+
+  useSchemaOrg([
+    defineWebPage({
+      name: () => seo.value?.title ?? undefined,
+      description: () => seo.value?.description || siteDescription || undefined,
+    }),
+  ])
 }

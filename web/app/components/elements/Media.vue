@@ -36,6 +36,14 @@ const props = defineProps({
     type: Object,
     default: undefined,
   },
+  overlay: {
+    type: Boolean,
+    default: true,
+  },
+  overlayColor: {
+    type: String,
+    default: 'beige',
+  },
 })
 
 const isLoaded = ref(false)
@@ -80,12 +88,15 @@ defineExpose({ mainRef, pictureRef })
       format="webp"
       :alt="alt"
       :modifiers="localModifiers"
-      :class="{ 'not-loaded': !isLoaded }"
       @load="onLoad"
     />
-
+    <ElementsMediaOverlay
+      v-if="hasSrc && overlay"
+      :loaded="isLoaded"
+      :color="overlayColor"
+    />
     <div
-      v-else
+      v-if="!hasSrc"
       ref="pictureRef"
       class="app-elements-media__fallback"
     />
@@ -109,7 +120,6 @@ defineExpose({ mainRef, pictureRef })
 
   &__image {
     position: relative;
-    background-color: var(--c-orange-10);
 
     :deep(picture),
     :deep(img) {
@@ -119,48 +129,14 @@ defineExpose({ mainRef, pictureRef })
     }
 
     :deep(img) {
-      opacity: 1;
-      transition: opacity 0.35s ease-out;
       object-fit: cover;
-    }
-
-    &::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      z-index: 2;
-      background: linear-gradient(90deg, var(--c-orange-10) 0%, var(--c-orange-20) 50%, var(--c-orange-10) 100%);
-      background-size: 200% 100%;
-      opacity: 0;
-      transition: opacity 0.35s ease-out;
-      pointer-events: none;
-    }
-
-    &.not-loaded {
-      :deep(img) {
-        opacity: 0;
-      }
-
-      &::after {
-        opacity: 1;
-        animation: media-skeleton 1.5s infinite linear;
-      }
     }
   }
 
   &__fallback {
     width: 100%;
     height: 100%;
-    background: var(--c-orange-10);
-  }
-
-  @keyframes media-skeleton {
-    0% {
-      background-position: 200% 0;
-    }
-    100% {
-      background-position: -200% 0;
-    }
+    background: var(--c-beige);
   }
 }
 </style>

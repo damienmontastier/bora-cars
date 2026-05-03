@@ -49,11 +49,15 @@ Single Pinia store `useAppStore()`:
   fontsLoaded: boolean,
   preloaderDone: boolean,
   menuTheme: 'white' | 'orange' | 'black',
+  menuThemePending: 'white' | 'orange' | 'black',  // buffered during page transition
+  menuTransitioning: boolean,                        // true during leave → enter
   menuOpen: boolean,
   menuAnimating: boolean,
 }
 ```
 `app.vue` watches `useFontsReady()` and sets `fontsLoaded` when fonts are ready.
+
+`menuThemePending` is the value set by `v-menu-theme` during scroll; it is only flushed to `menuTheme` when `menuTransitioning` is false (i.e. outside page transitions). During a page transition `app.vue` sets `menuTransitioning = true` on leave and restores + commits the pending theme on before-enter.
 
 ### Routing & i18n
 
@@ -109,6 +113,9 @@ Grid system (CSS vars): `--layout-columns-count`, `--layout-columns-gap`, `--lay
 | `useSettings.ts` | Global settings via `useState`, fetched once in `app.vue` |
 | `useVideoReady.ts` | Waits for video element to reach ready state |
 | `useMenuCtaSync.js` | Shared rect sync object between `AppMenu` and `ElementsHero` CTA (GSAP Flip morph) |
+| `usePageSeo.ts` | Per-page SEO via `@nuxtjs/seo` — call with a `Ref<SeoData \| undefined>` from the Sanity query result. Sets `title`, `description`, `ogImage`, `twitterTitle`. Global fallback description/image is set in `app.vue`. |
+| `useSplitTextAnimation.ts` | GSAP SplitText scroll animation. Accepts a named preset from `TEXT_ANIMATION_CONFIG` plus override options for `split`, `from`, `to`, `scrollTrigger`. Initialises after `fontsLoaded` and on SPA mount. Exposes `{ init }` for manual re-runs. Dev-only Tweakpane pane when `debug: true`. |
+| `useIntersectionDebug.ts` | Dev-only IntersectionObserver visualiser — overlays a dashed border + badge on the target element, logs every intersection event. No-op in production. Options: `label`, `rootMargin`, `threshold`, `color`, `offColor`, `enabled`. |
 
 ### Directives — `app/directives/`
 
@@ -124,9 +131,15 @@ GROQ query strings alongside TypeScript interfaces. Convention:
 - Query consts: `UPPERCASE_QUERY`
 - Type interfaces: `*Data` suffix
 
-Files: `fragments.ts`, `menu.ts`, `settings.ts`, `home.ts`, `proprietaire.ts`, `professionnel.ts`.
+Files: `fragments.ts`, `menu.ts`, `settings.ts`, `home.ts`, `proprietaire.ts`, `professionnel.ts`, `contact.ts`, `modules.ts`.
 
 Key shared types in `fragments.ts`: `SanityImage`, `SanityLink` (type: external | email | phone | internal).
+
+**`modules.ts`** — centralises all page-module types and GROQ projections:
+- `PageModule` union type covering all module `_type` variants: `hero`, `serviceCards`, `pitch`, `process`, `brandsSection`, `fullscreenMarquee`, `servicePitch`, `title`, `textBlock`, `faq`, `cardsColumn`, `testimonials`
+- `MODULES_PROJECTION` — reusable GROQ fragment, include in any page query to get `modules[]` with all variants projected and localised
+- `HERO_PROJECTION` / `CAR_LABEL_PROJECTION` — sub-fragments also exported for direct use
+- `HeroData` supports `variant: 'variant-1' | 'variant-2' | 'variant-3'` (maps to `ElementsHero1/2/3`)
 
 ### Utils — `app/utils/index.ts`
 
@@ -142,14 +155,16 @@ Sanity: `sanityUrlToAssetId()` — convert CDN URL to asset ID for `@nuxt/image`
 
 - `CAMERA_CONFIG.ts` — Three.js/TresJS camera presets (`default`, `blank`)
 - `SCENE_CONFIG.ts` — TresJS scene config (routeName, cameraType)
+- `TEXT_ANIMATION_CONFIG.ts` — 22 named GSAP SplitText animation presets (`TextAnimationStyle`). Each preset defines `split` (SplitText type/mask), `from`/`to` tween vars, `scrollTrigger` defaults, optional `prepare` (e.g. set perspective), and optional full `animate` override. Used exclusively by `useSplitTextAnimation`. Available styles: `slide-x`, `slide-y`, `scatter-in`, `stretch-up`, `scale-y-top`, `converge`, `explode`, `flip-x`, `flip-side`, `scramble`, `scale-center`, `blur-in`, `slide-left-twist`, `flip-3d`, `word-fade`, `tumble-3d`, `depth-in`, `pivot-top`, `pivot-bottom`, `dive-in`, `helix`, `scale-fan`, `wave-drop`, `pin-scale-y`, `word-zoom`, `blur-scale`, `corner-scale`.
 
 ### Pages — `app/pages/`
 
 - `index.vue` — Homepage (Hero → ServiceCards → Pitch → ProcessSteps → BrandsSection → Footer)
 - `proprietaire.vue` — Owner page
 - `professionnel.vue` — Professional/business page
+- `contact.vue` — Contact page (WIP)
 
-All pages use `useSanityQuery<T>(QUERY)` to fetch from Sanity.
+All pages use `useSanityQuery<T>(QUERY)` to fetch from Sanity and call `usePageSeo(computed(() => page.value?.seo))` for per-page SEO.
 
 ### Debug tooling (Tweakpane)
 
@@ -158,6 +173,36 @@ Use `usePaneFolder(pane, options)` composable to add a folder to the debug pane.
 ---
 
 ## Key Components
+
+### ElementsMedia (`app/components/elements/Media.vue`)
+
+Wrapper around `NuxtPicture` with loading overlay support.
+
+**Props:**
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `src` | String | — | Image source (Sanity asset ref or URL) |
+| `alt` | String | `''` | Alt text |
+| `lazy` | Boolean | `true` | `loading="lazy"` vs `eager` |
+| `preload` | Boolean\|Object | `false` | Preload hint (`{ fetchPriority }`) |
+| `sizes` | String | — | Responsive sizes string |
+| `provider` | `'sanity'`\|`'ipx'`\|undefined | — | Nuxt Image provider |
+| `hotspot` | Object | — | Sanity hotspot `{ x, y, width, height }` |
+| `crop` | Object | — | Sanity crop `{ top, bottom, left, right }` |
+| `modifiers` | Object | — | Extra Nuxt Image modifiers |
+| `overlay` | Boolean | `true` | Show reveal overlay (disable for non-animated contexts) |
+| `overlayColor` | String | `'beige'` | CSS color token name for the overlay |
+
+Exposes `{ mainRef, pictureRef }`. Detects `img.complete` on mount to skip the reveal animation for cached images.
+
+### ElementsMediaOverlay (`app/components/elements/MediaOverlay.vue`)
+
+Reveal overlay used inside `ElementsMedia`. Scales down (`scaleY: 1 → 0`, origin bottom) when both `loaded` and in-view. Shows a shimmer sweep while loading.
+
+**Props:** `loaded: boolean`, `threshold?: number` (IO threshold, default 0.1), `color?: string` (CSS token, default `'beige'`), `borderRadius?: string`.
+
+Reveal duration scales with element height: `height / 1000 * 1.5s`, clamped to `[0.7s, 1.6s]`.
 
 ### ElementsMarquee (`app/components/elements/Marquee.vue`)
 
@@ -247,8 +292,9 @@ ctx?.revert()
 
 ## Nuxt config highlights (`web/nuxt.config.ts`)
 
-- Modules: `@nuxt/eslint`, `@nuxt/image`, `@nuxt/fonts`, `@vueuse/nuxt`, `@pinia/nuxt`, `@nuxtjs/i18n`, `@nuxtjs/sanity`, `lenis/nuxt`
+- Modules: `@nuxt/eslint`, `@nuxt/image`, `@nuxt/fonts`, `@vueuse/nuxt`, `@pinia/nuxt`, `@nuxtjs/seo`, `@nuxtjs/i18n`, `@nuxtjs/sanity`, `lenis/nuxt`
 - Fonts: Lora (400), HaasGrotDispMedium (600), HaasGrotDispRegular (400)
-- Image: avif/webp, Sanity provider, breakpoints: 800, 1280, 1440, 1920
+- Image: avif/webp, Sanity provider + Netlify/ipxStatic/ipx based on env, breakpoints: 800, 1280, 1440, 1920
+- SEO (`@nuxtjs/seo`): `site.name = 'BORA CARS'`, `site.separator = '—'`, `site.indexable = false`. `ogImage` disabled. `schemaOrg` identity set to Organization. Per-page SEO via `usePageSeo()`. Global fallback description/image in `app.vue` via `useSeoMeta`.
 - SCSS `additionalData`: auto-injects `_variables`, `_mixins`, `_functions`, `_layout`
 - Vue version: 3.5.17, Nuxt: 4.4.2

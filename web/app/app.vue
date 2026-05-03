@@ -39,24 +39,28 @@ const [{ data: menu }, settingsData] = await Promise.all([
 
 settings.value = settingsData
 
+const { description: siteDescription, url: siteUrl } = useSiteConfig()
+
 useSeoMeta({
-  ogSiteName: 'BORA CARS',
-  description: () => settings.value?.seo?.description ?? undefined,
-  ogDescription: () => settings.value?.seo?.description ?? undefined,
-  ogImage: () => settings.value?.seo?.image ?? undefined,
+  description: () => settings.value?.seo?.description || siteDescription || undefined,
+  ogImage: () => settings.value?.seo?.image || '/og-bora-cars.jpg',
   twitterCard: 'summary_large_image',
 })
+// og:site_name → auto via site.name (nuxt-seo-utils automaticDefaults)
+// og:description, twitter:* → auto-inférés depuis description (automaticOgAndTwitterTags)
 
-// useSchemaOrg([
-//   defineOrganization({
-//     name: 'BORA CARS',
-//     logo: '/favicon.svg',
-//   }),
-//   defineWebSite({
-//     name: () => settings.value?.seo?.title ?? 'BORA CARS',
-//     description: () => settings.value?.seo?.description ?? '',
-//   }),
-// ])
+useSchemaOrg([
+  defineOrganization({
+    name: 'BORA CARS',
+    url: siteUrl,
+    logo: `${siteUrl}/favicon.svg`,
+  }),
+  defineWebSite({
+    name: () => settings.value?.seo?.title ?? 'BORA CARS',
+    description: () => settings.value?.seo?.description ?? siteDescription ?? '',
+    url: siteUrl,
+  }),
+])
 
 const i18nHead = useLocaleHead()
 useHead(() => ({

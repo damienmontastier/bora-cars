@@ -76,7 +76,7 @@ export default defineNuxtConfig({
   site: {
     url: process.env.NUXT_SITE_URL ?? 'https://bora-cars.netlify.app',
     name: 'BORA CARS',
-    description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Chez BORA CARS, nous vous accompagnons dans tous vos projets mobilité avec des solutions premium adaptées à vos besoins.',
+    description: 'Chez BORA CARS, nous vous accompagnons dans tous vos projets mobilité avec des solutions premium adaptées à vos besoins.',
     defaultLocale: DEFAULT_LANGUAGE,
     separator: '—',
     indexable: false,
@@ -119,20 +119,23 @@ export default defineNuxtConfig({
     families: [
       {
         name: 'Lora',
-        src: '/fonts/Lora-Regular.woff2',
+        provider: 'local',
         weight: 400,
+        display: 'swap',
         global: true,
       },
       {
         name: 'HaasGrotDispMedium',
-        src: '/fonts/HaasGrotDispMedium.woff2',
+        provider: 'local',
         weight: 600,
+        display: 'swap',
         global: true,
       },
       {
         name: 'HaasGrotDispRegular',
-        src: '/fonts/HaasGrotDispRegular.woff2',
+        provider: 'local',
         weight: 400,
+        display: 'swap',
         global: true,
       },
     ],
