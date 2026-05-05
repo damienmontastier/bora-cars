@@ -3,10 +3,12 @@ import { seoFields, type SeoData } from './fragments'
 
 export interface SettingsData {
   contactLink?: SanityLink
+  fallbackTitle?: string
   seo?: SeoData
 }
 
 export const SETTINGS_QUERY = `*[_type == "settings"][0]{
   contactLink{ type, text, url, email, phone },
+  fallbackTitle,
   ${seoFields()}
 }`

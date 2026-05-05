@@ -1,7 +1,7 @@
 <script lang="ts" setup>
+import type { CatalogueCar, CatalogueData } from '~/queries/catalogue'
 import { useInfiniteScroll } from '@vueuse/core'
-import type { CatalogueData, CatalogueCar } from '~/queries/catalogue'
-import { CATALOGUE_QUERY, CATALOGUE_CARS_QUERY, CATALOGUE_LIMIT } from '~/queries/catalogue'
+import { CATALOGUE_CARS_QUERY, CATALOGUE_LIMIT, CATALOGUE_QUERY } from '~/queries/catalogue'
 
 const lang = useSanityLang()
 const sanity = useSanity()
@@ -133,8 +133,12 @@ usePageSeo(computed(() => page.value?.seo))
     background: var(--c-orange);
     animation: catalogue-dot-pulse 1.2s ease-in-out infinite;
 
-    &:nth-child(2) { animation-delay: 0.2s; }
-    &:nth-child(3) { animation-delay: 0.4s; }
+    &:nth-child(2) {
+      animation-delay: 0.2s;
+    }
+    &:nth-child(3) {
+      animation-delay: 0.4s;
+    }
 
     @include mobile {
       width: mobile-vw(8px);
@@ -144,7 +148,15 @@ usePageSeo(computed(() => page.value?.seo))
 }
 
 @keyframes catalogue-dot-pulse {
-  0%, 80%, 100% { opacity: 0.2; transform: scale(0.8); }
-  40% { opacity: 1; transform: scale(1); }
+  0%,
+  80%,
+  100% {
+    opacity: 0.2;
+    transform: scale(0.8);
+  }
+  40% {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 </style>

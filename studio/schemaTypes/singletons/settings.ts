@@ -22,6 +22,12 @@ export const settingsType = defineType({
       description: 'Utilisé pour tous les boutons "Contact" du site',
       options: { enableText: true },
     }),
+    defineField({
+      name: 'fallbackTitle',
+      title: 'Fallback title',
+      type: 'string',
+      group: 'seo',
+    }),
     seoType,
   ],
   preview: {

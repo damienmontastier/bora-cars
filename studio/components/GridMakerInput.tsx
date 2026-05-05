@@ -84,6 +84,7 @@ function GridCard({ card, imageUrl }: { card: CardValue; imageUrl?: string }) {
   const typeLabel = TYPE_LABEL[card.cardType ?? 'xl']
   const categoryLabel = pickLocalized(card.categoryLabel)
   const subtitle = pickLocalized(card.subtitle)
+  const shortKey = card._key?.slice(0, 8)
   return (
     <div
       style={{
@@ -122,18 +123,39 @@ function GridCard({ card, imageUrl }: { card: CardValue; imageUrl?: string }) {
             position: 'absolute',
             top: 8,
             left: 8,
-            background: 'rgba(0,0,0,0.5)',
-            backdropFilter: 'blur(4px)',
-            color: 'rgba(255,255,255,0.9)',
-            fontSize: 9,
-            fontFamily: 'monospace',
-            fontWeight: 700,
-            letterSpacing: '0.1em',
-            padding: '2px 6px',
-            borderRadius: 3,
+            display: 'flex',
+            gap: 4,
           }}
         >
-          {typeLabel}
+          <div
+            style={{
+              background: 'rgba(0,0,0,0.5)',
+              backdropFilter: 'blur(4px)',
+              color: 'rgba(255,255,255,0.9)',
+              fontSize: 9,
+              fontFamily: 'monospace',
+              fontWeight: 700,
+              letterSpacing: '0.1em',
+              padding: '2px 6px',
+              borderRadius: 3,
+            }}
+          >
+            {typeLabel}
+          </div>
+          <div
+            style={{
+              background: 'rgba(0,0,0,0.4)',
+              backdropFilter: 'blur(4px)',
+              color: 'rgba(255,255,255,0.5)',
+              fontSize: 9,
+              fontFamily: 'monospace',
+              letterSpacing: '0.05em',
+              padding: '2px 6px',
+              borderRadius: 3,
+            }}
+          >
+            {shortKey}
+          </div>
         </div>
       </div>
 
@@ -373,7 +395,7 @@ function GridMakerInner({
               borderRadius: 3,
             }}
           >
-            {TYPE_LABEL[card.cardType ?? 'xl']} · {pickLocalized(card.categoryLabel) || '—'}
+            {TYPE_LABEL[card.cardType ?? 'xl']} · {pickLocalized(card.categoryLabel) || '—'}{pickLocalized(card.subtitle) ? ` — ${pickLocalized(card.subtitle)}` : ''}
           </span>
         ))}
       </div>
