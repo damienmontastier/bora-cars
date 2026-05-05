@@ -91,8 +91,8 @@ export default defineNuxtConfig({
   },
 
   sitemap: process.env.NUXT_PUBLIC_IS_PROD === 'true'
-    // En prod (under construction) : sitemap minimal avec juste la homepage
-    ? { excludeAppSources: true, urls: [{ loc: '/' }] }
+    // En prod (under construction) : sitemap minimal avec juste la homepage (toutes les locales via _i18nTransform)
+    ? { excludeAppSources: true, urls: [{ loc: '/', _i18nTransform: true }] }
     : { sources: ['/api/__sitemap__/urls'] },
 
   ogImage: { enabled: false },
