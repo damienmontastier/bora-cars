@@ -27,6 +27,8 @@ const CarIcon = () => createElement('span', null, '🚗')
 
 const SINGLETONS = new Set(['homepage', 'footer', 'menu', 'proprietaire', 'professionnel', 'contact', 'settings', 'catalogue'])
 
+const sharedAuth = { loginMethod: 'dual' as const }
+
 const FlagIcon = (emoji: string) => () => createElement('span', { style: { fontSize: '1.2em' } }, emoji)
 
 const structure = (S: any) =>
@@ -76,6 +78,7 @@ const createWorkspace = ({ id: lang, title, flag }: (typeof LANGUAGES)[number]) 
     icon: FlagIcon(flag),
     projectId: 'xyw8hnp3',
     dataset: 'production',
+    auth: sharedAuth,
     plugins: [
       linkField({ linkableSchemaTypes: ['homepage', 'proprietaire', 'professionnel', 'car', 'contact', 'catalogue'] }),
       internationalizedArray({

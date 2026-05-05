@@ -56,7 +56,7 @@ usePageSeo(computed(() => page.value?.seo))
   <main v-menu-theme="'orange'" class="page-catalogue">
     <div class="page-catalogue__header">
       <TextsH1 v-if="page?.title" class="page-catalogue__title">
-        {{ page.title }} d
+        {{ page.title }}
       </TextsH1>
     </div>
 
