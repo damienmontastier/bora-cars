@@ -3,10 +3,10 @@ import { Pane } from 'tweakpane'
 import { nextTick } from 'vue'
 
 export default defineNuxtPlugin((nuxtApp) => {
-  // const config = useRuntimeConfig()
+  const config = useRuntimeConfig()
 
-  // if (config.public.IS_FTP)
-  //   return
+  if (config.public.IS_PROD)
+    return
 
   let container = document.getElementById('app-debug-pane')
   container = document.createElement('div')

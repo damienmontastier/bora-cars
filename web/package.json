@@ -6,6 +6,7 @@
     "build": "nuxt build",
     "dev": "nuxt dev --host 0.0.0.0 --dotenv .env",
     "generate": "nuxt generate --dotenv .env",
+    "generate:prod": "nuxt generate --dotenv .env.prod",
     "generate:ftp": "nuxt generate --dotenv .env.ftp",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",

@@ -40,8 +40,10 @@ const [{ data: menu }, settingsData] = await Promise.all([
 settings.value = settingsData
 
 const { url: siteUrl } = useSiteConfig()
+const { IS_PROD } = useRuntimeConfig().public
 
 useSeoMeta({
+  title: () => settings.value?.fallbackTitle ?? 'BORA CARS',
   description: () => settings.value?.seo?.description || t('seo.description'),
   ogImage: () => settings.value?.seo?.image || '/og-bora-cars.jpg',
   twitterCard: 'summary_large_image',
@@ -57,7 +59,7 @@ useSchemaOrg([
     sameAs: ['https://www.google.com/search?kgmid=/g/11yp0wsnj5'],
   }),
   defineWebSite({
-    name: () => settings.value?.seo?.title ?? 'BORA CARS',
+    name: () => settings.value?.fallbackTitle ?? 'BORA CARS',
     description: () => settings.value?.seo?.description || t('seo.description'),
     url: siteUrl,
   }),
@@ -98,26 +100,30 @@ const pageTransition = {
 
 <template>
   <div id="app" class="app">
-    <AppLenis />
+    <AppUnderConstruction v-if="IS_PROD" />
 
-    <!-- <AppPreloader /> -->
-    <AppMenu :data="menu" />
+    <template v-else>
+      <AppLenis />
 
-    <AppOverlay />
+      <!-- <AppPreloader /> -->
+      <AppMenu :data="menu" />
 
-    <AppTransition ref="transitionRef" />
+      <AppOverlay />
 
-    <!-- <DevOnly>
-      <AppMenuDev />
-    </DevOnly> -->
+      <AppTransition ref="transitionRef" />
 
-    <div id="app-page" class="app-page">
-      <NuxtPage :transition="pageTransition" />
-    </div>
+      <!-- <DevOnly>
+        <AppMenuDev />
+      </DevOnly> -->
 
-    <DevOnly>
-      <DebugPatrol />
-    </DevOnly>
+      <div id="app-page" class="app-page">
+        <NuxtPage :transition="pageTransition" />
+      </div>
+
+      <DevOnly>
+        <DebugPatrol />
+      </DevOnly>
+    </template>
   </div>
 </template>
 

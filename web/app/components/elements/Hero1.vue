@@ -26,6 +26,81 @@ const mainRef = useTemplateRef('mainRef')
 const bottomRef = useTemplateRef('bottomRef')
 const headingRef = useTemplateRef<{ $el: HTMLElement }>('headingRef')
 const taglineRef = useTemplateRef<{ $el: HTMLElement }>('taglineRef')
+const logoRef = useTemplateRef<{ $el: HTMLElement }>('logoRef')
+
+// DrawSVG animation state
+let drawCtx: gsap.Context | null = null
+
+const drawParams = reactive({
+  duration: 2.5,
+  ease: 'power2.inOut',
+  delay: 0.3,
+  strokeWidth: 1,
+  fillDuration: 0.6,
+  overlap: 0.15,
+})
+
+function initDrawLogo() {
+  const path = logoRef.value?.$el?.querySelector<SVGPathElement>('path')
+  if (!path) return
+
+  drawCtx?.revert()
+
+  drawCtx = gsap.context(() => {
+    const colorVar = `--c-${logoColor.value}`
+    const strokeColor = getComputedStyle(document.documentElement).getPropertyValue(colorVar).trim() || '#fff'
+
+    gsap.set(path, {
+      fillOpacity: 0,
+      strokeOpacity: 1,
+      stroke: strokeColor,
+      strokeWidth: drawParams.strokeWidth,
+      drawSVG: '0%',
+    })
+
+    gsap.timeline({ delay: drawParams.delay })
+      .to(path, {
+        drawSVG: '100%',
+        duration: drawParams.duration,
+        ease: drawParams.ease,
+      })
+      .to(path, {
+        fillOpacity: 1,
+        strokeOpacity: 0,
+        duration: drawParams.fillDuration,
+      }, `>-=${drawParams.overlap}`)
+  })
+}
+
+if (import.meta.dev) {
+  onMounted(() => {
+    const { $pane } = useNuxtApp()
+    const folder = usePaneFolder($pane, { title: 'Logo DrawSVG' })
+
+    folder.addBinding(drawParams, 'duration', { label: 'Draw Duration', min: 0.1, max: 6, step: 0.1 })
+    folder.addBinding(drawParams, 'ease', {
+      label: 'Ease',
+      options: {
+        'none': 'none',
+        'power1.inOut': 'power1.inOut',
+        'power2.inOut': 'power2.inOut',
+        'power3.inOut': 'power3.inOut',
+        'power4.inOut': 'power4.inOut',
+        'power1.in': 'power1.in',
+        'power2.in': 'power2.in',
+        'power3.in': 'power3.in',
+        'elastic.out(1, 0.5)': 'elastic.out(1, 0.5)',
+        'sine.inOut': 'sine.inOut',
+        'circ.inOut': 'circ.inOut',
+      },
+    })
+    folder.addBinding(drawParams, 'delay', { label: 'Delay', min: 0, max: 3, step: 0.05 })
+    folder.addBinding(drawParams, 'strokeWidth', { label: 'Stroke Width', min: 0.2, max: 8, step: 0.1 })
+    folder.addBinding(drawParams, 'fillDuration', { label: 'Fill Duration', min: 0, max: 2, step: 0.05 })
+    folder.addBinding(drawParams, 'overlap', { label: 'Fill Overlap', min: 0, max: 1, step: 0.05 })
+    folder.addButton({ title: '▶ Replay' }).on('click', initDrawLogo)
+  })
+}
 
 useSplitTextAnimation(() => headingRef.value?.$el, {
   style: 'slide-x',
@@ -204,12 +279,15 @@ onMounted(() => {
       ScrollTrigger.removeEventListener('refresh', onResize)
     }
   }, mainRef.value as HTMLElement)
+
+  initDrawLogo()
 })
 
 onUnmounted(() => {
   currentAnim?.kill()
   clone?.remove()
   ctx?.revert()
+  drawCtx?.revert()
 })
 </script>
 
@@ -249,7 +327,7 @@ onUnmounted(() => {
 
     <div class="app-elements-hero-1__content">
       <div class="app-elements-hero-1__top">
-        <SvgLogo :color="logoColor" class="app-elements-hero-1__logo" />
+        <SvgLogo ref="logoRef" :color="logoColor" class="app-elements-hero-1__logo" />
       </div>
 
       <div class="app-elements-hero-1__middle">

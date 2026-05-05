@@ -200,11 +200,14 @@ export const carType = defineType({
     }),
   ],
   preview: {
-    select: { marque: 'marque', modele: 'modele' },
-    prepare({ marque, modele }) {
+    select: { marque: 'marque', modele: 'modele', media: 'image' },
+    prepare({ marque, modele, media }) {
       const pickFr = (v: { language: string, value: string }[] | string | undefined) =>
         Array.isArray(v) ? (v.find((x) => x.language === 'fr')?.value ?? v[0]?.value ?? '') : (v ?? '')
-      return { title: [pickFr(marque as never), pickFr(modele as never)].filter(Boolean).join(' ') }
+      return {
+        title: [pickFr(marque as never), pickFr(modele as never)].filter(Boolean).join(' '),
+        media,
+      }
     },
   },
 })

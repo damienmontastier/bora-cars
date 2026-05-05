@@ -144,6 +144,7 @@ export default defineNuxtConfig({
   runtimeConfig: {
     public: {
       IS_FTP: process.env.NUXT_PUBLIC_IS_FTP === 'true',
+      IS_PROD: process.env.NUXT_PUBLIC_IS_PROD === 'true',
     },
   },
 

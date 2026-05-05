@@ -1,5 +1,9 @@
 {
   "seo": {
     "description": "BORA CARS, votre partenaire mobilité premium. Rachat, vente et gestion de véhicules haut de gamme adaptées à vos besoins."
+  },
+  "underConstruction": {
+    "label": "Bientôt en ligne",
+    "title": "Coming Soon"
   }
 }
