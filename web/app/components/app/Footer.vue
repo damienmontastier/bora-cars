@@ -32,27 +32,61 @@ function scrollToTop() {
 
 <template>
   <footer class="app-footer" :class="`--theme-${theme}`">
-    <div class="app-footer__logo-section">
-      <AppFooterLogoAnimation :color="logoColor" />
-    </div>
+    <div class="app-footer__wrapper">
+      <div class="app-footer__logo-section">
+        <AppFooterLogoAnimation :color="logoColor" />
+      </div>
 
-    <div class="app-footer__divider" />
+      <div class="app-footer__divider" />
 
-    <div class="app-footer__content">
-      <div class="app-footer__columns">
-        <!-- Contact -->
-        <div class="app-footer__column">
-          <span class="app-footer__column-title P2">{{ footer?.contactTitle }}</span>
-          <div class="app-footer__column-items">
-            <div v-if="footer?.locations?.length" class="app-footer__cities">
-              <template v-for="(loc, i) in footer.locations" :key="loc.city">
-                <span class="app-footer__city CTA-TEXT">{{ loc.city }}</span>
-                <span v-if="i < footer.locations.length - 1" class="app-footer__city-separator" />
-              </template>
+      <div class="app-footer__content">
+        <div class="app-footer__columns">
+          <!-- Contact -->
+          <div class="app-footer__column">
+            <span class="app-footer__column-title P2">{{ footer?.contactTitle }}</span>
+            <div class="app-footer__column-items">
+              <div v-if="footer?.locations?.length" class="app-footer__cities">
+                <template v-for="(loc, i) in footer.locations" :key="loc.city">
+                  <span class="app-footer__city CTA-TEXT">{{ loc.city }}</span>
+                  <span v-if="i < footer.locations.length - 1" class="app-footer__city-separator" />
+                </template>
+              </div>
+              <div v-if="footer?.contactLinks?.length" class="app-footer__contact-info">
+                <AtomsCTASecondary
+                  v-for="link in footer.contactLinks"
+                  :key="link._key"
+                  :theme="ctaTheme"
+                  :to="link"
+                  class="app-footer__link CTA-TEXT"
+                >
+                  {{ link.text }}
+                </AtomsCTASecondary>
+              </div>
             </div>
-            <div v-if="footer?.contactLinks?.length" class="app-footer__contact-info">
+          </div>
+
+          <!-- Sitemap -->
+          <div class="app-footer__column">
+            <span class="app-footer__column-title P2">{{ footer?.sitemapTitle }}</span>
+            <div class="app-footer__column-items">
               <AtomsCTASecondary
-                v-for="link in footer.contactLinks"
+                v-for="link in footer?.sitemap"
+                :key="link._key"
+                :theme="ctaTheme"
+                :to="link"
+                class="app-footer__link CTA-TEXT"
+              >
+                {{ link.text }}
+              </AtomsCTASecondary>
+            </div>
+          </div>
+
+          <!-- Socials -->
+          <div class="app-footer__column">
+            <span class="app-footer__column-title P2">{{ footer?.socialsTitle }}</span>
+            <div class="app-footer__column-items">
+              <AtomsCTASecondary
+                v-for="link in footer?.socials"
                 :key="link._key"
                 :theme="ctaTheme"
                 :to="link"
@@ -63,57 +97,25 @@ function scrollToTop() {
             </div>
           </div>
         </div>
-
-        <!-- Sitemap -->
-        <div class="app-footer__column">
-          <span class="app-footer__column-title P2">{{ footer?.sitemapTitle }}</span>
-          <div class="app-footer__column-items">
-            <AtomsCTASecondary
-              v-for="link in footer?.sitemap"
-              :key="link._key"
-              :theme="ctaTheme"
-              :to="link"
-              class="app-footer__link CTA-TEXT"
-            >
-              {{ link.text }}
-            </AtomsCTASecondary>
-          </div>
-        </div>
-
-        <!-- Socials -->
-        <div class="app-footer__column">
-          <span class="app-footer__column-title P2">{{ footer?.socialsTitle }}</span>
-          <div class="app-footer__column-items">
-            <AtomsCTASecondary
-              v-for="link in footer?.socials"
-              :key="link._key"
-              :theme="ctaTheme"
-              :to="link"
-              class="app-footer__link CTA-TEXT"
-            >
-              {{ link.text }}
-            </AtomsCTASecondary>
-          </div>
-        </div>
       </div>
-    </div>
 
-    <div class="app-footer__bottom">
-      <span class="app-footer__copyright CTA-TEXT">© Bora Cars {{ currentYear }}</span>
+      <div class="app-footer__bottom">
+        <span class="app-footer__copyright CTA-TEXT">© Bora Cars {{ currentYear }}</span>
 
-      <AppSwitchLangue :theme="ctaTheme" />
+        <AppSwitchLangue :theme="ctaTheme" />
 
-      <AtomsCTASecondary
-        v-if="footer?.legalLink?.text"
-        :theme="ctaTheme"
-        :to="footer.legalLink"
-        class="app-footer__link CTA-TEXT"
-      >
-        {{ footer.legalLink.text }}
-      </AtomsCTASecondary>
-      <AtomsCTASecondary :theme="ctaTheme" class="app-footer__link CTA-TEXT" @click="scrollToTop">
-        Back to top
-      </AtomsCTASecondary>
+        <AtomsCTASecondary
+          v-if="footer?.legalLink?.text"
+          :theme="ctaTheme"
+          :to="footer.legalLink"
+          class="app-footer__link CTA-TEXT"
+        >
+          {{ footer.legalLink.text }}
+        </AtomsCTASecondary>
+        <AtomsCTASecondary :theme="ctaTheme" class="app-footer__link CTA-TEXT" @click="scrollToTop">
+          Back to top
+        </AtomsCTASecondary>
+      </div>
     </div>
   </footer>
 </template>
@@ -125,6 +127,14 @@ function scrollToTop() {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+  overflow: hidden;
+
+  &__wrapper {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
 
   &.--theme-black {
     background-color: var(--c-black-100);

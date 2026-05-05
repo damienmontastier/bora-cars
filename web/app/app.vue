@@ -48,10 +48,10 @@ useHead({
 
 useSeoMeta({
   title: () => settings.value?.fallbackTitle ?? 'BORA CARS',
-  description: () => settings.value?.seo?.description || t('seo.description'),
+  description: () => (settings.value?.seo?.description || t('seo.description')).trim(),
   ogImage: () => settings.value?.seo?.image || `${siteUrl}/og-bora-cars.jpg`,
   twitterTitle: () => settings.value?.fallbackTitle ?? 'BORA CARS',
-  twitterDescription: () => settings.value?.seo?.description || t('seo.description'),
+  twitterDescription: () => (settings.value?.seo?.description || t('seo.description')).trim(),
   twitterImage: () => settings.value?.seo?.image || `${siteUrl}/og-bora-cars.jpg`,
   twitterCard: 'summary_large_image',
 })
@@ -61,7 +61,7 @@ useSeoMeta({
 useSchemaOrg([
   defineWebSite({
     name: siteName,
-    description: () => settings.value?.seo?.description || t('seo.description'),
+    description: () => (settings.value?.seo?.description || t('seo.description')).trim(),
   }),
 ])
 

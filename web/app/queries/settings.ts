@@ -1,5 +1,6 @@
 import type { SanityLink } from './home'
 import { seoFields, type SeoData } from './fragments'
+import { i18n } from './i18n'
 
 export interface SettingsData {
   contactLink?: SanityLink
@@ -9,6 +10,6 @@ export interface SettingsData {
 
 export const SETTINGS_QUERY = `*[_type == "settings"][0]{
   contactLink{ type, text, url, email, phone },
-  fallbackTitle,
+  ${i18n('fallbackTitle')},
   ${seoFields()}
 }`

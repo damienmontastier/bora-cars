@@ -6,7 +6,7 @@ export function usePageSeo(seo: Ref<SeoData | undefined>) {
 
   useSeoMeta({
     title: () => seo.value?.title || undefined,
-    description: () => seo.value?.description || t('seo.description'),
+    description: () => (seo.value?.description || t('seo.description')).trim(),
     ogImage: () => seo.value?.image || `${siteUrl}/og-bora-cars.jpg`,
   })
   // og:title, og:description, twitter:* → auto-inférés (automaticOgAndTwitterTags)
@@ -14,7 +14,7 @@ export function usePageSeo(seo: Ref<SeoData | undefined>) {
   useSchemaOrg([
     defineWebPage({
       name: () => seo.value?.title ?? undefined,
-      description: () => seo.value?.description || t('seo.description'),
+      description: () => (seo.value?.description || t('seo.description')).trim(),
     }),
   ])
 }

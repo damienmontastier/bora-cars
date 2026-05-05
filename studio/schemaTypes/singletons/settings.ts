@@ -25,7 +25,7 @@ export const settingsType = defineType({
     defineField({
       name: 'fallbackTitle',
       title: 'Fallback title (UnderConstruction.vue / Homepage)',
-      type: 'string',
+      type: 'internationalizedArrayString',
       group: 'seo',
     }),
     seoType,
