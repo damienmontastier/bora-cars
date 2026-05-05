@@ -1,5 +1,6 @@
+import type { SanityImage } from './fragments'
+import { imageFields, imageRef } from './fragments'
 import { i18n, i18nBlock } from './i18n'
-import { imageFields, imageRef, type SanityImage } from './fragments'
 
 // ─── Shared primitives ────────────────────────────────────────────────────────
 
@@ -12,19 +13,19 @@ export interface SanityLink {
   phone?: string
 }
 
-export type HeroBackgroundMedia =
+export type HeroBackgroundMedia
+  = | {
+    mediaType: 'image'
+    imageUrl: string
+    imageAlt?: string
+    imageHotspot?: { x: number, y: number, width: number, height: number }
+    imageCrop?: { top: number, bottom: number, left: number, right: number }
+  }
   | {
-      mediaType: 'image'
-      imageUrl: string
-      imageAlt?: string
-      imageHotspot?: { x: number; y: number; width: number; height: number }
-      imageCrop?: { top: number; bottom: number; left: number; right: number }
-    }
-  | {
-      mediaType: 'video'
-      videoUrl: string
-      videoAlt?: string
-    }
+    mediaType: 'video'
+    videoUrl: string
+    videoAlt?: string
+  }
 
 export interface HeroData {
   heading?: string
@@ -43,7 +44,7 @@ export interface ServiceCard {
   subtitle?: string
   link: SanityLink
   media: ({ mediaType: 'image' | 'video' } & Partial<SanityImage>) | null
-  grid?: { x: number; y: number; w: number; h: number }
+  grid?: { x: number, y: number, w: number, h: number }
 }
 
 export interface Car {
@@ -76,31 +77,31 @@ export interface TestimonialItem {
   _key: string
   authorName: string
   authorRole?: string
-  car?: { marque: string; modele: string }
+  car?: { marque: string, modele: string }
   quote: string
   backgroundImage?: {
     imageUrl?: string
     imageAlt?: string
-    imageHotspot?: { x: number; y: number; width: number; height: number }
-    imageCrop?: { top: number; bottom: number; left: number; right: number }
+    imageHotspot?: { x: number, y: number, width: number, height: number }
+    imageCrop?: { top: number, bottom: number, left: number, right: number }
   }
 }
 
 // ─── Union type ───────────────────────────────────────────────────────────────
 
-export type PageModule =
-  | ({ _type: 'hero'; _key: string } & HeroData)
-  | { _type: 'serviceCards'; _key: string; cards: ServiceCard[] }
-  | { _type: 'pitch'; _key: string; eyebrow?: string; heading?: string; subtext?: string }
-  | { _type: 'process'; _key: string; steps: Array<{ _key: string; title: string; description?: string }> }
-  | ({ _type: 'brandsSection'; _key: string } & BrandsSection)
-  | ({ _type: 'fullscreenMarquee'; _key: string } & FullscreenMarqueeData)
-  | { _type: 'servicePitch'; _key: string; eyebrow?: string; heading?: string; body?: string; ctaLabel?: string; ctaUrl?: string }
-  | { _type: 'title'; _key: string; eyebrow?: string; heading?: string }
-  | { _type: 'textBlock'; _key: string; eyebrow?: string; body?: any[] }
-  | { _type: 'faq'; _key: string; items: Array<{ _key: string; question: string; answer?: string }> }
-  | { _type: 'cardsColumn'; _key: string; heading?: string; subtext?: string; cards: Array<{ _key: string; title: string; description?: string }> }
-  | { _type: 'testimonials'; _key: string; items: TestimonialItem[] }
+export type PageModule
+  = | ({ _type: 'hero', _key: string } & HeroData)
+    | { _type: 'serviceCards', _key: string, cards: ServiceCard[] }
+    | { _type: 'pitch', _key: string, eyebrow?: string, heading?: string, subtext?: string }
+    | { _type: 'process', _key: string, steps: Array<{ _key: string, title: string, description?: string }> }
+    | ({ _type: 'brandsSection', _key: string } & BrandsSection)
+    | ({ _type: 'fullscreenMarquee', _key: string } & FullscreenMarqueeData)
+    | { _type: 'servicePitch', _key: string, eyebrow?: string, heading?: string, body?: string, ctaLabel?: string, ctaUrl?: string }
+    | { _type: 'title', _key: string, eyebrow?: string, heading?: string }
+    | { _type: 'textBlock', _key: string, eyebrow?: string, body?: any[] }
+    | { _type: 'faq', _key: string, items: Array<{ _key: string, question: string, answer?: string }> }
+    | { _type: 'cardsColumn', _key: string, heading?: string, subtext?: string, cards: Array<{ _key: string, title: string, description?: string }> }
+    | { _type: 'testimonials', _key: string, items: TestimonialItem[] }
 
 // ─── GROQ fragments ───────────────────────────────────────────────────────────
 
@@ -146,8 +147,8 @@ export const MODULES_PROJECTION = `"modules": modules[]{
     "steps": steps[]{ _key, ${i18n('title')}, ${i18n('description')} }
   },
   _type == "brandsSection" => {
-    "carsLeft": carsLeft[]->{ _id, ${i18n('marque')}, ${i18n('modele')}, ${imageRef()} },
-    "carsRight": carsRight[]->{ _id, ${i18n('marque')}, ${i18n('modele')}, ${imageRef()} },
+    "carsLeft": carsLeft[]->{ _id, ${i18n('marque')}, ${i18n('modele')}, ${imageRef()}, "slug": slug.current, },
+    "carsRight": carsRight[]->{ _id, ${i18n('marque')}, ${i18n('modele')}, ${imageRef()}, "slug": slug.current, },
     ${i18n('description')},
     ${i18n('surtitle')},
     ${i18n('heading')}
