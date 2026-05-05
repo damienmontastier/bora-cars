@@ -43,13 +43,14 @@ const { url: siteUrl, name: siteName, separator } = useSiteConfig()
 const { IS_PROD } = useRuntimeConfig().public
 
 useHead({
-  titleTemplate: (chunk) => chunk ? `${chunk} ${separator ?? '—'} ${siteName ?? 'BORA CARS'}` : (siteName ?? 'BORA CARS'),
+  titleTemplate: chunk => chunk ? `${chunk} ${separator ?? '—'} ${siteName ?? 'BORA CARS'}` : (siteName ?? 'BORA CARS'),
 })
 
 useSeoMeta({
   title: () => settings.value?.fallbackTitle ?? 'BORA CARS',
   description: () => settings.value?.seo?.description || t('seo.description'),
   ogImage: () => settings.value?.seo?.image || `${siteUrl}/og-bora-cars.jpg`,
+  twitterTitle: () => settings.value?.fallbackTitle ?? 'BORA CARS',
   twitterDescription: () => settings.value?.seo?.description || t('seo.description'),
   twitterImage: () => settings.value?.seo?.image || `${siteUrl}/og-bora-cars.jpg`,
   twitterCard: 'summary_large_image',
