@@ -42,20 +42,16 @@ settings.value = settingsData
 const { url: siteUrl, name: siteName, separator } = useSiteConfig()
 const { IS_PROD } = useRuntimeConfig().public
 
-const fallbackFullTitle = computed(() => {
-  const title = settings.value?.fallbackTitle ?? 'BORA CARS'
-  const sep = separator ?? '—'
-  const site = siteName ?? 'BORA CARS'
-  return title !== site ? `${title} ${sep} ${site}` : site
+useHead({
+  titleTemplate: (chunk) => chunk ? `${chunk} ${separator ?? '—'} ${siteName ?? 'BORA CARS'}` : (siteName ?? 'BORA CARS'),
 })
 
 useSeoMeta({
   title: () => settings.value?.fallbackTitle ?? 'BORA CARS',
   description: () => settings.value?.seo?.description || t('seo.description'),
-  ogImage: () => settings.value?.seo?.image || '/og-bora-cars.jpg',
-  twitterTitle: () => fallbackFullTitle.value,
+  ogImage: () => settings.value?.seo?.image || `${siteUrl}/og-bora-cars.jpg`,
   twitterDescription: () => settings.value?.seo?.description || t('seo.description'),
-  twitterImage: () => settings.value?.seo?.image || '/og-bora-cars.jpg',
+  twitterImage: () => settings.value?.seo?.image || `${siteUrl}/og-bora-cars.jpg`,
   twitterCard: 'summary_large_image',
 })
 // og:site_name → auto via site.name (nuxt-seo-utils automaticDefaults)

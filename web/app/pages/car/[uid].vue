@@ -62,7 +62,7 @@ const specs = computed(() => {
 })
 
 usePageSeo(computed(() => car.value
-  ? { title: `${car.value.marque} ${car.value.modele}` }
+  ? { title: `${car.value.marque} ${car.value.modele}`, image: car.value.ogImageUrl }
   : undefined))
 </script>
 

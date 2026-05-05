@@ -99,7 +99,7 @@ export default defineNuxtConfig({
     identity: {
       type: 'Organization',
       name: 'BORA CARS',
-      logo: '/favicon.svg',
+      logo: `${process.env.NUXT_SITE_URL ?? 'https://boracars.com'}/favicon.svg`,
       sameAs: ['https://www.google.com/search?kgmid=/g/11yp0wsnj5'],
     },
   },

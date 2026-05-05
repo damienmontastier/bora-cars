@@ -13,6 +13,7 @@ export interface CarDetailData {
   slug: string
   marque: string
   modele: string
+  ogImageUrl?: string
   imageUrl?: string
   imageHotspot?: { x: number, y: number, width: number, height: number }
   imageCrop?: { top: number, bottom: number, left: number, right: number }
@@ -41,6 +42,7 @@ export const CAR_QUERY = `*[_type == "car" && slug.current == $uid][0] {
   "slug": slug.current,
   ${i18n('marque')},
   ${i18n('modele')},
+  "ogImageUrl": image.asset->url,
   ${imageFields()},
   "images": images[] {
     ${imageFields()}
