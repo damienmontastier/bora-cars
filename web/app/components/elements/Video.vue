@@ -49,9 +49,6 @@ defineExpose({ mainRef, videoRef })
     object-fit: cover;
     @include disable-draggable();
 
-    &::-internal-media-controls-overlay-cast-button {
-      display: none;
-    }
   }
 }
 </style>

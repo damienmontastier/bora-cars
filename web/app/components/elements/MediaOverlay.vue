@@ -5,12 +5,12 @@ const props = withDefaults(defineProps<{
   color?: string
   borderRadius?: string
 }>(), {
-  threshold: 0.1,
+  threshold: 0,
   color: 'orange-100',
   borderRadius: '0px',
 })
 
-const REVEAL_S_PER_1000PX = 1.5
+const REVEAL_S_PER_1000PX = 1.25
 const REVEAL_DURATION_MIN_S = 0.6
 const REVEAL_DURATION_MAX_S = 1
 

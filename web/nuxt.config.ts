@@ -2,6 +2,20 @@
 import process from 'node:process'
 import { DEFAULT_LANGUAGE, LANGUAGES } from '../shared/languages'
 
+async function fetchCarSlugs(): Promise<string[]> {
+  const projectId = process.env.NUXT_PUBLIC_SANITY_PROJECT_ID
+  const dataset = process.env.NUXT_PUBLIC_SANITY_DATASET || 'production'
+  if (!projectId)
+    return []
+
+  const query = `*[_type == "car"]{"slug": slug.current}`
+  const url = `https://${projectId}.api.sanity.io/v2026-04-06/data/query/${dataset}?query=${encodeURIComponent(query)}`
+
+  const res = await fetch(url)
+  const { result } = await res.json() as { result: { slug: string | null }[] }
+  return result.filter(c => c.slug).map(c => c.slug!)
+}
+
 const LOCALE_IETF: Record<string, string> = { fr: 'fr-FR', en: 'en-GB' }
 
 const locales = LANGUAGES.map(({ id }) => ({
@@ -62,7 +76,7 @@ export default defineNuxtConfig({
   css: ['~/assets/scss/main.scss'],
 
   i18n: {
-    baseUrl: process.env.NUXT_SITE_URL ?? 'https://bora-cars.netlify.app',
+    baseUrl: process.env.NUXT_SITE_URL ?? 'https://boracars.com',
     strategy: 'prefix',
     compilation: {
       strictMessage: false,
@@ -74,11 +88,11 @@ export default defineNuxtConfig({
   },
 
   site: {
-    url: process.env.NUXT_SITE_URL ?? 'https://bora-cars.netlify.app',
+    url: process.env.NUXT_SITE_URL ?? 'https://boracars.com',
     name: 'BORA CARS',
     defaultLocale: DEFAULT_LANGUAGE,
     separator: '—',
-    indexable: false,
+    indexable: process.env.NUXT_PUBLIC_IS_PROD === 'true',
   },
 
   schemaOrg: {
@@ -145,6 +159,20 @@ export default defineNuxtConfig({
     public: {
       IS_FTP: process.env.NUXT_PUBLIC_IS_FTP === 'true',
       IS_PROD: process.env.NUXT_PUBLIC_IS_PROD === 'true',
+    },
+  },
+
+  hooks: {
+    'nitro:config': async function (nitroConfig) {
+      try {
+        const slugs = await fetchCarSlugs()
+        const routes = LANGUAGES.flatMap(({ id }) => slugs.map(slug => `/${id}/car/${slug}`))
+        nitroConfig.prerender ??= {}
+        nitroConfig.prerender.routes = [...(nitroConfig.prerender.routes ?? []), ...routes]
+      }
+      catch (e) {
+        console.warn('[prerender] Failed to fetch car slugs from Sanity:', e)
+      }
     },
   },
 

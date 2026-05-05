@@ -17,8 +17,10 @@ export function usePageSeo(seo: Ref<SeoData | undefined>) {
     description: () => seo.value?.description || t('seo.description'),
     ogImage: () => seo.value?.image || '/og-bora-cars.jpg',
     twitterTitle: () => fullTitle.value,
+    twitterDescription: () => seo.value?.description || t('seo.description'),
+    twitterImage: () => seo.value?.image || '/og-bora-cars.jpg',
   })
-  // og:title, og:description, twitter:description, twitter:image → auto-inférés (automaticOgAndTwitterTags)
+  // og:title, og:description → auto-inférés (automaticOgAndTwitterTags)
 
   useSchemaOrg([
     defineWebPage({
