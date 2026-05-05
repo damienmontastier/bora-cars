@@ -90,9 +90,10 @@ export default defineNuxtConfig({
     },
   },
 
-  sitemap: {
-    sources: ['/api/__sitemap__/urls'],
-  },
+  sitemap: process.env.NUXT_PUBLIC_IS_PROD === 'true'
+    // En prod (under construction) : sitemap minimal avec juste la homepage
+    ? { excludeAppSources: true, urls: [{ loc: '/' }] }
+    : { sources: ['/api/__sitemap__/urls'] },
 
   ogImage: { enabled: false },
 
