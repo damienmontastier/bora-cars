@@ -102,9 +102,11 @@ onUnmounted(() => {
         >
           <NuxtImg v-if="car.imageUrl" class="brand-item__cursor" :src="car.imageUrl" :alt="`${car.marque} ${car.modele}`" provider="sanity" loading="eager" />
           <div v-else class="brand-item__cursor" />
-          <TextsH3 :selectable="false" :color="hoveredBrand === `left-${i}` ? 'orange' : 'beige-100'">
-            {{ car.marque }} {{ car.modele }}
-          </TextsH3>
+          <UtilsBaseLink :to="{ name: 'car-uid', params: { uid: car.slug } }">
+            <TextsH3 :selectable="false" :color="hoveredBrand === `left-${i}` ? 'orange' : 'beige-100'">
+              {{ car.marque }} {{ car.modele }}
+            </TextsH3>
+          </UtilsBaseLink>
         </li>
       </ul>
 

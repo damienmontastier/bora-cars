@@ -59,16 +59,9 @@ useSeoMeta({
 // og:description, twitter:* → auto-inférés depuis description (automaticOgAndTwitterTags)
 
 useSchemaOrg([
-  defineOrganization({
-    name: 'BORA CARS',
-    url: siteUrl,
-    logo: `${siteUrl}/favicon.svg`,
-    sameAs: ['https://www.google.com/search?kgmid=/g/11yp0wsnj5'],
-  }),
   defineWebSite({
-    name: () => settings.value?.fallbackTitle ?? 'BORA CARS',
+    name: siteName,
     description: () => settings.value?.seo?.description || t('seo.description'),
-    url: siteUrl,
   }),
 ])
 

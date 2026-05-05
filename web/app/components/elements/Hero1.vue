@@ -42,7 +42,8 @@ const drawParams = reactive({
 
 function initDrawLogo() {
   const path = logoRef.value?.$el?.querySelector<SVGPathElement>('path')
-  if (!path) return
+  if (!path)
+    return
 
   drawCtx?.revert()
 
@@ -292,7 +293,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div ref="mainRef" class="app-elements-hero-1">
+  <div ref="mainRef" v-menu-theme="'orange'" class="app-elements-hero-1">
     <div class="app-elements-hero-1__overlay" />
 
     <div class="app-elements-hero-1__background-wrapper">

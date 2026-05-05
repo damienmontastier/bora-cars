@@ -1,5 +1,6 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 import process from 'node:process'
+import { defineOrganization } from 'nuxt-schema-org/schema'
 import { DEFAULT_LANGUAGE, LANGUAGES } from '../shared/languages'
 
 const LOCALE_IETF: Record<string, string> = { fr: 'fr-FR', en: 'en-GB' }
@@ -82,12 +83,11 @@ export default defineNuxtConfig({
   },
 
   schemaOrg: {
-    identity: {
-      type: 'Organization',
+    identity: defineOrganization({
       name: 'BORA CARS',
       logo: `${process.env.NUXT_SITE_URL ?? 'https://boracars.com'}/favicon.svg`,
       sameAs: ['https://www.google.com/search?kgmid=/g/11yp0wsnj5'],
-    },
+    }),
   },
 
   sitemap: process.env.NUXT_PUBLIC_IS_PROD === 'true'

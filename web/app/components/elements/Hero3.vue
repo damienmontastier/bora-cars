@@ -54,7 +54,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div ref="mainRef" class="app-elements-hero-3">
+  <div ref="mainRef" v-menu-theme="'white'" class="app-elements-hero-3">
     <div class="app-elements-hero-3__overlay" />
 
     <div class="app-elements-hero-3__background-wrapper">

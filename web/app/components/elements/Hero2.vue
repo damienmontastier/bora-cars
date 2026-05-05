@@ -30,7 +30,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div ref="mainRef" class="app-elements-hero-2">
+  <div ref="mainRef" v-menu-theme="'white'" class="app-elements-hero-2">
     <div class="app-elements-hero-2__overlay" />
 
     <div class="app-elements-hero-2__background-wrapper">
