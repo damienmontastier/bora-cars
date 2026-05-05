@@ -2,20 +2,6 @@
 import process from 'node:process'
 import { DEFAULT_LANGUAGE, LANGUAGES } from '../shared/languages'
 
-async function fetchCarSlugs(): Promise<string[]> {
-  const projectId = process.env.NUXT_PUBLIC_SANITY_PROJECT_ID
-  const dataset = process.env.NUXT_PUBLIC_SANITY_DATASET || 'production'
-  if (!projectId)
-    return []
-
-  const query = `*[_type == "car"]{"slug": slug.current}`
-  const url = `https://${projectId}.api.sanity.io/v2026-04-06/data/query/${dataset}?query=${encodeURIComponent(query)}`
-
-  const res = await fetch(url)
-  const { result } = await res.json() as { result: { slug: string | null }[] }
-  return result.filter(c => c.slug).map(c => c.slug!)
-}
-
 const LOCALE_IETF: Record<string, string> = { fr: 'fr-FR', en: 'en-GB' }
 
 const locales = LANGUAGES.map(({ id }) => ({
@@ -104,6 +90,10 @@ export default defineNuxtConfig({
     },
   },
 
+  sitemap: {
+    sources: ['/api/__sitemap__/urls'],
+  },
+
   ogImage: { enabled: false },
 
   image: {
@@ -162,17 +152,10 @@ export default defineNuxtConfig({
     },
   },
 
-  hooks: {
-    'nitro:config': async function (nitroConfig) {
-      try {
-        const slugs = await fetchCarSlugs()
-        const routes = LANGUAGES.flatMap(({ id }) => slugs.map(slug => `/${id}/car/${slug}`))
-        nitroConfig.prerender ??= {}
-        nitroConfig.prerender.routes = [...(nitroConfig.prerender.routes ?? []), ...routes]
-      }
-      catch (e) {
-        console.warn('[prerender] Failed to fetch car slugs from Sanity:', e)
-      }
+  nitro: {
+    prerender: {
+      crawlLinks: true,
+      routes: ['/sitemap.xml'],
     },
   },
 
