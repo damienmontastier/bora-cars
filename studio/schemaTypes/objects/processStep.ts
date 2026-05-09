@@ -1,5 +1,6 @@
 import { defineField, defineType } from 'sanity'
 import { pickLocalized } from '../../lib/preview'
+import { requireAllLanguages } from '../../lib/i18nValidation'
 
 export const processStepType = defineType({
   name: 'processStep',
@@ -10,7 +11,7 @@ export const processStepType = defineType({
       name: 'title',
       title: 'Intitulé',
       type: 'internationalizedArrayString',
-      validation: (Rule) => Rule.required(),
+      validation: (Rule) => requireAllLanguages(Rule),
     }),
     defineField({
       name: 'description',

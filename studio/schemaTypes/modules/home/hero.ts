@@ -1,6 +1,7 @@
 import { ImagesIcon } from '@sanity/icons'
 import { defineField, defineType } from 'sanity'
 import { pickLocalized } from '../../../lib/preview'
+import { requireAllLanguages } from '../../../lib/i18nValidation'
 
 export const heroType = defineType({
   name: 'hero',
@@ -54,14 +55,14 @@ export const heroType = defineType({
       title: 'Titre principal',
       type: 'internationalizedArrayString',
       fieldset: 'content',
-      validation: (Rule) => Rule.required(),
+      validation: (Rule) => requireAllLanguages(Rule),
     }),
     defineField({
       name: 'tagline',
       title: 'Tagline',
       type: 'internationalizedArrayText',
       fieldset: 'content',
-      validation: (Rule) => Rule.required(),
+      validation: (Rule) => requireAllLanguages(Rule),
     }),
 
     defineField({

@@ -1,5 +1,6 @@
 import { PinIcon } from '@sanity/icons'
 import { defineField, defineType } from 'sanity'
+import { requireAllLanguages } from '../../lib/i18nValidation'
 
 export const locationType = defineType({
   name: 'location',
@@ -11,7 +12,7 @@ export const locationType = defineType({
       name: 'city',
       title: 'Ville',
       type: 'internationalizedArrayString',
-      validation: (Rule) => Rule.required(),
+      validation: (Rule) => requireAllLanguages(Rule),
     }),
     defineField({
       name: 'address',

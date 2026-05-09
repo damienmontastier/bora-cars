@@ -1,6 +1,7 @@
 import { BlockContentIcon } from '@sanity/icons'
 import { defineField, defineType } from 'sanity'
 import { pickLocalized, pickLocalizedBlock } from '../../../lib/preview'
+import { requireAllLanguages } from '../../../lib/i18nValidation'
 
 export const textType = defineType({
   name: 'textBlock',
@@ -18,7 +19,7 @@ export const textType = defineType({
       name: 'body',
       title: 'Contenu',
       type: 'internationalizedArrayBlock',
-      validation: (Rule) => Rule.required(),
+      validation: (Rule) => requireAllLanguages(Rule),
     }),
   ],
   preview: {

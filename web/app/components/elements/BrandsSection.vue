@@ -190,12 +190,21 @@ onUnmounted(() => {
     justify-content: flex-end;
     padding: desktop-vw(80px) desktop-vw(24px);
 
+    @include mobile {
+      padding: mobile-vw(24px) mobile-vw(16px);
+    }
+
     &-content {
       width: 60%;
       display: flex;
       flex-direction: column;
       align-items: flex-end;
       gap: desktop-vw(32px);
+
+      @include mobile {
+        width: 100%;
+        gap: mobile-vw(40px);
+      }
     }
 
     &-headline {

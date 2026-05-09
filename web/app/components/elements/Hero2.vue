@@ -132,16 +132,30 @@ onUnmounted(() => {
     padding: desktop-vw(24px);
     flex-direction: column;
 
+    @include mobile {
+      padding: mobile-vw(16px);
+    }
+
     &-content {
       margin-left: auto;
       display: flex;
       flex-direction: column;
       gap: desktop-vw(24px);
       margin-top: auto;
+
+      @include mobile {
+        margin-top: mobile-vw(50px);
+        gap: mobile-vw(24px);
+        align-items: flex-end;
+      }
     }
 
     .P2 {
       width: 75%;
+
+      @include mobile {
+        text-align: right;
+      }
     }
 
     .app-atoms-cta {
@@ -154,6 +168,13 @@ onUnmounted(() => {
       flex: 0 0 auto;
       max-width: desktop-vw(720px);
       margin-right: desktop-vw(60px);
+
+      @include mobile {
+        width: 80%;
+        align-self: flex-start;
+        max-width: 100%;
+        margin-right: 0px;
+      }
     }
   }
 
@@ -164,10 +185,20 @@ onUnmounted(() => {
     height: 100vh;
     align-items: center;
 
+    @include mobile {
+      padding: mobile-vw(16px);
+    }
+
     .H2 {
       flex: 0 0 auto;
       max-width: desktop-vw(720px);
       margin-right: desktop-vw(60px);
+
+      @include mobile {
+        width: 100%;
+        max-width: initial;
+        margin-right: 0;
+      }
     }
   }
 

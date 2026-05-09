@@ -90,10 +90,21 @@ const parallaxProps = computed((): Partial<ParallaxProps> => {
     justify-content: center;
     gap: desktop-vw(12px);
     padding: desktop-vw(14px) desktop-vw(16px);
+    min-width: 0;
+
+    @include mobile {
+      gap: mobile-vw(8px);
+      padding: mobile-vw(8px) mobile-vw(8px);
+    }
   }
 
   &__category {
     white-space: nowrap;
+
+    @include mobile {
+      white-space: normal;
+      min-width: 0;
+    }
   }
 
   &__divider {
@@ -102,23 +113,56 @@ const parallaxProps = computed((): Partial<ParallaxProps> => {
     height: 2px;
     background: var(--c-black-100);
     flex-shrink: 0;
+
+    @include mobile {
+      width: mobile-vw(20px);
+    }
   }
 
   &__subtitle {
     white-space: nowrap;
+    min-width: 0;
+
+    @include mobile {
+      white-space: normal;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
   }
 
   &--xxl &__media {
     aspect-ratio: 706 / 706;
+
+    @include mobile {
+      aspect-ratio: 377 / 377;
+    }
   }
+
   &--xl &__media {
     aspect-ratio: 706 / 400;
+
+    @include mobile {
+      aspect-ratio: 377 / 400;
+    }
   }
   &--l &__media {
     aspect-ratio: 347 / 528;
+
+    @include mobile {
+      aspect-ratio: 377 / 377;
+    }
   }
   &--m &__media {
     aspect-ratio: 347 / 347;
+
+    @include mobile {
+      aspect-ratio: 377 / 377;
+    }
+  }
+
+  @include mobile {
+    grid-column: span 6 !important;
+    grid-row: auto !important;
   }
 }
 </style>

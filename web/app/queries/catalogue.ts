@@ -24,8 +24,8 @@ export interface CatalogueData {
 const CAR_PROJECTION = `{
   _id,
   "slug": slug.current,
-  ${i18n('marque')},
-  ${i18n('modele')},
+  marque,
+  modele,
   ${imageFields()},
   rentalTypes
 }`

@@ -1,6 +1,7 @@
 import { CommentIcon } from '@sanity/icons'
 import { defineArrayMember, defineField, defineType } from 'sanity'
 import { pickLocalized } from '../../../lib/preview'
+import { requireAllLanguages } from '../../../lib/i18nValidation'
 
 export const testimonialsType = defineType({
   name: 'testimonials',
@@ -21,7 +22,7 @@ export const testimonialsType = defineType({
               name: 'authorName',
               title: 'Nom',
               type: 'internationalizedArrayString',
-              validation: (Rule) => Rule.required(),
+              validation: (Rule) => requireAllLanguages(Rule),
             }),
             defineField({
               name: 'authorRole',
@@ -38,7 +39,7 @@ export const testimonialsType = defineType({
               name: 'quote',
               title: 'Citation',
               type: 'internationalizedArrayText',
-              validation: (Rule) => Rule.required(),
+              validation: (Rule) => requireAllLanguages(Rule),
             }),
             defineField({
               name: 'backgroundImage',

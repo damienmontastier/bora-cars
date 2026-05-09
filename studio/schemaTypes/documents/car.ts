@@ -10,7 +10,7 @@ export const carType = defineType({
     defineField({
       name: 'marque',
       title: 'Marque',
-      type: 'internationalizedArrayString',
+      type: 'string',
       validation: (Rule) => Rule.required(),
     }),
     defineField({
@@ -18,11 +18,7 @@ export const carType = defineType({
       title: 'Slug',
       type: 'slug',
       options: {
-        source: (doc: any) => {
-          const pickFr = (v: { language: string, value: string }[]) =>
-            v?.find(x => x.language === 'fr')?.value ?? v?.[0]?.value ?? ''
-          return `${pickFr(doc.marque)}-${pickFr(doc.modele)}`
-        },
+        source: (doc: any) => `${doc.marque ?? ''}-${doc.modele ?? ''}`,
         maxLength: 96,
       },
       validation: (Rule) => Rule.required(),
@@ -30,7 +26,7 @@ export const carType = defineType({
     defineField({
       name: 'modele',
       title: 'Modèle',
-      type: 'internationalizedArrayString',
+      type: 'string',
       validation: (Rule) => Rule.required(),
     }),
     defineField({
@@ -181,8 +177,7 @@ export const carType = defineType({
     defineField({
       name: 'equipements',
       title: 'Équipements',
-      type: 'array',
-      of: [defineArrayMember({ type: 'string' })],
+      type: 'internationalizedArrayStringList',
     }),
     defineField({
       name: 'paiementsAcceptes',
@@ -202,10 +197,8 @@ export const carType = defineType({
   preview: {
     select: { marque: 'marque', modele: 'modele', media: 'image' },
     prepare({ marque, modele, media }) {
-      const pickFr = (v: { language: string, value: string }[] | string | undefined) =>
-        Array.isArray(v) ? (v.find((x) => x.language === 'fr')?.value ?? v[0]?.value ?? '') : (v ?? '')
       return {
-        title: [pickFr(marque as never), pickFr(modele as never)].filter(Boolean).join(' '),
+        title: [marque, modele].filter(Boolean).join(' '),
         media,
       }
     },

@@ -1,6 +1,7 @@
 import { TextIcon } from '@sanity/icons'
 import { defineField, defineType } from 'sanity'
 import { pickLocalized } from '../../../lib/preview'
+import { requireAllLanguages } from '../../../lib/i18nValidation'
 
 export const titleType = defineType({
   name: 'title',
@@ -18,7 +19,7 @@ export const titleType = defineType({
       name: 'heading',
       title: 'Titre',
       type: 'internationalizedArrayText',
-      validation: (Rule) => Rule.required(),
+      validation: (Rule) => requireAllLanguages(Rule),
     }),
   ],
   preview: {

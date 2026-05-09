@@ -54,9 +54,18 @@ useSplitTextAnimation(() => headingRef.value?.$el, {
   padding: desktop-vw(40px) desktop-vw(24px);
   gap: desktop-vw(40px);
 
+  @include mobile {
+    padding: mobile-vw(24px) mobile-vw(16px);
+    gap: mobile-vw(40px);
+  }
+
   &__top {
     width: 60%;
     align-self: flex-start;
+
+    @include mobile {
+      width: 100%;
+    }
 
     .P2,
     .H2 {
@@ -74,6 +83,10 @@ useSplitTextAnimation(() => headingRef.value?.$el, {
     align-self: flex-end;
     gap: desktop-vw(24px);
     width: 22.5%;
+
+    @include mobile {
+      width: auto;
+    }
 
     .app-atom-cta {
       align-self: flex-end;

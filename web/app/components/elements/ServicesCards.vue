@@ -27,12 +27,21 @@ defineProps<Props>()
   padding: desktop-vw(8px) desktop-vw(8px) desktop-vw(40px);
   align-self: flex-end;
 
+  @include mobile {
+    padding: mobile-vw(8px);
+  }
+
   &__grid {
     display: grid;
     grid-template-columns: repeat(12, 1fr);
     grid-auto-rows: auto;
     gap: desktop-vw(12px);
     width: 100%;
+
+    @include mobile {
+      grid-template-columns: repeat(6, 1fr);
+      gap: mobile-vw(12px);
+    }
   }
 }
 </style>

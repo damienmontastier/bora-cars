@@ -1,6 +1,7 @@
 import { TagIcon } from '@sanity/icons'
 import { defineArrayMember, defineField, defineType } from 'sanity'
 import { pickLocalized } from '../../../lib/preview'
+import { requireAllLanguages } from '../../../lib/i18nValidation'
 
 export const brandsSectionType = defineType({
   name: 'brandsSection',
@@ -41,7 +42,7 @@ export const brandsSectionType = defineType({
       type: 'internationalizedArrayString',
       fieldset: 'text',
       description: 'Texte affiché en bas des listes (ex: "Une collection soigneusement sélectionnée.")',
-      validation: (Rule) => Rule.required(),
+      validation: (Rule) => requireAllLanguages(Rule),
     }),
     defineField({
       name: 'surtitle',
@@ -55,7 +56,7 @@ export const brandsSectionType = defineType({
       title: 'Heading',
       type: 'internationalizedArrayText',
       fieldset: 'text',
-      validation: (Rule) => Rule.required(),
+      validation: (Rule) => requireAllLanguages(Rule),
     }),
   ],
   preview: {

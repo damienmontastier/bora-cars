@@ -19,17 +19,11 @@ import {
 } from '@sanity/icons'
 import { schemaTypes } from './schemaTypes'
 import { SUPPORTED_LANGUAGES, LOCALIZED_DOCUMENT_TYPES } from './schemaTypes/constants'
-import { LANGUAGES } from '../shared/languages'
-import { CustomNavbar } from './components/LangSwitcher'
 import { StudioLayout } from './components/StudioLayout'
 
 const CarIcon = () => createElement('span', null, '🚗')
 
 const SINGLETONS = new Set(['homepage', 'footer', 'menu', 'proprietaire', 'professionnel', 'contact', 'settings', 'catalogue'])
-
-const sharedAuth = { loginMethod: 'dual' as const }
-
-const FlagIcon = (emoji: string) => () => createElement('span', { style: { fontSize: '1.2em' } }, emoji)
 
 const structure = (S: any) =>
   S.list()
@@ -67,61 +61,55 @@ const structure = (S: any) =>
         .child(S.document().schemaType('settings').documentId('settings')),
     ])
 
-const createWorkspace = ({ id: lang, title, flag }: (typeof LANGUAGES)[number]) => {
-  const lockOtherLangs = ({ parent }: { parent?: { language?: string } }) =>
-    typeof parent?.language === 'string' && parent.language !== lang
-
-  return {
-    name: `bora-${lang}`,
-    basePath: `/${lang}`,
-    title: `Bora · ${title}`,
-    icon: FlagIcon(flag),
-    projectId: 'xyw8hnp3',
-    dataset: 'production',
-    auth: sharedAuth,
-    plugins: [
-      linkField({ linkableSchemaTypes: ['homepage', 'proprietaire', 'professionnel', 'car', 'contact', 'catalogue'] }),
-      internationalizedArray({
-        languages: SUPPORTED_LANGUAGES,
-        defaultLanguages: SUPPORTED_LANGUAGES.map((l) => l.id),
-        buttonLocations: [],
-        buttonAddAll: false,
-        fieldTypes: [
-          defineField({ name: 'string', type: 'string', readOnly: lockOtherLangs }),
-          defineField({ name: 'text', type: 'text', readOnly: lockOtherLangs }),
-          defineField({
-            name: 'block',
-            title: 'Block content',
-            type: 'array',
-            of: [{ type: 'block' }],
-            readOnly: lockOtherLangs,
-          }),
-        ],
-        languageFilter: {
-          documentTypes: LOCALIZED_DOCUMENT_TYPES,
-          defaultLanguages: [lang],
-        },
-      }),
-      assist(),
-      structureTool({ structure }),
-      visionTool(),
-    ],
-    document: {
-      actions: (input: any[], { schemaType }: { schemaType: string }) =>
-        SINGLETONS.has(schemaType)
-          ? input.filter(({ action }) => !['create', 'delete', 'duplicate'].includes(action ?? ''))
-          : input,
-    },
-    studio: {
-      components: {
-        navbar: CustomNavbar,
-        layout: StudioLayout,
+export default defineConfig({
+  name: 'bora',
+  title: 'Bora Cars',
+  projectId: 'xyw8hnp3',
+  dataset: 'production',
+  plugins: [
+    linkField({ linkableSchemaTypes: ['homepage', 'proprietaire', 'professionnel', 'car', 'contact', 'catalogue'] }),
+    internationalizedArray({
+      languages: SUPPORTED_LANGUAGES,
+      defaultLanguages: ['fr'],
+      buttonLocations: ['field', 'document'],
+      buttonAddAll: true,
+      languageDisplay: 'titleAndCode',
+      fieldTypes: [
+        defineField({ name: 'string', type: 'string' }),
+        defineField({ name: 'text', type: 'text' }),
+        defineField({
+          name: 'block',
+          title: 'Block content',
+          type: 'array',
+          of: [{ type: 'block' }],
+        }),
+        defineField({
+          name: 'stringList',
+          title: 'String list',
+          type: 'array',
+          of: [{ type: 'string' }],
+        }),
+      ],
+      languageFilter: {
+        documentTypes: LOCALIZED_DOCUMENT_TYPES,
       },
+    }),
+    assist(),
+    structureTool({ structure }),
+    visionTool(),
+  ],
+  document: {
+    actions: (input: any[], { schemaType }: { schemaType: string }) =>
+      SINGLETONS.has(schemaType)
+        ? input.filter(({ action }) => !['create', 'delete', 'duplicate'].includes(action ?? ''))
+        : input,
+  },
+  studio: {
+    components: {
+      layout: StudioLayout,
     },
-    schema: {
-      types: schemaTypes,
-    },
-  }
-}
-
-export default defineConfig(LANGUAGES.map(createWorkspace))
+  },
+  schema: {
+    types: schemaTypes,
+  },
+})

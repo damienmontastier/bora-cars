@@ -121,7 +121,7 @@ export const HERO_PROJECTION = `{
   }
 }`
 
-export const CAR_LABEL_PROJECTION = `coalesce(marque[language == $lang][0].value, marque[language == "fr"][0].value) + " " + coalesce(modele[language == $lang][0].value, modele[language == "fr"][0].value)`
+export const CAR_LABEL_PROJECTION = `marque + " " + modele`
 
 export const MODULES_PROJECTION = `"modules": modules[]{
   _type,
@@ -147,8 +147,8 @@ export const MODULES_PROJECTION = `"modules": modules[]{
     "steps": steps[]{ _key, ${i18n('title')}, ${i18n('description')} }
   },
   _type == "brandsSection" => {
-    "carsLeft": carsLeft[]->{ _id, ${i18n('marque')}, ${i18n('modele')}, ${imageRef()}, "slug": slug.current, },
-    "carsRight": carsRight[]->{ _id, ${i18n('marque')}, ${i18n('modele')}, ${imageRef()}, "slug": slug.current, },
+    "carsLeft": carsLeft[]->{ _id, marque, modele, ${imageRef()}, "slug": slug.current, },
+    "carsRight": carsRight[]->{ _id, marque, modele, ${imageRef()}, "slug": slug.current, },
     ${i18n('description')},
     ${i18n('surtitle')},
     ${i18n('heading')}
@@ -202,7 +202,7 @@ export const MODULES_PROJECTION = `"modules": modules[]{
       _key,
       ${i18n('authorName')},
       ${i18n('authorRole')},
-      "car": car->{ ${i18n('marque')}, ${i18n('modele')} },
+      "car": car->{ marque, modele },
       ${i18n('quote')},
       "backgroundImage": backgroundImage {
         "imageUrl": asset._ref,

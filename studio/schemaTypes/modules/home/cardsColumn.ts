@@ -1,6 +1,7 @@
 import { StackCompactIcon } from '@sanity/icons'
 import { defineArrayMember, defineField, defineType } from 'sanity'
 import { pickLocalized } from '../../../lib/preview'
+import { requireAllLanguages } from '../../../lib/i18nValidation'
 
 export const cardsColumnType = defineType({
   name: 'cardsColumn',
@@ -25,7 +26,7 @@ export const cardsColumnType = defineType({
       title: 'Titre',
       type: 'internationalizedArrayText',
       fieldset: 'intro',
-      validation: (Rule) => Rule.required(),
+      validation: (Rule) => requireAllLanguages(Rule),
     }),
     defineField({
       name: 'subtext',

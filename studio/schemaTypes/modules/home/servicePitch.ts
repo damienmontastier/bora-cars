@@ -1,6 +1,7 @@
 import { BlockContentIcon } from '@sanity/icons'
 import { defineField, defineType } from 'sanity'
 import { pickLocalized } from '../../../lib/preview'
+import { requireAllLanguages } from '../../../lib/i18nValidation'
 
 export const servicePitchType = defineType({
   name: 'servicePitch',
@@ -32,14 +33,14 @@ export const servicePitchType = defineType({
       title: 'Titre',
       type: 'internationalizedArrayString',
       fieldset: 'content',
-      validation: (Rule) => Rule.required(),
+      validation: (Rule) => requireAllLanguages(Rule),
     }),
     defineField({
       name: 'body',
       title: 'Corps de texte',
       type: 'internationalizedArrayText',
       fieldset: 'content',
-      validation: (Rule) => Rule.required(),
+      validation: (Rule) => requireAllLanguages(Rule),
     }),
 
     defineField({
@@ -47,7 +48,7 @@ export const servicePitchType = defineType({
       title: 'Libellé du bouton',
       type: 'internationalizedArrayString',
       fieldset: 'cta',
-      validation: (Rule) => Rule.required(),
+      validation: (Rule) => requireAllLanguages(Rule),
     }),
     defineField({
       name: 'ctaUrl',

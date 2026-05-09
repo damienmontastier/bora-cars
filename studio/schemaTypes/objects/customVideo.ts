@@ -1,5 +1,6 @@
 import { defineField, defineType } from 'sanity'
 import { pickLocalized } from '../../lib/preview'
+import { requireAllLanguages } from '../../lib/i18nValidation'
 
 export const customVideo = defineType({
   name: 'customVideo',
@@ -15,7 +16,7 @@ export const customVideo = defineType({
       title: 'Texte alternatif',
       type: 'internationalizedArrayString',
       description: 'Pour l\'accessibilité',
-      validation: (Rule) => Rule.required().error('Texte alternatif est requis.'),
+      validation: (Rule) => requireAllLanguages(Rule),
     }),
     defineField({
       name: 'poster',

@@ -40,8 +40,8 @@ export interface CarDetailData {
 export const CAR_QUERY = `*[_type == "car" && slug.current == $uid][0] {
   _id,
   "slug": slug.current,
-  ${i18n('marque')},
-  ${i18n('modele')},
+  marque,
+  modele,
   "ogImageUrl": image.asset->url,
   ${imageFields()},
   "images": images[] {
