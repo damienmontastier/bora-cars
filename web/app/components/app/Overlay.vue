@@ -26,6 +26,10 @@ const { menuOpen } = toRefs(appStore)
     transition: opacity 0.3s var(--ease-out-cubic);
     pointer-events: none;
     backdrop-filter: blur(2.5px);
+
+    @include mobile {
+      background-color: var(--c-black-70);
+    }
   }
 
   &.is-active {

@@ -1,6 +1,6 @@
 <script setup lang="ts">
+import type { MenuLocation, SanityLink } from '~/queries/menu'
 import gsap from 'gsap'
-import type { SanityLink, MenuLocation } from '~/queries/menu'
 
 interface Props {
   links: SanityLink[]
@@ -88,6 +88,10 @@ onUnmounted(() => {
   width: 100%;
   pointer-events: none;
 
+  @include mobile {
+    top: calc(100% + mobile-vw(8px));
+  }
+
   &.is-open {
     pointer-events: auto;
   }
@@ -108,6 +112,11 @@ onUnmounted(() => {
     flex-direction: column;
     padding: desktop-vw(28px) desktop-vw(26px);
     gap: desktop-vw(32px);
+
+    @include mobile {
+      padding: mobile-vw(22px) mobile-vw(20px);
+      gap: mobile-vw(20px);
+    }
   }
 
   &__items {
@@ -125,17 +134,29 @@ onUnmounted(() => {
     will-change: transform;
     transition: opacity 0.35s var(--ease-out-cubic);
     padding: desktop-vw(10px) 0;
+
+    @include mobile {
+      padding: mobile-vw(5px) 0;
+    }
   }
 
   &__nav__bottom {
     display: flex;
     align-items: center;
     gap: desktop-vw(12px);
+
+    @include mobile {
+      gap: mobile-vw(12px);
+    }
   }
 
   &__nav__bottom-divider {
     width: desktop-vw(28px);
     height: 2px;
+
+    @include mobile {
+      width: mobile-vw(24px);
+    }
   }
 
   @include hover {

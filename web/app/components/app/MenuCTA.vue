@@ -58,6 +58,11 @@ const themeColors = computed(() => {
   border: 1px solid var(--c-orange-20);
   transition: border-color 0.25s var(--ease-out-cubic);
 
+  @include mobile {
+    padding: mobile-vw(12px) mobile-vw(8px);
+    border-radius: mobile-vw(4px);
+  }
+
   &--white {
     border-color: var(--c-beige-20);
   }
@@ -102,12 +107,20 @@ const themeColors = computed(() => {
     width: desktop-vw(40px);
     height: auto;
     aspect-ratio: 40 / 28;
+
+    @include mobile {
+      width: mobile-vw(30px);
+    }
   }
 
   &__label {
     overflow: hidden;
     position: relative;
     white-space: nowrap;
+
+    @include mobile {
+      display: none;
+    }
 
     &-sizer {
       visibility: hidden;

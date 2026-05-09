@@ -166,6 +166,13 @@ onUnmounted(() => {
   padding: desktop-vw(40px) desktop-vw(24px) desktop-vw(50px) desktop-vw(24px);
   background: var(--c-black-100);
 
+  @include mobile {
+    flex-direction: column;
+    align-items: center;
+    padding: mobile-vw(24px) mobile-vw(16px);
+    gap: mobile-vw(40px);
+  }
+
   &.--theme-white {
     background: var(--c-beige-100);
 
@@ -188,6 +195,11 @@ onUnmounted(() => {
     flex-shrink: 0;
     width: desktop-vw(656px);
     gap: desktop-vw(40px);
+
+    @include mobile {
+      width: 100%;
+      gap: mobile-vw(40px);
+    }
   }
 
   &__left-heading {
@@ -200,8 +212,18 @@ onUnmounted(() => {
     gap: desktop-vw(24px);
     align-items: flex-start;
 
+    @include mobile {
+      align-items: flex-end;
+      gap: mobile-vw(16px);
+    }
+
     .P1 {
       width: 65%;
+
+      @include mobile {
+        width: 45%;
+        text-align: right;
+      }
     }
   }
 
@@ -212,6 +234,10 @@ onUnmounted(() => {
     margin: 0;
     padding: 0;
     margin-top: desktop-vw(200px);
+
+    @include mobile {
+      margin-top: 0px;
+    }
   }
 }
 
@@ -223,6 +249,11 @@ onUnmounted(() => {
   overflow: hidden;
   gap: desktop-vw(64px);
   cursor: pointer;
+
+  @include mobile {
+    padding: mobile-vw(18px) 0;
+    gap: mobile-vw(32px);
+  }
 
   &::after {
     content: '';
@@ -240,6 +271,10 @@ onUnmounted(() => {
   &-number {
     flex-shrink: 0;
     width: desktop-vw(72px);
+
+    @include mobile {
+      width: mobile-vw(56px);
+    }
   }
 
   &-content {
@@ -249,6 +284,11 @@ onUnmounted(() => {
     flex: 1;
     min-width: 0;
     padding-right: desktop-vw(120px);
+
+    @include mobile {
+      gap: mobile-vw(6px);
+      padding-right: 0;
+    }
   }
 
   &-bg {
@@ -270,8 +310,17 @@ onUnmounted(() => {
     height: 100%;
     gap: desktop-vw(64px);
 
+    @include mobile {
+      padding: mobile-vw(18px) 0;
+      gap: mobile-vw(32px);
+    }
+
     .cards-column__item-content {
       padding-right: desktop-vw(120px);
+
+      @include mobile {
+        padding-right: 0;
+      }
     }
   }
 }

@@ -14,6 +14,8 @@ const props = defineProps<Props>()
 const appStore = useAppStore()
 const { menuTheme, menuOpen, menuAnimating } = toRefs(appStore)
 
+const { isMobile } = useBreakpoint()
+
 const settings = useSettings()
 
 const ctaTheme = computed(() => menuOpen.value && menuTheme.value === 'white' ? 'black' : menuTheme.value)
@@ -53,7 +55,8 @@ let ignoreMenuWatch = false
 
 const transitionBus = useEventBus('page-transition')
 transitionBus.on((event) => {
-  if (event === 'covered') resetMenu()
+  if (event === 'covered')
+    resetMenu()
 })
 
 const heroCTABus = useEventBus('hero-cta')
@@ -192,9 +195,14 @@ function openMenu() {
     width: savedLogoWidth,
   })
 
-  // 3. Set pill's final size using full width (burger + CTA) so the panel always
-  //    has the correct width — savedClipWidth (actual) is used by closeMenu to restore
-  gsap.set(mainEl, { width: openWidth + savedLogoWidth + gap })
+  // 3. Set pill's final size:
+  //    - Desktop: openWidth + logo + gap (covers the area where logo sits naturally)
+  //    - Mobile:  span the full inner width (CSS sets __inner to 90vw on mobile)
+  //               so the pill doesn't overflow the viewport.
+  const openPillWidth = isMobile.value
+    ? innerEl.offsetWidth
+    : openWidth + savedLogoWidth + gap
+  gsap.set(mainEl, { width: openPillWidth })
 
   // 4. Flip moves pill from old right-of-center position → new centered position
   //    Logo fades out near the end once pill has passed over it
@@ -320,6 +328,12 @@ onUnmounted(() => {
   display: flex;
   flex-direction: row;
 
+  @include mobile {
+    padding: mobile-vw(4px) mobile-vw(4px);
+    align-items: center;
+    justify-content: center;
+  }
+
   &__inner {
     width: 100%;
     display: flex;
@@ -327,6 +341,11 @@ onUnmounted(() => {
     justify-content: center;
     gap: desktop-vw(8px);
     position: relative;
+
+    @include mobile {
+      width: calc(100vw - (mobile-vw(8px) * 2));
+      gap: mobile-vw(8px);
+    }
   }
 
   &__clip-wrap {
@@ -347,6 +366,12 @@ onUnmounted(() => {
       background 0.4s var(--ease-out-cubic),
       border-color 0.4s var(--ease-out-cubic);
 
+    @include mobile {
+      padding: mobile-vw(8px) mobile-vw(6px);
+      border-radius: mobile-vw(10px);
+      max-width: calc(100vw - mobile-vw(6px));
+    }
+
     &.is-open {
       background: var(--c-beige-100);
       border-color: var(--c-beige-100);
@@ -358,6 +383,12 @@ onUnmounted(() => {
     display: inline-flex;
     flex-shrink: 0; // prevent flex from overriding GSAP-controlled width
     width: 0; // hidden until GSAP expands it
+
+    // Cap on mobile so the pill never exceeds the viewport.
+    // `width: auto` measurements in JS naturally pick up this cap via offsetWidth.
+    @include mobile {
+      // max-width: calc(100vw - mobile-vw(160px));
+    }
   }
 
   &__btn {
@@ -374,12 +405,20 @@ onUnmounted(() => {
     width: desktop-vw(76px);
     height: auto;
     aspect-ratio: 1 / 1;
+
+    @include mobile {
+      width: mobile-vw(56px);
+    }
   }
 
   &__cta {
     display: none;
     opacity: 0;
     margin-left: desktop-vw(8px); // gap is inside the clip — invisible when clip width: 0
+
+    @include mobile {
+      margin-left: mobile-vw(8px);
+    }
   }
 }
 </style>

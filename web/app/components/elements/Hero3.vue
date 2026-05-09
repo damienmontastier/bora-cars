@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { HeroData } from '~/queries/home'
+import { useEventBus } from '@vueuse/core'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
@@ -13,13 +14,56 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 const settings = useSettings()
-const { menuTheme } = storeToRefs(useAppStore())
+const { menuTheme, menuOpen } = storeToRefs(useAppStore())
 const ctaTheme = computed(() => menuTheme.value === 'black' ? 'white' : menuTheme.value)
 const logoColor = computed(() => menuTheme.value === 'white' ? 'beige-100' : `${menuTheme.value}-100`)
+const heroCTABus = useEventBus('hero-cta')
 
 const mainRef = useTemplateRef('mainRef')
 
 let ctx: gsap.Context
+
+// Show the menu pill CTA only while the menu is open.
+// Snap the clip to its full width (CTA lands at its final position with no X
+// movement) and reveal the CTA via a clip-path mask animation. On close, mask
+// it back, then collapse the clip via the bus.
+watch(menuOpen, (open) => {
+  const menuCtaEl = document.querySelector<HTMLElement>('.app-menu__cta')
+  if (!menuCtaEl)
+    return
+
+  if (open) {
+    heroCTABus.emit('enter:snap')
+    gsap.set(menuCtaEl, { opacity: 1 })
+    // Delay so the pill is mostly settled (power3.inOut → ~94% of motion done
+    // by t=0.3 of the 0.5s Flip) before revealing — keeps X translation on
+    // the CTA imperceptible without dragging the open animation too long.
+    gsap.fromTo(
+      menuCtaEl,
+      { clipPath: 'inset(0 100% 0 0)' },
+      { clipPath: 'inset(0 0% 0 0)', duration: 0.4, ease: 'power3.inOut', delay: 0.3 },
+    )
+  }
+  else {
+    const clipEl = document.querySelector<HTMLElement>('.app-menu__main-clip')
+    // closeMenu has a 0.3s delay before its Flip morph — fit the clip-path hide
+    // inside that window so the CTA finishes hiding BEFORE the pill morph starts
+    // (no X translation visible).
+    gsap.to(menuCtaEl, {
+      clipPath: 'inset(0 0 0 100%)',
+      duration: 0.3,
+      ease: 'power3.inOut',
+      onComplete: () => {
+        // Snap the clip to 0 so the pill's natural width matches savedClipWidth
+        // when closeMenu's clearProps fires — avoids the jump that an animated
+        // collapseMain would cause.
+        if (clipEl)
+          gsap.set(clipEl, { width: 0 })
+        gsap.set(menuCtaEl, { display: 'none', opacity: 0 })
+      },
+    })
+  }
+})
 
 onMounted(async () => {
   await nextTick()

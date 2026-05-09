@@ -13,7 +13,7 @@ export default defineNuxtPlugin((nuxtApp) => {
   container.id = 'app-debug-pane'
   document.body.appendChild(container)
 
-  const pane = new Pane({ title: 'App', container })
+  const pane = new Pane({ title: 'App', container, expanded: false })
   pane.registerPlugin(EssentialsPlugin)
 
   const fpsGraph = pane.addBlade({

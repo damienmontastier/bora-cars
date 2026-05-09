@@ -26,8 +26,16 @@ defineProps<Props>()
   padding: desktop-vw(40px) desktop-vw(24px);
   background: var(--c-beige-100);
 
+  @include mobile {
+    padding: mobile-vw(24px) mobile-vw(16px);
+  }
+
   &__inner {
     width: 65%;
+
+    @include mobile {
+      width: 100%;
+    }
   }
 
   &__eyebrow {

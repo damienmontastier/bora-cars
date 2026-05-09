@@ -24,6 +24,10 @@ const props = defineProps({
 
 const { to } = toRefs(props)
 
+const { isMobile } = useBreakpoint()
+
+const isAnimated = computed(() => props.animated && !isMobile.value)
+
 const themeTextColor = computed(() => ({
   white: 'black-100',
   black: 'beige-100',
@@ -54,14 +58,17 @@ function reset() {
 }
 
 function init() {
-  if (initialized) return
-  if (!rootRef.value?.$el || rootRef.value.$el.offsetWidth === 0) return
+  if (initialized)
+    return
+  if (!rootRef.value?.$el || rootRef.value.$el.offsetWidth === 0)
+    return
 
   initialized = true
 
   const el = textRef.value.root
 
-  if (!originalText) originalText = el.textContent.trim()
+  if (!originalText)
+    originalText = el.textContent.trim()
 
   const wordsList = originalText.split(' ')
 
@@ -103,14 +110,24 @@ function init() {
 }
 
 onMounted(() => {
-  if (!props.animated) return
+  if (!isAnimated.value)
+    return
   watch(fontsLoaded, (loaded) => {
-    if (loaded) init()
+    if (loaded)
+      init()
   }, { immediate: true })
 })
 
 const onResize = useDebounceFn(() => {
-  if (!props.animated || !initialized) return
+  if (!isAnimated.value) {
+    if (initialized)
+      reset()
+    return
+  }
+  if (!initialized) {
+    init()
+    return
+  }
   reset()
   init()
 }, 150)
@@ -158,6 +175,10 @@ function onLeave() {
   background: var(--c-light-2);
   border-radius: 4px;
 
+  @include mobile {
+    padding: mobile-vw(14px) mobile-vw(24px);
+  }
+
   &--white {
     background: var(--c-white);
   }
@@ -168,10 +189,6 @@ function onLeave() {
 
   &--orange {
     background: var(--c-orange);
-  }
-
-  @include mobile {
-    padding: mobile-vw(20px) mobile-vw(35px);
   }
 
   .CTA-TEXT {
@@ -191,9 +208,7 @@ function onLeave() {
     margin: 0 desktop-vw(12px);
 
     @include mobile {
-      width: mobile-vw(28px);
-      height: mobile-vw(2.5px);
-      margin: 0 mobile-vw(10px);
+      display: none;
     }
   }
 }

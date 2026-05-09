@@ -90,7 +90,7 @@ body {
   font-weight: 600;
 
   @include mobile {
-    font-size: mobile-vw(20px);
-    line-height: mobile-vw(24px);
+    font-size: mobile-vw(14px);
+    line-height: mobile-vw(18px);
   }
 }

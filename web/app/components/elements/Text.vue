@@ -42,16 +42,28 @@ const portableTextComponents = getPortableTextComponents()
   padding: desktop-vw(80px) desktop-vw(24px) desktop-vw(80px) desktop-vw(584px);
   background: var(--c-beige-100);
 
+  @include mobile {
+    padding: mobile-vw(25px) mobile-vw(16px);
+  }
+
   &__content {
     display: flex;
     flex-direction: column;
     align-items: flex-end;
     gap: desktop-vw(32px);
     width: 100%;
+
+    @include mobile {
+      gap: mobile-vw(40px);
+    }
   }
 
   &__top {
     width: 70%;
+
+    @include mobile {
+      width: 100%;
+    }
   }
 
   &__eyebrow {
@@ -71,6 +83,10 @@ const portableTextComponents = getPortableTextComponents()
     > * + * {
       display: block;
       margin-top: desktop-vw(32px);
+
+      @include mobile {
+        margin-top: mobile-vw(24px);
+      }
     }
   }
 }
