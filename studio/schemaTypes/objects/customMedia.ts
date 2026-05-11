@@ -27,12 +27,8 @@ export const customMedia = defineType({
       type: 'customImage',
       options: { collapsible: false, hotspot: true },
       hidden: ({ parent }) => parent?.mediaType !== 'image',
-      validation: (Rule) =>
-        Rule.custom((value, { parent }: any) => {
-          if (parent?.mediaType === 'image' && !value)
-            return 'Une image est requise.'
-          return true
-        }),
+      validation: (Rule, ctx) =>
+        ctx?.hidden ? Rule.skip() : Rule.required().error('Une image est requise.'),
     }),
     defineField({
       name: 'video',
@@ -40,12 +36,8 @@ export const customMedia = defineType({
       type: 'customVideo',
       options: { collapsible: false },
       hidden: ({ parent }) => parent?.mediaType !== 'video',
-      validation: (Rule) =>
-        Rule.custom((value, { parent }: any) => {
-          if (parent?.mediaType === 'video' && !value)
-            return 'Une vidéo est requise.'
-          return true
-        }),
+      validation: (Rule, ctx) =>
+        ctx?.hidden ? Rule.skip() : Rule.required().error('Une vidéo est requise.'),
     }),
   ],
   preview: {

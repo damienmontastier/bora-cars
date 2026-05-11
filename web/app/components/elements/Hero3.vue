@@ -201,18 +201,42 @@ onUnmounted(() => {
     gap: desktop-vw(72px);
     padding: desktop-vw(35px) desktop-vw(24px);
 
+    @include mobile {
+      gap: mobile-vw(0px);
+      padding: mobile-vw(35px) mobile-vw(16px) mobile-vw(200px) mobile-vw(16px);
+      margin-bottom: mobile-vw(50px);
+    }
+
     .P2 {
       width: 75%;
+
+      @include mobile {
+        width: 50%;
+        text-align: right;
+      }
     }
 
     .app-atoms-cta {
       align-self: flex-end;
       width: 100%;
+
+      @include mobile {
+        align-self: flex-end;
+        width: auto;
+      }
     }
 
     .H1 {
       flex: 0 0 auto;
       max-width: desktop-vw(1280px);
+
+      @include mobile {
+        width: 100%;
+        max-width: none;
+        overflow-wrap: break-word;
+        word-wrap: break-word;
+        hyphens: auto;
+      }
     }
   }
 
@@ -224,6 +248,14 @@ onUnmounted(() => {
     display: flex;
     flex-direction: column;
     gap: desktop-vw(24px);
+
+    @include mobile {
+      width: calc(100% - #{mobile-vw(32px)});
+      gap: mobile-vw(24px);
+      right: mobile-vw(16px);
+      bottom: mobile-vw(16px);
+      align-items: flex-end;
+    }
   }
 
   &__bottom {
@@ -234,8 +266,20 @@ onUnmounted(() => {
     justify-content: flex-start;
     margin-left: desktop-vw(175px + 24px);
 
+    @include mobile {
+      margin-top: mobile-vw(105px);
+      margin-left: mobile-vw(16px);
+      margin-right: mobile-vw(16px);
+      margin-bottom: mobile-vw(16px);
+      padding-bottom: mobile-vw(150px);
+    }
+
     .H3 {
       width: 50%;
+
+      @include mobile {
+        width: 100%;
+      }
     }
   }
 

@@ -70,7 +70,7 @@ export default defineConfig({
     linkField({ linkableSchemaTypes: ['homepage', 'proprietaire', 'professionnel', 'car', 'contact', 'catalogue'] }),
     internationalizedArray({
       languages: SUPPORTED_LANGUAGES,
-      defaultLanguages: ['fr'],
+      defaultLanguages: ['fr', 'en'],
       buttonLocations: ['field', 'document'],
       buttonAddAll: true,
       languageDisplay: 'titleAndCode',

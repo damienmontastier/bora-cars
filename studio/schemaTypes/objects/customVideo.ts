@@ -16,7 +16,7 @@ export const customVideo = defineType({
       title: 'Texte alternatif',
       type: 'internationalizedArrayString',
       description: 'Pour l\'accessibilité',
-      validation: (Rule) => requireAllLanguages(Rule),
+      validation: (Rule, ctx) => (ctx?.hidden ? Rule.skip() : requireAllLanguages(Rule)),
     }),
     defineField({
       name: 'poster',

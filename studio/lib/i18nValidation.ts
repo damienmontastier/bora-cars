@@ -32,6 +32,10 @@ const isEmpty = (value: unknown): boolean => {
  *
  * Usage:
  *   validation: (Rule) => requireAllLanguages(Rule)
+ *
+ * For fields that can be hidden by an ancestor (e.g. inside a conditional
+ * `hidden` block), prefer the Sanity-idiomatic skip at the call site:
+ *   validation: (Rule, ctx) => ctx?.hidden ? Rule.skip() : requireAllLanguages(Rule)
  */
 export const requireAllLanguages = (rule: any) =>
   rule.custom((value: unknown) => {

@@ -15,7 +15,7 @@ export const customImage = defineType({
       title: 'Texte alternatif',
       type: 'internationalizedArrayString',
       description: 'Pour l\'accessibilité',
-      validation: (Rule) => requireAllLanguages(Rule),
+      validation: (Rule, ctx) => (ctx?.hidden ? Rule.skip() : requireAllLanguages(Rule)),
       hidden: ({ parent }) => !parent?.asset,
     }),
   ],
