@@ -1,6 +1,7 @@
 import { CaseIcon } from '@sanity/icons'
 import { defineArrayMember, defineField, defineType } from 'sanity'
 import { HeroArrayItem } from '../../components/HeroArrayItem'
+import { ModuleThumbnailPreview } from '../../components/ModuleThumbnailPreview'
 import { GROUPS } from '../constants'
 import { seoType } from '../objects/seo'
 
@@ -25,7 +26,7 @@ export const professionnelType = defineType({
         return true
       }),
       of: [
-        defineArrayMember({ type: 'hero', components: { item: HeroArrayItem } }),
+        defineArrayMember({ type: 'hero', components: { item: HeroArrayItem, preview: ModuleThumbnailPreview } }),
         defineArrayMember({ type: 'title' }),
         defineArrayMember({ type: 'textBlock' }),
         defineArrayMember({ type: 'faq' }),

@@ -1,11 +1,13 @@
 import { TextIcon } from '@sanity/icons'
 import { defineArrayMember, defineField, defineType } from 'sanity'
+import { ModuleThumbnailPreview } from '../../../components/ModuleThumbnailPreview'
 
 export const fullscreenMarqueeType = defineType({
   name: 'fullscreenMarquee',
   title: 'Fullscreen Marquee',
   type: 'object',
   icon: TextIcon,
+  components: { preview: ModuleThumbnailPreview },
   fields: [
     defineField({
       name: 'items',

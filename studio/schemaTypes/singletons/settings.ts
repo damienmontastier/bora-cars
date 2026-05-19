@@ -17,10 +17,9 @@ export const settingsType = defineType({
     defineField({
       name: 'contactLink',
       title: 'Lien de contact',
-      type: 'customLink',
+      type: 'navLink',
       group: 'global',
       description: 'Utilisé pour tous les boutons "Contact" du site',
-      options: { enableText: true },
     }),
     defineField({
       name: 'fallbackTitle',

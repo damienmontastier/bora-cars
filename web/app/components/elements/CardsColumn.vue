@@ -166,6 +166,11 @@ onUnmounted(() => {
   padding: desktop-vw(40px) desktop-vw(24px) desktop-vw(50px) desktop-vw(24px);
   background: var(--c-black-100);
 
+  *::selection {
+    background-color: var(--c-beige-40);
+    color: var(--c-beige-100);
+  }
+
   @include mobile {
     flex-direction: column;
     align-items: center;
@@ -175,6 +180,11 @@ onUnmounted(() => {
 
   &.--theme-white {
     background: var(--c-beige-100);
+
+    *::selection {
+      background-color: var(--c-orange-40);
+      color: var(--c-orange-100);
+    }
 
     .cards-column__item {
       &::after {

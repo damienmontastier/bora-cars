@@ -1,5 +1,6 @@
 import { BlockContentIcon } from '@sanity/icons'
 import { defineField, defineType } from 'sanity'
+import { ModuleThumbnailPreview } from '../../../components/ModuleThumbnailPreview'
 import { pickLocalized } from '../../../lib/preview'
 import { requireAllLanguages } from '../../../lib/i18nValidation'
 
@@ -8,6 +9,7 @@ export const pitchType = defineType({
   title: 'Pitch',
   type: 'object',
   icon: BlockContentIcon,
+  components: { preview: ModuleThumbnailPreview },
   fields: [
     defineField({
       name: 'eyebrow',

@@ -1,5 +1,6 @@
 import { ImagesIcon } from '@sanity/icons'
 import { defineField, defineType } from 'sanity'
+import { ModuleThumbnailPreview } from '../../../components/ModuleThumbnailPreview'
 import { pickLocalized } from '../../../lib/preview'
 import { requireAllLanguages } from '../../../lib/i18nValidation'
 
@@ -8,6 +9,7 @@ export const heroType = defineType({
   title: 'Hero',
   type: 'object',
   icon: ImagesIcon,
+  components: { preview: ModuleThumbnailPreview },
   fieldsets: [
     {
       name: 'media',
@@ -74,9 +76,9 @@ export const heroType = defineType({
     }),
   ],
   preview: {
-    select: { heading: 'heading' },
-    prepare({ heading }) {
-      return { title: 'Hero', subtitle: pickLocalized(heading) }
+    select: { heading: 'heading', variant: 'variant' },
+    prepare({ heading, variant }) {
+      return { title: 'Hero', subtitle: pickLocalized(heading), variant }
     },
   },
 })

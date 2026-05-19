@@ -129,6 +129,21 @@ function scrollToTop() {
   align-items: flex-start;
   overflow: hidden;
 
+  *::selection {
+    background-color: var(--c-beige-40);
+    color: var(--c-beige-100);
+  }
+
+  &.--theme-black *::selection {
+    background-color: var(--c-orange-40);
+    color: var(--c-orange-100);
+  }
+
+  &.--theme-white *::selection {
+    background-color: var(--c-orange-40);
+    color: var(--c-orange-100);
+  }
+
   &__wrapper {
     width: 100%;
     display: flex;

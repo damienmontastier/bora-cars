@@ -159,6 +159,11 @@ onUnmounted(() => {
   width: 100%;
   background: var(--c-black-100);
 
+  *::selection {
+    background-color: var(--c-beige-40);
+    color: var(--c-beige-100);
+  }
+
   &__inner {
     display: flex;
     align-items: flex-start;

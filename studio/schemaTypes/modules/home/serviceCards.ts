@@ -1,6 +1,7 @@
 import { ImagesIcon } from '@sanity/icons'
 import { defineArrayMember, defineField, defineType } from 'sanity'
 import { GridMakerInput } from '../../../components/GridMakerInput'
+import { ModuleThumbnailPreview } from '../../../components/ModuleThumbnailPreview'
 import { pickLocalized } from '../../../lib/preview'
 import { requireAllLanguages } from '../../../lib/i18nValidation'
 
@@ -9,6 +10,7 @@ export const serviceCardsType = defineType({
   title: 'Service Cards',
   type: 'object',
   icon: ImagesIcon,
+  components: { preview: ModuleThumbnailPreview },
   fields: [
     defineField({
       name: 'cards',

@@ -5,5 +5,34 @@
   "underConstruction": {
     "label": "Coming soon",
     "title": "Coming Soon"
+  },
+  "car": {
+    "pricing": {
+      "duration": {
+        "label": "Duration",
+        "options": {
+          "24h": "24h",
+          "48h": "48h",
+          "3days": "3 days",
+          "1week": "1 week",
+          "2weeks": "2 weeks",
+          "1month": "1 month"
+        }
+      },
+      "when": {
+        "label": "When",
+        "options": {
+          "today": "Today",
+          "tomorrow": "Tomorrow",
+          "weekend": "This weekend",
+          "nextweek": "Next week",
+          "later": "Later"
+        }
+      }
+    },
+    "whatsappMessage": {
+      "withPrice": "Hello,\n\nI'm interested in the *{marque} {modele}*.\n\n• Duration: {duree}\n• When: {quand}\n• From {prix}€ per day\n\nLink: {url}",
+      "withoutPrice": "Hello,\n\nI'm interested in the *{marque} {modele}*.\n\n• Duration: {duree}\n• When: {quand}\n\nLink: {url}"
+    }
   }
 }

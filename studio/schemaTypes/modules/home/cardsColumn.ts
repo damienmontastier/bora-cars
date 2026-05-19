@@ -1,5 +1,6 @@
 import { StackCompactIcon } from '@sanity/icons'
 import { defineArrayMember, defineField, defineType } from 'sanity'
+import { ModuleThumbnailPreview } from '../../../components/ModuleThumbnailPreview'
 import { pickLocalized } from '../../../lib/preview'
 import { requireAllLanguages } from '../../../lib/i18nValidation'
 
@@ -8,6 +9,7 @@ export const cardsColumnType = defineType({
   title: 'Cards Column',
   type: 'object',
   icon: StackCompactIcon,
+  components: { preview: ModuleThumbnailPreview },
   fieldsets: [
     {
       name: 'intro',

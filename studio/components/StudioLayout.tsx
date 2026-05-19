@@ -1,4 +1,5 @@
 import type { LayoutProps } from 'sanity'
+import { InsertMenuHoverPreview } from './InsertMenuHoverPreview'
 
 export function StudioLayout(props: LayoutProps) {
   const styles = `
@@ -23,6 +24,7 @@ export function StudioLayout(props: LayoutProps) {
     <>
       <style>{styles}</style>
       {props.renderDefault(props)}
+      <InsertMenuHoverPreview />
     </>
   )
 }

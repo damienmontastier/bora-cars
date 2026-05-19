@@ -1,5 +1,6 @@
 import { TagIcon } from '@sanity/icons'
 import { defineArrayMember, defineField, defineType } from 'sanity'
+import { ModuleThumbnailPreview } from '../../../components/ModuleThumbnailPreview'
 import { pickLocalized } from '../../../lib/preview'
 import { requireAllLanguages } from '../../../lib/i18nValidation'
 
@@ -8,6 +9,7 @@ export const brandsSectionType = defineType({
   title: 'Brands Section',
   type: 'object',
   icon: TagIcon,
+  components: { preview: ModuleThumbnailPreview },
   fieldsets: [
     {
       name: 'lists',

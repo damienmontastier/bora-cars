@@ -1,11 +1,13 @@
 import { OlistIcon } from '@sanity/icons'
 import { defineArrayMember, defineField, defineType } from 'sanity'
+import { ModuleThumbnailPreview } from '../../../components/ModuleThumbnailPreview'
 
 export const processType = defineType({
   name: 'process',
   title: 'Process Steps',
   type: 'object',
   icon: OlistIcon,
+  components: { preview: ModuleThumbnailPreview },
   fields: [
     defineField({
       name: 'steps',

@@ -48,6 +48,11 @@ export const carType = defineType({
       of: [defineArrayMember({ type: 'customImage' })],
     }),
     defineField({
+      name: 'description',
+      title: 'Description',
+      type: 'internationalizedArrayBlock',
+    }),
+    defineField({
       name: 'rentalTypes',
       title: 'Types de location',
       type: 'array',
@@ -83,6 +88,12 @@ export const carType = defineType({
       type: 'number',
     }),
     defineField({
+      name: 'acceleration0to100',
+      title: 'Accélération 0 à 100 km/h (sec)',
+      type: 'number',
+      validation: (Rule) => Rule.min(0),
+    }),
+    defineField({
       name: 'annee',
       title: 'Année',
       type: 'string',
@@ -109,6 +120,22 @@ export const carType = defineType({
       name: 'nombrePlaces',
       title: 'Nombre de places',
       type: 'number',
+    }),
+    defineField({
+      name: 'nombrePortes',
+      title: 'Nombre de portes',
+      type: 'number',
+      validation: (Rule) => Rule.min(0).integer(),
+    }),
+    defineField({
+      name: 'teinteExterieure',
+      title: 'Teinte extérieure',
+      type: 'internationalizedArrayString',
+    }),
+    defineField({
+      name: 'teinteInterieure',
+      title: 'Teintes intérieures & matière',
+      type: 'internationalizedArrayString',
     }),
     defineField({
       name: 'carburant',

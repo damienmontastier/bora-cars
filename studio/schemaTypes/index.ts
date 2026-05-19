@@ -9,6 +9,7 @@ import { professionnelType } from './singletons/professionnel'
 import { contactType } from './singletons/contact'
 import { settingsType } from './singletons/settings'
 import { catalogueType } from './singletons/catalogue'
+import { carPageType } from './singletons/carPage'
 
 // Documents
 import { locationType } from './documents/location'
@@ -46,6 +47,7 @@ export const schemaTypes: SchemaTypeDefinition[] = [
   contactType,
   settingsType,
   catalogueType,
+  carPageType,
 
   // Documents
   locationType,

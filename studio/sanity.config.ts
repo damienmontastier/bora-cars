@@ -23,7 +23,7 @@ import { StudioLayout } from './components/StudioLayout'
 
 const CarIcon = () => createElement('span', null, '🚗')
 
-const SINGLETONS = new Set(['homepage', 'footer', 'menu', 'proprietaire', 'professionnel', 'contact', 'settings', 'catalogue'])
+const SINGLETONS = new Set(['homepage', 'footer', 'menu', 'proprietaire', 'professionnel', 'contact', 'settings', 'catalogue', 'carPage'])
 
 const structure = (S: any) =>
   S.list()
@@ -46,6 +46,8 @@ const structure = (S: any) =>
                 .child(S.document().schemaType('contact').documentId('contact')),
               S.listItem().title('Catalogue').id('catalogue').icon(ArchiveIcon)
                 .child(S.document().schemaType('catalogue').documentId('catalogue')),
+              S.listItem().title('Page Voiture').id('carPage').icon(CarIcon)
+                .child(S.document().schemaType('carPage').documentId('carPage')),
             ]),
         ),
       S.divider(),

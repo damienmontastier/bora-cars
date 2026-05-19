@@ -1,11 +1,17 @@
-import { imageFields, type SanityImage } from './fragments'
-import { i18n } from './i18n'
+import type { SanityImage, SeoData } from './fragments'
+import { imageFields, seoFields } from './fragments'
+import { i18n, i18nBlock } from './i18n'
 
 export interface CarLocation {
   city?: string
   address?: string
   email?: { type: string, email?: string, text?: string }
   phone?: { type: string, phone?: string, text?: string }
+}
+
+export interface CarPreFooter {
+  eyebrow?: string
+  body?: any[]
 }
 
 export interface CarDetailData {
@@ -18,13 +24,18 @@ export interface CarDetailData {
   imageHotspot?: { x: number, y: number, width: number, height: number }
   imageCrop?: { top: number, bottom: number, left: number, right: number }
   images?: SanityImage[]
+  description?: any[]
   rentalTypes?: string[]
   location?: CarLocation
   gamme?: 'suv' | 'sportive' | 'berline' | 'citadine' | 'compacte' | 'break'
   puissance?: number
+  acceleration0to100?: number
   annee?: string
   boiteVitesse?: 'automatique' | 'manuelle'
   nombrePlaces?: number
+  nombrePortes?: number
+  teinteExterieure?: string
+  teinteInterieure?: string
   carburant?: 'essence' | 'electrique' | 'diesel' | 'hybride-rechargeable'
   ageMinimum?: number
   anciennetePermis?: number
@@ -37,36 +48,58 @@ export interface CarDetailData {
   paiementsAcceptes?: ('virement' | 'carte' | 'especes')[]
 }
 
-export const CAR_QUERY = `*[_type == "car" && slug.current == $uid][0] {
-  _id,
-  "slug": slug.current,
-  marque,
-  modele,
-  "ogImageUrl": image.asset->url,
-  ${imageFields()},
-  "images": images[] {
-    ${imageFields()}
+export interface CarPageResult {
+  car: CarDetailData | null
+  page: {
+    contentPreFooter?: CarPreFooter
+    seo?: SeoData
+  } | null
+}
+
+export const CAR_QUERY = `{
+  "car": *[_type == "car" && slug.current == $uid][0] {
+    _id,
+    "slug": slug.current,
+    marque,
+    modele,
+    "ogImageUrl": image.asset->url,
+    ${imageFields()},
+    "images": images[] {
+      ${imageFields()}
+    },
+    ${i18nBlock('description')},
+    rentalTypes,
+    gamme,
+    puissance,
+    acceleration0to100,
+    annee,
+    boiteVitesse,
+    nombrePlaces,
+    nombrePortes,
+    ${i18n('teinteExterieure')},
+    ${i18n('teinteInterieure')},
+    carburant,
+    ageMinimum,
+    anciennetePermis,
+    dureeMinimum,
+    kmJourInclus,
+    prixJournalier,
+    caution,
+    prixKmSupplementaire { prix, km },
+    ${i18n('equipements')},
+    paiementsAcceptes,
+    location-> {
+      ${i18n('city')},
+      ${i18n('address')},
+      "email": email { type, email, text },
+      "phone": phone { type, phone, text }
+    }
   },
-  rentalTypes,
-  gamme,
-  puissance,
-  annee,
-  boiteVitesse,
-  nombrePlaces,
-  carburant,
-  ageMinimum,
-  anciennetePermis,
-  dureeMinimum,
-  kmJourInclus,
-  prixJournalier,
-  caution,
-  prixKmSupplementaire { prix, km },
-  equipements,
-  paiementsAcceptes,
-  location-> {
-    ${i18n('city')},
-    ${i18n('address')},
-    "email": email { type, email, text },
-    "phone": phone { type, phone, text }
+  "page": *[_type == "carPage"][0] {
+    "contentPreFooter": contentPreFooter{
+      ${i18n('eyebrow')},
+      ${i18nBlock('body')}
+    },
+    ${seoFields()}
   }
 }`
