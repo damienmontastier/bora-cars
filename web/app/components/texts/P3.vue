@@ -35,7 +35,7 @@ defineExpose({
   <component
     :is="tag"
     ref="mainRef"
-    class="P2 app-text"
+    class="P3 app-text"
     :class="classes"
     :style="{ color: `var(--c-${color})` }"
   >
@@ -44,7 +44,7 @@ defineExpose({
 </template>
 
 <style lang="scss">
-.P2 {
+.P3 {
   &.no-selectable {
     user-select: none;
   }

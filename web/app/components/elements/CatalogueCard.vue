@@ -36,19 +36,13 @@ const RENTAL_LABELS: Record<string, string> = {
 
     <div class="app-elements-catalogue-card__info">
       <div class="app-elements-catalogue-card__name">
-        <TextsP1 class="app-elements-catalogue-card__marque">
-          {{ car.marque }}
-        </TextsP1>
-        <TextsP2 class="app-elements-catalogue-card__modele" color="black-40">
-          {{ car.modele }}
-        </TextsP2>
+        <TextsLabel class="app-elements-catalogue-card__marque">
+          À partir de 2 350€/jours
+        </TextsLabel>
+        <TextsH4 class="app-elements-catalogue-card__modele" color="black-100">
+          {{ car.marque }} — {{ car.modele }}
+        </TextsH4>
       </div>
-
-      <ul v-if="car.rentalTypes?.length" class="app-elements-catalogue-card__tags">
-        <li v-for="type in car.rentalTypes" :key="type" class="app-elements-catalogue-card__tag">
-          <TextsCTA>{{ RENTAL_LABELS[type] ?? type }}</TextsCTA>
-        </li>
-      </ul>
     </div>
   </UtilsBaseLink>
 </template>
@@ -57,13 +51,8 @@ const RENTAL_LABELS: Record<string, string> = {
 .app-elements-catalogue-card {
   display: flex;
   flex-direction: column;
-  gap: desktop-vw(16px);
+  gap: desktop-vw(8px);
   text-decoration: none;
-  color: inherit;
-
-  @include mobile {
-    gap: mobile-vw(12px);
-  }
 
   &--linked &__media {
     overflow: hidden;
@@ -82,7 +71,7 @@ const RENTAL_LABELS: Record<string, string> = {
   &__media {
     position: relative;
     width: 100%;
-    aspect-ratio: 4 / 3;
+    aspect-ratio: 466 / 466;
     overflow: hidden;
     background: var(--c-beige-20);
   }
@@ -98,45 +87,12 @@ const RENTAL_LABELS: Record<string, string> = {
     align-items: flex-start;
     justify-content: space-between;
     gap: desktop-vw(12px);
-
-    @include mobile {
-      gap: mobile-vw(8px);
-    }
   }
 
   &__name {
     display: flex;
     flex-direction: column;
-    gap: desktop-vw(4px);
-
-    @include mobile {
-      gap: mobile-vw(4px);
-    }
-  }
-
-  &__tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: desktop-vw(6px);
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    justify-content: flex-end;
-    flex-shrink: 0;
-
-    @include mobile {
-      gap: mobile-vw(4px);
-    }
-  }
-
-  &__tag {
-    border: 1px solid var(--c-black-20);
-    padding: desktop-vw(4px) desktop-vw(10px);
-    border-radius: 999px;
-
-    @include mobile {
-      padding: mobile-vw(3px) mobile-vw(8px);
-    }
+    width: 70%;
   }
 }
 </style>

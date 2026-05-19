@@ -10,7 +10,7 @@ const params = reactive({ lang: lang.value, from: 0, to: CATALOGUE_LIMIT - 1 })
 watch(lang, (v) => { params.lang = v })
 
 interface QueryResult {
-  page: Pick<CatalogueData, 'title' | 'seo'>
+  page: Pick<CatalogueData, 'title' | 'contentPreFooter' | 'seo'>
   cars: CatalogueData['cars']
   total: number
 }
@@ -53,11 +53,19 @@ usePageSeo(computed(() => page.value?.seo))
 </script>
 
 <template>
-  <main v-menu-theme="'orange'" class="page-catalogue">
-    <div class="page-catalogue__header">
-      <TextsH1 v-if="page?.title" class="page-catalogue__title">
+  <main v-menu-theme="'black'" class="page-catalogue">
+    <div v-menu-theme="'black'" class="page-catalogue__header">
+      <TextsH1 v-if="page?.title" class="page-catalogue__header-title">
         {{ page.title }}
       </TextsH1>
+
+      <TextsP2 class="page-catalogue__header-description">
+        Bienvenue dans notre collection. Du SUV tout confort à la sportive radicale, parcourez notre flotte et trouvez le véhicule qui vous correspond.
+      </TextsP2>
+    </div>
+
+    <div class="page-catalogue__filters">
+      FILTERS
     </div>
 
     <div class="page-catalogue__grid">
@@ -74,6 +82,12 @@ usePageSeo(computed(() => page.value?.seo))
       <span class="page-catalogue__loader-dot" />
     </div>
 
+    <ElementsText
+      v-if="page?.contentPreFooter"
+      :eyebrow="page.contentPreFooter.eyebrow"
+      :body="page.contentPreFooter.body"
+    />
+
     <AppFooter />
   </main>
 </template>
@@ -85,32 +99,39 @@ usePageSeo(computed(() => page.value?.seo))
   min-height: 100vh;
 
   &__header {
-    padding: desktop-vw(160px) desktop-vw(24px) desktop-vw(64px);
-
-    @include mobile {
-      padding: mobile-vw(120px) mobile-vw(20px) mobile-vw(40px);
-    }
+    padding: desktop-vw(160px) desktop-vw(24px) desktop-vw(24px);
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 15px;
   }
 
-  &__title {
+  &__header-title {
     max-width: desktop-vw(900px);
+    width: 100%;
 
     @include mobile {
       max-width: none;
     }
   }
 
+  &__filters {
+    padding: desktop-vw(24px) desktop-vw(24px);
+    background-color: red;
+  }
+
+  &__header-description {
+    max-width: desktop-vw(750px);
+    width: 100%;
+  }
+
   &__grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: desktop-vw(48px) desktop-vw(24px);
-    padding: 0 desktop-vw(24px) desktop-vw(120px);
-
-    @include mobile {
-      grid-template-columns: repeat(2, 1fr);
-      gap: mobile-vw(32px) mobile-vw(12px);
-      padding: 0 mobile-vw(20px) mobile-vw(80px);
-    }
+    gap: desktop-vw(40px) desktop-vw(12px);
+    padding: desktop-vw(24px) desktop-vw(8px) desktop-vw(64px) desktop-vw(8px);
   }
 
   &__loader {
@@ -119,11 +140,6 @@ usePageSeo(computed(() => page.value?.seo))
     justify-content: center;
     gap: desktop-vw(8px);
     padding-bottom: desktop-vw(80px);
-
-    @include mobile {
-      gap: mobile-vw(8px);
-      padding-bottom: mobile-vw(60px);
-    }
   }
 
   &__loader-dot {

@@ -81,7 +81,13 @@ export default defineConfig({
           name: 'block',
           title: 'Block content',
           type: 'array',
-          of: [{ type: 'block' }],
+          of: [{
+            type: 'block',
+            styles: [
+              { title: 'H3', value: 'h3' },
+            ],
+            lists: [],
+          }],
         }),
         defineField({
           name: 'stringList',

@@ -4,6 +4,8 @@
 :root {
   --font-lora: 'Lora', serif;
   --font-haas-grot-disp-medium: 'HaasGrotDispMedium', sans-serif;
+  --font-haas-grot-disp-regular: 'HaasGrotDispRegular', sans-serif;
+  --font-haas-grot-disp-bold: 'HaasGrotDispBold', sans-serif;
 }
 
 body {
@@ -46,7 +48,20 @@ body {
   }
 }
 
+.H4 {
+  font-family: var(--font-haas-grot-disp-medium);
+  font-size: desktop-vw(32px);
+  line-height: desktop-vw(36px);
+  font-weight: 600;
+
+  @include mobile {
+    font-size: mobile-vw(24px);
+    line-height: mobile-vw(32px);
+  }
+}
+
 .P1 {
+  // S
   font-family: var(--font-haas-grot-disp-medium);
   font-size: desktop-vw(20px);
   line-height: desktop-vw(24px);
@@ -59,7 +74,7 @@ body {
 }
 
 .P2 {
-  // font-family: var(--font-lora);
+  // XS
   font-family: var(--font-haas-grot-disp-medium);
   font-size: desktop-vw(18px);
   line-height: desktop-vw(22px);
@@ -68,6 +83,32 @@ body {
   @include mobile {
     font-size: mobile-vw(14px);
     line-height: mobile-vw(18px);
+  }
+}
+
+.P3 {
+  // M
+  font-family: var(--font-haas-grot-disp-medium);
+  font-size: desktop-vw(24px);
+  line-height: desktop-vw(32px);
+  font-weight: 400;
+
+  @include mobile {
+    font-size: mobile-vw(18px);
+    line-height: mobile-vw(22px);
+  }
+}
+
+.P4 {
+  // L
+  font-family: var(--font-haas-grot-disp-medium);
+  font-size: desktop-vw(32px);
+  line-height: desktop-vw(40px);
+  font-weight: 400;
+
+  @include mobile {
+    font-size: mobile-vw(20px);
+    line-height: mobile-vw(26px);
   }
 }
 
@@ -83,6 +124,20 @@ body {
   }
 }
 
+.LABEL-TEXT {
+  font-family: var(--font-haas-grot-disp-regular);
+  font-size: desktop-vw(12px);
+  line-height: desktop-vw(16px);
+  font-weight: 500;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+
+  @include mobile {
+    font-size: mobile-vw(12px);
+    line-height: mobile-vw(14px);
+  }
+}
+
 .CTA-TEXT {
   font-family: var(--font-haas-grot-disp-medium);
   font-size: desktop-vw(20px);
@@ -93,4 +148,9 @@ body {
     font-size: mobile-vw(14px);
     line-height: mobile-vw(18px);
   }
+}
+
+.bold-text {
+  font-family: var(--font-haas-grot-disp-bold);
+  font-weight: 700;
 }

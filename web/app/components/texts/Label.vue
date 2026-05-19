@@ -12,18 +12,12 @@ const props = defineProps({
     type: Boolean,
     default: true,
   },
-  weight: {
-    type: String,
-    default: 'regular',
-    validator: value => ['regular', 'bold'].includes(value),
-  },
 })
 
 const mainRef = ref(null)
 
 const classes = computed(() => ({
   'no-selectable': !props.selectable,
-  'bold-text': props.weight === 'bold',
 }))
 
 defineExpose({
@@ -35,7 +29,7 @@ defineExpose({
   <component
     :is="tag"
     ref="mainRef"
-    class="P2 app-text"
+    class="LABEL-TEXT app-text"
     :class="classes"
     :style="{ color: `var(--c-${color})` }"
   >
@@ -44,7 +38,7 @@ defineExpose({
 </template>
 
 <style lang="scss">
-.P2 {
+.LABEL-TEXT {
   &.no-selectable {
     user-select: none;
   }

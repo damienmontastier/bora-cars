@@ -12,12 +12,18 @@ const props = defineProps({
     type: Boolean,
     default: true,
   },
+  weight: {
+    type: String,
+    default: 'regular',
+    validator: value => ['regular', 'bold'].includes(value),
+  },
 })
 
 const mainRef = ref(null)
 
 const classes = computed(() => ({
   'no-selectable': !props.selectable,
+  'bold-text': props.weight === 'bold',
 }))
 
 defineExpose({

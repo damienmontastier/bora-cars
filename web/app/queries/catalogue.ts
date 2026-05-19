@@ -1,6 +1,6 @@
 import type { SeoData } from './fragments'
 import { imageFields, seoFields } from './fragments'
-import { i18n } from './i18n'
+import { i18n, i18nBlock } from './i18n'
 
 export const CATALOGUE_LIMIT = 18
 
@@ -15,8 +15,14 @@ export interface CatalogueCar {
   rentalTypes?: string[]
 }
 
+export interface CatalogueTextBlock {
+  eyebrow?: string
+  body?: any[]
+}
+
 export interface CatalogueData {
   title?: string
+  contentPreFooter?: CatalogueTextBlock
   seo?: SeoData
   cars: CatalogueCar[]
 }
@@ -33,6 +39,10 @@ const CAR_PROJECTION = `{
 export const CATALOGUE_QUERY = `{
   "page": *[_type == "catalogue"][0]{
     ${i18n('title')},
+    "contentPreFooter": contentPreFooter{
+      ${i18n('eyebrow')},
+      ${i18nBlock('body')}
+    },
     ${seoFields()}
   },
   "cars": *[_type == "car"] | order(_createdAt desc) [$from..$to] ${CAR_PROJECTION},

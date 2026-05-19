@@ -143,6 +143,13 @@ export default defineNuxtConfig({
         display: 'swap',
         global: true,
       },
+      {
+        name: 'HaasGrotDispBold',
+        provider: 'local',
+        weight: 700,
+        display: 'swap',
+        global: true,
+      },
     ],
   },
 

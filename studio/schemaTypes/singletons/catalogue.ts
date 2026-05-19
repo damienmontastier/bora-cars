@@ -18,6 +18,13 @@ export const catalogueType = defineType({
       type: 'internationalizedArrayString',
       group: 'editorial',
     }),
+    defineField({
+      name: 'contentPreFooter',
+      title: 'Contenu (Bloc texte)',
+      type: 'textBlock',
+      group: 'editorial',
+      validation: Rule => Rule.required(),
+    }),
     seoType,
   ],
   preview: {
