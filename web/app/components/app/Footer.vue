@@ -17,6 +17,8 @@ watch(lang, (v) => {
   params.lang = v
 })
 
+const { isMobile } = useBreakpoint()
+
 const { data: footer } = await useSanityQuery<FooterData>(FOOTER_QUERY, params)
 
 const lenis = useLenis()
@@ -112,9 +114,14 @@ function scrollToTop() {
         >
           {{ footer.legalLink.text }}
         </AtomsCTASecondary>
-        <AtomsCTASecondary :theme="ctaTheme" class="app-footer__link CTA-TEXT" @click="scrollToTop">
+        <AtomsCTASecondary :theme="ctaTheme" class="app-footer__link back-to-top CTA-TEXT" @click="scrollToTop">
           Back to top
         </AtomsCTASecondary>
+      </div>
+      <div class="app-footer__divider mobile-divider" />
+
+      <div class="app-footer__bottom-mobile">
+        <SvgLogoMinimalFooter color="white" />
       </div>
     </div>
   </footer>
@@ -183,7 +190,7 @@ function scrollToTop() {
     overflow: hidden;
 
     @include mobile {
-      height: mobile-vw(80px);
+      display: none;
     }
   }
 
@@ -192,12 +199,26 @@ function scrollToTop() {
     height: 1px;
     background-color: var(--c-beige-100);
     opacity: 0.3;
+
+    @include mobile {
+      &:not(.mobile-divider) {
+        display: none;
+      }
+    }
+
+    &.mobile-divider {
+      opacity: 1;
+    }
   }
 
   &__content {
     width: 100%;
     padding: desktop-vw(24px) desktop-vw(24px) desktop-vw(80px);
     overflow: hidden;
+
+    @include mobile {
+      padding: mobile-vw(24px) mobile-vw(24px);
+    }
   }
 
   &__columns {
@@ -205,6 +226,11 @@ function scrollToTop() {
     display: flex;
     gap: desktop-vw(40px);
     align-items: flex-start;
+
+    @include mobile {
+      flex-direction: column;
+      gap: mobile-vw(40px);
+    }
   }
 
   &__column {
@@ -213,6 +239,11 @@ function scrollToTop() {
     flex-direction: column;
     gap: desktop-vw(40px);
     align-items: flex-start;
+
+    @include mobile {
+      gap: mobile-vw(24px);
+      width: 100%;
+    }
   }
 
   &__column-title {
@@ -267,6 +298,39 @@ function scrollToTop() {
     gap: desktop-vw(40px);
     padding: desktop-vw(12px) desktop-vw(16px);
     overflow: hidden;
+
+    @include mobile {
+      gap: mobile-vw(40px);
+      padding: mobile-vw(12px) mobile-vw(16px);
+    }
+  }
+
+  &__bottom-mobile {
+    display: none;
+
+    @include mobile {
+      display: block;
+      width: 100%;
+      padding: mobile-vw(16px);
+      display: flex;
+      justify-content: center;
+    }
+
+    .svg-logo-minimal {
+      width: 100%;
+      height: auto;
+      aspect-ratio: 361 / 189;
+
+      @include mobile {
+        width: mobile-vw(120px);
+      }
+    }
+  }
+
+  &__link.back-to-top {
+    @include mobile {
+      display: none;
+    }
   }
 
   &__copyright {
