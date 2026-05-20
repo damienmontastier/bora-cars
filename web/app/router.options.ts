@@ -18,10 +18,16 @@ function getHashElementScrollMarginTop(selector: string): number {
 }
 
 export default <RouterConfig>{
-  scrollBehavior(to, from, savedPosition) {
+  scrollBehavior(to, from) {
     const nuxtApp = useNuxtApp()
 
     const lenis = (window as any).lenis
+
+    const appStore = useAppStore()
+    if (appStore.menuOpen) {
+      appStore.menuOpen = false
+      lenis?.start()
+    }
 
     if (to.path === from.path) {
       // 1. Gestion des ancres (#)
