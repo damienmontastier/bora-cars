@@ -53,6 +53,11 @@ export const carType = defineType({
       type: 'internationalizedArrayBlock',
     }),
     defineField({
+      name: 'specsLayout',
+      title: 'Mise en page des specs',
+      type: 'specsLayout',
+    }),
+    defineField({
       name: 'rentalTypes',
       title: 'Types de location',
       type: 'array',

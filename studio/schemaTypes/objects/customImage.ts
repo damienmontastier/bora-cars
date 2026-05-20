@@ -21,11 +21,11 @@ export const customImage = defineType({
   ],
   preview: {
     select: {
-      imageUrl: 'asset.url',
+      media: 'asset',
       title: 'alt',
     },
-    prepare({ imageUrl, title }) {
-      return { title: pickLocalized(title), media: imageUrl }
+    prepare({ media, title }) {
+      return { title: pickLocalized(title), media }
     },
   },
 })

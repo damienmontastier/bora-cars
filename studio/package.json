@@ -8,14 +8,17 @@
     "deploy": "sanity deploy"
   },
   "dependencies": {
+    "@dnd-kit/core": "^6.3.1",
+    "@dnd-kit/sortable": "^7.0.2",
+    "@dnd-kit/utilities": "^3.2.2",
     "@sanity/assist": "^6.0.4",
-    "@sanity/language-filter": "^5.0.1",
+    "@sanity/language-filter": "^5.0.2",
     "@sanity/vision": "^5.20.0",
     "react": "^19",
     "react-dom": "^19",
     "react-grid-layout": "^2.2.3",
     "sanity": "^5.22.0",
-    "sanity-plugin-internationalized-array": "^5.1.1",
+    "sanity-plugin-internationalized-array": "^5.1.2",
     "sanity-plugin-link-field": "^1.5.1",
     "styled-components": "^6.1.15"
   },

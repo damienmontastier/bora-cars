@@ -269,8 +269,12 @@ function resetMenu() {
 
   // 1. Hide CTA and collapse the CTA clip first —
   //    logo returns to flex flow only after, without a visible jump
-  if (menuCtaEl)
+  if (menuCtaEl) {
+    // Clear leftover clipPath set by Hero2/Hero3's menuOpen watcher
+    // (otherwise the CTA stays masked when returning to a Hero1 page).
+    gsap.set(menuCtaEl, { clearProps: 'clipPath' })
     menuCtaEl.style.display = 'none'
+  }
   if (clipEl)
     gsap.set(clipEl, { width: 0, clearProps: 'x' })
   if (mainEl)

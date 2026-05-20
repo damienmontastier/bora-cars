@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { onClickOutside } from '@vueuse/core'
-import gsap from 'gsap'
 
 interface Option {
   value: string
@@ -30,7 +29,6 @@ function getOptionId(i: number) {
 
 const rootRef = ref<HTMLDivElement | null>(null)
 const triggerRef = ref<HTMLButtonElement | null>(null)
-const listboxRef = ref<HTMLUListElement | null>(null)
 
 const isOpen = ref(false)
 const activeIndex = ref(-1)
@@ -44,66 +42,17 @@ const displayValue = computed(() => {
   return found?.label ?? props.placeholder ?? ''
 })
 
-let ctx: gsap.Context | undefined
-let anim: gsap.core.Timeline | null = null
-
-const HIDDEN_CLIP = 'inset(0% 0% 100% 0%)'
-const VISIBLE_CLIP = 'inset(0% 0% 0% 0%)'
-
-onMounted(() => {
-  ctx = gsap.context(() => {
-    gsap.set(listboxRef.value, { clipPath: HIDDEN_CLIP })
-    gsap.set('.atoms-select__option', { y: -8, opacity: 0 })
-  }, rootRef.value!)
-})
-
-onUnmounted(() => {
-  anim?.kill()
-  ctx?.revert()
-})
-
 function open() {
   if (isOpen.value)
     return
   isOpen.value = true
   activeIndex.value = selectedIndex.value >= 0 ? selectedIndex.value : 0
-  ctx?.add(() => {
-    anim?.kill()
-    anim = gsap.timeline()
-      .to(listboxRef.value, {
-        clipPath: VISIBLE_CLIP,
-        duration: 0.6,
-        ease: 'expo.out',
-      }, 0)
-      .fromTo(
-        '.atoms-select__option',
-        { y: -8, opacity: 0 },
-        { y: 0, opacity: 1, duration: 0.4, ease: 'expo.out', stagger: 0.035 },
-        0.05,
-      )
-  })
 }
 
 function close() {
   if (!isOpen.value)
     return
   isOpen.value = false
-  ctx?.add(() => {
-    anim?.kill()
-    anim = gsap.timeline()
-      .to('.atoms-select__option', {
-        y: -8,
-        opacity: 0,
-        duration: 0.2,
-        ease: 'power2.in',
-        stagger: { each: 0.02, from: 'end' },
-      }, 0)
-      .to(listboxRef.value, {
-        clipPath: HIDDEN_CLIP,
-        duration: 0.35,
-        ease: 'expo.in',
-      }, 0.05)
-  })
 }
 
 function toggle() {
@@ -206,8 +155,8 @@ function onKeydown(e: KeyboardEvent) {
 
     <ul
       :id="listboxId"
-      ref="listboxRef"
       class="atoms-select__listbox"
+      :class="{ 'atoms-select__listbox--open': isOpen }"
       role="listbox"
       :aria-labelledby="triggerId"
       tabindex="-1"
@@ -218,6 +167,7 @@ function onKeydown(e: KeyboardEvent) {
         :id="getOptionId(i)"
         :key="option.value"
         :data-index="i"
+        :style="{ '--i': i }"
         role="option"
         :aria-selected="option.value === modelValue"
         class="atoms-select__option"
@@ -226,7 +176,6 @@ function onKeydown(e: KeyboardEvent) {
           'atoms-select__option--selected': option.value === modelValue,
         }"
         @click="selectOption(option.value)"
-        @mousemove="activeIndex = i"
       >
         <TextsP1>{{ option.label }}</TextsP1>
       </li>
@@ -323,7 +272,14 @@ function onKeydown(e: KeyboardEvent) {
     margin: 0;
     padding: desktop-vw(8px) 0;
     box-shadow: 0 desktop-vw(8px) desktop-vw(32px) rgba(0, 0, 0, 0.12);
+    clip-path: inset(0% 0% 100% 0%);
+    transition: clip-path 0.35s cubic-bezier(0.7, 0, 0.84, 0);
     will-change: clip-path;
+
+    &--open {
+      clip-path: inset(0% 0% 0% 0%);
+      transition: clip-path 0.55s cubic-bezier(0.16, 1, 0.3, 1);
+    }
 
     @include mobile {
       top: calc(100% + #{mobile-vw(6px)});
@@ -333,22 +289,52 @@ function onKeydown(e: KeyboardEvent) {
   }
 
   &__option {
-    padding: desktop-vw(12px) desktop-vw(28px);
+    position: relative;
+    padding: desktop-vw(22px) desktop-vw(28px);
     cursor: pointer;
     color: var(--c-black-100);
-    transition: background 0.15s ease;
+    opacity: 0;
+    transform: translateY(-8px);
+    transition:
+      background 0.15s ease,
+      opacity 0.2s ease-in,
+      transform 0.2s ease-in;
 
-    &--active {
-      background: var(--c-beige-60);
+    &--selected::before {
+      content: '';
+      position: absolute;
+      left: desktop-vw(12px);
+      top: 50%;
+      width: desktop-vw(6px);
+      height: desktop-vw(6px);
+      border-radius: 50%;
+      background: var(--c-orange, var(--c-black-100));
+      transform: translateY(-50%);
+
+      @include mobile {
+        left: mobile-vw(8px);
+        width: mobile-vw(5px);
+        height: mobile-vw(5px);
+      }
     }
 
-    &--selected {
-      background: var(--c-beige-100);
+    &:hover,
+    &--active {
+      background: var(--c-beige-60);
     }
 
     @include mobile {
       padding: mobile-vw(10px) mobile-vw(20px);
     }
+  }
+
+  &__listbox--open &__option {
+    opacity: 1;
+    transform: translateY(0);
+    transition:
+      background 0.15s ease 0s,
+      opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1) calc(0.05s + var(--i, 0) * 0.035s),
+      transform 0.4s cubic-bezier(0.16, 1, 0.3, 1) calc(0.05s + var(--i, 0) * 0.035s);
   }
 }
 </style>

@@ -110,7 +110,7 @@ const contactTo = computed(() => {
 
 <style lang="scss">
 .car-pricing {
-  flex: 0 0 desktop-vw(450px);
+  flex: 0 0 desktop-vw(520px);
   background: var(--c-white);
   border-radius: desktop-vw(16px);
   padding: desktop-vw(40px);

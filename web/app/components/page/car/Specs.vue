@@ -24,100 +24,66 @@ const GAMME_LABELS: Record<string, string> = {
   break: 'Break',
 }
 
-const hasTeinte = computed(() => !!props.car.teinteExterieure || !!props.car.teinteInterieure)
-const hasInfo = computed(() => !!props.car.nombrePlaces || !!props.car.nombrePortes || !!props.car.gamme)
-const hasPerf = computed(() => !!props.car.puissance || !!props.car.annee || !!props.car.boiteVitesse)
-const hasCarburant = computed(() => !!props.car.carburant)
+interface Spec { key: string, label: string, value: string | number }
+
+function buildSpec(key: string, car: CarDetailData): Spec | null {
+  switch (key) {
+    case 'teinteExterieure':
+      return car.teinteExterieure ? { key, label: 'Teinte extérieure', value: car.teinteExterieure } : null
+    case 'teinteInterieure':
+      return car.teinteInterieure ? { key, label: 'Teintes intérieures & matière', value: car.teinteInterieure } : null
+    case 'nombrePlaces':
+      return car.nombrePlaces ? { key, label: 'Places', value: car.nombrePlaces } : null
+    case 'nombrePortes':
+      return car.nombrePortes ? { key, label: 'Portes', value: car.nombrePortes } : null
+    case 'gamme':
+      return car.gamme ? { key, label: 'Gamme', value: GAMME_LABELS[car.gamme] ?? car.gamme } : null
+    case 'annee':
+      return car.annee ? { key, label: 'Année', value: car.annee } : null
+    case 'boiteVitesse':
+      return car.boiteVitesse ? { key, label: 'Boîte', value: BOITE_LABELS[car.boiteVitesse] ?? car.boiteVitesse } : null
+    case 'carburant':
+      return car.carburant ? { key, label: 'Carburant', value: CARBURANT_LABELS[car.carburant] ?? car.carburant } : null
+    default:
+      return null
+  }
+}
+
+const fixedSpecs = computed<Spec[]>(() =>
+  (props.car.specsLayout?.fixed ?? [])
+    .map(k => buildSpec(k, props.car))
+    .filter((s): s is Spec => s !== null),
+)
+
+const listSpecs = computed<Spec[]>(() =>
+  (props.car.specsLayout?.list ?? [])
+    .map(k => buildSpec(k, props.car))
+    .filter((s): s is Spec => s !== null),
+)
 </script>
 
 <template>
-  <div class="car-specs">
-    <div v-if="hasTeinte" class="car-specs__row car-specs__row--fixed">
-      <div v-if="car.teinteExterieure" class="car-specs__item">
+  <div v-if="fixedSpecs.length || listSpecs.length" class="car-specs">
+    <div v-if="fixedSpecs.length" class="car-specs__row car-specs__row--fixed">
+      <div v-for="spec in fixedSpecs" :key="spec.key" class="car-specs__item">
         <TextsP2 class="car-specs__label">
-          Teinte extérieure
+          {{ spec.label }}
         </TextsP2>
         <TextsP1 class="car-specs__value">
-          {{ car.teinteExterieure }}
-        </TextsP1>
-      </div>
-      <div v-if="car.teinteInterieure" class="car-specs__item">
-        <TextsP2 class="car-specs__label">
-          Teintes intérieures & matière
-        </TextsP2>
-        <TextsP1 class="car-specs__value">
-          {{ car.teinteInterieure }}
+          {{ spec.value }}
         </TextsP1>
       </div>
     </div>
 
-    <hr v-if="hasTeinte && hasInfo" class="car-specs__divider">
+    <hr v-if="fixedSpecs.length && listSpecs.length" class="car-specs__divider">
 
-    <div v-if="hasInfo" class="car-specs__row">
-      <div v-if="car.nombrePlaces" class="car-specs__item">
+    <div v-if="listSpecs.length" class="car-specs__row car-specs__row--list">
+      <div v-for="spec in listSpecs" :key="spec.key" class="car-specs__item">
         <TextsP2 color="black-70" class="car-specs__label">
-          Places
+          {{ spec.label }}
         </TextsP2>
         <TextsP1 class="car-specs__value">
-          {{ car.nombrePlaces }}
-        </TextsP1>
-      </div>
-      <div v-if="car.nombrePortes" class="car-specs__item">
-        <TextsP2 color="black-70" class="car-specs__label">
-          Portes
-        </TextsP2>
-        <TextsP1 class="car-specs__value">
-          {{ car.nombrePortes }}
-        </TextsP1>
-      </div>
-      <div v-if="car.gamme" class="car-specs__item">
-        <TextsP2 color="black-70" class="car-specs__label">
-          Gamme
-        </TextsP2>
-        <TextsP1 class="car-specs__value">
-          {{ GAMME_LABELS[car.gamme] ?? car.gamme }}
-        </TextsP1>
-      </div>
-    </div>
-
-    <hr v-if="hasInfo && hasPerf" class="car-specs__divider">
-
-    <div v-if="hasPerf" class="car-specs__row">
-      <div v-if="car.puissance" class="car-specs__item">
-        <TextsP2 color="black-70" class="car-specs__label">
-          Puissance (ch)
-        </TextsP2>
-        <TextsP1 class="car-specs__value">
-          {{ car.puissance }} ch
-        </TextsP1>
-      </div>
-      <div v-if="car.annee" class="car-specs__item">
-        <TextsP2 color="black-70" class="car-specs__label">
-          Année
-        </TextsP2>
-        <TextsP1 class="car-specs__value">
-          {{ car.annee }}
-        </TextsP1>
-      </div>
-      <div v-if="car.boiteVitesse" class="car-specs__item">
-        <TextsP2 color="black-70" class="car-specs__label">
-          Boîte
-        </TextsP2>
-        <TextsP1 class="car-specs__value">
-          {{ BOITE_LABELS[car.boiteVitesse] ?? car.boiteVitesse }}
-        </TextsP1>
-      </div>
-    </div>
-
-    <hr v-if="hasPerf && hasCarburant" class="car-specs__divider">
-
-    <div v-if="hasCarburant" class="car-specs__row">
-      <div class="car-specs__item car-specs__item--full">
-        <TextsP2 color="black-70" class="car-specs__label">
-          Carburant
-        </TextsP2>
-        <TextsP1 class="car-specs__value">
-          {{ CARBURANT_LABELS[car.carburant!] ?? car.carburant }}
+          {{ spec.value }}
         </TextsP1>
       </div>
     </div>
@@ -134,11 +100,11 @@ const hasCarburant = computed(() => !!props.car.carburant)
     gap: desktop-vw(32px);
     padding: desktop-vw(24px) 0;
     align-items: flex-start;
+    flex-wrap: wrap;
 
     @include mobile {
       gap: mobile-vw(16px);
       padding: mobile-vw(16px) 0;
-      flex-wrap: wrap;
     }
 
     &--fixed > .car-specs__item {
@@ -148,10 +114,17 @@ const hasCarburant = computed(() => !!props.car.carburant)
         flex: 1 0 calc(50% - #{mobile-vw(8px)});
       }
     }
+
+    &--list > .car-specs__item {
+      flex: 0 0 calc((100% - #{desktop-vw(32px * 3)}) / 3);
+
+      @include mobile {
+        flex: 1 0 calc(50% - #{mobile-vw(8px)});
+      }
+    }
   }
 
   &__item {
-    flex: 1 0 0;
     min-width: 0;
     display: flex;
     flex-direction: column;
@@ -159,10 +132,6 @@ const hasCarburant = computed(() => !!props.car.carburant)
 
     @include mobile {
       gap: mobile-vw(6px);
-    }
-
-    &--full {
-      flex: 1 0 100%;
     }
   }
 

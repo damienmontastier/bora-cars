@@ -1,6 +1,8 @@
 <script lang="ts" setup>
 import type { CarDetailData, CarPreFooter } from '~/queries/car'
 import { CAR_QUERY } from '~/queries/car'
+import { useEventBus } from '@vueuse/core'
+import gsap from 'gsap'
 
 interface QueryResult {
   car: CarDetailData | null
@@ -29,13 +31,25 @@ const hasDescription = computed(() => Array.isArray(car.value?.description) && c
 usePageSeo(computed(() => car.value
   ? { title: `${car.value.marque} ${car.value.modele}`, image: car.value.ogImageUrl }
   : undefined))
+
+// Menu CTA is permanently shown on this page (no hero flip). resetMenu on the
+// next page transition handles the collapse.
+const heroCTABus = useEventBus('hero-cta')
+onMounted(() => {
+  const menuCtaEl = document.querySelector<HTMLElement>('.app-menu__cta')
+  if (!menuCtaEl)
+    return
+  gsap.set(menuCtaEl, { clearProps: 'display,opacity,visibility,clipPath' })
+  heroCTABus.emit('enter:snap')
+  gsap.set(menuCtaEl, { opacity: 1 })
+})
 </script>
 
 <template>
   <main class="page-car">
     <PageCarHero v-menu-theme="'white'" :car="car!" />
 
-    <section v-menu-theme="'black'" class="page-car__details">
+    <section v-menu-theme="'white'" class="page-car__details">
       <div class="page-car__left">
         <TextsH2 tag="h1" class="page-car__title">
           {{ car?.marque }}<br>{{ car?.modele }}
@@ -55,6 +69,9 @@ usePageSeo(computed(() => car.value
           <hr class="page-car__divider">
           <PageCarOptions :equipements="car.equipements" />
         </template>
+
+        <hr class="page-car__divider">
+        <PageCarMissingInfo :car="car!" />
       </div>
 
       <PageCarPricing v-if="car?.prixJournalier || car?.location" :car="car!" />
@@ -74,11 +91,10 @@ usePageSeo(computed(() => car.value
 .page-car {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
 
   &__details {
     display: flex;
-    gap: desktop-vw(80px);
+    gap: desktop-vw(140px);
     padding: desktop-vw(40px) desktop-vw(24px);
     background: var(--c-beige-100);
     align-items: flex-start;

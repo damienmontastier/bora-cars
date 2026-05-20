@@ -36,6 +36,7 @@ import { customMedia } from './objects/customMedia'
 import { customLink } from './objects/customLink'
 import { navLink } from './objects/navLink'
 import { processStepType } from './objects/processStep'
+import { specsLayoutType } from './objects/specsLayout'
 
 export const schemaTypes: SchemaTypeDefinition[] = [
   // Singletons
@@ -74,4 +75,5 @@ export const schemaTypes: SchemaTypeDefinition[] = [
   customLink,
   navLink,
   processStepType,
+  specsLayoutType,
 ]

@@ -14,7 +14,7 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 const settings = useSettings()
-const { menuTheme } = storeToRefs(useAppStore())
+const { menuTheme, menuOpen } = storeToRefs(useAppStore())
 const ctaTheme = computed(() => menuTheme.value === 'black' ? 'white' : menuTheme.value)
 const logoColor = computed(() => menuTheme.value === 'white' ? 'beige-100' : `${menuTheme.value}-100`)
 const heroCTABus = useEventBus('hero-cta')
@@ -111,6 +111,38 @@ useSplitTextAnimation(() => headingRef.value?.$el, {
 useSplitTextAnimation(() => taglineRef.value?.$el, {
   style: 'slide-x',
   scrollTrigger: { start: 'top 95%', end: 'center 75%' },
+})
+
+// When the menu opens before the hero CTA flip has fired (top of hero), reveal
+// the menu CTA via clip-path — same behaviour as Hero2/Hero3. Once the flip has
+// already brought the CTA into the menu (ctaInView=true), do nothing: the CTA
+// is already visible and the scroll-driven animation owns its state.
+watch(menuOpen, (open) => {
+  if (!menuCtaEl || ctaInView.value)
+    return
+
+  if (open) {
+    heroCTABus.emit('enter:snap')
+    gsap.set(menuCtaEl, { opacity: 1 })
+    gsap.fromTo(
+      menuCtaEl,
+      { clipPath: 'inset(0 100% 0 0)' },
+      { clipPath: 'inset(0 0% 0 0)', duration: 0.4, ease: 'power3.inOut', delay: 0.3 },
+    )
+  }
+  else {
+    const clipEl = document.querySelector<HTMLElement>('.app-menu__main-clip')
+    gsap.to(menuCtaEl, {
+      clipPath: 'inset(0 0 0 100%)',
+      duration: 0.3,
+      ease: 'power3.inOut',
+      onComplete: () => {
+        if (clipEl)
+          gsap.set(clipEl, { width: 0 })
+        gsap.set(menuCtaEl, { display: 'none', opacity: 0, clearProps: 'clipPath' })
+      },
+    })
+  }
 })
 
 let ctx: gsap.Context
@@ -237,7 +269,7 @@ onMounted(() => {
   menuCtaEl = document.querySelector<HTMLElement>('.app-menu__cta')
 
   if (menuCtaEl)
-    gsap.set(menuCtaEl, { clearProps: 'display,opacity,visibility' })
+    gsap.set(menuCtaEl, { clearProps: 'display,opacity,visibility,clipPath' })
 
   const heroCta = ctaRef.value?.$el
   if (heroCta)

@@ -49,7 +49,7 @@ watch(slides, () => {
     </div>
 
     <UtilsBaseLink to="/catalogue" class="car-hero__back" aria-label="Retour au catalogue">
-      <SvgIconArrow color="white" />
+      <SvgIconComplexArrow />
     </UtilsBaseLink>
 
     <div v-if="slides.length > 1" class="car-hero__dots">
@@ -74,10 +74,6 @@ watch(slides, () => {
   overflow: hidden;
   background: var(--c-beige-20);
 
-  @include mobile {
-    height: mobile-vw(500px);
-  }
-
   &__media {
     position: absolute;
     inset: 0;
@@ -97,26 +93,18 @@ watch(slides, () => {
   }
 
   &__back {
-    position: absolute;
+    position: fixed;
     top: desktop-vw(16px);
     left: desktop-vw(16px);
-    width: desktop-vw(48px);
-    height: desktop-vw(48px);
+    padding: desktop-vw(8px);
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 2;
+    z-index: 999;
 
-    .svg-logo {
-      width: 100%;
-      height: 100%;
-    }
-
-    @include mobile {
-      top: mobile-vw(12px);
-      left: mobile-vw(12px);
-      width: mobile-vw(40px);
-      height: mobile-vw(40px);
+    .svg-icon-complex-arrow {
+      width: desktop-vw(48px);
+      height: desktop-vw(48px);
     }
   }
 
@@ -131,12 +119,6 @@ watch(slides, () => {
     gap: desktop-vw(8px);
     padding: desktop-vw(24px);
     z-index: 2;
-
-    @include mobile {
-      bottom: mobile-vw(16px);
-      gap: mobile-vw(6px);
-      padding: mobile-vw(16px);
-    }
   }
 
   &__dot {
@@ -157,11 +139,6 @@ watch(slides, () => {
       &:hover {
         background: var(--c-white);
       }
-    }
-
-    @include mobile {
-      width: mobile-vw(10px);
-      height: mobile-vw(10px);
     }
   }
 }
