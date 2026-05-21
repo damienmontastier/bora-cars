@@ -66,6 +66,7 @@ export interface BrandsSection {
 export interface MarqueeItem {
   _key: string
   label: string
+  slug?: string
 }
 
 export interface FullscreenMarqueeData {
@@ -94,7 +95,7 @@ export type PageModule
   = | ({ _type: 'hero', _key: string } & HeroData)
     | { _type: 'serviceCards', _key: string, cards: ServiceCard[] }
     | { _type: 'pitch', _key: string, eyebrow?: string, heading?: string, subtext?: string }
-    | { _type: 'process', _key: string, steps: Array<{ _key: string, title: string, description?: string }> }
+    | { _type: 'process', _key: string, numbering?: 'letter' | 'number', steps: Array<{ _key: string, title: string, description?: string }> }
     | ({ _type: 'brandsSection', _key: string } & BrandsSection)
     | ({ _type: 'fullscreenMarquee', _key: string } & FullscreenMarqueeData)
     | { _type: 'title', _key: string, eyebrow?: string, heading?: string }
@@ -144,6 +145,7 @@ export const MODULES_PROJECTION = `"modules": modules[]{
     ${i18n('subtext')}
   },
   _type == "process" => {
+    numbering,
     "steps": steps[]{ _key, ${i18n('title')}, ${i18n('description')} }
   },
   _type == "brandsSection" => {
@@ -163,7 +165,7 @@ export const MODULES_PROJECTION = `"modules": modules[]{
     }
   },
   _type == "fullscreenMarquee" => {
-    "items": items[]->{ "_key": _id, "label": ${CAR_LABEL_PROJECTION} },
+    "items": items[]->{ "_key": _id, "label": ${CAR_LABEL_PROJECTION}, "slug": slug.current },
     "cta": cta {
       ${i18n('label', 'text')},
       "type": link.type,

@@ -7,7 +7,7 @@ const props = withDefaults(defineProps<{
 }>(), {
   threshold: 0,
   borderRadius: '0px',
-  blur: '24px',
+  blur: '16px',
 })
 
 const REVEAL_S_PER_1000PX = 1.25

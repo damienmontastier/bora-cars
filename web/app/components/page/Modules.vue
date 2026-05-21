@@ -24,7 +24,7 @@ const otherModules = computed(() =>
   <template v-for="module in otherModules" :key="module._key">
     <ElementsServicesCards v-if="module._type === 'serviceCards'" :cards="module.cards" />
     <ElementsPitch v-else-if="module._type === 'pitch'" :data="module" />
-    <ElementsProcessSteps v-else-if="module._type === 'process'" :steps="module.steps" />
+    <ElementsProcessSteps v-else-if="module._type === 'process'" :steps="module.steps" :numbering="module.numbering" />
     <ElementsBrandsSection v-else-if="module._type === 'brandsSection'" :data="module" />
     <ElementsFullscreenMarquee v-else-if="module._type === 'fullscreenMarquee'" :data="module" />
     <ElementsTitle v-else-if="module._type === 'title'" :eyebrow="module.eyebrow" :heading="module.heading" />

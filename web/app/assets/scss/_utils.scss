@@ -25,7 +25,35 @@
   }
 }
 
-// SplitText char elements — applied globally so all useSplitTextAnimation instances benefit
-.char {
+// SplitText split units — applied globally so all useSplitTextAnimation instances benefit
+.char,
+.word,
+.line {
   will-change: transform;
+}
+
+// SplitText mask wrappers — prevent glyph descender / diacritic clipping when
+// `mask` is set on the split (overflow: clip would otherwise cut letters like
+// y, g, p at the line baseline). Sized in `em` so it scales with the heading's
+// font-size (small headings need less breathing room than large ones). The
+// negative margin neutralises layout impact.
+.char-mask,
+.word-mask,
+.line-mask {
+  padding-block: 0.15em;
+  margin-block: -0.15em;
+}
+
+// Visually-hidden but exposed to assistive tech.
+// Used by Texts components alongside an aria-hidden split copy.
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }

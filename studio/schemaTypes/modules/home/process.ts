@@ -10,6 +10,20 @@ export const processType = defineType({
   components: { preview: ModuleThumbnailPreview },
   fields: [
     defineField({
+      name: 'numbering',
+      title: 'Numérotation',
+      type: 'string',
+      description: 'Style de numérotation des étapes',
+      initialValue: 'letter',
+      options: {
+        list: [
+          { title: '(A), (B), (C)…', value: 'letter' },
+          { title: '(1), (2), (3)…', value: 'number' },
+        ],
+        layout: 'radio',
+      },
+    }),
+    defineField({
       name: 'steps',
       title: 'Étapes du processus',
       type: 'array',

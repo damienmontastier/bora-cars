@@ -143,12 +143,15 @@ onUnmounted(() => {
     <div class="app-elements-brands-section__text">
       <div class="app-elements-brands-section__text-content">
         <div class="app-elements-brands-section__text-headline">
-          <TextsP2 v-if="data?.surtitle" color="beige-100">
-            {{ data.surtitle }}
-          </TextsP2>
           <TextsH3 v-if="data?.heading" color="beige-100">
+            <TextsP2 v-if="data?.surtitle" tag="span" color="beige-100">
+              {{ data.surtitle }}
+            </TextsP2>
             {{ data.heading }}
           </TextsH3>
+          <TextsP2 v-else-if="data?.surtitle" color="beige-100">
+            {{ data.surtitle }}
+          </TextsP2>
         </div>
 
         <AtomsCTA v-if="settings?.contactLink?.text" theme="white" :tiret-after="0" :to="settings.contactLink">
@@ -222,12 +225,11 @@ onUnmounted(() => {
     &-headline {
       width: 100%;
 
-      .P2,
       .H3 {
-        display: inline;
+        white-space: pre-line;
       }
 
-      .P2 {
+      .H3 .P2 {
         margin-right: desktop-vw(16px);
       }
     }

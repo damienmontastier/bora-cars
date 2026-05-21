@@ -29,7 +29,6 @@ const sharedMarqueeProps = computed(() => ({
   duration: 30,
   repeat: 4,
   animatedOnMobile: true,
-  pauseOnHover: true,
   scrollVelocity: true,
   scrollVelocitySpeed: 1.5,
   trigger: rootRef.value,
@@ -93,6 +92,8 @@ onUnmounted(() => {
       </UtilsParallax>
     </div>
 
+    <div class="app-elements-fullscreen-marquee__overlay" />
+
     <!-- Marquee rows -->
     <div ref="rowsRef" class="app-elements-fullscreen-marquee__rows">
       <!-- Row 1 — first half, scrolls left -->
@@ -101,14 +102,19 @@ onUnmounted(() => {
         class="app-elements-fullscreen-marquee__row"
       >
         <div class="app-elements-fullscreen-marquee__row-wrapper">
-          <TextsH1
+          <UtilsBaseLink
             v-for="item in row1Items"
             :key="item._key"
-            color="beige-100"
-            class="app-elements-fullscreen-marquee__item"
+            :to="item.slug ? { name: 'car-uid', params: { uid: item.slug } } : undefined"
+            class="app-elements-fullscreen-marquee__link"
           >
-            {{ item.label }}
-          </TextsH1>
+            <TextsH1
+              color="beige-100"
+              class="app-elements-fullscreen-marquee__item"
+            >
+              {{ item.label }}
+            </TextsH1>
+          </UtilsBaseLink>
         </div>
       </ElementsMarquee>
 
@@ -119,14 +125,19 @@ onUnmounted(() => {
         class="app-elements-fullscreen-marquee__row"
       >
         <div class="app-elements-fullscreen-marquee__row-wrapper">
-          <TextsH1
+          <UtilsBaseLink
             v-for="item in row2Items"
             :key="item._key"
-            color="beige-100"
-            class="app-elements-fullscreen-marquee__item"
+            :to="item.slug ? { name: 'car-uid', params: { uid: item.slug } } : undefined"
+            class="app-elements-fullscreen-marquee__link"
           >
-            {{ item.label }}
-          </TextsH1>
+            <TextsH1
+              color="beige-100"
+              class="app-elements-fullscreen-marquee__item"
+            >
+              {{ item.label }}
+            </TextsH1>
+          </UtilsBaseLink>
         </div>
       </ElementsMarquee>
 
@@ -156,6 +167,14 @@ onUnmounted(() => {
     overflow: hidden;
   }
 
+  &__overlay {
+    position: absolute;
+    inset: 0;
+    background-color: var(--c-black-50);
+    z-index: 1;
+    pointer-events: none;
+  }
+
   &__background {
     width: 100%;
     height: 100%;
@@ -171,13 +190,16 @@ onUnmounted(() => {
     top: 0;
     left: 0;
     right: 0;
-    z-index: 1;
+    z-index: 2;
     display: flex;
     flex-direction: column;
     will-change: transform;
   }
 
   &__row {
+    padding-block: 15px;
+    margin-block: -15px;
+
     .app-elements-marquee__inner {
       gap: desktop-vw(64px);
       padding-right: desktop-vw(64px);
@@ -188,6 +210,13 @@ onUnmounted(() => {
       flex-shrink: 0;
       gap: desktop-vw(64px);
     }
+  }
+
+  &__link {
+    display: block;
+    flex-shrink: 0;
+    text-decoration: none;
+    color: inherit;
   }
 
   &__item {
@@ -201,7 +230,7 @@ onUnmounted(() => {
     z-index: 2;
     align-self: flex-end;
     margin-top: desktop-vw(16px);
-    margin-right: desktop-vw(16px);
+    margin-right: desktop-vw(24px);
   }
 }
 </style>

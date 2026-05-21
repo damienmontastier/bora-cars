@@ -130,7 +130,6 @@ watch(isOutside, () => {
   gsap.to(tween, { timeScale: isOutside.value ? 1 : 0, duration: 1 })
 })
 
-
 watch(isMobile, async () => {
   teardownAnimation()
 
@@ -178,7 +177,7 @@ defineExpose({ mainRef, wrapperRef })
 <style lang="scss">
 .app-elements-marquee {
   position: relative;
-  overflow: hidden;
+  // overflow: hidden;
 
   &__wrapper {
     display: flex;

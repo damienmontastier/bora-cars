@@ -24,8 +24,6 @@ const ctaRef = ref<{ $el: HTMLElement } | null>(null)
 const ctaInView = ref(false)
 const mainRef = useTemplateRef('mainRef')
 const bottomRef = useTemplateRef('bottomRef')
-const headingRef = useTemplateRef<{ $el: HTMLElement }>('headingRef')
-const taglineRef = useTemplateRef<{ $el: HTMLElement }>('taglineRef')
 const logoRef = useTemplateRef<{ $el: HTMLElement }>('logoRef')
 
 // DrawSVG animation state
@@ -102,16 +100,6 @@ if (import.meta.dev) {
     folder.addButton({ title: '▶ Replay' }).on('click', initDrawLogo)
   })
 }
-
-useSplitTextAnimation(() => headingRef.value?.$el, {
-  style: 'slide-x',
-  scrollTrigger: { start: 'top 85%', end: 'bottom center' },
-})
-
-useSplitTextAnimation(() => taglineRef.value?.$el, {
-  style: 'slide-x',
-  scrollTrigger: { start: 'top 95%', end: 'center 75%' },
-})
 
 // When the menu opens before the hero CTA flip has fired (top of hero), reveal
 // the menu CTA via clip-path — same behaviour as Hero2/Hero3. Once the flip has
@@ -364,7 +352,7 @@ onUnmounted(() => {
       </div>
 
       <div class="app-elements-hero-1__middle">
-        <TextsH1 v-if="data?.heading" ref="headingRef" color="beige-100">
+        <TextsH1 v-if="data?.heading" color="beige-100">
           {{ data.heading }}
         </TextsH1>
 
@@ -380,7 +368,7 @@ onUnmounted(() => {
       </div>
 
       <div ref="bottomRef" class="app-elements-hero-1__bottom">
-        <TextsH3 v-if="data?.tagline" ref="taglineRef" color="beige-100">
+        <TextsH3 v-if="data?.tagline" color="beige-100">
           {{ data.tagline }}
         </TextsH3>
       </div>

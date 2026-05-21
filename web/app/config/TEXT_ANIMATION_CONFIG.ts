@@ -24,11 +24,13 @@ export interface TextAnimationPreset {
 
 // ─── Shared helpers ──────────────────────────────────────────────────────────
 
-const perspective = (targets: Element[], depth = 2000) =>
-  targets.forEach(el => gsapDefault.set(el.parentNode as Element, { perspective: depth }))
+function perspective(targets: Element[], depth = 2000) {
+  return targets.forEach(el => gsapDefault.set(el.parentNode as Element, { perspective: depth }))
+}
 
-const wordChars = (word: Element) =>
-  [...word.querySelectorAll('.char')] as Element[]
+function wordChars(word: Element) {
+  return [...word.querySelectorAll('.char')] as Element[]
+}
 
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -47,9 +49,9 @@ export const TEXT_ANIMATION_CONFIG = {
   /** Lines slide up from below (clipped) */
   'slide-y': {
     split: { type: 'lines', mask: 'lines' },
-    from: { yPercent: 105 },
-    to: { yPercent: 0, duration: 1, ease: 'expo', stagger: 0.08 },
-    scrollTrigger: { start: 'top bottom', end: 'top center', scrub: true },
+    from: { yPercent: 110 },
+    to: { yPercent: 0, duration: 0.85, ease: 'expo.out', stagger: 0.1 },
+    scrollTrigger: { start: 'top bottom-=15%', scrub: false },
   },
 
   /** fx1 — chars scatter in: scale up + random rotation */
@@ -180,14 +182,8 @@ export const TEXT_ANIMATION_CONFIG = {
   'word-fade': {
     split: { type: 'words', mask: undefined },
     animate: (el, _c, words, _l, st) => {
-      gsapDefault.fromTo(el,
-        { transformOrigin: '0% 50%', rotate: 3 },
-        { ease: 'none', rotate: 0, scrollTrigger: { ...st, start: 'top bottom', end: 'top top' } },
-      )
-      gsapDefault.fromTo(words,
-        { opacity: 0.1 },
-        { ease: 'none', opacity: 1, stagger: 0.05, scrollTrigger: { ...st, start: 'top bottom-=20%', end: 'center top+=20%' } },
-      )
+      gsapDefault.fromTo(el, { transformOrigin: '0% 50%', rotate: 3 }, { ease: 'none', rotate: 0, scrollTrigger: { ...st, start: 'top bottom', end: 'top top' } })
+      gsapDefault.fromTo(words, { opacity: 0.1 }, { ease: 'none', opacity: 1, stagger: 0.05, scrollTrigger: { ...st, start: 'top bottom-=20%', end: 'center top+=20%' } })
     },
     scrollTrigger: { scrub: true },
   },
@@ -245,7 +241,11 @@ export const TEXT_ANIMATION_CONFIG = {
           z: () => gsapDefault.utils.random(-1500, -600),
           rotationX: () => gsapDefault.utils.random(-500, -200),
         }, {
-          ease: 'power1.inOut', opacity: 1, y: 0, z: 0, rotationX: 0,
+          ease: 'power1.inOut',
+          opacity: 1,
+          y: 0,
+          z: 0,
+          rotationX: 0,
           stagger: { each: 0.06, from: 'center' },
           scrollTrigger: { ...st, trigger: word, start: 'top bottom', end: 'top top+=15%' },
         })
@@ -264,12 +264,17 @@ export const TEXT_ANIMATION_CONFIG = {
         perspective(wc, 1000)
         const factor = (i: number) => i < Math.ceil(n / 2) ? i : Math.ceil(n / 2) - Math.abs(Math.floor(n / 2) - i) - 1
         gsapDefault.fromTo(wc, {
-          x: (i) => (n % 2 ? Math.abs(Math.ceil(n / 2) - 1 - factor(i)) : Math.abs(Math.ceil(n / 2) - factor(i))) * 200 * (i < n / 2 ? -1 : 1),
-          y: (i) => factor(i) * 60,
+          x: i => (n % 2 ? Math.abs(Math.ceil(n / 2) - 1 - factor(i)) : Math.abs(Math.ceil(n / 2) - factor(i))) * 200 * (i < n / 2 ? -1 : 1),
+          y: i => factor(i) * 60,
           rotationY: -270,
-          rotationZ: (i) => i < n / 2 ? Math.abs(factor(i) - n / 2) * 8 : -Math.abs(factor(i) - n / 2) * 8,
+          rotationZ: i => i < n / 2 ? Math.abs(factor(i) - n / 2) * 8 : -Math.abs(factor(i) - n / 2) * 8,
         }, {
-          ease: 'power2.inOut', x: 0, y: 0, rotationZ: 0, rotationY: 0, scale: 1,
+          ease: 'power2.inOut',
+          x: 0,
+          y: 0,
+          rotationZ: 0,
+          rotationY: 0,
+          scale: 1,
           scrollTrigger: { ...st, trigger: word, start: 'top bottom+=40%', end: 'top top+=15%' },
         })
       }
@@ -287,7 +292,9 @@ export const TEXT_ANIMATION_CONFIG = {
           scale: 0.01,
           x: (i, _, arr) => wi % 2 ? i * 50 : (arr.length - i - 1) * -50,
         }, {
-          ease: 'power4', scale: 1, x: 0,
+          ease: 'power4',
+          scale: 1,
+          x: 0,
           scrollTrigger: { ...st, trigger: word, start: 'center bottom', end: 'bottom top-=40%' },
         })
       })
@@ -314,7 +321,9 @@ export const TEXT_ANIMATION_CONFIG = {
     split: { type: 'chars', mask: undefined },
     animate: (el, chars, _w, _l, st) => {
       gsapDefault.fromTo(chars, { scaleY: 0, transformOrigin: '50% 100%' }, {
-        ease: 'power3.in', scaleY: 1, stagger: 0.05,
+        ease: 'power3.in',
+        scaleY: 1,
+        stagger: 0.05,
         scrollTrigger: { ...st, start: 'center center', end: '+=500%', scrub: true, pin: el.parentElement! },
       })
     },
@@ -332,7 +341,13 @@ export const TEXT_ANIMATION_CONFIG = {
         yPercent: () => gsapDefault.utils.random(-10, 10),
         rotationX: () => gsapDefault.utils.random(-90, 90),
       }, {
-        ease: 'expo', opacity: 1, rotationX: 0, rotationY: 0, xPercent: 0, yPercent: 0, z: 0,
+        ease: 'expo',
+        opacity: 1,
+        rotationX: 0,
+        rotationY: 0,
+        xPercent: 0,
+        yPercent: 0,
+        z: 0,
         scrollTrigger: { ...st, start: 'center center', end: '+=300%', scrub: true, pin: el.parentElement! },
         stagger: { each: 0.006, from: 'random' },
       })
@@ -349,14 +364,18 @@ export const TEXT_ANIMATION_CONFIG = {
         const factor = (i: number) => i < Math.ceil(n / 2) ? i : Math.ceil(n / 2) - Math.abs(Math.floor(n / 2) - i) - 1
         gsapDefault.fromTo(wc, {
           transformOrigin: '50% 100%',
-          scale: (i) => gsapDefault.utils.mapRange(0, Math.ceil(n / 2), 0.5, 2.1, factor(i)),
-          y: (i) => gsapDefault.utils.mapRange(0, Math.ceil(n / 2), 0, 60, factor(i)),
-          rotation: (i) => i < n / 2
+          scale: i => gsapDefault.utils.mapRange(0, Math.ceil(n / 2), 0.5, 2.1, factor(i)),
+          y: i => gsapDefault.utils.mapRange(0, Math.ceil(n / 2), 0, 60, factor(i)),
+          rotation: i => i < n / 2
             ? gsapDefault.utils.mapRange(0, Math.ceil(n / 2), -4, 0, factor(i))
             : gsapDefault.utils.mapRange(0, Math.ceil(n / 2), 0, 4, factor(i)),
           filter: 'blur(12px) opacity(0)',
         }, {
-          ease: 'power2.inOut', y: 0, rotation: 0, scale: 1, filter: 'blur(0px) opacity(1)',
+          ease: 'power2.inOut',
+          y: 0,
+          rotation: 0,
+          scale: 1,
+          filter: 'blur(0px) opacity(1)',
           scrollTrigger: { ...st, trigger: word, start: 'top bottom+=40%', end: 'top top+=15%' },
           stagger: { amount: 0.15, from: 'center' },
         })
@@ -375,7 +394,8 @@ export const TEXT_ANIMATION_CONFIG = {
           transformOrigin: `${wi % 2 ? 0 : 100}% ${wi % 2 ? 100 : 0}%`,
           scale: 0,
         }, {
-          ease: 'power4', scale: 1,
+          ease: 'power4',
+          scale: 1,
           stagger: { each: 0.03, from: wi % 2 ? 'end' : 'start' },
           scrollTrigger: { ...st, trigger: word, start: 'top bottom-=10%', end: 'top top' },
         })

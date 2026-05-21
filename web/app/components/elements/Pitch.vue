@@ -10,26 +10,20 @@ interface Props { data: PitchData | null }
 defineProps<Props>()
 
 const settings = useSettings()
-const headingRef = useTemplateRef<{ $el: HTMLElement }>('headingRef')
-
-useSplitTextAnimation(() => headingRef.value?.$el, {
-  style: 'blur-in',
-  to: { duration: 0.6, stagger: 0.025 },
-  scrollTrigger: { start: 'top 85%', scrub: true, toggleActions: 'play resume reset resume' },
-  debug: true,
-  label: 'Pitch — Heading',
-})
 </script>
 
 <template>
   <div class="app-elements-pitch">
     <div class="app-elements-pitch__top">
-      <TextsP2 v-if="data?.eyebrow" color="orange-100">
-        {{ data.eyebrow }}
-      </TextsP2>
-      <TextsH2 v-if="data?.heading" ref="headingRef" color="orange-100">
+      <TextsH2 v-if="data?.heading" color="orange-100">
+        <TextsP2 v-if="data?.eyebrow" tag="span" color="orange-100">
+          {{ data.eyebrow }}
+        </TextsP2>
         {{ data.heading }}
       </TextsH2>
+      <TextsP2 v-else-if="data?.eyebrow" color="orange-100">
+        {{ data.eyebrow }}
+      </TextsP2>
     </div>
 
     <div class="app-elements-pitch__bottom">
@@ -67,12 +61,7 @@ useSplitTextAnimation(() => headingRef.value?.$el, {
       width: 100%;
     }
 
-    .P2,
-    .H2 {
-      display: inline;
-    }
-
-    .P2 {
+    .H2 .P2 {
       margin-right: desktop-vw(16px);
     }
   }

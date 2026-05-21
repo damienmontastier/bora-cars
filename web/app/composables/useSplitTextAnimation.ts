@@ -40,79 +40,162 @@ export function useSplitTextAnimation(
 
   const currentStyle = ref<TextAnimationStyle>(options.style ?? 'slide-x')
 
-  let splitInstance: SplitText | null = null
-  let ctx: gsap.Context | null = null
+  let mm: gsap.MatchMedia | null = null
 
   function init() {
     const el = getEl()
     if (!el)
       return
 
-    ctx?.revert()
-    splitInstance?.revert()
+    // matchMedia owns the gsap.Context + SplitText created inside its callback,
+    // so revert() cleans up tweens, ScrollTriggers AND the SplitText DOM in one pass.
+    mm?.revert()
+    mm = gsap.matchMedia()
 
-    const preset = TEXT_ANIMATION_CONFIG[currentStyle.value] as TextAnimationPreset
+    mm.add(
+      {
+        isMobile: '(max-width: 799px)',
+        isDesktop: '(min-width: 800px)',
+        reduceMotion: '(prefers-reduced-motion: reduce)',
+      },
+      (context) => {
+        const { reduceMotion, isMobile } = context.conditions!
 
-    const splitType = (options.split?.type ?? preset.split?.type ?? 'chars') as string
-    const splitVars: SplitText.Vars = {
-      autoSplit: true,
-      smartWrap: true,
-      ...(splitType.includes('chars') ? { charsClass: 'char' } : {}),
-      ...preset.split,
-      ...options.split,
-    }
+        // Full bail-out: a11y (reduce motion) or mobile. Splitting text into hundreds of
+        // <span> per char + animating them is heavy regardless of scrub vs toggle, so on
+        // mobile we skip everything and leave the text in its natural rendered state.
+        // https://gsap.com/resources/a11y/
+        if (reduceMotion || isMobile)
+          return
 
-    splitInstance = new SplitText(el, splitVars)
+        const preset = TEXT_ANIMATION_CONFIG[currentStyle.value] as TextAnimationPreset
 
-    const type = splitVars.type ?? 'chars'
-    const targets = resolveTargets(splitInstance, type)
+        const splitType = (options.split?.type ?? preset.split?.type ?? 'chars') as string
 
-    const composableDefaults: ScrollTrigger.Vars = {
-      trigger: el,
-      start: 'top bottom',
-      end: 'center center',
-      scrub: true,
-    }
-
-    const scrollTriggerVars: ScrollTrigger.Vars | undefined = options.scrollTrigger === false
-      ? undefined
-      : {
-          ...composableDefaults,
-          ...preset.scrollTrigger,
-          ...(options.scrollTrigger || {}),
-          markers: import.meta.dev && options.debug,
-          trigger: (options.scrollTrigger as ScrollTrigger.Vars)?.trigger ?? el,
+        const scrubDefaults: ScrollTrigger.Vars = {
+          trigger: el,
+          start: 'top bottom',
+          end: 'center center',
+          scrub: true,
         }
 
-    if (preset.animate) {
-      ctx = gsap.context(() => {
-        preset.animate!(
-          el,
-          splitInstance!.chars,
-          splitInstance!.words,
-          splitInstance!.lines,
-          scrollTriggerVars ?? composableDefaults,
-        )
-      }, el)
-    }
-    else {
-      const from: gsap.TweenVars = { ...(preset.from ?? {}), ...options.from }
-      const to: gsap.TweenVars = { ...(preset.to ?? {}), ...options.to }
+        const toggleDefaults: ScrollTrigger.Vars = {
+          trigger: el,
+          start: 'top 85%',
+          // dev: reset on leave-back so the anim can be replayed by scrolling; prod: play once
+          toggleActions: import.meta.dev ? 'play none none reset' : 'play none none none',
+        }
 
-      if (scrollTriggerVars?.scrub)
-        to.ease = 'none'
+        // pick the right defaults: if user/preset explicitly disables scrub, use toggleActions defaults
+        const userScrub = (options.scrollTrigger as ScrollTrigger.Vars)?.scrub
+          ?? preset.scrollTrigger?.scrub
+        const isToggleMode = userScrub === false
+        const composableDefaults = isToggleMode ? toggleDefaults : scrubDefaults
 
-      ctx = gsap.context(() => {
-        // prepare is inside context so gsap.set() calls (e.g. perspective) are reverted on ctx.revert()
-        preset.prepare?.(targets)
-        gsap.fromTo(targets, from, {
-          ...to,
-          ...(scrollTriggerVars ? { scrollTrigger: scrollTriggerVars } : {}),
+        // when forcing toggle mode, drop `scrub` from preset AND user options so that
+        // preset/user-defined start/end can still override the toggle defaults
+        const stripScrub = <T extends ScrollTrigger.Vars | undefined>(v: T): T => {
+          if (!isToggleMode || !v)
+            return v
+          const { scrub: _sc, ...rest } = v
+          return rest as T
+        }
+        const presetScrollTrigger = stripScrub(preset.scrollTrigger)
+        const userScrollTrigger = options.scrollTrigger
+          ? stripScrub(options.scrollTrigger)
+          : {}
+
+        const scrollTriggerVars: ScrollTrigger.Vars | undefined = options.scrollTrigger === false
+          ? undefined
+          : {
+              ...composableDefaults,
+              ...presetScrollTrigger,
+              ...userScrollTrigger,
+              markers: import.meta.dev && options.debug,
+              trigger: (options.scrollTrigger as ScrollTrigger.Vars)?.trigger ?? el,
+            }
+
+        // Build the animation against a fresh SplitText state.
+        // Called by SplitText on initial split AND on every autoSplit re-split
+        // (font load, container resize). Per GSAP docs: returning the tween/timeline
+        // lets SplitText auto-revert it AND restore its totalTime on re-split —
+        // seamless across font-load.
+        const buildAnim = (self: SplitText): gsap.core.Animation | void => {
+          if (preset.animate) {
+            return preset.animate(
+              el,
+              self.chars,
+              self.words,
+              self.lines,
+              scrollTriggerVars ?? composableDefaults,
+            )
+          }
+
+          const targets = resolveTargets(self, splitType)
+          const from: gsap.TweenVars = { ...(preset.from ?? {}), ...options.from }
+          const to: gsap.TweenVars = { ...(preset.to ?? {}), ...options.to }
+
+          // ease on a scrubbed timeline distorts the scroll mapping — force 'none'
+          if (scrollTriggerVars?.scrub)
+            to.ease = 'none'
+
+          preset.prepare?.(targets)
+          return gsap.fromTo(targets, from, {
+            ...to,
+            ...(scrollTriggerVars ? { scrollTrigger: scrollTriggerVars } : {}),
+          })
+        }
+
+        // Pick what SplitText splits. SplitText doesn't traverse BLOCK descendants
+        // for `lines`, so when `el` is a wrapper around multiple text blocks we want
+        // to split each block individually. Rules:
+        //  1. If `el` itself is `.app-text`, split it directly. Inline descendants
+        //     (e.g. a <span class="P2 app-text"> inside an <h2 class="H2 app-text">)
+        //     are traversed automatically by SplitText with `deepSlice` and keep
+        //     their styling across line breaks.
+        //  2. Otherwise, collect only the OUTERMOST `.app-text` nodes — skip any
+        //     `.app-text` that has another `.app-text` (or a `.sr-only`) ancestor
+        //     within `el`, so we don't double-split the same content nor touch the
+        //     screen-reader-only duplicate kept for a11y.
+        const isElTextLeaf = el.classList.contains('app-text')
+        let splitTarget: HTMLElement | HTMLElement[] = el
+        if (!isElTextLeaf) {
+          const all = Array.from(el.querySelectorAll<HTMLElement>('.app-text'))
+          const outermost = all.filter((node) => {
+            let ancestor = node.parentElement
+            while (ancestor && ancestor !== el) {
+              if (ancestor.classList.contains('sr-only'))
+                return false
+              if (ancestor.classList.contains('app-text'))
+                return false
+              ancestor = ancestor.parentElement
+            }
+            return true
+          })
+          if (outermost.length)
+            splitTarget = outermost
+        }
+
+        SplitText.create(splitTarget, {
+          autoSplit: true,
+          smartWrap: true,
+          // GSAP's default `aria: 'auto'` adds aria-label on the split parent, which
+          // ARIA prohibits on generic roles (<span>, <p>, <div>) — Lighthouse flags it.
+          aria: 'none',
+          // Set explicit classes on every split unit so global CSS (e.g. mask-wrapper
+          // padding to prevent descender clipping) can target them by class name.
+          // SplitText auto-derives mask wrapper class as `${unitClass}-mask`.
+          ...(splitType.includes('chars') ? { charsClass: 'char' } : {}),
+          ...(splitType.includes('words') ? { wordsClass: 'word' } : {}),
+          ...(splitType.includes('lines') ? { linesClass: 'line' } : {}),
+          ...preset.split,
+          ...options.split,
+          onSplit: buildAnim,
         })
-      }, el)
-    }
 
-    nextTick(() => ScrollTrigger.refresh())
+        nextTick(() => ScrollTrigger.refresh())
+      },
+    )
   }
 
   // Fonts load while component is already mounted (initial page load)
@@ -121,10 +204,29 @@ export function useSplitTextAnimation(
       init()
   })
 
+  // Re-init when the user-provided ScrollTrigger trigger changes. Use case: a
+  // parent template ref passed via `scrollTrigger.trigger` is null on the first
+  // pass through onMounted (Vue assigns parent refs AFTER children mount), and
+  // gets assigned only when the parent's render flushes. Without this watch, we
+  // would silently lock in the fallback `el` as trigger and ScrollTrigger
+  // positions would be off — especially when the parent has a transform that
+  // distorts the child's measured scroll position.
+  if (options.scrollTrigger && options.scrollTrigger !== false) {
+    watch(
+      () => (options.scrollTrigger as ScrollTrigger.Vars).trigger,
+      (val) => {
+        if (val && fontsLoaded.value)
+          init()
+      },
+    )
+  }
+
   // Component mounts after fonts are already loaded (SPA navigation)
+  // nextTick defers init until after the parent's reactive re-render propagates
+  // the correct trigger element (template refs are null on first render)
   onMounted(() => {
     if (fontsLoaded.value)
-      init()
+      nextTick(() => init())
 
     if (import.meta.dev && options.debug) {
       setupSplitTextPane(currentStyle, init, options.label)
@@ -132,8 +234,8 @@ export function useSplitTextAnimation(
   })
 
   onUnmounted(() => {
-    ctx?.revert()
-    splitInstance?.revert()
+    mm?.revert()
+    mm = null
   })
 
   return { init }

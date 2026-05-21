@@ -8,14 +8,21 @@ interface ProcessStep {
   description?: string
 }
 
-interface Props { steps: ProcessStep[] }
+interface Props {
+  steps: ProcessStep[]
+  numbering?: 'letter' | 'number'
+}
 
-const props = defineProps<Props>()
+const props = withDefaults(defineProps<Props>(), {
+  numbering: 'letter',
+})
 
 const items = computed(() =>
   props.steps.map((step, index) => ({
     ...step,
-    number: `(${String.fromCharCode(65 + index)})`,
+    number: props.numbering === 'number'
+      ? `(${index + 1})`
+      : `(${String.fromCharCode(65 + index)})`,
   })),
 )
 

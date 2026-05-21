@@ -79,14 +79,27 @@ function occupySlot(occupied: boolean[][], x: number, y: number, w: number, h: n
 }
 
 const TYPE_LABEL: Record<CardType, string> = { xxl: 'XXL', xl: 'XL', l: 'L', m: 'M' }
+const CARD_TYPES: CardType[] = ['xxl', 'xl', 'l', 'm']
+const TOOLBAR_BTN_CLASS = 'grid-toolbar-btn'
 
-function GridCard({ card, imageUrl }: { card: CardValue; imageUrl?: string }) {
-  const typeLabel = TYPE_LABEL[card.cardType ?? 'xl']
+function GridCard({
+  card,
+  imageUrl,
+  onChangeCardType,
+}: {
+  card: CardValue
+  imageUrl?: string
+  onChangeCardType: (key: string, type: CardType) => void
+}) {
+  const currentType = card.cardType ?? 'xl'
   const categoryLabel = pickLocalized(card.categoryLabel)
   const subtitle = pickLocalized(card.subtitle)
   const shortKey = card._key?.slice(0, 8)
+  const [hovered, setHovered] = useState(false)
   return (
     <div
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
       style={{
         background: '#1c1c1c',
         borderRadius: 4,
@@ -117,31 +130,17 @@ function GridCard({ card, imageUrl }: { card: CardValue; imageUrl?: string }) {
             }}
           />
         )}
-        {/* Type badge */}
+        {/* Short key badge */}
         <div
           style={{
             position: 'absolute',
             top: 8,
             left: 8,
-            display: 'flex',
-            gap: 4,
+            pointerEvents: 'none',
+            opacity: hovered ? 0 : 1,
+            transition: 'opacity 120ms ease',
           }}
         >
-          <div
-            style={{
-              background: 'rgba(0,0,0,0.5)',
-              backdropFilter: 'blur(4px)',
-              color: 'rgba(255,255,255,0.9)',
-              fontSize: 9,
-              fontFamily: 'monospace',
-              fontWeight: 700,
-              letterSpacing: '0.1em',
-              padding: '2px 6px',
-              borderRadius: 3,
-            }}
-          >
-            {typeLabel}
-          </div>
           <div
             style={{
               background: 'rgba(0,0,0,0.4)',
@@ -156,6 +155,59 @@ function GridCard({ card, imageUrl }: { card: CardValue; imageUrl?: string }) {
           >
             {shortKey}
           </div>
+        </div>
+
+        {/* Size toolbar (hover) */}
+        <div
+          style={{
+            position: 'absolute',
+            top: 8,
+            left: 8,
+            display: 'flex',
+            gap: 2,
+            background: 'rgba(0,0,0,0.55)',
+            backdropFilter: 'blur(6px)',
+            padding: 2,
+            borderRadius: 4,
+            border: '1px solid rgba(255,255,255,0.08)',
+            opacity: hovered ? 1 : 0,
+            transform: hovered ? 'translateY(0)' : 'translateY(-2px)',
+            transition: 'opacity 120ms ease, transform 120ms ease',
+            pointerEvents: hovered ? 'auto' : 'none',
+          }}
+        >
+          {CARD_TYPES.map((type) => {
+            const active = type === currentType
+            return (
+              <button
+                key={type}
+                type="button"
+                className={TOOLBAR_BTN_CLASS}
+                title={`Format ${TYPE_LABEL[type]}`}
+                onMouseDown={(e) => e.stopPropagation()}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  if (!active && card._key) onChangeCardType(card._key, type)
+                }}
+                style={{
+                  cursor: active ? 'default' : 'pointer',
+                  background: active ? 'rgba(255,255,255,0.9)' : 'transparent',
+                  color: active ? '#0c0c0a' : 'rgba(255,255,255,0.85)',
+                  fontSize: 9,
+                  fontFamily: 'monospace',
+                  fontWeight: 700,
+                  letterSpacing: '0.1em',
+                  padding: '3px 7px',
+                  borderRadius: 2,
+                  border: 'none',
+                  outline: 'none',
+                  transition: 'background 100ms ease, color 100ms ease',
+                }}
+              >
+                {TYPE_LABEL[type]}
+              </button>
+            )
+          })}
         </div>
       </div>
 
@@ -210,11 +262,13 @@ function GridMakerInner({
   cards,
   layout,
   onLayoutCommit,
+  onChangeCardType,
   imageUrls,
 }: {
   cards: CardValue[]
   layout: Layout
   onLayoutCommit: (layout: Layout) => void
+  onChangeCardType: (key: string, type: CardType) => void
   imageUrls: Record<string, string>
 }) {
   const { width, containerRef, mounted } = useContainerWidth()
@@ -353,6 +407,7 @@ function GridMakerInner({
               layout={localLayout}
               gridConfig={{ cols: COLS, rowHeight: ROW_HEIGHT }}
               resizeConfig={{ enabled: false }}
+              dragConfig={{ cancel: `.${TOOLBAR_BTN_CLASS}` }}
               compactor={noCompactor}
               width={width}
               onDragStop={handleCommit}
@@ -363,7 +418,11 @@ function GridMakerInner({
                 .filter((card) => Boolean(card._key))
                 .map((card) => (
                   <div key={card._key}>
-                    <GridCard card={card} imageUrl={imageUrls[card._key]} />
+                    <GridCard
+                      card={card}
+                      imageUrl={imageUrls[card._key]}
+                      onChangeCardType={onChangeCardType}
+                    />
                   </div>
                 ))}
             </GridLayout>
@@ -461,6 +520,13 @@ export function GridMakerInput(props: ArrayOfObjectsInputProps) {
     [onChange]
   )
 
+  const handleChangeCardType = useCallback(
+    (key: string, type: CardType) => {
+      onChange(set(type, [{ _key: key }, 'cardType']))
+    },
+    [onChange]
+  )
+
   if (cards.length === 0) {
     return <>{renderDefault(props)}</>
   }
@@ -471,6 +537,7 @@ export function GridMakerInput(props: ArrayOfObjectsInputProps) {
         cards={cards}
         layout={layout}
         onLayoutCommit={handleLayoutChange}
+        onChangeCardType={handleChangeCardType}
         imageUrls={imageUrls}
       />
       {renderDefault(props)}
