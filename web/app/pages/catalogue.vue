@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import type { CatalogueCar, CatalogueData } from '~/queries/catalogue'
-import { useInfiniteScroll } from '@vueuse/core'
+import { useEventBus, useInfiniteScroll } from '@vueuse/core'
+import gsap from 'gsap'
 import { CATALOGUE_CARS_QUERY, CATALOGUE_LIMIT, CATALOGUE_QUERY } from '~/queries/catalogue'
 
 const lang = useSanityLang()
@@ -50,6 +51,16 @@ const { isLoading } = useInfiniteScroll(
 )
 
 usePageSeo(computed(() => page.value?.seo))
+
+const heroCTABus = useEventBus('hero-cta')
+onMounted(() => {
+  const menuCtaEl = document.querySelector<HTMLElement>('.app-menu__cta')
+  if (!menuCtaEl)
+    return
+  gsap.set(menuCtaEl, { clearProps: 'display,opacity,visibility,clipPath' })
+  heroCTABus.emit('enter:snap')
+  gsap.set(menuCtaEl, { opacity: 1 })
+})
 </script>
 
 <template>

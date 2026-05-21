@@ -42,7 +42,6 @@ watch(slides, () => {
           :lazy="i !== 0"
           :preload="i === 0 ? { fetchPriority: 'high' } : false"
           :overlay="i === 0"
-          overlay-color="beige"
         />
       </template>
       <div v-if="!slides.length" class="car-hero__placeholder" />

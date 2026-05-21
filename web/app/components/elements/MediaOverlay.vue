@@ -2,12 +2,12 @@
 const props = withDefaults(defineProps<{
   loaded: boolean
   threshold?: number
-  color?: string
   borderRadius?: string
+  blur?: string
 }>(), {
   threshold: 0,
-  color: 'orange-100',
   borderRadius: '0px',
+  blur: '24px',
 })
 
 const REVEAL_S_PER_1000PX = 1.25
@@ -43,8 +43,8 @@ const revealDuration = computed(() => {
     :class="{ 'is-revealed': isRevealed, 'is-loading': !isRevealed }"
     :style="{
       borderRadius,
-      'backgroundColor': `var(--c-${color})`,
       '--reveal-duration': `${revealDuration}s`,
+      '--overlay-blur': blur,
     }"
   />
 </template>
@@ -53,12 +53,15 @@ const revealDuration = computed(() => {
 .app-elements-media-overlay {
   position: absolute;
   inset: 0;
-  transform-origin: center bottom;
-  transform: scaleY(1);
-  transition: transform var(--reveal-duration, 1.2s) var(--ease-in-out-circ);
+  opacity: 1;
+  background-color: transparent;
+  backdrop-filter: blur(var(--overlay-blur, 24px));
+  -webkit-backdrop-filter: blur(var(--overlay-blur, 24px));
+  transition: opacity var(--reveal-duration, 1.2s) var(--ease-in-out-circ);
   pointer-events: none;
   z-index: 3;
   overflow: hidden;
+  will-change: opacity;
 
   &::after {
     content: '';
@@ -80,7 +83,7 @@ const revealDuration = computed(() => {
   }
 
   &.is-revealed {
-    transform: scaleY(0);
+    opacity: 0;
   }
 }
 

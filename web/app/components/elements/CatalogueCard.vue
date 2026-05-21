@@ -29,7 +29,6 @@ const RENTAL_LABELS: Record<string, string> = {
         :hotspot="car.imageHotspot"
         :crop="car.imageCrop"
         sizes="sm:100vw md:33vw"
-        overlay-color="beige"
       />
       <div v-else class="app-elements-catalogue-card__placeholder" />
     </div>

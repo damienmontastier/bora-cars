@@ -6,7 +6,6 @@ const FIELDS: Record<string, Record<string, 'string' | 'text' | 'block'>> = {
   hero: { heading: 'string', tagline: 'text', subtext: 'string' },
   pitch: { eyebrow: 'string', heading: 'text', subtext: 'text' },
   brandsSection: { description: 'string', surtitle: 'string', heading: 'text' },
-  servicePitch: { eyebrow: 'string', heading: 'string', body: 'text', ctaLabel: 'string' },
   cardsColumn: { heading: 'text', subtext: 'text' },
   title: { eyebrow: 'string', heading: 'text' },
   textBlock: { eyebrow: 'string', body: 'block' },

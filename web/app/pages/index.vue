@@ -11,6 +11,8 @@ watch(lang, (v) => {
 const { data: homepage } = await useSanityQuery<HomepageData>(HOMEPAGE_QUERY, params)
 
 usePageSeo(computed(() => homepage.value?.seo))
+
+console.log('Homepage data:', homepage.value)
 </script>
 
 <template>

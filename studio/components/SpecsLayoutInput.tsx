@@ -20,8 +20,8 @@ import {
 import { CSS } from '@dnd-kit/utilities'
 import { set, unset, useFormValue } from 'sanity'
 import type { ObjectInputProps } from 'sanity'
-import { Badge, Box, Card, Flex, Stack, Text, Tooltip } from '@sanity/ui'
-import { WarningOutlineIcon } from '@sanity/icons'
+import { Badge, Box, Button, Card, Flex, Stack, Text, Tooltip } from '@sanity/ui'
+import { CloseIcon, WarningOutlineIcon } from '@sanity/icons'
 
 const SPECS: { key: string, label: string }[] = [
   { key: 'teinteExterieure', label: 'Teinte extérieure' },
@@ -95,17 +95,16 @@ function isSpecFilled(key: string, doc: any): boolean {
   }
 }
 
-function SortableItem({ id, label, missing, isDragging }: { id: string, label: string, missing?: boolean, isDragging?: boolean }) {
+function SortableItem({ id, label, missing, isDragging, onRemove }: { id: string, label: string, missing?: boolean, isDragging?: boolean, onRemove?: (id: string) => void }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging: dragging } = useSortable({ id })
   const style: React.CSSProperties = {
     transform: CSS.Transform.toString(transform),
     transition,
     opacity: dragging || isDragging ? 0.4 : 1,
     touchAction: 'none',
-    cursor: 'grab',
   }
   return (
-    <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
+    <div ref={setNodeRef} style={style}>
       <Card
         padding={2}
         radius={2}
@@ -114,7 +113,9 @@ function SortableItem({ id, label, missing, isDragging }: { id: string, label: s
         style={{ userSelect: 'none' }}
       >
         <Flex align="center" gap={2}>
-          <Text size={1} weight="medium" style={{ flex: 1 }}>⋮⋮ {label}</Text>
+          <div {...attributes} {...listeners} style={{ flex: 1, cursor: 'grab' }}>
+            <Text size={1} weight="medium">⋮⋮ {label}</Text>
+          </div>
           {missing
             ? (
                 <Tooltip
@@ -135,6 +136,32 @@ function SortableItem({ id, label, missing, isDragging }: { id: string, label: s
                 </Tooltip>
               )
             : null}
+          {onRemove
+            ? (
+                <Tooltip
+                  content={(
+                    <Box padding={2}>
+                      <Text size={1}>Retirer de la mise en page</Text>
+                    </Box>
+                  )}
+                  placement="top"
+                  portal
+                >
+                  <Button
+                    mode="bleed"
+                    tone="critical"
+                    padding={1}
+                    icon={CloseIcon}
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      onRemove(id)
+                    }}
+                    onPointerDown={e => e.stopPropagation()}
+                    aria-label={`Retirer ${label}`}
+                  />
+                </Tooltip>
+              )
+            : null}
         </Flex>
       </Card>
     </div>
@@ -147,12 +174,14 @@ function Zone({
   items,
   missingByKey,
   emptyHint,
+  onRemove,
 }: {
   id: ZoneId
   title: string
   items: string[]
   missingByKey: Record<string, boolean>
   emptyHint: string
+  onRemove?: (id: string) => void
 }) {
   const { setNodeRef, isOver } = useDroppable({ id })
   return (
@@ -179,6 +208,7 @@ function Zone({
                   id={key}
                   label={SPEC_LABEL[key] ?? key}
                   missing={missingByKey[key]}
+                  onRemove={onRemove}
                 />
               ))}
           </Stack>
@@ -222,6 +252,17 @@ export function SpecsLayoutInput(props: ObjectInputProps<SpecsLayoutValue>) {
     else next[to].push(activeKey)
     return next
   }, [])
+
+  const removeFromZone = useCallback((key: string) => {
+    const from = findZone(state, key)
+    if (!from || from === 'pool') return
+    const next: State = {
+      pool: [...state.pool, key],
+      fixed: state.fixed.filter(k => k !== key),
+      list: state.list.filter(k => k !== key),
+    }
+    emit(next)
+  }, [state, emit])
 
   const handleDragStart = useCallback((e: DragStartEvent) => {
     setActiveId(String(e.active.id))
@@ -269,8 +310,8 @@ export function SpecsLayoutInput(props: ObjectInputProps<SpecsLayoutValue>) {
       onDragCancel={() => setActiveId(null)}
     >
       <Stack space={4}>
-        <Zone id="fixed" title="ROW FIXE (en haut)" items={state.fixed} missingByKey={missingByKey} emptyHint="Glisse une spec ici" />
-        <Zone id="list" title="LISTE (en dessous)" items={state.list} missingByKey={missingByKey} emptyHint="Glisse une spec ici" />
+        <Zone id="fixed" title="ROW FIXE (en haut)" items={state.fixed} missingByKey={missingByKey} emptyHint="Glisse une spec ici" onRemove={removeFromZone} />
+        <Zone id="list" title="LISTE (en dessous)" items={state.list} missingByKey={missingByKey} emptyHint="Glisse une spec ici" onRemove={removeFromZone} />
         <Zone id="pool" title="DISPONIBLES (non affichées)" items={state.pool} missingByKey={missingByKey} emptyHint="Toutes les specs sont placées" />
       </Stack>
       <DragOverlay>

@@ -39,14 +39,6 @@ export const brandsSectionType = defineType({
     }),
 
     defineField({
-      name: 'description',
-      title: 'Description',
-      type: 'internationalizedArrayString',
-      fieldset: 'text',
-      description: 'Texte affiché en bas des listes (ex: "Une collection soigneusement sélectionnée.")',
-      validation: (Rule) => requireAllLanguages(Rule),
-    }),
-    defineField({
       name: 'surtitle',
       title: 'Surtitle',
       type: 'internationalizedArrayString',
@@ -58,6 +50,32 @@ export const brandsSectionType = defineType({
       title: 'Heading',
       type: 'internationalizedArrayText',
       fieldset: 'text',
+      validation: (Rule) => requireAllLanguages(Rule),
+    }),
+    defineField({
+      name: 'cta',
+      title: 'CTA',
+      type: 'object',
+      fieldset: 'text',
+      fields: [
+        defineField({
+          name: 'label',
+          title: 'Texte du bouton',
+          type: 'internationalizedArrayString',
+        }),
+        defineField({
+          name: 'link',
+          title: 'Lien',
+          type: 'customLink',
+        }),
+      ],
+    }),
+    defineField({
+      name: 'description',
+      title: 'Description',
+      type: 'internationalizedArrayString',
+      fieldset: 'text',
+      description: 'Texte affiché en bas des listes (ex: "Une collection soigneusement sélectionnée.")',
       validation: (Rule) => requireAllLanguages(Rule),
     }),
   ],

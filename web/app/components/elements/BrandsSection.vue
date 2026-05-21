@@ -130,9 +130,14 @@ onUnmounted(() => {
         </li>
       </ul>
 
-      <TextsP2 v-if="data?.description" class="app-elements-brands-section__description" color="beige-100">
-        {{ data.description }}
-      </TextsP2>
+      <div class="app-elements-brands-section__cta-block">
+        <TextsP2 v-if="data?.description" class="app-elements-brands-section__description" color="beige-100">
+          {{ data.description }}
+        </TextsP2>
+        <AtomsCTA v-if="data?.cta?.text" theme="white" :tiret-after="0" :to="data.cta">
+          {{ data.cta.text }}
+        </AtomsCTA>
+      </div>
     </div>
 
     <div class="app-elements-brands-section__text">
@@ -184,10 +189,12 @@ onUnmounted(() => {
     align-self: stretch;
     background: var(--c-beige-100);
   }
-
-  &__description {
+  &__cta-block {
     flex-shrink: 0;
     width: desktop-vw(312px);
+    display: flex;
+    flex-direction: column;
+    gap: desktop-vw(24px);
   }
 
   &__text {

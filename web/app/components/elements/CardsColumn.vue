@@ -254,14 +254,14 @@ onUnmounted(() => {
 .cards-column__item {
   display: flex;
   align-items: flex-start;
-  padding: desktop-vw(32px) 0;
+  padding: desktop-vw(32px) desktop-vw(8px);
   position: relative;
   overflow: hidden;
   gap: desktop-vw(64px);
   cursor: pointer;
 
   @include mobile {
-    padding: mobile-vw(18px) 0;
+    padding: mobile-vw(18px) mobile-vw(8px);
     gap: mobile-vw(32px);
   }
 
@@ -316,12 +316,12 @@ onUnmounted(() => {
   &-bg-content {
     display: flex;
     align-items: flex-start;
-    padding: desktop-vw(32px) 0;
+    padding: desktop-vw(32px) desktop-vw(8px);
     height: 100%;
     gap: desktop-vw(64px);
 
     @include mobile {
-      padding: mobile-vw(18px) 0;
+      padding: mobile-vw(18px) mobile-vw(8px);
       gap: mobile-vw(32px);
     }
 

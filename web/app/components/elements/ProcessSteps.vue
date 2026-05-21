@@ -70,21 +70,21 @@ onMounted(async () => {
       gsap.set(descriptions, { yPercent: 100 })
       gsap.set(labels, { yPercent: 0 })
 
-      // Background mask sweep
-      const tl = gsap.timeline({
+      // Background mask reveal — scrubbed entry, stays in place once past end
+      const bgTl = gsap.timeline({
         scrollTrigger: {
           trigger: item,
           start: 'top-=12.5% center',
-          end: 'bottom+=12.5% center',
+          end: 'center center',
           scrub: true,
           invalidateOnRefresh: true,
         },
       })
 
-      tl.fromTo(bg, { yPercent: -100 }, { yPercent: 100, ease: 'none' }, 0)
-      tl.fromTo(bgContent, { yPercent: 100 }, { yPercent: -100, ease: 'none' }, 0)
+      bgTl.fromTo(bg, { yPercent: -100 }, { yPercent: 0, ease: 'none' }, 0)
+      bgTl.fromTo(bgContent, { yPercent: 100 }, { yPercent: 0, ease: 'none' }, 0)
 
-      // Label ↔ description swap
+      // Label ↔ description — appears on enter, reverses only when scrolling back above
       let swapTl: gsap.core.Timeline | null = null
 
       const showDescription = () => {
@@ -108,11 +108,9 @@ onMounted(async () => {
           end: 'center+=85% center',
           onEnter: showDescription,
           onEnterBack: showDescription,
-          onLeave: showLabel,
           onLeaveBack: showLabel,
           fastScrollEnd: true,
           markers: true,
-          preventOverlaps: true,
         },
       })
     })
@@ -182,7 +180,7 @@ onUnmounted(() => {
   .process-step {
     display: flex;
     align-items: center;
-    padding: desktop-vw(32px) 0;
+    padding: desktop-vw(32px) desktop-vw(8px);
     position: relative;
     overflow: hidden;
     gap: desktop-vw(64px);
@@ -216,7 +214,7 @@ onUnmounted(() => {
     &__bg-content {
       display: flex;
       align-items: center;
-      padding: desktop-vw(32px) 0;
+      padding: desktop-vw(32px) desktop-vw(8px);
       height: 100%;
       gap: desktop-vw(64px);
     }

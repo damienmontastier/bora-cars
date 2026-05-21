@@ -31,7 +31,6 @@ export const homepageType = defineType({
         defineArrayMember({ type: 'pitch' }),
         defineArrayMember({ type: 'process' }),
         defineArrayMember({ type: 'brandsSection' }),
-        defineArrayMember({ type: 'servicePitch' }),
         defineArrayMember({ type: 'fullscreenMarquee' }),
       ],
     }),

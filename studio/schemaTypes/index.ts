@@ -21,7 +21,6 @@ import { serviceCardsType } from './modules/home/serviceCards'
 import { pitchType } from './modules/home/pitch'
 import { processType } from './modules/home/process'
 import { brandsSectionType } from './modules/home/brandsSection'
-import { servicePitchType } from './modules/home/servicePitch'
 import { cardsColumnType } from './modules/home/cardsColumn'
 import { testimonialsType } from './modules/home/testimonials'
 import { fullscreenMarqueeType } from './modules/home/fullscreenMarquee'
@@ -60,7 +59,6 @@ export const schemaTypes: SchemaTypeDefinition[] = [
   pitchType,
   processType,
   brandsSectionType,
-  servicePitchType,
   cardsColumnType,
   testimonialsType,
   fullscreenMarqueeType,

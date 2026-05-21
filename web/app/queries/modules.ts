@@ -60,6 +60,7 @@ export interface BrandsSection {
   description?: string
   surtitle?: string
   heading?: string
+  cta?: SanityLink
 }
 
 export interface MarqueeItem {
@@ -96,7 +97,6 @@ export type PageModule
     | { _type: 'process', _key: string, steps: Array<{ _key: string, title: string, description?: string }> }
     | ({ _type: 'brandsSection', _key: string } & BrandsSection)
     | ({ _type: 'fullscreenMarquee', _key: string } & FullscreenMarqueeData)
-    | { _type: 'servicePitch', _key: string, eyebrow?: string, heading?: string, body?: string, ctaLabel?: string, ctaUrl?: string }
     | { _type: 'title', _key: string, eyebrow?: string, heading?: string }
     | { _type: 'textBlock', _key: string, eyebrow?: string, body?: any[] }
     | { _type: 'faq', _key: string, items: Array<{ _key: string, question: string, answer?: string }> }
@@ -151,7 +151,16 @@ export const MODULES_PROJECTION = `"modules": modules[]{
     "carsRight": carsRight[]->{ _id, marque, modele, ${imageRef()}, "slug": slug.current, },
     ${i18n('description')},
     ${i18n('surtitle')},
-    ${i18n('heading')}
+    ${i18n('heading')},
+    "cta": cta {
+      ${i18n('label', 'text')},
+      "type": link.type,
+      "blank": link.blank,
+      "url": link.url,
+      "email": link.email,
+      "phone": link.phone,
+      "internalLink": link.internalLink
+    }
   },
   _type == "fullscreenMarquee" => {
     "items": items[]->{ "_key": _id, "label": ${CAR_LABEL_PROJECTION} },
@@ -173,13 +182,6 @@ export const MODULES_PROJECTION = `"modules": modules[]{
       "videoUrl": video.asset->url,
       ${i18n('video.alt', 'videoAlt')}
     }
-  },
-  _type == "servicePitch" => {
-    ${i18n('eyebrow')},
-    ${i18n('heading')},
-    ${i18n('body')},
-    ${i18n('ctaLabel')},
-    ctaUrl
   },
   _type == "title" => {
     ${i18n('eyebrow')},

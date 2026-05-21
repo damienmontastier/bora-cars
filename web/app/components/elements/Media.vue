@@ -42,10 +42,6 @@ const props = defineProps({
     type: Boolean,
     default: true,
   },
-  overlayColor: {
-    type: String,
-    default: 'orange-100',
-  },
   parallax: {
     type: [Boolean, Object] as unknown as () => boolean | ParallaxProps,
     default: false,
@@ -111,7 +107,6 @@ defineExpose({ mainRef, pictureRef })
       <ElementsMediaOverlay
         v-if="hasSrc && overlay"
         :loaded="isLoaded"
-        :color="overlayColor"
       />
       <div v-if="!hasSrc" ref="pictureRef" class="app-elements-media__fallback" />
     </div>
@@ -134,7 +129,6 @@ defineExpose({ mainRef, pictureRef })
     <ElementsMediaOverlay
       v-if="hasSrc && overlay"
       :loaded="isLoaded"
-      :color="overlayColor"
     />
     <div v-if="!hasSrc" ref="pictureRef" class="app-elements-media__fallback" />
   </div>
