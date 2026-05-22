@@ -47,7 +47,7 @@ const portableTextComponents = computed(() => getPortableTextComponents({
   background: var(--c-beige-100);
 
   @include mobile {
-    padding: mobile-vw(25px) mobile-vw(16px);
+    padding: mobile-vw(25px) mobile-vw(8px);
   }
 
   &__content {

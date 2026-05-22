@@ -4,6 +4,11 @@
   overflow: auto;
 }
 
+html,
+body {
+  overscroll-behavior: none;
+}
+
 html {
   // -webkit-overflow-scrolling: touch;
   // scrollbar-width: none !important;

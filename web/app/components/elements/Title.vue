@@ -44,6 +44,10 @@ defineProps<Props>()
   &__heading {
     .app-elements-title__eyebrow {
       margin-right: desktop-vw(16px);
+
+      @include mobile {
+        margin-right: mobile-vw(16px);
+      }
     }
   }
 }

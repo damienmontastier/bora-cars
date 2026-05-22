@@ -107,7 +107,6 @@ onMounted(() => {
 .page-catalogue {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
 
   &__header {
     padding: desktop-vw(160px) desktop-vw(24px) desktop-vw(24px);
@@ -117,6 +116,10 @@ onMounted(() => {
     justify-content: center;
     flex-direction: column;
     gap: 15px;
+
+    @include mobile {
+      padding: mobile-vw(120px) mobile-vw(8px) mobile-vw(40px) mobile-vw(8px);
+    }
   }
 
   &__header-title {
@@ -136,6 +139,10 @@ onMounted(() => {
   &__header-description {
     max-width: desktop-vw(750px);
     width: 100%;
+
+    @include mobile {
+      max-width: none;
+    }
   }
 
   &__grid {
@@ -143,6 +150,12 @@ onMounted(() => {
     grid-template-columns: repeat(3, 1fr);
     gap: desktop-vw(40px) desktop-vw(12px);
     padding: desktop-vw(24px) desktop-vw(8px) desktop-vw(64px) desktop-vw(8px);
+
+    @include mobile {
+      grid-template-columns: 1fr;
+      gap: mobile-vw(12px);
+      padding: mobile-vw(8px);
+    }
   }
 
   &__loader {

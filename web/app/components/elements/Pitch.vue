@@ -63,6 +63,10 @@ const settings = useSettings()
 
     .H2 .P2 {
       margin-right: desktop-vw(16px);
+
+      @include mobile {
+        margin-right: mobile-vw(16px);
+      }
     }
   }
 
@@ -75,6 +79,8 @@ const settings = useSettings()
 
     @include mobile {
       width: auto;
+      gap: mobile-vw(16px);
+      align-items: flex-end;
     }
 
     .app-atom-cta {
@@ -83,6 +89,11 @@ const settings = useSettings()
 
     .P2 {
       width: 75%;
+
+      @include mobile {
+        width: 60%;
+        text-align: right;
+      }
     }
   }
 }

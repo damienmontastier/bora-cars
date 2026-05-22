@@ -7,6 +7,7 @@
   reversed        : inverse la direction du parallax (défaut: false).
   id              : identifiant ScrollTrigger pour debug / ScrollTrigger.getById().
   trigger         : élément externe à utiliser comme trigger ScrollTrigger.
+  disableOnMobile : désactive l'effet sous le breakpoint mobile (défaut: true).
 -->
 <script setup lang="ts">
 import gsap from 'gsap'
@@ -18,6 +19,7 @@ interface Props {
   reversed?: boolean
   id?: string
   trigger?: HTMLElement | null
+  disableOnMobile?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -27,15 +29,23 @@ const props = withDefaults(defineProps<Props>(), {
   reversed: false,
   id: 'parallax',
   trigger: null,
+  disableOnMobile: true,
 })
+
+const { isMobile } = useBreakpoint()
 
 const triggerRef = useTemplateRef<HTMLElement>('triggerRef')
 const targetRef = useTemplateRef<HTMLElement>('targetRef')
+
+const parallaxOffset = computed(() => `${props.speed * 10}vw`)
 
 let mm: gsap.MatchMedia | null = null
 
 onMounted(async () => {
   await nextTick()
+
+  if (props.disableOnMobile && isMobile.value)
+    return
 
   mm = gsap.matchMedia()
 
@@ -70,7 +80,12 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div ref="triggerRef" class="utils-parallax" :style="`--parallax-offset: ${speed * 10}vw`">
+  <div
+    ref="triggerRef"
+    class="utils-parallax"
+    :class="{ 'utils-parallax--disable-on-mobile': disableOnMobile }"
+    :style="`--parallax-offset: ${parallaxOffset}`"
+  >
     <div ref="targetRef" class="utils-parallax__target">
       <slot />
     </div>
@@ -89,6 +104,15 @@ onUnmounted(() => {
     height: calc(100% + var(--parallax-offset, 0vw) * 2);
     margin-top: calc(var(--parallax-offset, 0vw) * -1);
     will-change: transform;
+  }
+
+  @include mobile {
+    &--disable-on-mobile {
+      .utils-parallax__target {
+        height: 100%;
+        margin-top: 0;
+      }
+    }
   }
 }
 </style>

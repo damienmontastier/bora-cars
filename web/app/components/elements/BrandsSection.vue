@@ -177,6 +177,10 @@ onUnmounted(() => {
     align-items: flex-start;
     gap: desktop-vw(36px);
     padding: desktop-vw(40px) desktop-vw(24px);
+
+    @include mobile {
+      flex-direction: column;
+    }
   }
 
   &__list {
@@ -191,7 +195,12 @@ onUnmounted(() => {
     width: 3px;
     align-self: stretch;
     background: var(--c-beige-100);
+
+    @include mobile {
+      display: none;
+    }
   }
+
   &__cta-block {
     flex-shrink: 0;
     width: desktop-vw(312px);

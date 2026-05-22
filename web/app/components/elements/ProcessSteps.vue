@@ -36,8 +36,10 @@ let ctx: gsap.Context | null = null
 let snap: { destroy: () => void, goTo: (index: number) => void, stop: () => void, start: () => void, addElements: (elements: HTMLElement[], options?: object) => void } | null = null
 
 function snapToStep(index: number) {
+  if (!snap)
+    return
   isSnapping.value = true
-  snap?.goTo(index)
+  snap.goTo(index)
 }
 
 onMounted(async () => {
@@ -71,13 +73,7 @@ onMounted(async () => {
     items.forEach((item) => {
       const bg = item.querySelector<HTMLElement>('.process-step__bg')
       const bgContent = item.querySelector<HTMLElement>('.process-step__bg-content')
-      const labels = item.querySelectorAll<HTMLElement>('.process-step__label')
-      const descriptions = item.querySelectorAll<HTMLElement>('.process-step__description')
 
-      gsap.set(descriptions, { yPercent: 100 })
-      gsap.set(labels, { yPercent: 0 })
-
-      // Background mask reveal — scrubbed entry, stays in place once past end
       const bgTl = gsap.timeline({
         scrollTrigger: {
           trigger: item,
@@ -90,35 +86,45 @@ onMounted(async () => {
 
       bgTl.fromTo(bg, { yPercent: -100 }, { yPercent: 0, ease: 'none' }, 0)
       bgTl.fromTo(bgContent, { yPercent: 100 }, { yPercent: 0, ease: 'none' }, 0)
+    })
 
-      // Label ↔ description — appears on enter, reverses only when scrolling back above
-      let swapTl: gsap.core.Timeline | null = null
+    const mm = gsap.matchMedia()
 
-      const showDescription = () => {
-        swapTl?.kill()
-        swapTl = gsap.timeline()
-          .to(labels, { yPercent: -100, duration: 0.35, ease: 'power2.in' }, 0)
-          .to(descriptions, { yPercent: 0, duration: 0.5, ease: 'power2.out' }, 0.25)
-      }
+    mm.add('(min-width: 800px)', () => {
+      items.forEach((item) => {
+        const labels = item.querySelectorAll<HTMLElement>('.process-step__label')
+        const descriptions = item.querySelectorAll<HTMLElement>('.process-step__description')
 
-      const showLabel = () => {
-        swapTl?.kill()
-        swapTl = gsap.timeline()
-          .to(descriptions, { yPercent: 100, duration: 0.3, ease: 'power2.in' }, 0)
-          .to(labels, { yPercent: 0, duration: 0.4, ease: 'power2.out' }, 0.2)
-      }
+        gsap.set(descriptions, { yPercent: 100 })
+        gsap.set(labels, { yPercent: 0 })
 
-      gsap.timeline({
-        scrollTrigger: {
-          trigger: item,
-          start: 'center-=35% center',
-          end: 'center+=85% center',
-          onEnter: showDescription,
-          onEnterBack: showDescription,
-          onLeaveBack: showLabel,
-          fastScrollEnd: true,
-          markers: true,
-        },
+        let swapTl: gsap.core.Timeline | null = null
+
+        const showDescription = () => {
+          swapTl?.kill()
+          swapTl = gsap.timeline()
+            .to(labels, { yPercent: -100, duration: 0.35, ease: 'power2.in' }, 0)
+            .to(descriptions, { yPercent: 0, duration: 0.5, ease: 'power2.out' }, 0.25)
+        }
+
+        const showLabel = () => {
+          swapTl?.kill()
+          swapTl = gsap.timeline()
+            .to(descriptions, { yPercent: 100, duration: 0.3, ease: 'power2.in' }, 0)
+            .to(labels, { yPercent: 0, duration: 0.4, ease: 'power2.out' }, 0.2)
+        }
+
+        gsap.timeline({
+          scrollTrigger: {
+            trigger: item,
+            start: 'center-=35% center',
+            end: 'center+=85% center',
+            onEnter: showDescription,
+            onEnterBack: showDescription,
+            onLeaveBack: showLabel,
+            fastScrollEnd: true,
+          },
+        })
       })
     })
   }, rootRef.value ?? undefined)
@@ -245,6 +251,35 @@ onUnmounted(() => {
       position: absolute;
       top: 0;
       left: 0;
+    }
+  }
+
+  @include mobile {
+    padding: mobile-vw(16px) mobile-vw(16px);
+
+    .process-step {
+      align-items: flex-start;
+      gap: mobile-vw(16px);
+      padding: mobile-vw(20px) mobile-vw(8px);
+
+      &__main {
+        overflow: visible;
+      }
+
+      &__description {
+        position: static;
+        margin-top: mobile-vw(6px);
+        font-size: mobile-vw(14px);
+        line-height: mobile-vw(18px);
+        font-family: var(--font-haas-grot-disp-regular);
+        font-weight: 400;
+      }
+
+      &__bg-content {
+        align-items: flex-start;
+        padding: mobile-vw(20px) mobile-vw(8px);
+        gap: mobile-vw(16px);
+      }
     }
   }
 }

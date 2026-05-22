@@ -53,6 +53,10 @@ const RENTAL_LABELS: Record<string, string> = {
   gap: desktop-vw(8px);
   text-decoration: none;
 
+  @include mobile {
+    gap: mobile-vw(8px);
+  }
+
   &--linked &__media {
     overflow: hidden;
 
@@ -86,12 +90,20 @@ const RENTAL_LABELS: Record<string, string> = {
     align-items: flex-start;
     justify-content: space-between;
     gap: desktop-vw(12px);
+
+    @include mobile {
+      gap: mobile-vw(12px);
+    }
   }
 
   &__name {
     display: flex;
     flex-direction: column;
     width: 70%;
+
+    @include mobile {
+      width: 90%;
+    }
   }
 }
 </style>

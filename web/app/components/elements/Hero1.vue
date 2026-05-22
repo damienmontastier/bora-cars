@@ -14,6 +14,7 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 const settings = useSettings()
+const { isMobile } = useBreakpoint()
 const { menuTheme, menuOpen } = storeToRefs(useAppStore())
 const ctaTheme = computed(() => menuTheme.value === 'black' ? 'white' : menuTheme.value)
 const logoColor = computed(() => menuTheme.value === 'white' ? 'beige-100' : `${menuTheme.value}-100`)
@@ -284,7 +285,7 @@ onMounted(() => {
     })
     mounted = true
 
-    if (props.clipPath) {
+    if (props.clipPath && !isMobile.value) {
       gsap.timeline({
         scrollTrigger: {
           id: 'hero-clip',
@@ -412,11 +413,15 @@ onUnmounted(() => {
 
   &__top {
     width: 100%;
-    height: 100vh;
+    height: 100svh;
     display: flex;
     align-items: flex-end;
     justify-content: center;
     padding: desktop-vw(16px);
+
+    @include mobile {
+      padding: mobile-vw(16px);
+    }
 
     .svg-logo {
       width: 100%;
@@ -427,12 +432,20 @@ onUnmounted(() => {
 
   &__middle {
     width: 100%;
-    height: 75vh;
+    min-height: 75svh;
     display: flex;
     flex-direction: row;
     align-items: flex-end;
     gap: desktop-vw(72px);
     padding: desktop-vw(24px);
+
+    @include mobile {
+      flex-direction: column;
+      gap: mobile-vw(85px);
+      padding: mobile-vw(24px) mobile-vw(16px);
+      overflow: hidden;
+      justify-content: center;
+    }
 
     &-content {
       flex: 0 0 desktop-vw(310px);
@@ -454,6 +467,12 @@ onUnmounted(() => {
     .H1 {
       flex: 0 0 auto;
       max-width: desktop-vw(945px);
+
+      @include mobile {
+        max-width: 100%;
+        font-size: mobile-vw(58px);
+        line-height: mobile-vw(58px);
+      }
     }
   }
 
@@ -464,8 +483,18 @@ onUnmounted(() => {
     display: flex;
     justify-content: flex-end;
 
+    @include mobile {
+      margin-top: mobile-vw(100px);
+      margin-bottom: mobile-vw(140px);
+      padding: mobile-vw(24px) mobile-vw(16px);
+    }
+
     .H3 {
       width: 37.5%;
+
+      @include mobile {
+        width: 100%;
+      }
     }
   }
 
@@ -478,7 +507,7 @@ onUnmounted(() => {
     position: sticky;
     top: 0;
     width: 100%;
-    height: 100vh;
+    height: 100svh;
   }
 
   &__background--video {
