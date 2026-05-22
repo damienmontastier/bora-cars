@@ -30,6 +30,7 @@ export const proprietaireType = defineType({
         defineArrayMember({ type: 'pitch' }),
         defineArrayMember({ type: 'process' }),
         defineArrayMember({ type: 'testimonials' }),
+        defineArrayMember({ type: 'faq' }),
         defineArrayMember({ type: 'cardsColumn' }),
       ],
     }),
