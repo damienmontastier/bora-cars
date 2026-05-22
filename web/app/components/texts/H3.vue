@@ -58,7 +58,7 @@ defineExpose({
     :class="classes"
     :style="{ color: `var(--c-${color})` }"
   >
-    <span class="app-text" :class="{ 'app-text--will-animate': animated }" aria-hidden="true">
+    <span class="app-text" aria-hidden="true">
       <slot />
     </span>
     <span class="sr-only">
@@ -71,22 +71,6 @@ defineExpose({
 .H3 {
   &.no-selectable {
     user-select: none;
-  }
-
-  .app-text--will-animate {
-    opacity: 0;
-  }
-
-  @include mobile {
-    .app-text--will-animate {
-      opacity: 1;
-    }
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .H3 .app-text--will-animate {
-    opacity: 1;
   }
 }
 </style>

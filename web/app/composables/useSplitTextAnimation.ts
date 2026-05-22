@@ -42,45 +42,6 @@ export function useSplitTextAnimation(
 
   let mm: gsap.MatchMedia | null = null
 
-  // Whether a parent-provided trigger is part of the contract. If yes, we must
-  // wait for the parent's template ref to resolve before init — otherwise we'd
-  // init with the `el` fallback, then re-init once the trigger lands (mm.revert
-  // restoring the DOM to its visible natural state between the two = flicker).
-  const expectsTrigger
-    = !!options.scrollTrigger
-      && options.scrollTrigger !== false
-      && 'trigger' in (options.scrollTrigger as object)
-
-  // init() can be triggered by multiple sources within the same tick (fontsLoaded
-  // watcher, trigger ref propagation, onMounted). Each call does mm.revert()
-  // which restores the DOM to its visible natural state for a frame before the
-  // new SplitText hides it again — that's the "anim plays then resets" flicker.
-  // Coalesce all calls into a single init() per tick.
-  let pendingInit = false
-  function scheduleInit() {
-    if (pendingInit)
-      return
-    pendingInit = true
-    nextTick(() => {
-      pendingInit = false
-      init()
-    })
-  }
-
-  // Gate-keeper: only schedule init when all prerequisites are met. If a trigger
-  // is expected but still null/undefined, bail and let the trigger watcher fire
-  // when it lands.
-  function tryInit() {
-    if (!fontsLoaded.value)
-      return
-    if (expectsTrigger) {
-      const t = (options.scrollTrigger as ScrollTrigger.Vars).trigger
-      if (t === null || t === undefined)
-        return
-    }
-    scheduleInit()
-  }
-
   function init() {
     const el = getEl()
     if (!el)
@@ -215,13 +176,6 @@ export function useSplitTextAnimation(
             splitTarget = outermost
         }
 
-        // Reveal the split target(s) so descendant chars become controllable by
-        // their per-char `from` state. `.app-text--will-animate` is set to
-        // opacity: 0 by CSS to prevent the SSR-rendered text from flashing
-        // visible between hydration and this point.
-        const targetEls = Array.isArray(splitTarget) ? splitTarget : [splitTarget]
-        targetEls.forEach((t) => { t.style.opacity = '1' })
-
         SplitText.create(splitTarget, {
           autoSplit: true,
           smartWrap: true,
@@ -245,25 +199,34 @@ export function useSplitTextAnimation(
   }
 
   // Fonts load while component is already mounted (initial page load)
-  watch(fontsLoaded, tryInit)
+  watch(fontsLoaded, (loaded) => {
+    if (loaded)
+      init()
+  })
 
-  // Wait for a parent-provided ScrollTrigger trigger to resolve. Use case: a
+  // Re-init when the user-provided ScrollTrigger trigger changes. Use case: a
   // parent template ref passed via `scrollTrigger.trigger` is null on the first
   // pass through onMounted (Vue assigns parent refs AFTER children mount), and
   // gets assigned only when the parent's render flushes. Without this watch, we
   // would silently lock in the fallback `el` as trigger and ScrollTrigger
   // positions would be off — especially when the parent has a transform that
   // distorts the child's measured scroll position.
-  if (expectsTrigger) {
+  if (options.scrollTrigger && options.scrollTrigger !== false) {
     watch(
       () => (options.scrollTrigger as ScrollTrigger.Vars).trigger,
-      tryInit,
+      (val) => {
+        if (val && fontsLoaded.value)
+          init()
+      },
     )
   }
 
   // Component mounts after fonts are already loaded (SPA navigation)
+  // nextTick defers init until after the parent's reactive re-render propagates
+  // the correct trigger element (template refs are null on first render)
   onMounted(() => {
-    tryInit()
+    if (fontsLoaded.value)
+      nextTick(() => init())
 
     if (import.meta.dev && options.debug) {
       setupSplitTextPane(currentStyle, init, options.label)
