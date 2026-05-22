@@ -1,0 +1,229 @@
+<script setup lang="ts">
+import type { CarDetailData } from '~/queries/car'
+
+const props = defineProps<{ car: CarDetailData }>()
+
+const PAIEMENT_LABELS: Record<string, string> = {
+  virement: 'Virement',
+  carte: 'Carte',
+  especes: 'Espèces',
+}
+
+const RENTAL_TYPE_LABELS: Record<string, string> = {
+  'longue-duree': 'Longue durée',
+  'professionnel': 'Professionnel',
+  'courte-duree': 'Courte durée',
+}
+
+interface Cell { key: string, label: string, value: string }
+
+const rentalTypes = computed<string[]>(() =>
+  (props.car.rentalTypes ?? []).map(t => RENTAL_TYPE_LABELS[t] ?? t),
+)
+
+const paiements = computed<string[]>(() =>
+  (props.car.paiementsAcceptes ?? []).map(p => PAIEMENT_LABELS[p] ?? p),
+)
+
+const hasPills = computed(() => rentalTypes.value.length > 0 || paiements.value.length > 0)
+
+const conditionsCells = computed<Cell[]>(() => {
+  const c = props.car
+  const items: Cell[] = []
+  if (c.ageMinimum)
+    items.push({ key: 'age', label: 'Âge minimum', value: `${c.ageMinimum} ans` })
+  if (c.anciennetePermis != null)
+    items.push({ key: 'anciennete', label: 'Ancienneté de permis', value: `${c.anciennetePermis} ans` })
+  if (c.dureeMinimum)
+    items.push({ key: 'duree', label: 'Durée minimum', value: `${c.dureeMinimum} ${c.dureeMinimum > 1 ? 'jours' : 'jour'}` })
+  return items
+})
+
+const fraisCells = computed<Cell[]>(() => {
+  const c = props.car
+  const items: Cell[] = []
+  if (c.kmJourInclus)
+    items.push({ key: 'km', label: 'Km/jour inclus', value: `${c.kmJourInclus} km` })
+  if (c.caution)
+    items.push({ key: 'caution', label: 'Caution', value: `${new Intl.NumberFormat('fr-FR').format(c.caution)}€` })
+  if (c.prixKmSupplementaire?.prix && c.prixKmSupplementaire?.km) {
+    const { prix, km } = c.prixKmSupplementaire
+    const price = new Intl.NumberFormat('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(prix)
+    items.push({
+      key: 'km-supp',
+      label: 'Km supplémentaire',
+      value: km > 1 ? `${price}€/${km} km` : `${price}€/km`,
+    })
+  }
+  return items
+})
+
+const hasAny = computed(() =>
+  hasPills.value || conditionsCells.value.length > 0 || fraisCells.value.length > 0,
+)
+</script>
+
+<template>
+  <div v-if="hasAny" class="car-rental">
+    <TextsP3 weight="bold" tag="h2" class="car-rental__title">
+      Informations de location
+    </TextsP3>
+
+    <div class="car-rental__content">
+      <div v-if="hasPills" class="car-rental__row car-rental__row--pills">
+        <div v-if="rentalTypes.length" class="car-rental__group">
+          <TextsP2 color="black-70" class="car-rental__group-label">
+            Type de location
+          </TextsP2>
+          <ul class="car-rental__pills">
+            <li v-for="t in rentalTypes" :key="t" class="car-rental__pill">
+              <TextsP1>{{ t }}</TextsP1>
+            </li>
+          </ul>
+        </div>
+
+        <div v-if="paiements.length" class="car-rental__group">
+          <TextsP2 color="black-70" class="car-rental__group-label">
+            Paiements acceptés
+          </TextsP2>
+          <ul class="car-rental__pills">
+            <li v-for="p in paiements" :key="p" class="car-rental__pill">
+              <TextsP1>{{ p }}</TextsP1>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <hr v-if="hasPills && conditionsCells.length" class="car-rental__divider">
+
+      <div v-if="conditionsCells.length" class="car-rental__row car-rental__row--cells">
+        <div v-for="cell in conditionsCells" :key="cell.key" class="car-rental__cell">
+          <TextsP2 color="black-70" class="car-rental__cell-label">
+            {{ cell.label }}
+          </TextsP2>
+          <TextsP1 class="car-rental__cell-value">
+            {{ cell.value }}
+          </TextsP1>
+        </div>
+      </div>
+
+      <hr v-if="(hasPills || conditionsCells.length) && fraisCells.length" class="car-rental__divider">
+
+      <div v-if="fraisCells.length" class="car-rental__row car-rental__row--cells">
+        <div v-for="cell in fraisCells" :key="cell.key" class="car-rental__cell">
+          <TextsP2 color="black-70" class="car-rental__cell-label">
+            {{ cell.label }}
+          </TextsP2>
+          <TextsP1 class="car-rental__cell-value">
+            {{ cell.value }}
+          </TextsP1>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<style lang="scss">
+.car-rental {
+  display: flex;
+  flex-direction: column;
+  gap: desktop-vw(24px);
+
+  @include mobile {
+    gap: mobile-vw(16px);
+  }
+
+  &__title {
+    color: var(--c-black-100);
+  }
+
+  &__content {
+    display: flex;
+    flex-direction: column;
+  }
+
+  &__row {
+    display: flex;
+    gap: desktop-vw(32px);
+    padding: desktop-vw(24px) 0;
+    align-items: flex-start;
+    flex-wrap: wrap;
+
+    @include mobile {
+      gap: mobile-vw(16px);
+      padding: mobile-vw(16px) 0;
+    }
+
+    &--pills > .car-rental__group {
+      flex: 1 0 0;
+      min-width: 0;
+
+      @include mobile {
+        flex: 1 0 100%;
+      }
+    }
+
+    &--cells > .car-rental__cell {
+      flex: 0 0 calc((100% - #{desktop-vw(32px * 2)}) / 3);
+
+      @include mobile {
+        flex: 1 0 calc(50% - #{mobile-vw(8px)});
+      }
+    }
+  }
+
+  &__group {
+    display: flex;
+    flex-direction: column;
+    gap: desktop-vw(8px);
+
+    @include mobile {
+      gap: mobile-vw(6px);
+    }
+  }
+
+  &__pills {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: desktop-vw(8px);
+
+    @include mobile {
+      gap: mobile-vw(6px);
+    }
+  }
+
+  &__pill {
+    background: var(--c-black-10);
+    padding: desktop-vw(16px) desktop-vw(24px);
+    border-radius: desktop-vw(40px);
+    color: var(--c-black-100);
+
+    @include mobile {
+      padding: mobile-vw(12px) mobile-vw(18px);
+      border-radius: mobile-vw(40px);
+    }
+  }
+
+  &__cell {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: desktop-vw(8px);
+
+    @include mobile {
+      gap: mobile-vw(6px);
+    }
+  }
+
+  &__divider {
+    width: 100%;
+    height: 0;
+    border: 0;
+    border-top: 1px solid var(--c-black-10);
+    margin: 0;
+  }
+}
+</style>

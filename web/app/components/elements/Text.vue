@@ -6,22 +6,26 @@ interface Props {
   body?: any[]
 }
 
-defineProps<Props>()
+const props = defineProps<Props>()
 
 const settings = useSettings()
-const portableTextComponents = getPortableTextComponents()
+const portableTextComponents = computed(() => getPortableTextComponents({
+  color: 'black-100',
+  eyebrow: props.eyebrow,
+  eyebrowClass: 'app-elements-text__eyebrow',
+}))
 </script>
 
 <template>
   <section class="app-elements-text">
     <div class="app-elements-text__content">
       <div class="app-elements-text__top">
-        <TextsP2 v-if="eyebrow" :selectable="false" class="app-elements-text__eyebrow">
+        <template v-if="body?.length">
+          <SanityContent :value="body" :components="portableTextComponents" />
+        </template>
+        <TextsP2 v-else-if="eyebrow" :selectable="false" class="app-elements-text__eyebrow">
           {{ eyebrow }}
         </TextsP2>
-        <div v-if="body?.length" class="app-elements-text__body">
-          <SanityContent :value="body" :components="portableTextComponents" />
-        </div>
       </div>
 
       <AtomsCTA
@@ -64,30 +68,18 @@ const portableTextComponents = getPortableTextComponents()
     @include mobile {
       width: 100%;
     }
-  }
 
-  &__eyebrow {
-    display: inline;
-    margin-right: desktop-vw(16px);
-  }
-
-  &__body {
-    display: inline;
-
-    // Inline the first block to flow with the eyebrow
-    > *:first-child {
-      display: inline;
-    }
-
-    // Spacing between subsequent blocks
     > * + * {
-      display: block;
       margin-top: desktop-vw(32px);
 
       @include mobile {
         margin-top: mobile-vw(24px);
       }
     }
+  }
+
+  &__eyebrow {
+    margin-right: desktop-vw(16px);
   }
 }
 </style>

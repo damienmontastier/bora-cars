@@ -1,8 +1,8 @@
 <script lang="ts" setup>
 import type { CarDetailData, CarPreFooter } from '~/queries/car'
-import { CAR_QUERY } from '~/queries/car'
 import { useEventBus } from '@vueuse/core'
 import gsap from 'gsap'
+import { CAR_QUERY } from '~/queries/car'
 
 interface QueryResult {
   car: CarDetailData | null
@@ -71,7 +71,7 @@ onMounted(() => {
         </template>
 
         <hr class="page-car__divider">
-        <PageCarMissingInfo :car="car!" />
+        <PageCarRentalInfo :car="car!" />
       </div>
 
       <PageCarPricing v-if="car?.prixJournalier || car?.location" :car="car!" />
@@ -94,7 +94,7 @@ onMounted(() => {
 
   &__details {
     display: flex;
-    gap: desktop-vw(140px);
+    gap: desktop-vw(160px);
     padding: desktop-vw(40px) desktop-vw(24px);
     background: var(--c-beige-100);
     align-items: flex-start;
