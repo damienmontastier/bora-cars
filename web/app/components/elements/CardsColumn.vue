@@ -203,7 +203,7 @@ onUnmounted(() => {
     flex-direction: column;
     align-self: stretch;
     flex-shrink: 0;
-    width: desktop-vw(656px);
+    width: calc(48% - #{desktop-vw(20px)});
     gap: desktop-vw(40px);
 
     @include mobile {
@@ -214,6 +214,7 @@ onUnmounted(() => {
 
   &__left-heading {
     flex: 1;
+    width: 85%;
   }
 
   &__left-bottom {
@@ -238,7 +239,8 @@ onUnmounted(() => {
   }
 
   &__list {
-    flex: 1;
+    flex: none;
+    width: calc(52% - #{desktop-vw(20px)});
     min-width: 0;
     list-style: none;
     margin: 0;
@@ -246,6 +248,7 @@ onUnmounted(() => {
     margin-top: desktop-vw(200px);
 
     @include mobile {
+      width: 100%;
       margin-top: 0px;
     }
   }
@@ -326,7 +329,7 @@ onUnmounted(() => {
     }
 
     .cards-column__item-content {
-      padding-right: desktop-vw(120px);
+      padding-right: desktop-vw(100px);
 
       @include mobile {
         padding-right: 0;

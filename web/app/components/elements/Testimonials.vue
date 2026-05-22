@@ -147,7 +147,7 @@ function scrollNext() {
                   {{ item.car.marque }} {{ item.car.modele }}
                 </TextsP2> -->
                 <TextsH3 tag="p" :selectable="false" color="beige-100" class="app-elements-testimonials__quote">
-                  {{ item.quote }}
+                  &#8220;{{ item.quote }}&#8221;
                 </TextsH3>
               </div>
             </div>
@@ -307,14 +307,6 @@ function scrollNext() {
 
   &__quote {
     display: inline;
-
-    &::before {
-      content: '\201C';
-    }
-
-    &::after {
-      content: '\201D';
-    }
   }
 
   &__progress {

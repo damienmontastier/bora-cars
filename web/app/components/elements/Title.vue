@@ -10,12 +10,15 @@ defineProps<Props>()
 <template>
   <section class="app-elements-title">
     <div class="app-elements-title__inner">
-      <TextsP2 v-if="eyebrow" :selectable="false" class="app-elements-title__eyebrow">
-        {{ eyebrow }}
-      </TextsP2>
       <TextsH2 v-if="heading" tag="p" :selectable="false" class="app-elements-title__heading">
+        <TextsP2 v-if="eyebrow" tag="span" :selectable="false" class="app-elements-title__eyebrow">
+          {{ eyebrow }}
+        </TextsP2>
         {{ heading }}
       </TextsH2>
+      <TextsP2 v-else-if="eyebrow" :selectable="false" class="app-elements-title__eyebrow">
+        {{ eyebrow }}
+      </TextsP2>
     </div>
   </section>
 </template>
@@ -38,13 +41,10 @@ defineProps<Props>()
     }
   }
 
-  &__eyebrow {
-    display: inline;
-    margin-right: desktop-vw(16px);
-  }
-
   &__heading {
-    display: inline;
+    .app-elements-title__eyebrow {
+      margin-right: desktop-vw(16px);
+    }
   }
 }
 </style>
