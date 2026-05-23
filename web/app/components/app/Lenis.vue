@@ -28,7 +28,13 @@ watchEffect((onInvalidate) => {
 
   window.lenis = lenis
 
+  const initialHash = window.location.hash
+  lenis.scrollTo(initialHash || 0, { immediate: true })
+
   lenis.on('scroll', ScrollTrigger.update)
+
+  // Bloqué par défaut. AppPreloader.finalize() appelle lenis.start() à la fin du fade.
+  lenis.stop()
 
   const unsubscribe = Tempus.add((time) => {
     lenis.raf(time)

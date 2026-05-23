@@ -104,6 +104,12 @@ const pageTransition = {
       done()
   },
 }
+
+onMounted(() => {
+  // Preserve the browser's native hash scroll on refresh; otherwise start at top.
+  if (!window.location.hash)
+    window.scrollTo(0, 0)
+})
 </script>
 
 <template>
@@ -113,10 +119,12 @@ const pageTransition = {
     <template v-else>
       <AppLenis />
 
-      <!-- <AppPreloader /> -->
+      <AppPreloader />
       <AppMenu :data="menu" />
 
       <AppOverlay />
+
+      <AppIdleScreen />
 
       <AppTransition ref="transitionRef" />
 

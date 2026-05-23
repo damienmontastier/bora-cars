@@ -160,14 +160,14 @@ onUnmounted(() => {
 
         <div aria-hidden="true" class="process-step__bg">
           <div class="process-step__bg-content">
-            <TextsH3 :selectable="false" class="process-step__number" color="beige-100">
+            <TextsH3 :animated="false" :selectable="false" class="process-step__number" color="beige-100">
               {{ step.number }}
             </TextsH3>
             <div class="process-step__main">
-              <TextsH3 tag="span" :selectable="false" class="process-step__label" color="beige-100">
+              <TextsH3 :animated="false" tag="span" :selectable="false" class="process-step__label" color="beige-100">
                 {{ step.title }}
               </TextsH3>
-              <TextsH3 tag="span" :selectable="false" class="process-step__description" color="beige-100">
+              <TextsH3 :animated="false" tag="span" :selectable="false" class="process-step__description" color="beige-100">
                 {{ step.description }}
               </TextsH3>
             </div>

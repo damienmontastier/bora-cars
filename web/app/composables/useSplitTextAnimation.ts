@@ -140,8 +140,16 @@ export function useSplitTextAnimation(
             to.ease = 'none'
 
           preset.prepare?.(targets)
+          // Belt-and-braces : `gsap.set` pose l'état `from` immédiatement et n'est PAS
+          // affecté par les `ScrollTrigger.refresh()` (pas de ScrollTrigger attaché), donc
+          // l'état persiste même quand refresh revert temporairement le `fromTo`.
+          // `immediateRender: true` complète en garantissant que le tween lui-même rend
+          // son `from` state à la création — sinon ScrollTrigger force `false` par défaut
+          // tant que le trigger est sous le viewport, d'où le flash sans translate.
+          gsap.set(targets, from)
           return gsap.fromTo(targets, from, {
             ...to,
+            immediateRender: true,
             ...(scrollTriggerVars ? { scrollTrigger: scrollTriggerVars } : {}),
           })
         }
@@ -211,7 +219,7 @@ export function useSplitTextAnimation(
   // would silently lock in the fallback `el` as trigger and ScrollTrigger
   // positions would be off — especially when the parent has a transform that
   // distorts the child's measured scroll position.
-  if (options.scrollTrigger && options.scrollTrigger !== false) {
+  if (options.scrollTrigger) {
     watch(
       () => (options.scrollTrigger as ScrollTrigger.Vars).trigger,
       (val) => {
