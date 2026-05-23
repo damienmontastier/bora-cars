@@ -31,6 +31,7 @@ function measurePath() {
 
 let progressTl: gsap.core.Timeline | null = null
 const timelineComplete = ref(false)
+const logoVisible = ref(false)
 
 function finalize() {
   if (!timelineComplete.value || !fontsLoaded.value)
@@ -49,13 +50,9 @@ function finalize() {
   })
 }
 
-watch(fontsLoaded, finalize)
-
-onMounted(async () => {
-  await nextTick()
-  measurePath()
-  start()
-
+function startProgressTimeline() {
+  if (progressTl)
+    return
   progressTl = gsap.timeline({
     defaults: { ease: 'power2.inOut' },
     onComplete: () => {
@@ -66,6 +63,25 @@ onMounted(async () => {
     .to(progress, { value: 0.40, duration: 0.6, ease: 'power2.out' }, '+=0.8')
     .to(progress, { value: 0.80, duration: 0.55 }, '+=0.25')
     .to(progress, { value: 1, duration: 0.4, ease: 'power1.in' }, '+=0.2')
+}
+
+watch(fontsLoaded, (loaded) => {
+  if (!loaded)
+    return
+  logoVisible.value = true
+  startProgressTimeline()
+  finalize()
+})
+
+onMounted(async () => {
+  await nextTick()
+  measurePath()
+  start()
+
+  if (fontsLoaded.value) {
+    logoVisible.value = true
+    startProgressTimeline()
+  }
 })
 
 onBeforeUnmount(() => {
@@ -82,7 +98,11 @@ onBeforeUnmount(() => {
     :style="{ backgroundColor: `var(--c-${bgColor})` }"
   >
     <div class="app-preloader__inner" :class="{ 'app-preloader__inner--hide': preloaderContentHide }">
-      <div ref="logoRef" class="app-preloader__logo">
+      <div
+        ref="logoRef"
+        class="app-preloader__logo"
+        :class="{ 'app-preloader__logo--visible': logoVisible }"
+      >
         <SvgLogoMinimal class="app-preloader__logo-track" :color="logoColor" />
         <SvgLogoMinimal
           class="app-preloader__logo-fill"
@@ -126,9 +146,15 @@ onBeforeUnmount(() => {
     left: 0;
     width: desktop-vw(200px);
     height: auto;
-    will-change: transform;
+    will-change: transform, opacity;
     transform: translate3d(0, 0, 0);
     aspect-ratio: 1;
+    opacity: 0;
+    transition: opacity 0.4s var(--ease-out-cubic);
+
+    &--visible {
+      opacity: 1;
+    }
 
     @include mobile {
       width: mobile-vw(64px);
