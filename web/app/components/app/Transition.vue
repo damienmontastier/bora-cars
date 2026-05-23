@@ -22,7 +22,13 @@ onUnmounted(() => {
 
 function onLeave(_el: Element, done: () => void) {
   lenis()?.stop()
-  ctx?.add(() => {
+
+  if (!overlayRef.value) {
+    done()
+    return
+  }
+
+  const run = () => {
     gsap.timeline({
       onComplete: () => {
         transitionBus.emit('covered') // overlay fully covers screen — safe to reset menu
@@ -36,13 +42,22 @@ function onLeave(_el: Element, done: () => void) {
         duration: 0.75,
         ease: 'expo.inOut',
       })
-  })
+  }
+
+  if (ctx) ctx.add(run)
+  else run()
 }
 
 function onBeforeEnter() {}
 
 function onEnter(_el: Element, done: () => void) {
-  ctx?.add(() => {
+  if (!overlayRef.value) {
+    lenis()?.start()
+    done()
+    return
+  }
+
+  const run = () => {
     gsap.timeline({
       onComplete: () => {
         lenis()?.start()
@@ -56,7 +71,10 @@ function onEnter(_el: Element, done: () => void) {
         ease: 'expo.inOut',
       })
       .set(overlayRef.value, { transformOrigin: 'bottom' })
-  })
+  }
+
+  if (ctx) ctx.add(run)
+  else run()
 }
 
 defineExpose({ onLeave, onBeforeEnter, onEnter })

@@ -42,11 +42,18 @@ defineProps<Props>()
   }
 
   &__heading {
+    > .app-text {
+      display: block;
+      width: 100%;
+    }
+
     .app-elements-title__eyebrow {
       margin-right: desktop-vw(16px);
 
       @include mobile {
-        margin-right: mobile-vw(16px);
+        display: block;
+        margin-right: 0;
+        margin-bottom: mobile-vw(8px);
       }
     }
   }

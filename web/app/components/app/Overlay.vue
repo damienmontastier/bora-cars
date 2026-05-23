@@ -28,7 +28,8 @@ const { menuOpen } = toRefs(appStore)
     backdrop-filter: blur(2.5px);
 
     @include mobile {
-      background-color: var(--c-black-70);
+      background-color: var(--c-black-80);
+      backdrop-filter: blur(4.5px);
     }
   }
 

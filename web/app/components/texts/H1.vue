@@ -36,8 +36,6 @@ const classes = computed(() => ({
   'no-selectable': !props.selectable,
 }))
 
-console.log('H1 trigger:', props.trigger, mainRef.value) // Debug log to check the trigger element
-
 useSplitTextAnimation(() => (props.animated ? mainRef.value : undefined), {
   style: props.animation,
   label: 'H1',

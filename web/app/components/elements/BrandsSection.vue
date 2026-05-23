@@ -17,72 +17,114 @@ onMounted(async () => {
   await nextTick()
 
   ctx = gsap.context(() => {
-    let firstEnter = false
-    let activeFade: gsap.core.Tween | null = null
+    const mm = gsap.matchMedia()
 
-    ScrollTrigger.create({
-      trigger: rootRef.value,
-      start: 'top bottom',
-      end: 'bottom top',
-      onLeave: () => activeFade?.reverse(),
-      onLeaveBack: () => activeFade?.reverse(),
+    mm.add('(min-width: 800px)', () => {
+      let firstEnter = false
+      let activeFade: gsap.core.Tween | null = null
+
+      ScrollTrigger.create({
+        trigger: rootRef.value,
+        start: 'top bottom',
+        end: 'bottom top',
+        onLeave: () => activeFade?.reverse(),
+        onLeaveBack: () => activeFade?.reverse(),
+      })
+
+      gsap.utils.toArray<HTMLElement>('.brand-item').forEach((el) => {
+        const image = el.querySelector<HTMLElement>('.brand-item__cursor')
+        if (!image)
+          return
+
+        gsap.set(image, { xPercent: -50, yPercent: -50 })
+
+        const setX = gsap.quickTo(image, 'x', { duration: 0.4, ease: 'power3' })
+        const setY = gsap.quickTo(image, 'y', { duration: 0.4, ease: 'power3' })
+
+        function align(e: MouseEvent) {
+          if (firstEnter) {
+            setX(e.clientX, e.clientX)
+            setY(e.clientY, e.clientY)
+            firstEnter = false
+          }
+          else {
+            setX(e.clientX)
+            setY(e.clientY)
+          }
+        }
+
+        const startFollow = () => document.addEventListener('mousemove', align)
+        const stopFollow = () => document.removeEventListener('mousemove', align)
+
+        const brandName = el.dataset.brand ?? null
+
+        const fade = gsap.to(image, {
+          autoAlpha: 1,
+          ease: 'none',
+          paused: true,
+          duration: 0.1,
+          onReverseComplete: () => {
+            stopFollow()
+            activeFade = null
+            if (hoveredBrand.value === brandName)
+              hoveredBrand.value = null
+          },
+        })
+
+        const onEnter = (e: Event) => {
+          hoveredBrand.value = el.dataset.brand ?? null
+          firstEnter = true
+          activeFade = fade
+          fade.play()
+          startFollow()
+          align(e as MouseEvent)
+        }
+        const onLeave = () => fade.reverse()
+
+        el.addEventListener('mouseenter', onEnter)
+        el.addEventListener('mouseleave', onLeave)
+
+        return () => {
+          el.removeEventListener('mouseenter', onEnter)
+          el.removeEventListener('mouseleave', onLeave)
+          stopFollow()
+        }
+      })
     })
 
-    gsap.utils.toArray<HTMLElement>('.brand-item').forEach((el) => {
-      const image = el.querySelector<HTMLElement>('.brand-item__cursor')
-      if (!image)
-        return
+    mm.add('(max-width: 799px)', () => {
+      gsap.utils.toArray<HTMLElement>('.brand-item').forEach((el) => {
+        const image = el.querySelector<HTMLElement>('.brand-item__cursor')
+        if (!image)
+          return
 
-      gsap.set(image, { xPercent: -50, yPercent: -50 })
+        const brandName = el.dataset.brand ?? null
 
-      const setX = gsap.quickTo(image, 'x', { duration: 0.4, ease: 'power3' })
-      const setY = gsap.quickTo(image, 'y', { duration: 0.4, ease: 'power3' })
+        gsap.set(image, { autoAlpha: 0 })
 
-      function align(e: MouseEvent) {
-        if (firstEnter) {
-          setX(e.clientX, e.clientX)
-          setY(e.clientY, e.clientY)
-          firstEnter = false
+        const fadeIn = () => {
+          hoveredBrand.value = brandName
+          gsap.to(image, { autoAlpha: 1, duration: 0.4, ease: 'power2.out', overwrite: true })
         }
-        else {
-          setX(e.clientX)
-          setY(e.clientY)
-        }
-      }
-
-      const startFollow = () => document.addEventListener('mousemove', align)
-      const stopFollow = () => document.removeEventListener('mousemove', align)
-
-      const brandName = el.dataset.brand ?? null
-
-      const fade = gsap.to(image, {
-        autoAlpha: 1,
-        ease: 'none',
-        paused: true,
-        duration: 0.1,
-        onReverseComplete: () => {
-          stopFollow()
-          activeFade = null
+        const fadeOut = () => {
           if (hoveredBrand.value === brandName)
             hoveredBrand.value = null
-        },
-      })
+          gsap.to(image, { autoAlpha: 0, duration: 0.4, ease: 'power2.out', overwrite: true })
+        }
 
-      el.addEventListener('mouseenter', (e) => {
-        hoveredBrand.value = el.dataset.brand ?? null
-        firstEnter = true
-        activeFade = fade
-        fade.play()
-        startFollow()
-        align(e as MouseEvent)
+        ScrollTrigger.create({
+          trigger: el,
+          start: 'top center',
+          end: 'bottom center',
+          onEnter: fadeIn,
+          onLeave: fadeOut,
+          onEnterBack: fadeIn,
+          onLeaveBack: fadeOut,
+        })
       })
-
-      el.addEventListener('mouseleave', () => fade.reverse())
     })
   }, rootRef.value ?? undefined)
 })
-
-console.log('data', props.data)
 
 onUnmounted(() => {
   ctx?.revert()
@@ -180,6 +222,9 @@ onUnmounted(() => {
 
     @include mobile {
       flex-direction: column;
+      gap: 0px;
+      padding: mobile-vw(70px) mobile-vw(16px);
+      overflow: hidden;
     }
   }
 
@@ -207,6 +252,22 @@ onUnmounted(() => {
     display: flex;
     flex-direction: column;
     gap: desktop-vw(24px);
+
+    @include mobile {
+      width: 85%;
+      gap: mobile-vw(16px);
+      align-self: flex-end;
+      margin-top: mobile-vw(48px);
+      align-items: flex-end;
+    }
+
+    .P2 {
+      @include mobile {
+        text-align: right;
+        width: 65%;
+        align-self: flex-end;
+      }
+    }
   }
 
   &__text {
@@ -240,6 +301,12 @@ onUnmounted(() => {
 
       .H3 .P2 {
         margin-right: desktop-vw(16px);
+
+        @include mobile {
+          display: block;
+          margin-right: 0;
+          margin-bottom: mobile-vw(8px);
+        }
       }
     }
   }
@@ -261,6 +328,18 @@ onUnmounted(() => {
     visibility: hidden;
     pointer-events: none;
     object-fit: cover;
+
+    @include mobile {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(0%, -50%);
+      width: mobile-vw(231px);
+      height: auto;
+      max-inline-size: none;
+      max-block-size: none;
+      aspect-ratio: 231 / 151;
+    }
   }
 
   &.is-hovered .H3 {

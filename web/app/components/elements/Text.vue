@@ -80,6 +80,12 @@ const portableTextComponents = computed(() => getPortableTextComponents({
 
   &__eyebrow {
     margin-right: desktop-vw(16px);
+
+    @include mobile {
+      display: block;
+      margin-right: 0;
+      margin-bottom: mobile-vw(8px);
+    }
   }
 }
 </style>

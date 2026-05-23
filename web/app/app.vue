@@ -86,7 +86,10 @@ const pageTransition = {
   mode: 'out-in' as const,
   onLeave: (el: Element, done: () => void) => {
     appStore.menuTransitioning = true
-    transitionRef.value?.onLeave(el, done)
+    if (transitionRef.value)
+      transitionRef.value.onLeave(el, done)
+    else
+      done()
   },
   onBeforeEnter: async () => {
     await finalizePendingLocaleChange()
@@ -94,7 +97,12 @@ const pageTransition = {
     appStore.menuTransitioning = false
     transitionRef.value?.onBeforeEnter()
   },
-  onEnter: (el: Element, done: () => void) => transitionRef.value?.onEnter(el, done),
+  onEnter: (el: Element, done: () => void) => {
+    if (transitionRef.value)
+      transitionRef.value.onEnter(el, done)
+    else
+      done()
+  },
 }
 </script>
 
