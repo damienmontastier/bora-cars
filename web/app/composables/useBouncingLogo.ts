@@ -1,8 +1,8 @@
 import { gsap } from 'gsap'
 
 const COLOR_PAIRS = [
-  { logo: 'orange', bg: 'black' },
   { logo: 'beige', bg: 'orange' },
+  { logo: 'orange', bg: 'black' },
   { logo: 'black', bg: 'beige' },
   { logo: 'beige', bg: 'black' },
   { logo: 'orange', bg: 'beige' },
@@ -72,11 +72,19 @@ export function useBouncingLogo(
   function init() {
     measure()
     const b = bounds()
-    pos.x = b.minX + Math.random() * Math.max(1, b.maxX - b.minX)
-    pos.y = b.minY + Math.random() * Math.max(1, b.maxY - b.minY)
+    const EDGE_MARGIN = 100
+    const minX = Math.min(b.minX + EDGE_MARGIN, b.maxX)
+    const maxX = Math.max(b.maxX - EDGE_MARGIN, minX)
+    const minY = Math.min(b.minY + EDGE_MARGIN, b.maxY)
+    const maxY = Math.max(b.maxY - EDGE_MARGIN, minY)
+    pos.x = minX + Math.random() * Math.max(1, maxX - minX)
+    pos.y = minY + Math.random() * Math.max(1, maxY - minY)
     const v = speed / Math.SQRT2
     vel.x = v * (Math.random() < 0.5 ? 1 : -1)
     vel.y = v * (Math.random() < 0.5 ? 1 : -1)
+    colorIndex = 0
+    logoColor.value = COLOR_PAIRS[0].logo
+    bgColor.value = COLOR_PAIRS[0].bg
     lastTime = performance.now()
     applyTransform()
   }
