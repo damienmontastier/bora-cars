@@ -16,6 +16,7 @@ usePageSeo(computed(() => homepage.value?.seo))
 <template>
   <main v-menu-theme="'orange'" class="page-main">
     <PageModules :modules="homepage?.modules ?? []" />
+    <ElementsPartners />
     <AppFooter />
   </main>
 </template>

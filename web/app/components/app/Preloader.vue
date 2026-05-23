@@ -16,7 +16,7 @@ const progress = ref(0)
 const pathTopPct = ref(0)
 const pathBottomPct = ref(100)
 const logoRef = useTemplateRef<HTMLElement>('logoRef')
-const { logoColor, bgColor, start, stop } = useBouncingLogo(logoRef, { speed: BOUNCE_SPEED })
+const { logoColor, bgColor, start, stop } = useBouncingLogo(logoRef, { speed: BOUNCE_SPEED, cycleColors: false })
 
 function measurePath() {
   const svg = logoRef.value?.querySelector('svg')
@@ -60,8 +60,8 @@ function startProgressTimeline() {
       finalize()
     },
   })
-    .to(progress, { value: 0.40, duration: 0.6, ease: 'power2.out' }, '+=0.8')
-    .to(progress, { value: 0.80, duration: 0.55 }, '+=0.25')
+    .to(progress, { value: 0.35, duration: 0.6, ease: 'power2.out' }, '+=0.8')
+    .to(progress, { value: gsap.utils.random(0.5, 0.75, 0.01), duration: 0.55 }, '+=0.25')
     .to(progress, { value: 1, duration: 0.4, ease: 'power1.in' }, '+=0.2')
 }
 
@@ -157,7 +157,7 @@ onBeforeUnmount(() => {
     }
 
     @include mobile {
-      width: mobile-vw(64px);
+      width: mobile-vw(160px);
       height: auto;
     }
   }
@@ -169,7 +169,7 @@ onBeforeUnmount(() => {
   }
 
   &__logo-track {
-    opacity: 0.2;
+    opacity: 0.5;
   }
 }
 </style>

@@ -14,9 +14,10 @@ export type BouncingBgColor = typeof COLOR_PAIRS[number]['bg']
 
 export function useBouncingLogo(
   logoRef: Ref<HTMLElement | null>,
-  options: { speed?: number } = {},
+  options: { speed?: number, cycleColors?: boolean } = {},
 ) {
   const speed = options.speed ?? 400
+  const cycleColors = options.cycleColors ?? true
   const { width, height } = useWindowSize()
 
   const logoColor = ref<BouncingLogoColor>(COLOR_PAIRS[0].logo)
@@ -122,7 +123,7 @@ export function useBouncingLogo(
       bounced = true
     }
 
-    if (bounced)
+    if (bounced && cycleColors)
       cycleColor()
 
     applyTransform()

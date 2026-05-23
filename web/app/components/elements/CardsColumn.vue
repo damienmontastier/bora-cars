@@ -329,7 +329,7 @@ onUnmounted(() => {
     }
 
     .cards-column__item-content {
-      padding-right: desktop-vw(100px);
+      padding-right: desktop-vw(120px);
 
       @include mobile {
         padding-right: 0;

@@ -17,8 +17,6 @@ watch(lang, (v) => {
   params.lang = v
 })
 
-const { isMobile } = useBreakpoint()
-
 const { data: footer } = await useSanityQuery<FooterData>(FOOTER_QUERY, params)
 
 const lenis = useLenis()
@@ -36,7 +34,7 @@ function scrollToTop() {
   <footer class="app-footer" :class="`--theme-${theme}`">
     <div class="app-footer__wrapper">
       <div class="app-footer__logo-section">
-        <AppFooterLogoAnimation :color="logoColor" />
+        <SvgLogo :color="logoColor" class="app-footer__logo" />
       </div>
 
       <div class="app-footer__divider" />
@@ -186,12 +184,19 @@ function scrollToTop() {
 
   &__logo-section {
     width: 100%;
-    height: desktop-vw(160px);
-    overflow: hidden;
+    padding: desktop-vw(16px) desktop-vw(24px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
     @include mobile {
       display: none;
     }
+  }
+
+  &__logo {
+    width: 65%;
+    height: auto;
   }
 
   &__divider {
