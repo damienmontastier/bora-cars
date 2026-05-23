@@ -1,7 +1,6 @@
 <script lang="ts" setup>
 import type { CatalogueCar, CatalogueData } from '~/queries/catalogue'
-import { useEventBus, useInfiniteScroll } from '@vueuse/core'
-import gsap from 'gsap'
+import { useInfiniteScroll } from '@vueuse/core'
 import { CATALOGUE_CARS_QUERY, CATALOGUE_LIMIT, CATALOGUE_QUERY } from '~/queries/catalogue'
 
 const lang = useSanityLang()
@@ -52,15 +51,9 @@ const { isLoading } = useInfiniteScroll(
 
 usePageSeo(computed(() => page.value?.seo))
 
-const heroCTABus = useEventBus('hero-cta')
-onMounted(() => {
-  const menuCtaEl = document.querySelector<HTMLElement>('.app-menu__cta')
-  if (!menuCtaEl)
-    return
-  gsap.set(menuCtaEl, { clearProps: 'display,opacity,visibility,clipPath' })
-  heroCTABus.emit('enter:snap')
-  gsap.set(menuCtaEl, { opacity: 1 })
-})
+useMenuCtaSnap()
+
+const { t } = useI18n()
 </script>
 
 <template>
@@ -71,12 +64,12 @@ onMounted(() => {
       </TextsH1>
 
       <TextsP2 class="page-catalogue__header-description">
-        Bienvenue dans notre collection. Du SUV tout confort à la sportive radicale, parcourez notre flotte et trouvez le véhicule qui vous correspond.
+        {{ t('catalogue.description') }}
       </TextsP2>
     </div>
 
     <div class="page-catalogue__filters">
-      FILTERS
+      {{ t('catalogue.filtersPlaceholder') }}
     </div>
 
     <div class="page-catalogue__grid">

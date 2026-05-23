@@ -6,8 +6,100 @@
     "label": "Coming soon",
     "title": "Coming Soon"
   },
+  "footer": {
+    "copyright": "© Bora Cars {year}",
+    "backToTop": "Back to top"
+  },
+  "menu": {
+    "open": "Menu",
+    "close": "Close"
+  },
+  "catalogue": {
+    "description": "Welcome to our collection. From the most comfortable SUV to the most radical sports car, browse our fleet and find the vehicle that suits you.",
+    "filtersPlaceholder": "FILTERS",
+    "card": {
+      "startingFrom": "From {price}€/day"
+    }
+  },
   "car": {
+    "notFound": "Car not found",
+    "hero": {
+      "backToCatalogue": "Back to catalogue",
+      "imageNumber": "Image {n}"
+    },
+    "description": {
+      "readMore": "Read more",
+      "readLess": "Read less"
+    },
+    "highlights": {
+      "power": "Power (hp)",
+      "powerUnit": "hp",
+      "acceleration": "0 to 100 km/h acceleration",
+      "accelerationUnit": "sec"
+    },
+    "options": {
+      "title": "Options"
+    },
+    "specs": {
+      "labels": {
+        "teinteExterieure": "Exterior colour",
+        "teinteInterieure": "Interior colours & material",
+        "nombrePlaces": "Seats",
+        "nombrePortes": "Doors",
+        "gamme": "Category",
+        "annee": "Year",
+        "boiteVitesse": "Transmission",
+        "carburant": "Fuel"
+      },
+      "carburant": {
+        "essence": "Petrol",
+        "electrique": "Electric",
+        "diesel": "Diesel",
+        "hybride-rechargeable": "Plug-in Hybrid"
+      },
+      "boite": {
+        "automatique": "Automatic",
+        "manuelle": "Manual"
+      },
+      "gamme": {
+        "suv": "SUV",
+        "sportive": "Sports",
+        "berline": "Sedan",
+        "citadine": "City car",
+        "compacte": "Compact",
+        "break": "Estate"
+      }
+    },
+    "rental": {
+      "title": "Rental information",
+      "typeLabel": "Rental type",
+      "paymentsLabel": "Accepted payments",
+      "ageMinimum": "Minimum age",
+      "anciennetePermis": "Licence held since",
+      "dureeMinimum": "Minimum duration",
+      "kmJourInclus": "Km/day included",
+      "caution": "Deposit",
+      "kmSupplementaire": "Additional km",
+      "units": {
+        "years": "years",
+        "day": "day",
+        "days": "days"
+      },
+      "type": {
+        "longue-duree": "Long-term",
+        "professionnel": "Professional",
+        "courte-duree": "Short-term"
+      },
+      "payment": {
+        "virement": "Bank transfer",
+        "carte": "Card",
+        "especes": "Cash"
+      }
+    },
     "pricing": {
+      "priceFrom": "From {price}€",
+      "perDay": "per day",
+      "contactCta": "Contact an advisor",
       "duration": {
         "label": "Duration",
         "options": {
@@ -34,5 +126,30 @@
       "withPrice": "Hello,\n\nI'm interested in the *{marque} {modele}*.\n\n• Duration: {duree}\n• When: {quand}\n• From {prix}€ per day\n\nLink: {url}",
       "withoutPrice": "Hello,\n\nI'm interested in the *{marque} {modele}*.\n\n• Duration: {duree}\n• When: {quand}\n\nLink: {url}"
     }
+  },
+  "testimonials": {
+    "prev": "Previous testimonial",
+    "next": "Next testimonial"
+  },
+  "contact": {
+    "form": {
+      "lastName": "Last name",
+      "firstName": "First name",
+      "email": "Email address",
+      "phone": "Phone number",
+      "subject": "Subject of your request",
+      "message": "How can we help you?",
+      "submit": "Send my request",
+      "errors": {
+        "required": "This field is required",
+        "select": "Please select an option",
+        "email": "Invalid email address",
+        "phone": "Invalid phone number",
+        "summary": "The form contains errors. Please fix the indicated fields."
+      }
+    }
+  },
+  "media": {
+    "noImage": "No Image — Add image"
   }
 }

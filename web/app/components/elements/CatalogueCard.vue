@@ -7,11 +7,7 @@ interface Props {
 
 const { car } = defineProps<Props>()
 
-const RENTAL_LABELS: Record<string, string> = {
-  'longue-duree': 'Longue durée',
-  'professionnel': 'Pro',
-  'particulier': 'Particulier',
-}
+const { t } = useI18n()
 </script>
 
 <template>
@@ -36,7 +32,7 @@ const RENTAL_LABELS: Record<string, string> = {
     <div class="app-elements-catalogue-card__info">
       <div class="app-elements-catalogue-card__name">
         <TextsLabel class="app-elements-catalogue-card__marque">
-          À partir de 2 350€/jours
+          {{ t('catalogue.card.startingFrom', { price: '2 350' }) }}
         </TextsLabel>
         <TextsH4 class="app-elements-catalogue-card__modele" color="black-100">
           {{ car.marque }} — {{ car.modele }}

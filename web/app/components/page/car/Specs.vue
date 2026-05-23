@@ -3,47 +3,33 @@ import type { CarDetailData } from '~/queries/car'
 
 const props = defineProps<{ car: CarDetailData }>()
 
-const CARBURANT_LABELS: Record<string, string> = {
-  'essence': 'Essence',
-  'electrique': 'Électrique',
-  'diesel': 'Diesel',
-  'hybride-rechargeable': 'Hybride Rechargeable',
-}
-
-const BOITE_LABELS: Record<string, string> = {
-  automatique: 'Automatique',
-  manuelle: 'Manuelle',
-}
-
-const GAMME_LABELS: Record<string, string> = {
-  suv: 'SUV',
-  sportive: 'Sportive',
-  berline: 'Berline',
-  citadine: 'Citadine',
-  compacte: 'Compacte',
-  break: 'Break',
-}
+const { t, te } = useI18n()
 
 interface Spec { key: string, label: string, value: string | number }
+
+function tValue(group: 'carburant' | 'boite' | 'gamme', value: string): string {
+  const key = `car.specs.${group}.${value}`
+  return te(key) ? t(key) : value
+}
 
 function buildSpec(key: string, car: CarDetailData): Spec | null {
   switch (key) {
     case 'teinteExterieure':
-      return car.teinteExterieure ? { key, label: 'Teinte extérieure', value: car.teinteExterieure } : null
+      return car.teinteExterieure ? { key, label: t('car.specs.labels.teinteExterieure'), value: car.teinteExterieure } : null
     case 'teinteInterieure':
-      return car.teinteInterieure ? { key, label: 'Teintes intérieures & matière', value: car.teinteInterieure } : null
+      return car.teinteInterieure ? { key, label: t('car.specs.labels.teinteInterieure'), value: car.teinteInterieure } : null
     case 'nombrePlaces':
-      return car.nombrePlaces ? { key, label: 'Places', value: car.nombrePlaces } : null
+      return car.nombrePlaces ? { key, label: t('car.specs.labels.nombrePlaces'), value: car.nombrePlaces } : null
     case 'nombrePortes':
-      return car.nombrePortes ? { key, label: 'Portes', value: car.nombrePortes } : null
+      return car.nombrePortes ? { key, label: t('car.specs.labels.nombrePortes'), value: car.nombrePortes } : null
     case 'gamme':
-      return car.gamme ? { key, label: 'Gamme', value: GAMME_LABELS[car.gamme] ?? car.gamme } : null
+      return car.gamme ? { key, label: t('car.specs.labels.gamme'), value: tValue('gamme', car.gamme) } : null
     case 'annee':
-      return car.annee ? { key, label: 'Année', value: car.annee } : null
+      return car.annee ? { key, label: t('car.specs.labels.annee'), value: car.annee } : null
     case 'boiteVitesse':
-      return car.boiteVitesse ? { key, label: 'Boîte', value: BOITE_LABELS[car.boiteVitesse] ?? car.boiteVitesse } : null
+      return car.boiteVitesse ? { key, label: t('car.specs.labels.boiteVitesse'), value: tValue('boite', car.boiteVitesse) } : null
     case 'carburant':
-      return car.carburant ? { key, label: 'Carburant', value: CARBURANT_LABELS[car.carburant] ?? car.carburant } : null
+      return car.carburant ? { key, label: t('car.specs.labels.carburant'), value: tValue('carburant', car.carburant) } : null
     default:
       return null
   }

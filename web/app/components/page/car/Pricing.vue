@@ -4,14 +4,15 @@ import type { CarDetailData } from '~/queries/car'
 const props = defineProps<{ car: CarDetailData }>()
 
 const settings = useSettings()
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const requestUrl = useRequestURL()
 
 const formattedPrix = computed(() => {
   const p = props.car.prixJournalier
   if (!p)
     return null
-  return new Intl.NumberFormat('fr-FR').format(p)
+  const numberLocale = locale.value === 'fr' ? 'fr-FR' : 'en-GB'
+  return new Intl.NumberFormat(numberLocale).format(p)
 })
 
 const DURATION_KEYS = ['24h', '48h', '3days', '1week', '2weeks', '1month'] as const
@@ -67,10 +68,10 @@ const contactTo = computed(() => {
   <aside class="car-pricing">
     <div v-if="formattedPrix" class="car-pricing__price">
       <TextsH4 tag="p" class="car-pricing__price-amount">
-        À partir de {{ formattedPrix }}€
+        {{ t('car.pricing.priceFrom', { price: formattedPrix }) }}
       </TextsH4>
       <TextsP2 class="car-pricing__price-period">
-        par jour
+        {{ t('car.pricing.perDay') }}
       </TextsP2>
     </div>
 
@@ -94,7 +95,7 @@ const contactTo = computed(() => {
       class="car-pricing__cta"
       :to="contactTo"
     >
-      Contacter un conseiller
+      {{ t('car.pricing.contactCta') }}
     </AtomsCTA>
 
     <div v-if="car.location" class="car-pricing__location">

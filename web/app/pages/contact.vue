@@ -11,17 +11,31 @@ watch(lang, (v) => {
 const { data: page } = await useSanityQuery<ContactData>(CONTACT_QUERY, params)
 
 usePageSeo(computed(() => page.value?.seo))
+
+useMenuCtaSnap()
 </script>
 
 <template>
-  <main v-menu-theme="'white'" class="page-contact">
-    <div style="height: 50vh; width: 100%; display: flex; align-items: center; justify-content: center;background-color: red;">
-      <h1 v-if="page?.heading" class="page-contact__heading">
-        {{ page.heading }}
-      </h1>
-    </div>
+  <main v-menu-theme="'black'" class="page-contact">
+    <section class="page-contact__hero">
+      <div class="page-contact__grid">
+        <div class="page-contact__heading">
+          <TextsH2 v-if="page?.heading">
+            {{ page.heading }}
+          </TextsH2>
+        </div>
 
-    <AppFooter theme="black" />
+        <div class="page-contact__form">
+          <ElementsContactForm
+            :subject-options="page?.subjectOptions"
+            :submit-label="page?.submitLabel"
+          />
+        </div>
+      </div>
+    </section>
+
+    <ElementsPartners theme="orange" />
+    <AppFooter />
   </main>
 </template>
 
@@ -29,16 +43,52 @@ usePageSeo(computed(() => page.value?.seo))
 .page-contact {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 100vh;
+  width: 100%;
   background: var(--c-beige-100);
 
-  &__heading {
-    font-size: desktop-vw(80px);
+  &__hero {
+    width: 100%;
+    padding: desktop-vw(165px) desktop-vw(24px) desktop-vw(120px);
 
     @include mobile {
-      font-size: mobile-vw(40px);
+      padding: mobile-vw(100px) mobile-vw(16px) mobile-vw(80px);
+    }
+  }
+
+  &__grid {
+    display: flex;
+    align-items: flex-start;
+    gap: desktop-vw(80px);
+    width: 100%;
+
+    @include mobile {
+      flex-direction: column;
+      gap: mobile-vw(48px);
+    }
+  }
+
+  &__heading {
+    flex: 1 0 0;
+    min-width: 0;
+
+    .H1 {
+      max-width: desktop-vw(656px);
+      white-space: pre-line;
+
+      @include mobile {
+        max-width: none;
+      }
+    }
+  }
+
+  &__form {
+    flex: 1 0 0;
+    min-width: 0;
+    display: flex;
+    justify-content: flex-end;
+
+    @include mobile {
+      width: 100%;
     }
   }
 }

@@ -4,6 +4,7 @@ import { h } from 'vue'
 
 const props = defineProps<{ description: any[] }>()
 
+const { t } = useI18n()
 const expanded = ref(false)
 
 const firstBlock = computed(() => props.description.slice(0, 1))
@@ -45,7 +46,7 @@ const descriptionComponents = {
       :aria-expanded="expanded"
       @click="expanded = !expanded"
     >
-      <TextsP1>{{ expanded ? 'Lire moins' : 'Lire la suite' }}</TextsP1>
+      <TextsP1>{{ expanded ? t('car.description.readLess') : t('car.description.readMore') }}</TextsP1>
     </button>
   </div>
 </template>

@@ -19,6 +19,7 @@ watch(lang, (v) => {
 
 const { data: footer } = await useSanityQuery<FooterData>(FOOTER_QUERY, params)
 
+const { t } = useI18n()
 const lenis = useLenis()
 const currentYear = new Date().getFullYear()
 
@@ -81,6 +82,22 @@ function scrollToTop() {
             </div>
           </div>
 
+          <!-- Legal -->
+          <div class="app-footer__column">
+            <span class="app-footer__column-title P2">{{ footer?.legalTitle }}</span>
+            <div class="app-footer__column-items">
+              <AtomsCTASecondary
+                v-for="link in footer?.legalLinks"
+                :key="link._key"
+                :theme="ctaTheme"
+                :to="link"
+                class="app-footer__link CTA-TEXT"
+              >
+                {{ link.text }}
+              </AtomsCTASecondary>
+            </div>
+          </div>
+
           <!-- Socials -->
           <div class="app-footer__column">
             <span class="app-footer__column-title P2">{{ footer?.socialsTitle }}</span>
@@ -96,24 +113,20 @@ function scrollToTop() {
               </AtomsCTASecondary>
             </div>
           </div>
+
+          <!-- Lang -->
+          <div class="app-footer__column app-footer__column--lang">
+            <div class="app-footer__column-items">
+              <AppMenuLangSwitcher :theme="ctaTheme" variant />
+            </div>
+          </div>
         </div>
       </div>
 
       <div class="app-footer__bottom">
-        <span class="app-footer__copyright CTA-TEXT">© Bora Cars {{ currentYear }}</span>
-
-        <AppSwitchLangue :theme="ctaTheme" />
-
-        <AtomsCTASecondary
-          v-if="footer?.legalLink?.text"
-          :theme="ctaTheme"
-          :to="footer.legalLink"
-          class="app-footer__link CTA-TEXT"
-        >
-          {{ footer.legalLink.text }}
-        </AtomsCTASecondary>
+        <span class="app-footer__copyright CTA-TEXT">{{ t('footer.copyright', { year: currentYear }) }}</span>
         <AtomsCTASecondary :theme="ctaTheme" class="app-footer__link back-to-top CTA-TEXT" @click="scrollToTop">
-          Back to top
+          {{ t('footer.backToTop') }}
         </AtomsCTASecondary>
       </div>
       <div class="app-footer__divider mobile-divider" />
@@ -219,7 +232,6 @@ function scrollToTop() {
   &__content {
     width: 100%;
     padding: desktop-vw(24px) desktop-vw(24px) desktop-vw(80px);
-    overflow: hidden;
 
     @include mobile {
       padding: mobile-vw(24px) mobile-vw(24px);
@@ -248,6 +260,10 @@ function scrollToTop() {
     @include mobile {
       gap: mobile-vw(24px);
       width: 100%;
+    }
+
+    &--lang {
+      flex: 0 0 auto;
     }
   }
 

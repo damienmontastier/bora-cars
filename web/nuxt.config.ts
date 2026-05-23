@@ -45,7 +45,12 @@ export default defineNuxtConfig({
     '@nuxtjs/i18n',
     '@nuxtjs/sanity',
     'lenis/nuxt',
+    '@nuxt/a11y',
   ],
+
+  a11y: {
+    logIssues: false,
+  },
 
   sanity: {
     globalHelper: true,

@@ -28,9 +28,18 @@ const settings = useSettings()
 const lang = useSanityLang()
 
 const menuParams = reactive({ lang: lang.value })
-watch(lang, (v) => {
-  menuParams.lang = v
-})
+// Defer lang updates of the menu query until the menu is fully closed
+// (and not animating). Otherwise translations in the panel would swap
+// visibly while it's still closing on a locale switch.
+function flushMenuLangIfSafe() {
+  if (!appStore.menuOpen && !appStore.menuAnimating && menuParams.lang !== lang.value)
+    menuParams.lang = lang.value
+}
+watch(lang, flushMenuLangIfSafe)
+watch(
+  [() => appStore.menuOpen, () => appStore.menuAnimating],
+  flushMenuLangIfSafe,
+)
 
 const [{ data: menu }, settingsData] = await Promise.all([
   useSanityQuery<MenuData>(MENU_QUERY, menuParams),

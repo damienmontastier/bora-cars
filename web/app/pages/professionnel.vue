@@ -16,6 +16,7 @@ usePageSeo(computed(() => page.value?.seo))
 <template>
   <main v-menu-theme="'white'" class="page-professionnel">
     <PageModules :modules="page?.modules ?? []" cards-column-theme="white" />
+    <ElementsPartners />
     <AppFooter theme="black" />
   </main>
 </template>

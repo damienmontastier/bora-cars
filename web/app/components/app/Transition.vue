@@ -6,6 +6,8 @@ import gsap from 'gsap'
 const lenis = () => window.lenis as Lenis | undefined
 const transitionBus = useEventBus('page-transition')
 
+const appStore = useAppStore()
+
 const overlayRef = useTemplateRef('overlayRef')
 
 let ctx: gsap.Context | undefined
@@ -32,9 +34,11 @@ function onLeave(_el: Element, done: () => void) {
     gsap.timeline({
       onComplete: () => {
         transitionBus.emit('covered') // overlay fully covers screen — safe to reset menu
-        lenis()?.scrollTo(0, { immediate: true, force: true })
-        window.scrollTo(0, 0)
-        gsap.delayedCall(0.1, done)
+        if (!appStore.preserveScroll) {
+          lenis()?.scrollTo(0, { immediate: true, force: true })
+          window.scrollTo(0, 0)
+        }
+        gsap.delayedCall(0.25, done)
       },
     })
       .to(overlayRef.value, {
@@ -44,7 +48,8 @@ function onLeave(_el: Element, done: () => void) {
       })
   }
 
-  if (ctx) ctx.add(run)
+  if (ctx)
+    ctx.add(run)
   else run()
 }
 
@@ -73,7 +78,8 @@ function onEnter(_el: Element, done: () => void) {
       .set(overlayRef.value, { transformOrigin: 'bottom' })
   }
 
-  if (ctx) ctx.add(run)
+  if (ctx)
+    ctx.add(run)
   else run()
 }
 

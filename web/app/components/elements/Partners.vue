@@ -5,6 +5,14 @@ interface Partner {
   modifier: string
 }
 
+interface Props {
+  theme?: 'black' | 'orange'
+}
+
+withDefaults(defineProps<Props>(), {
+  theme: 'black',
+})
+
 const partners: Partner[] = [
   { src: '/img/partners/mariages.png', alt: 'Mariages.net', modifier: 'mariages' },
   { src: '/img/partners/as.png', alt: 'AS', modifier: 'as' },
@@ -16,7 +24,7 @@ const partners: Partner[] = [
 </script>
 
 <template>
-  <section class="app-elements-partners">
+  <section class="app-elements-partners" :class="`--theme-${theme}`">
     <ElementsMarquee
       :duration="30"
       :repeat="3"
@@ -52,6 +60,15 @@ const partners: Partner[] = [
   *::selection {
     background-color: var(--c-beige-40);
     color: var(--c-beige-100);
+  }
+
+  &.--theme-orange {
+    background-color: var(--c-orange-100);
+
+    *::selection {
+      background-color: var(--c-beige-40);
+      color: var(--c-beige-100);
+    }
   }
 
   @include mobile {

@@ -39,7 +39,6 @@ const classes = computed(() => ({
 useSplitTextAnimation(() => (props.animated ? mainRef.value : undefined), {
   style: props.animation,
   label: 'H1',
-  debug: true,
   scrollTrigger: {
     id: `h1-${id}`,
     get trigger() { return toValue(props.trigger) ?? undefined },

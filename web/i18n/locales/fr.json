@@ -6,8 +6,100 @@
     "label": "Bientôt en ligne",
     "title": "Coming Soon"
   },
+  "footer": {
+    "copyright": "© Bora Cars {year}",
+    "backToTop": "Retour en haut"
+  },
+  "menu": {
+    "open": "Menu",
+    "close": "Fermer"
+  },
+  "catalogue": {
+    "description": "Bienvenue dans notre collection. Du SUV tout confort à la sportive radicale, parcourez notre flotte et trouvez le véhicule qui vous correspond.",
+    "filtersPlaceholder": "FILTRES",
+    "card": {
+      "startingFrom": "À partir de {price}€/jour"
+    }
+  },
   "car": {
+    "notFound": "Voiture introuvable",
+    "hero": {
+      "backToCatalogue": "Retour au catalogue",
+      "imageNumber": "Image {n}"
+    },
+    "description": {
+      "readMore": "Lire la suite",
+      "readLess": "Lire moins"
+    },
+    "highlights": {
+      "power": "Puissance (ch)",
+      "powerUnit": "ch",
+      "acceleration": "Accélération de 0 à 100 km/h",
+      "accelerationUnit": "sec"
+    },
+    "options": {
+      "title": "Options"
+    },
+    "specs": {
+      "labels": {
+        "teinteExterieure": "Teinte extérieure",
+        "teinteInterieure": "Teintes intérieures & matière",
+        "nombrePlaces": "Places",
+        "nombrePortes": "Portes",
+        "gamme": "Gamme",
+        "annee": "Année",
+        "boiteVitesse": "Boîte",
+        "carburant": "Carburant"
+      },
+      "carburant": {
+        "essence": "Essence",
+        "electrique": "Électrique",
+        "diesel": "Diesel",
+        "hybride-rechargeable": "Hybride Rechargeable"
+      },
+      "boite": {
+        "automatique": "Automatique",
+        "manuelle": "Manuelle"
+      },
+      "gamme": {
+        "suv": "SUV",
+        "sportive": "Sportive",
+        "berline": "Berline",
+        "citadine": "Citadine",
+        "compacte": "Compacte",
+        "break": "Break"
+      }
+    },
+    "rental": {
+      "title": "Informations de location",
+      "typeLabel": "Type de location",
+      "paymentsLabel": "Paiements acceptés",
+      "ageMinimum": "Âge minimum",
+      "anciennetePermis": "Ancienneté de permis",
+      "dureeMinimum": "Durée minimum",
+      "kmJourInclus": "Km/jour inclus",
+      "caution": "Caution",
+      "kmSupplementaire": "Km supplémentaire",
+      "units": {
+        "years": "ans",
+        "day": "jour",
+        "days": "jours"
+      },
+      "type": {
+        "longue-duree": "Longue durée",
+        "professionnel": "Professionnel",
+        "courte-duree": "Courte durée"
+      },
+      "payment": {
+        "virement": "Virement",
+        "carte": "Carte",
+        "especes": "Espèces"
+      }
+    },
     "pricing": {
+      "priceFrom": "À partir de {price}€",
+      "perDay": "par jour",
+      "contactCta": "Contacter un conseiller",
       "duration": {
         "label": "Durée",
         "options": {
@@ -34,5 +126,30 @@
       "withPrice": "Bonjour,\n\nJe suis intéressé(e) par la *{marque} {modele}*.\n\n• Durée : {duree}\n• Quand : {quand}\n• À partir de {prix}€ par jour\n\nLien : {url}",
       "withoutPrice": "Bonjour,\n\nJe suis intéressé(e) par la *{marque} {modele}*.\n\n• Durée : {duree}\n• Quand : {quand}\n\nLien : {url}"
     }
+  },
+  "testimonials": {
+    "prev": "Témoignage précédent",
+    "next": "Témoignage suivant"
+  },
+  "contact": {
+    "form": {
+      "lastName": "Nom",
+      "firstName": "Prénom",
+      "email": "Adresse mail",
+      "phone": "Numéro de téléphone",
+      "subject": "Objet de la demande",
+      "message": "Comment pouvons-nous vous aider ?",
+      "submit": "Envoyer ma demande",
+      "errors": {
+        "required": "Ce champ est requis",
+        "select": "Veuillez sélectionner une option",
+        "email": "Adresse email invalide",
+        "phone": "Numéro de téléphone invalide",
+        "summary": "Le formulaire contient des erreurs. Merci de corriger les champs indiqués."
+      }
+    }
+  },
+  "media": {
+    "noImage": "Aucune image — Ajouter une image"
   }
 }

@@ -23,6 +23,8 @@ interface Props {
 
 const props = defineProps<Props>()
 
+const { t } = useI18n()
+
 const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, dragFree: false })
 
 const selectedIndex = ref(0)
@@ -124,10 +126,10 @@ function scrollNext() {
         </Transition>
 
         <div v-if="items.length > 1" class="app-elements-testimonials__nav">
-          <button class="app-elements-testimonials__nav-btn" aria-label="Témoignage précédent" @click="scrollPrev">
+          <button class="app-elements-testimonials__nav-btn" :aria-label="t('testimonials.prev')" @click="scrollPrev">
             <SvgIconArrow class="app-elements-testimonials__nav-icon" color="beige-100" aria-hidden="true" />
           </button>
-          <button class="app-elements-testimonials__nav-btn app-elements-testimonials__nav-btn--next" aria-label="Témoignage suivant" @click="scrollNext">
+          <button class="app-elements-testimonials__nav-btn app-elements-testimonials__nav-btn--next" :aria-label="t('testimonials.next')" @click="scrollNext">
             <SvgIconArrow class="app-elements-testimonials__nav-icon" color="beige-100" aria-hidden="true" />
           </button>
         </div>

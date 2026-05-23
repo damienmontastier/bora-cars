@@ -38,6 +38,7 @@ const props = defineProps({
 
 const { src, alt, preload, sizes, lazy, borderRadius, fallbackColor, modifiers, provider } = toRefs(props)
 
+const { t } = useI18n()
 const isLoaded = ref(false)
 
 function onLoad() {
@@ -107,7 +108,7 @@ defineExpose({
         backgroundColor: fallbackColor,
       }"
     >
-      <span>No Image — Add image</span>
+      <span>{{ t('media.noImage') }}</span>
     </div>
   </div>
 </template>

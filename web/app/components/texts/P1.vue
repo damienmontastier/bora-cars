@@ -14,8 +14,8 @@ const props = defineProps({
   },
   weight: {
     type: String,
-    default: 'regular',
-    validator: value => ['regular', 'bold'].includes(value),
+    default: 'medium',
+    validator: value => ['regular', 'medium', 'bold'].includes(value),
   },
 })
 
@@ -23,6 +23,7 @@ const mainRef = ref(null)
 
 const classes = computed(() => ({
   'no-selectable': !props.selectable,
+  'regular-text': props.weight === 'regular',
   'bold-text': props.weight === 'bold',
 }))
 

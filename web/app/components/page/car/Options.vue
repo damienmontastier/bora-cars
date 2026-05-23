@@ -1,11 +1,13 @@
 <script setup lang="ts">
 defineProps<{ equipements: string[] }>()
+
+const { t } = useI18n()
 </script>
 
 <template>
   <div class="car-options">
     <TextsP3 weight="bold" tag="h2" class="car-options__title">
-      Options
+      {{ t('car.options.title') }}
     </TextsP3>
     <ul class="car-options__list">
       <li v-for="eq in equipements" :key="eq" class="car-options__item">

@@ -17,8 +17,28 @@ const panelTextColor = computed(() => menuTheme.value === 'white' ? 'black' : me
 const backgroundRef = ref(null)
 const navRef = ref(null)
 const itemsRef = ref(null)
+const langOpen = ref(false)
+const langUnmasked = ref(false)
 
 let anim = null
+let unmaskTimeout: ReturnType<typeof setTimeout> | null = null
+const LANG_CLOSE_DURATION = 450 // must match clip-path transition in MenuLangSwitcher
+
+watch(langOpen, (open) => {
+  if (unmaskTimeout) {
+    clearTimeout(unmaskTimeout)
+    unmaskTimeout = null
+  }
+  if (open) {
+    langUnmasked.value = true
+  }
+  else {
+    unmaskTimeout = setTimeout(() => {
+      langUnmasked.value = false
+      unmaskTimeout = null
+    }, LANG_CLOSE_DURATION)
+  }
+})
 
 onMounted(() => {
   gsap.set(backgroundRef.value, { scale: 0, transformOrigin: 'top center' })
@@ -27,6 +47,9 @@ onMounted(() => {
 
 watch(menuOpen, (open) => {
   anim?.kill()
+
+  if (!open)
+    langOpen.value = false
 
   const items = navRef.value.querySelectorAll('.app-menu-panel__nav-inner')
 
@@ -48,6 +71,8 @@ watch(menuOpen, (open) => {
 
 onUnmounted(() => {
   anim?.kill()
+  if (unmaskTimeout)
+    clearTimeout(unmaskTimeout)
 })
 </script>
 
@@ -66,14 +91,17 @@ onUnmounted(() => {
           </div>
         </div>
       </div>
-      <div v-if="props.locations.length" class="app-menu-panel__nav-mask">
+      <div class="app-menu-panel__nav-mask" :class="{ 'is-unmasked': langUnmasked }">
         <div class="app-menu-panel__nav-inner app-menu-panel__nav__bottom">
-          <template v-for="(loc, i) in props.locations" :key="loc.city">
-            <AtomsCTASecondary :theme="panelTextColor">
-              {{ loc.city }}
-            </AtomsCTASecondary>
-            <div v-if="i < props.locations.length - 1" class="app-menu-panel__nav__bottom-divider" :style="{ background: panelTextColor }" />
-          </template>
+          <div class="app-menu-panel__nav__bottom-locations">
+            <template v-for="(loc, i) in props.locations" :key="loc.city">
+              <AtomsCTASecondary :theme="panelTextColor">
+                {{ loc.city }}
+              </AtomsCTASecondary>
+              <div v-if="i < props.locations.length - 1" class="app-menu-panel__nav__bottom-divider" :style="{ background: panelTextColor }" />
+            </template>
+          </div>
+          <AppMenuLangSwitcher v-model:open="langOpen" :theme="panelTextColor" />
         </div>
       </div>
     </div>
@@ -112,6 +140,7 @@ onUnmounted(() => {
     flex-direction: column;
     padding: desktop-vw(28px) desktop-vw(26px);
     gap: desktop-vw(32px);
+    overflow: hidden;
 
     @include mobile {
       padding: mobile-vw(22px) mobile-vw(20px);
@@ -127,6 +156,10 @@ onUnmounted(() => {
 
   &__nav-mask {
     overflow: hidden;
+
+    &.is-unmasked {
+      overflow: visible;
+    }
   }
 
   &__nav-inner {
@@ -141,6 +174,17 @@ onUnmounted(() => {
   }
 
   &__nav__bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: desktop-vw(12px);
+
+    @include mobile {
+      gap: mobile-vw(12px);
+    }
+  }
+
+  &__nav__bottom-locations {
     display: flex;
     align-items: center;
     gap: desktop-vw(12px);
@@ -169,6 +213,32 @@ onUnmounted(() => {
         }
       }
     }
+  }
+
+  // Underline pseudo-element rendered on every menu link (invisible by default)
+  // so swaps animate on both sides instead of vanishing instantly.
+  &__nav-inner .CTA-TEXT-XL {
+    position: relative;
+    display: inline-block;
+
+    &::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 0.1em;
+      background: currentColor;
+      transform: scaleX(0);
+      transform-origin: left center;
+      transition: transform 0.4s var(--ease-out-cubic);
+    }
+  }
+
+  // Active link, only when the panel is open
+  &.is-open &__nav-inner:has(.router-link-exact-active) .CTA-TEXT-XL::after {
+    transform: scaleX(1);
+    transition-delay: 0.55s; // wait for stagger reveal on initial open; also sequences after old underline collapses on page swap
   }
 }
 </style>

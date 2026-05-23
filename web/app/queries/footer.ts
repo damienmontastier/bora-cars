@@ -15,7 +15,8 @@ export interface FooterData {
   sitemap?: SanityLink[]
   socialsTitle?: string
   socials?: SanityLink[]
-  legalLink?: SanityLink
+  legalTitle?: string
+  legalLinks?: SanityLink[]
 }
 
 const linkProjection = `{
@@ -37,5 +38,6 @@ export const FOOTER_QUERY = `*[_type == "footer"][0]{
   "sitemap": sitemap[]${linkProjection},
   ${i18n('socialsTitle')},
   "socials": socials[]${linkProjection},
-  "legalLink": legalLink${linkProjection}
+  ${i18n('legalTitle')},
+  "legalLinks": legalLinks[]${linkProjection}
 }`

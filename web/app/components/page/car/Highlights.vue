@@ -4,11 +4,14 @@ const props = defineProps<{
   acceleration?: number
 }>()
 
+const { t, locale } = useI18n()
+
 const formattedAcceleration = computed(() => {
   const a = props.acceleration
   if (a == null)
     return null
-  return new Intl.NumberFormat('fr-FR', { minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(a)
+  const numberLocale = locale.value === 'fr' ? 'fr-FR' : 'en-GB'
+  return new Intl.NumberFormat(numberLocale, { minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(a)
 })
 
 const hasContent = computed(() => !!props.puissance || formattedAcceleration.value != null)
@@ -22,11 +25,11 @@ const hasContent = computed(() => !!props.puissance || formattedAcceleration.val
           {{ puissance }}
         </TextsH2>
         <TextsH3 tag="span">
-          ch
+          {{ t('car.highlights.powerUnit') }}
         </TextsH3>
       </div>
       <TextsP2 class="car-highlights__label">
-        Puissance (ch)
+        {{ t('car.highlights.power') }}
       </TextsP2>
     </div>
     <div v-if="formattedAcceleration" class="car-highlights__item">
@@ -35,11 +38,11 @@ const hasContent = computed(() => !!props.puissance || formattedAcceleration.val
           {{ formattedAcceleration }}
         </TextsH2>
         <TextsH3 tag="span">
-          sec
+          {{ t('car.highlights.accelerationUnit') }}
         </TextsH3>
       </div>
       <TextsP2 class="car-highlights__label">
-        Accélération de 0 à 100 km/h
+        {{ t('car.highlights.acceleration') }}
       </TextsP2>
     </div>
   </div>

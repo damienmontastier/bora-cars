@@ -3,6 +3,8 @@ import type { CarDetailData } from '~/queries/car'
 
 const props = defineProps<{ car: CarDetailData }>()
 
+const { t } = useI18n()
+
 const slides = computed(() => {
   const c = props.car
   const out: { url: string, alt: string, hotspot?: any, crop?: any }[] = []
@@ -47,7 +49,7 @@ watch(slides, () => {
       <div v-if="!slides.length" class="car-hero__placeholder" />
     </div>
 
-    <UtilsBaseLink to="/catalogue" class="car-hero__back" aria-label="Retour au catalogue">
+    <UtilsBaseLink to="/catalogue" class="car-hero__back" :aria-label="t('car.hero.backToCatalogue')">
       <SvgIconComplexArrow />
     </UtilsBaseLink>
 
@@ -58,7 +60,7 @@ watch(slides, () => {
         type="button"
         class="car-hero__dot"
         :class="{ 'car-hero__dot--active': i === activeSlide }"
-        :aria-label="`Image ${i + 1}`"
+        :aria-label="t('car.hero.imageNumber', { n: i + 1 })"
         @click="activeSlide = i"
       />
     </div>

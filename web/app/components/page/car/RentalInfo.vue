@@ -3,26 +3,23 @@ import type { CarDetailData } from '~/queries/car'
 
 const props = defineProps<{ car: CarDetailData }>()
 
-const PAIEMENT_LABELS: Record<string, string> = {
-  virement: 'Virement',
-  carte: 'Carte',
-  especes: 'Espèces',
-}
+const { t, te, locale } = useI18n()
 
-const RENTAL_TYPE_LABELS: Record<string, string> = {
-  'longue-duree': 'Longue durée',
-  'professionnel': 'Professionnel',
-  'courte-duree': 'Courte durée',
-}
+const numberLocale = computed(() => locale.value === 'fr' ? 'fr-FR' : 'en-GB')
 
 interface Cell { key: string, label: string, value: string }
 
+function tEnum(group: 'type' | 'payment', value: string): string {
+  const key = `car.rental.${group}.${value}`
+  return te(key) ? t(key) : value
+}
+
 const rentalTypes = computed<string[]>(() =>
-  (props.car.rentalTypes ?? []).map(t => RENTAL_TYPE_LABELS[t] ?? t),
+  (props.car.rentalTypes ?? []).map(v => tEnum('type', v)),
 )
 
 const paiements = computed<string[]>(() =>
-  (props.car.paiementsAcceptes ?? []).map(p => PAIEMENT_LABELS[p] ?? p),
+  (props.car.paiementsAcceptes ?? []).map(p => tEnum('payment', p)),
 )
 
 const hasPills = computed(() => rentalTypes.value.length > 0 || paiements.value.length > 0)
@@ -31,11 +28,13 @@ const conditionsCells = computed<Cell[]>(() => {
   const c = props.car
   const items: Cell[] = []
   if (c.ageMinimum)
-    items.push({ key: 'age', label: 'Âge minimum', value: `${c.ageMinimum} ans` })
+    items.push({ key: 'age', label: t('car.rental.ageMinimum'), value: `${c.ageMinimum} ${t('car.rental.units.years')}` })
   if (c.anciennetePermis != null)
-    items.push({ key: 'anciennete', label: 'Ancienneté de permis', value: `${c.anciennetePermis} ans` })
-  if (c.dureeMinimum)
-    items.push({ key: 'duree', label: 'Durée minimum', value: `${c.dureeMinimum} ${c.dureeMinimum > 1 ? 'jours' : 'jour'}` })
+    items.push({ key: 'anciennete', label: t('car.rental.anciennetePermis'), value: `${c.anciennetePermis} ${t('car.rental.units.years')}` })
+  if (c.dureeMinimum) {
+    const unit = c.dureeMinimum > 1 ? t('car.rental.units.days') : t('car.rental.units.day')
+    items.push({ key: 'duree', label: t('car.rental.dureeMinimum'), value: `${c.dureeMinimum} ${unit}` })
+  }
   return items
 })
 
@@ -43,15 +42,15 @@ const fraisCells = computed<Cell[]>(() => {
   const c = props.car
   const items: Cell[] = []
   if (c.kmJourInclus)
-    items.push({ key: 'km', label: 'Km/jour inclus', value: `${c.kmJourInclus} km` })
+    items.push({ key: 'km', label: t('car.rental.kmJourInclus'), value: `${c.kmJourInclus} km` })
   if (c.caution)
-    items.push({ key: 'caution', label: 'Caution', value: `${new Intl.NumberFormat('fr-FR').format(c.caution)}€` })
+    items.push({ key: 'caution', label: t('car.rental.caution'), value: `${new Intl.NumberFormat(numberLocale.value).format(c.caution)}€` })
   if (c.prixKmSupplementaire?.prix && c.prixKmSupplementaire?.km) {
     const { prix, km } = c.prixKmSupplementaire
-    const price = new Intl.NumberFormat('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(prix)
+    const price = new Intl.NumberFormat(numberLocale.value, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(prix)
     items.push({
       key: 'km-supp',
-      label: 'Km supplémentaire',
+      label: t('car.rental.kmSupplementaire'),
       value: km > 1 ? `${price}€/${km} km` : `${price}€/km`,
     })
   }
@@ -66,25 +65,25 @@ const hasAny = computed(() =>
 <template>
   <div v-if="hasAny" class="car-rental">
     <TextsP3 weight="bold" tag="h2" class="car-rental__title">
-      Informations de location
+      {{ t('car.rental.title') }}
     </TextsP3>
 
     <div class="car-rental__content">
       <div v-if="hasPills" class="car-rental__row car-rental__row--pills">
         <div v-if="rentalTypes.length" class="car-rental__group">
           <TextsP2 color="black-70" class="car-rental__group-label">
-            Type de location
+            {{ t('car.rental.typeLabel') }}
           </TextsP2>
           <ul class="car-rental__pills">
-            <li v-for="t in rentalTypes" :key="t" class="car-rental__pill">
-              <TextsP1>{{ t }}</TextsP1>
+            <li v-for="rt in rentalTypes" :key="rt" class="car-rental__pill">
+              <TextsP1>{{ rt }}</TextsP1>
             </li>
           </ul>
         </div>
 
         <div v-if="paiements.length" class="car-rental__group">
           <TextsP2 color="black-70" class="car-rental__group-label">
-            Paiements acceptés
+            {{ t('car.rental.paymentsLabel') }}
           </TextsP2>
           <ul class="car-rental__pills">
             <li v-for="p in paiements" :key="p" class="car-rental__pill">

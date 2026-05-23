@@ -6,6 +6,7 @@ interface Props {
 
 const props = defineProps<Props>()
 
+const { t } = useI18n()
 const appStore = useAppStore()
 const { menuTheme, menuOpen, menuAnimating } = toRefs(appStore)
 
@@ -34,14 +35,14 @@ const themeColors = computed(() => {
 
       <div class="app-menu-cta__label">
         <TextsCTA class="app-menu-cta__label-sizer" tag="div" aria-hidden="true">
-          {{ props.closeLabel ?? 'Close' }}
+          {{ props.closeLabel ?? t('menu.close') }}
         </TextsCTA>
         <Transition name="label">
           <TextsCTA v-if="!menuOpen" key="menu" tag="div" :color="themeColors.text">
-            {{ props.menuLabel ?? 'Menu' }}
+            {{ props.menuLabel ?? t('menu.open') }}
           </TextsCTA>
           <TextsCTA v-else key="close" tag="div" :color="themeColors.text">
-            {{ props.closeLabel ?? 'Close' }}
+            {{ props.closeLabel ?? t('menu.close') }}
           </TextsCTA>
         </Transition>
       </div>

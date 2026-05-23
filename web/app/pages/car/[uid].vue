@@ -1,7 +1,5 @@
 <script lang="ts" setup>
 import type { CarDetailData, CarPreFooter } from '~/queries/car'
-import { useEventBus } from '@vueuse/core'
-import gsap from 'gsap'
 import { CAR_QUERY } from '~/queries/car'
 
 interface QueryResult {
@@ -11,6 +9,7 @@ interface QueryResult {
 
 const route = useRoute()
 const lang = useSanityLang()
+const { t } = useI18n()
 
 const params = reactive({ lang: lang.value, uid: route.params.uid as string })
 watch(lang, (v) => {
@@ -23,7 +22,7 @@ const car = computed(() => data.value?.car ?? null)
 const page = computed(() => data.value?.page ?? null)
 
 if (!car.value) {
-  throw createError({ statusCode: 404, statusMessage: 'Voiture introuvable' })
+  throw createError({ statusCode: 404, statusMessage: t('car.notFound') })
 }
 
 const hasDescription = computed(() => Array.isArray(car.value?.description) && car.value!.description.length > 0)
@@ -32,17 +31,7 @@ usePageSeo(computed(() => car.value
   ? { title: `${car.value.marque} ${car.value.modele}`, image: car.value.ogImageUrl }
   : undefined))
 
-// Menu CTA is permanently shown on this page (no hero flip). resetMenu on the
-// next page transition handles the collapse.
-const heroCTABus = useEventBus('hero-cta')
-onMounted(() => {
-  const menuCtaEl = document.querySelector<HTMLElement>('.app-menu__cta')
-  if (!menuCtaEl)
-    return
-  gsap.set(menuCtaEl, { clearProps: 'display,opacity,visibility,clipPath' })
-  heroCTABus.emit('enter:snap')
-  gsap.set(menuCtaEl, { opacity: 1 })
-})
+useMenuCtaSnap()
 </script>
 
 <template>

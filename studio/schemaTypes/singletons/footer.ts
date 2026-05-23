@@ -26,7 +26,7 @@ export const footerType = defineType({
     },
     {
       name: 'legal',
-      title: 'Mentions légales',
+      title: 'Colonne Mentions légales',
       options: { collapsible: true, collapsed: false },
     },
   ],
@@ -102,10 +102,22 @@ export const footerType = defineType({
     }),
 
     defineField({
-      name: 'legalLink',
-      title: 'Lien mentions légales',
-      type: 'navLink',
+      name: 'legalTitle',
+      title: 'Titre',
+      type: 'internationalizedArrayString',
       fieldset: 'legal',
+    }),
+    defineField({
+      name: 'legalLinks',
+      title: 'Liens',
+      type: 'array',
+      fieldset: 'legal',
+      description: 'Mentions légales, CGV, politique de confidentialité…',
+      of: [
+        defineArrayMember({
+          type: 'navLink',
+        }),
+      ],
     }),
   ],
   preview: {

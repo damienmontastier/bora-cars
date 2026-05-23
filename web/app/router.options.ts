@@ -18,7 +18,7 @@ function getHashElementScrollMarginTop(selector: string): number {
 }
 
 export default <RouterConfig>{
-  scrollBehavior(to, from) {
+  scrollBehavior(to, from, savedPosition) {
     const nuxtApp = useNuxtApp()
 
     const lenis = (window as any).lenis
@@ -27,6 +27,29 @@ export default <RouterConfig>{
     if (appStore.menuOpen) {
       appStore.menuOpen = false
       lenis?.start()
+    }
+
+    // Browser back/forward → restore previous scroll position.
+    // Wait for the page transition so the restore happens while the overlay
+    // still covers the screen, and tell AppTransition.onLeave not to force
+    // scroll-to-top in the meantime.
+    if (savedPosition && to.path !== from.path) {
+      appStore.preserveScroll = true
+
+      return new Promise((resolve) => {
+        nuxtApp.hooks.hookOnce('page:transition:finish', async () => {
+          await new Promise(r => setTimeout(r, 0))
+          appStore.preserveScroll = false
+
+          if (lenis) {
+            lenis.scrollTo(savedPosition.top, { immediate: true, force: true })
+            resolve(false)
+          }
+          else {
+            resolve(savedPosition)
+          }
+        })
+      })
     }
 
     if (to.path === from.path) {
