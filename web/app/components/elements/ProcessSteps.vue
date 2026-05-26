@@ -145,15 +145,15 @@ onUnmounted(() => {
         class="process-step"
         @click="snapToStep(index)"
       >
-        <TextsH3 :selectable="false" class="process-step__number" color="orange-100">
+        <TextsH3 :selectable="false" :animated="false" class="process-step__number" color="orange-100">
           {{ step.number }}
         </TextsH3>
 
         <div class="process-step__main">
-          <TextsH3 tag="span" :selectable="false" class="process-step__label" color="orange-100">
+          <TextsH3 tag="span" :selectable="false" :animated="false" class="process-step__label" color="orange-100">
             {{ step.title }}
           </TextsH3>
-          <TextsH3 tag="span" :selectable="false" class="process-step__description" color="orange-100">
+          <TextsH3 tag="span" :selectable="false" :animated="false" class="process-step__description" color="orange-100">
             {{ step.description }}
           </TextsH3>
         </div>

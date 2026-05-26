@@ -151,5 +151,9 @@
   },
   "media": {
     "noImage": "No Image — Add image"
+  },
+  "legal": {
+    "notFound": "Page not found",
+    "lastUpdated": "Last updated: {date}"
   }
 }

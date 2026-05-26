@@ -5,18 +5,33 @@ import { storeToRefs } from 'pinia'
 
 const BOUNCE_SPEED = 300
 const HOLD_AFTER_COMPLETE = 0.5
+const OUT_DURATION = 0.55
+const OUT_OVERLAP = 0.2
+const OUT_EASE = 'power3.inOut'
 const PRELOADER_DONE_DELAY = 0.15
 
 const appStore = useAppStore()
 const { preloaderDone, fontsLoaded } = storeToRefs(appStore)
 const lenis = useLenis()
 
-const preloaderContentHide = ref(false)
 const progress = ref(0)
+const outProgressFill = ref(0)
+const outProgressTrack = ref(0)
 const pathTopPct = ref(0)
 const pathBottomPct = ref(100)
 const logoRef = useTemplateRef<HTMLElement>('logoRef')
 const { logoColor, bgColor, start, stop } = useBouncingLogo(logoRef, { speed: BOUNCE_SPEED, cycleColors: false })
+
+const fillClipPath = computed(() => {
+  const top = pathBottomPct.value - (pathBottomPct.value - pathTopPct.value) * progress.value
+  const bottom = (100 - pathBottomPct.value) + (pathBottomPct.value - pathTopPct.value + 5) * outProgressFill.value
+  return `inset(${top}% 0 ${bottom}% 0)`
+})
+
+const trackClipPath = computed(() => {
+  const bottom = (100 - pathBottomPct.value) + (pathBottomPct.value - pathTopPct.value + 5) * outProgressTrack.value
+  return `inset(0 0 ${bottom}% 0)`
+})
 
 function measurePath() {
   const svg = logoRef.value?.querySelector('svg')
@@ -29,40 +44,52 @@ function measurePath() {
   pathBottomPct.value = ((bbox.y + bbox.height) / viewBox.height) * 100
 }
 
-let progressTl: gsap.core.Timeline | null = null
 const timelineComplete = ref(false)
 const logoVisible = ref(false)
+const progressStarted = ref(false)
+const outStarted = ref(false)
 
-function finalize() {
-  if (!timelineComplete.value || !fontsLoaded.value)
+let ctx: gsap.Context | null = null
+
+function startProgressTimeline() {
+  if (progressStarted.value || !ctx)
     return
-  if (preloaderContentHide.value)
-    return
+  progressStarted.value = true
 
-  gsap.delayedCall(HOLD_AFTER_COMPLETE, () => {
-    preloaderContentHide.value = true
-  })
-
-  gsap.delayedCall(HOLD_AFTER_COMPLETE + PRELOADER_DONE_DELAY, () => {
-    preloaderDone.value = true
-    stop()
-    lenis.value?.start()
+  ctx.add(() => {
+    gsap.timeline({
+      defaults: { ease: 'power2.inOut' },
+      onComplete: () => {
+        timelineComplete.value = true
+        finalize()
+      },
+    })
+      .to(progress, { value: 0.35, duration: 0.6, ease: 'power2.out' }, '+=0.8')
+      .to(progress, { value: gsap.utils.random(0.5, 0.75, 0.01), duration: 0.55 }, '+=0.25')
+      .to(progress, { value: 1, duration: 0.4, ease: 'power1.in' }, '+=0.2')
   })
 }
 
-function startProgressTimeline() {
-  if (progressTl)
+function finalize() {
+  if (!timelineComplete.value || !fontsLoaded.value || outStarted.value || !ctx)
     return
-  progressTl = gsap.timeline({
-    defaults: { ease: 'power2.inOut' },
-    onComplete: () => {
-      timelineComplete.value = true
-      finalize()
-    },
+  outStarted.value = true
+
+  ctx.add(() => {
+    gsap.timeline({
+      delay: HOLD_AFTER_COMPLETE,
+      defaults: { duration: OUT_DURATION, ease: OUT_EASE },
+      onComplete: () => {
+        gsap.delayedCall(PRELOADER_DONE_DELAY, () => {
+          preloaderDone.value = true
+          stop()
+          lenis.value?.start()
+        })
+      },
+    })
+      .to(outProgressFill, { value: 1 })
+      .to(outProgressTrack, { value: 1 }, `-=${OUT_OVERLAP}`)
   })
-    .to(progress, { value: 0.35, duration: 0.6, ease: 'power2.out' }, '+=0.8')
-    .to(progress, { value: gsap.utils.random(0.5, 0.75, 0.01), duration: 0.55 }, '+=0.25')
-    .to(progress, { value: 1, duration: 0.4, ease: 'power1.in' }, '+=0.2')
 }
 
 watch(fontsLoaded, (loaded) => {
@@ -78,6 +105,8 @@ onMounted(async () => {
   measurePath()
   start()
 
+  ctx = gsap.context(() => {}, logoRef.value!)
+
   if (fontsLoaded.value) {
     logoVisible.value = true
     startProgressTimeline()
@@ -85,7 +114,8 @@ onMounted(async () => {
 })
 
 onBeforeUnmount(() => {
-  progressTl?.kill()
+  ctx?.revert()
+  ctx = null
   stop()
   lenis.value?.start()
 })
@@ -97,17 +127,21 @@ onBeforeUnmount(() => {
     :class="{ 'app-preloader--done': preloaderDone }"
     :style="{ backgroundColor: `var(--c-${bgColor})` }"
   >
-    <div class="app-preloader__inner" :class="{ 'app-preloader__inner--hide': preloaderContentHide }">
+    <div class="app-preloader__inner">
       <div
         ref="logoRef"
         class="app-preloader__logo"
         :class="{ 'app-preloader__logo--visible': logoVisible }"
       >
-        <SvgLogoMinimal class="app-preloader__logo-track" :color="logoColor" />
+        <SvgLogoMinimal
+          class="app-preloader__logo-track"
+          :color="logoColor"
+          :style="{ clipPath: trackClipPath }"
+        />
         <SvgLogoMinimal
           class="app-preloader__logo-fill"
           :color="logoColor"
-          :style="{ clipPath: `inset(${pathBottomPct - (pathBottomPct - pathTopPct) * progress}% 0 0 0)` }"
+          :style="{ clipPath: fillClipPath }"
         />
       </div>
     </div>
@@ -133,11 +167,6 @@ onBeforeUnmount(() => {
   &__inner {
     position: absolute;
     inset: 0;
-    transition: opacity 0.25s var(--ease-in-out-cubic);
-
-    &--hide {
-      opacity: 0;
-    }
   }
 
   &__logo {

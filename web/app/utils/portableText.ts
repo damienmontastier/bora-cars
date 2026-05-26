@@ -38,6 +38,15 @@ export function getPortableTextComponents(colorOrOptions: string | PortableTextO
     marks: {
       strong: (_: any, { slots }: any) => h('strong', {}, slots.default?.()),
       em: (_: any, { slots }: any) => h('em', {}, slots.default?.()),
+      underline: (_: any, { slots }: any) => h('u', {}, slots.default?.()),
+    },
+    list: {
+      bullet: (_: any, { slots }: any) => h('ul', { class: 'portable-list portable-list--bullet' }, slots.default?.()),
+      number: (_: any, { slots }: any) => h('ol', { class: 'portable-list portable-list--number' }, slots.default?.()),
+    },
+    listItem: {
+      bullet: (_: any, { slots }: any) => h(TextsP2, { tag: 'li', color, class: 'portable-list__item' }, slots.default),
+      number: (_: any, { slots }: any) => h(TextsP2, { tag: 'li', color, class: 'portable-list__item' }, slots.default),
     },
   }
 }

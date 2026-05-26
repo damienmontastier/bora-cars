@@ -25,7 +25,7 @@ export const MENU_QUERY = `*[_type == "menu"][0]{
     "url": link.url,
     "email": link.email,
     "phone": link.phone,
-    "internalLink": link.internalLink
+    "internalLink": link.internalLink->{ "_id": _id, "_type": _type, "slug": slug.current }
   },
   "locations": locations[]->{ ${i18n('city')} }
 }`

@@ -1,11 +1,17 @@
 <script setup>
-// Map Sanity document IDs → route paths
+// Map Sanity singleton document IDs → route paths
 const INTERNAL_ROUTES = {
   homepage: '/',
   proprietaire: '/proprietaire',
   professionnel: '/professionnel',
   contact: '/contact',
   catalogue: '/catalogue',
+}
+
+// Slug-based document types → route builder
+const SLUG_ROUTES = {
+  car: slug => slug ? `/car/${slug}` : undefined,
+  legalPage: slug => slug ? `/legal/${slug}` : undefined,
 }
 
 const props = defineProps({
@@ -29,8 +35,13 @@ const resolvedTo = computed(() => {
   if (val.type === 'external')
     return val.url
   if (val.type === 'internal') {
-    const ref = val.internalLink?._ref
-    return ref ? (INTERNAL_ROUTES[ref] ?? `/${ref}`) : undefined
+    const link = val.internalLink
+    if (!link)
+      return undefined
+    const slugRoute = SLUG_ROUTES[link._type]
+    if (slugRoute)
+      return slugRoute(link.slug)
+    return INTERNAL_ROUTES[link._id] ?? (link._id ? `/${link._id}` : undefined)
   }
 
   return val // vue-router object

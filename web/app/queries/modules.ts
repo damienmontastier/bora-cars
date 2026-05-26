@@ -1,4 +1,4 @@
-import type { SanityImage } from './fragments'
+import type { InternalLinkRef, SanityImage } from './fragments'
 import { imageFields, imageRef } from './fragments'
 import { i18n, i18nBlock } from './i18n'
 
@@ -11,6 +11,8 @@ export interface SanityLink {
   url?: string
   email?: string
   phone?: string
+  blank?: boolean
+  internalLink?: InternalLinkRef
 }
 
 export type HeroBackgroundMedia
@@ -161,7 +163,7 @@ export const MODULES_PROJECTION = `"modules": modules[]{
       "url": link.url,
       "email": link.email,
       "phone": link.phone,
-      "internalLink": link.internalLink
+      "internalLink": link.internalLink->{ "_id": _id, "_type": _type, "slug": slug.current }
     }
   },
   _type == "fullscreenMarquee" => {
@@ -173,7 +175,7 @@ export const MODULES_PROJECTION = `"modules": modules[]{
       "url": link.url,
       "email": link.email,
       "phone": link.phone,
-      "internalLink": link.internalLink
+      "internalLink": link.internalLink->{ "_id": _id, "_type": _type, "slug": slug.current }
     },
     "backgroundMedia": backgroundMedia {
       mediaType,

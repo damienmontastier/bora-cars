@@ -15,7 +15,7 @@ const contactLinkProjection = `{
   "url": link.url,
   "email": link.email,
   "phone": link.phone,
-  "internalLink": link.internalLink
+  "internalLink": link.internalLink->{ "_id": _id, "_type": _type, "slug": slug.current }
 }`
 
 export const SETTINGS_QUERY = `*[_type == "settings"][0]{

@@ -151,5 +151,9 @@
   },
   "media": {
     "noImage": "Aucune image — Ajouter une image"
+  },
+  "legal": {
+    "notFound": "Page introuvable",
+    "lastUpdated": "Dernière mise à jour : {date}"
   }
 }

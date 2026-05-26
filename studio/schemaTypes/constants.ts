@@ -21,4 +21,5 @@ export const LOCALIZED_DOCUMENT_TYPES = [
   'settings',
   'car',
   'location',
+  'legalPage',
 ]

@@ -14,6 +14,7 @@ import { carPageType } from './singletons/carPage'
 // Documents
 import { locationType } from './documents/location'
 import { carType } from './documents/car'
+import { legalPageType } from './documents/legalPage'
 
 // Modules — Home
 import { heroType } from './modules/home/hero'
@@ -52,6 +53,7 @@ export const schemaTypes: SchemaTypeDefinition[] = [
   // Documents
   locationType,
   carType,
+  legalPageType,
 
   // Modules — Home
   heroType,

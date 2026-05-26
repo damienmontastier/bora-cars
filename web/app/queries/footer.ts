@@ -27,7 +27,7 @@ const linkProjection = `{
   "url": link.url,
   "email": link.email,
   "phone": link.phone,
-  "internalLink": link.internalLink
+  "internalLink": link.internalLink->{ "_id": _id, "_type": _type, "slug": slug.current }
 }`
 
 export const FOOTER_QUERY = `*[_type == "footer"][0]{

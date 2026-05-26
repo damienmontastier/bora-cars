@@ -2,6 +2,12 @@ import { i18n } from './i18n'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
+export interface InternalLinkRef {
+  _id?: string
+  _type?: string
+  slug?: string
+}
+
 export interface SeoData {
   title?: string
   description?: string

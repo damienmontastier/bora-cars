@@ -16,6 +16,7 @@ import {
   CogIcon,
   EnvelopeIcon,
   ArchiveIcon,
+  DocumentTextIcon,
 } from '@sanity/icons'
 import { schemaTypes } from './schemaTypes'
 import { SUPPORTED_LANGUAGES, LOCALIZED_DOCUMENT_TYPES } from './schemaTypes/constants'
@@ -48,6 +49,7 @@ const structure = (S: any) =>
                 .child(S.document().schemaType('catalogue').documentId('catalogue')),
               S.listItem().title('Page Voiture').id('carPage').icon(CarIcon)
                 .child(S.document().schemaType('carPage').documentId('carPage')),
+              S.documentTypeListItem('legalPage').title('Pages légales').icon(DocumentTextIcon),
             ]),
         ),
       S.divider(),
@@ -69,7 +71,7 @@ export default defineConfig({
   projectId: 'xyw8hnp3',
   dataset: 'production',
   plugins: [
-    linkField({ linkableSchemaTypes: ['homepage', 'proprietaire', 'professionnel', 'car', 'contact', 'catalogue'] }),
+    linkField({ linkableSchemaTypes: ['homepage', 'proprietaire', 'professionnel', 'car', 'contact', 'catalogue', 'legalPage'] }),
     internationalizedArray({
       languages: SUPPORTED_LANGUAGES,
       defaultLanguages: ['fr', 'en'],
@@ -89,6 +91,28 @@ export default defineConfig({
               { title: 'H3', value: 'h3' },
             ],
             lists: [],
+          }],
+        }),
+        defineField({
+          name: 'legalBlock',
+          title: 'Legal block content',
+          type: 'array',
+          of: [{
+            type: 'block',
+            styles: [
+              { title: 'Paragraphe', value: 'normal' },
+              { title: 'H3', value: 'h3' },
+            ],
+            lists: [
+              { title: 'Liste', value: 'bullet' },
+            ],
+            marks: {
+              decorators: [
+                { title: 'Gras', value: 'strong' },
+                { title: 'Souligné', value: 'underline' },
+              ],
+              annotations: [],
+            },
           }],
         }),
         defineField({

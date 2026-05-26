@@ -280,7 +280,7 @@ onUnmounted(() => {
     }
 
     &-content {
-      width: 60%;
+      width: 55%;
       display: flex;
       flex-direction: column;
       align-items: flex-end;
@@ -293,7 +293,13 @@ onUnmounted(() => {
     }
 
     &-headline {
-      width: 100%;
+      width: 85%;
+      margin-right: desktop-vw(80px);
+
+      @include mobile {
+        width: 100%;
+        margin-right: 0;
+      }
 
       .H3 {
         white-space: pre-line;

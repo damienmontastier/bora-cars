@@ -143,7 +143,7 @@ onUnmounted(() => {
         <div aria-hidden="true" class="faq-item__bg">
           <div class="faq-item__bg-content">
             <div class="faq-item__header">
-              <TextsH3 :selectable="false" color="beige-100" class="faq-item__question">
+              <TextsH3 :selectable="false" :animated="false" color="beige-100" class="faq-item__question">
                 {{ item.question }}
               </TextsH3>
               <div class="faq-item__icon" :class="{ 'is-open': expanded === item._key }">
