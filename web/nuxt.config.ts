@@ -55,23 +55,34 @@ export default defineNuxtConfig({
   },
 
   scripts: {
-    registry: process.env.NUXT_PUBLIC_GTM_ID
-      ? {
-          googleTagManager: {
-            id: process.env.NUXT_PUBLIC_GTM_ID,
-            // Google Consent Mode v2 — denied by default until the cookie banner is answered.
-            // `wait_for_update: 500` tells gtag to queue events for up to 500ms so the
-            // user's choice (pushed via consent.update()) is applied before tags fire.
-            defaultConsent: {
-              ad_storage: 'denied',
-              ad_user_data: 'denied',
-              ad_personalization: 'denied',
-              analytics_storage: 'denied',
-              wait_for_update: 500,
-            },
-          },
-        }
-      : {},
+    registry: {
+      googleTagManager: {
+        // ID injected at RUNTIME via runtimeConfig.public.scripts.googleTagManager.id
+        // (env var: NUXT_PUBLIC_SCRIPTS_GOOGLE_TAG_MANAGER_ID).
+        // This is critical: when the ID comes from runtime config, @nuxt/scripts
+        // doesn't bundle gtm.js — it loads directly from googletagmanager.com.
+        debug: process.env.NODE_ENV === 'development',
+        // Google Consent Mode v2 — denied by default until the cookie banner is answered.
+        // `wait_for_update: 500` tells gtag to queue events for up to 500ms so the
+        // user's choice (pushed via consent.update()) is applied before tags fire.
+        defaultConsent: {
+          ad_storage: 'denied',
+          ad_user_data: 'denied',
+          ad_personalization: 'denied',
+          analytics_storage: 'denied',
+          wait_for_update: 500,
+        },
+      },
+    },
+  },
+
+  // Mock GTM in local dev so we don't pollute the GA4 property with our own clicks.
+  $development: {
+    scripts: {
+      registry: {
+        googleTagManager: 'mock',
+      },
+    },
   },
 
   sanity: {
@@ -184,6 +195,11 @@ export default defineNuxtConfig({
     public: {
       IS_FTP: process.env.NUXT_PUBLIC_IS_FTP === 'true',
       IS_PROD: process.env.NUXT_PUBLIC_IS_PROD === 'true',
+      scripts: {
+        googleTagManager: {
+          id: '', // NUXT_PUBLIC_SCRIPTS_GOOGLE_TAG_MANAGER_ID
+        },
+      },
     },
   },
 

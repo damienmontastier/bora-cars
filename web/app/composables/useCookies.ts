@@ -41,7 +41,7 @@ function pushConsentUpdate(categories: CookieCategories) {
     gtm = useScriptGoogleTagManager()
   }
   catch {
-    // GTM not registered (NUXT_PUBLIC_GTM_ID is unset) — silent no-op.
+    // GTM not registered / mocked in dev — silent no-op.
     return
   }
   if (!gtm?.consent)

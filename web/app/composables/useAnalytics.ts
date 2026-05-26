@@ -1,5 +1,6 @@
 // Typed analytics helpers — push dataLayer events through @nuxt/scripts' GTM proxy.
-// Each helper is a safe no-op when GTM is not registered (e.g. local dev without NUXT_PUBLIC_GTM_ID).
+// Each helper is a safe no-op when GTM is not registered (e.g. local dev where
+// `$development: { scripts.registry.googleTagManager: 'mock' }` swaps in a mock).
 //
 // Naming: events use snake_case (GA4 convention). Params are snake_case for the same reason.
 // All events are gated by GTM's consent state — they queue in dataLayer regardless and fire only
