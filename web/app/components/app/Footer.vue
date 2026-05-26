@@ -26,7 +26,13 @@ const currentYear = new Date().getFullYear()
 const ctaTheme = computed(() => props.theme === 'white' ? 'black' : 'white')
 const logoColor = computed(() => props.theme === 'white' ? 'black-100' : 'beige-100')
 
+const analytics = useAnalytics()
+const route = useRoute()
+
 function scrollToTop() {
+  const max = document.documentElement.scrollHeight - window.innerHeight
+  const depth = max > 0 ? Math.round((window.scrollY / max) * 100) : 0
+  analytics.trackBackToTop({ page: route.path, scroll_depth_percent: depth })
   lenis.value?.scrollTo(0, { duration: 1.2 })
 }
 </script>

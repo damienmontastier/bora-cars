@@ -17,6 +17,12 @@ const { menuTheme, menuOpen } = storeToRefs(useAppStore())
 const ctaTheme = computed(() => menuTheme.value === 'black' ? 'white' : menuTheme.value)
 const heroCTABus = useEventBus('hero-cta')
 
+const route = useRoute()
+const heroSource = computed(() => {
+  const path = route.path.replace(/^\/(?:fr|en)\/?/, '').replace(/\/$/, '')
+  return `${path || 'home'}_hero`
+})
+
 const mainRef = useTemplateRef('mainRef')
 
 let ctx: gsap.Context
@@ -118,7 +124,7 @@ onUnmounted(() => {
             {{ data.subtext }}
           </TextsP2>
 
-          <AtomsCTA v-if="settings?.contactLink?.text" :theme="ctaTheme" class="app-elements-hero-2__cta" :to="settings.contactLink">
+          <AtomsCTA v-if="settings?.contactLink?.text" :theme="ctaTheme" class="app-elements-hero-2__cta" :to="settings.contactLink" :tracking-extra="{ source: heroSource }">
             {{ settings.contactLink.text }}
           </AtomsCTA>
         </div>

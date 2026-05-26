@@ -3,11 +3,23 @@ import type { CatalogueCar } from '~/queries/catalogue'
 
 interface Props {
   car: CatalogueCar
+  position?: number
 }
 
-const { car } = defineProps<Props>()
+const { car, position } = defineProps<Props>()
 
 const { t } = useI18n()
+
+const analytics = useAnalytics()
+function onClick() {
+  analytics.trackCatalogueCarClick({
+    car_id: car._id,
+    car_slug: car.slug ?? undefined,
+    car_brand: car.marque,
+    car_model: car.modele,
+    position,
+  })
+}
 </script>
 
 <template>
@@ -15,6 +27,7 @@ const { t } = useI18n()
     :to="{ name: 'car-uid', params: { uid: car.slug } }"
     class="app-elements-catalogue-card"
     :class="{ 'app-elements-catalogue-card--linked': !!car.slug }"
+    @click="onClick"
   >
     <div class="app-elements-catalogue-card__media">
       <ElementsMedia

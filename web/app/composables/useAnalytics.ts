@@ -85,5 +85,17 @@ export function useAnalytics() {
     trackCarGalleryBrowse(params: VehicleEventParams & { image_index: number, total: number }) {
       track('car_gallery_browse', params)
     },
+
+    trackCatalogueCarClick(params: VehicleEventParams & { position?: number }) {
+      track('catalogue_car_click', { source: 'catalogue', ...params })
+    },
+
+    trackFaqToggle(params: { question_index: number, question_text?: string, expanded_state: boolean, source?: string }) {
+      track('faq_toggle', params)
+    },
+
+    trackBackToTop(params: { page?: string, scroll_depth_percent?: number }) {
+      track('back_to_top_click', params)
+    },
   }
 }

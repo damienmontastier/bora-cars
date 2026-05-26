@@ -16,6 +16,12 @@ const props = withDefaults(defineProps<Props>(), {
 const settings = useSettings()
 const { isMobile } = useBreakpoint()
 const { menuTheme, menuOpen } = storeToRefs(useAppStore())
+
+const route = useRoute()
+const heroSource = computed(() => {
+  const path = route.path.replace(/^\/(?:fr|en)\/?/, '').replace(/\/$/, '')
+  return `${path || 'home'}_hero`
+})
 const ctaTheme = computed(() => menuTheme.value === 'black' ? 'white' : menuTheme.value)
 const logoColor = computed(() => menuTheme.value === 'white' ? 'beige-100' : `${menuTheme.value}-100`)
 const heroCTABus = useEventBus('hero-cta')
@@ -362,7 +368,7 @@ onUnmounted(() => {
             {{ data.subtext }}
           </TextsP2>
 
-          <AtomsCTA v-if="settings?.contactLink?.text" ref="ctaRef" :theme="ctaTheme" class="app-elements-hero-1__cta" :to="settings.contactLink">
+          <AtomsCTA v-if="settings?.contactLink?.text" ref="ctaRef" :theme="ctaTheme" class="app-elements-hero-1__cta" :to="settings.contactLink" :tracking-extra="{ source: heroSource }">
             {{ settings.contactLink.text }}
           </AtomsCTA>
         </div>

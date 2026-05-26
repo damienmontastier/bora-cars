@@ -74,9 +74,10 @@ const { t } = useI18n()
 
     <div class="page-catalogue__grid">
       <ElementsCatalogueCard
-        v-for="car in cars"
+        v-for="(car, index) in cars"
         :key="car._id"
         :car="car"
+        :position="index"
       />
     </div>
 

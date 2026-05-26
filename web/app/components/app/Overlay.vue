@@ -1,15 +1,10 @@
 <script lang="ts" setup>
 const appStore = useAppStore()
 const { menuOpen } = toRefs(appStore)
-const { isOpen: cookiesOpen } = useCookies()
-
-const isActive = computed(
-  () => menuOpen.value || cookiesOpen.value,
-)
 </script>
 
 <template>
-  <div class="app-overlay" :class="{ 'is-active': isActive }">
+  <div class="app-overlay" :class="{ 'is-active': menuOpen }">
     <div class="app-overlay__background" />
   </div>
 </template>

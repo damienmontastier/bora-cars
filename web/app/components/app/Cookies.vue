@@ -54,8 +54,22 @@ onKeyStroke('Escape', () => {
     showBanner()
 }, { dedupe: true })
 
+// Wait for the preloader to finish before showing the cookies banner.
+// Otherwise the banner pops up "behind" the preloader and the user only sees it
+// once everything else has settled — feels abrupt. Gating on preloaderDone makes
+// the banner animate in cleanly after the site is fully revealed.
+const appStore = useAppStore()
 onMounted(() => {
-  init()
+  if (appStore.preloaderDone) {
+    init()
+    return
+  }
+  const stop = watch(() => appStore.preloaderDone, (done) => {
+    if (done) {
+      init()
+      stop()
+    }
+  })
 })
 
 onUnmounted(() => {
@@ -65,18 +79,23 @@ onUnmounted(() => {
 
 <template>
   <Teleport to="body">
-    <div
-      v-show="isOpen"
-      class="app-cookies"
-      :class="[`app-cookies--${view}`]"
-      role="dialog"
-      aria-modal="true"
-      :aria-label="t('cookies.title')"
-    >
-      <!-- Banner state: bottom-left orange card -->
-      <div v-if="view === 'banner'" class="app-cookies__banner">
+    <Transition name="app-cookies-root">
+      <div
+        v-if="isOpen"
+        class="app-cookies"
+        :class="[`app-cookies--${view}`]"
+        role="dialog"
+        aria-modal="true"
+        :aria-label="t('cookies.title')"
+      >
+        <!-- Dedicated overlay (above menu z-index, below banner/modal) -->
+        <div class="app-cookies__overlay" />
+
+        <Transition name="app-cookies-view" mode="out-in">
+          <!-- Banner state: bottom-left orange card -->
+          <div v-if="view === 'banner'" key="banner" class="app-cookies__banner">
         <div class="app-cookies__banner-text">
-          <TextsP3 tag="h2" color="beige-100">
+          <TextsP3 tag="h2" color="beige-100" weight="bold">
             {{ t('cookies.title') }}
           </TextsP3>
           <TextsP1 tag="p" color="beige-100" weight="regular">
@@ -118,12 +137,12 @@ onUnmounted(() => {
         </div>
       </div>
 
-      <!-- Settings state: centered beige modal -->
-      <div v-else class="app-cookies__modal-wrap">
+          <!-- Settings state: centered beige modal -->
+          <div v-else key="settings" class="app-cookies__modal-wrap">
         <div class="app-cookies__modal">
           <div class="app-cookies__modal-scroll">
             <div class="app-cookies__intro">
-              <TextsP3 tag="h2" color="black-100">
+              <TextsP3 tag="h2" color="black-100" weight="bold">
                 {{ t('cookies.modal.title') }}
               </TextsP3>
               <TextsP1
@@ -137,7 +156,7 @@ onUnmounted(() => {
             </div>
 
             <div class="app-cookies__manage">
-              <TextsP3 tag="h3" color="black-100">
+              <TextsP3 tag="h3" color="black-100" weight="bold">
                 {{ t('cookies.modal.managePreferences') }}
               </TextsP3>
 
@@ -209,11 +228,40 @@ onUnmounted(() => {
           </button>
         </div>
       </div>
-    </div>
+        </Transition>
+      </div>
+    </Transition>
   </Teleport>
 </template>
 
 <style lang="scss">
+// ---------------- Transitions ----------------
+// Outer open/close: fade in/out the whole cookies layer (overlay + content).
+.app-cookies-root-enter-active,
+.app-cookies-root-leave-active {
+  transition: opacity 0.4s var(--ease-out-cubic);
+}
+.app-cookies-root-enter-from,
+.app-cookies-root-leave-to {
+  opacity: 0;
+}
+
+// Inner view switch (banner <-> settings): scale + fade.
+.app-cookies-view-enter-active,
+.app-cookies-view-leave-active {
+  transition:
+    opacity 0.3s var(--ease-out-cubic),
+    transform 0.35s var(--ease-out-cubic);
+}
+.app-cookies-view-enter-from {
+  opacity: 0;
+  transform: scale(0.96);
+}
+.app-cookies-view-leave-to {
+  opacity: 0;
+  transform: scale(1.02);
+}
+
 .app-cookies {
   position: fixed;
   inset: 0;
@@ -224,9 +272,24 @@ onUnmounted(() => {
     pointer-events: auto;
   }
 
+  // ---------------- Overlay (above the menu, below the banner/modal) ----------------
+  &__overlay {
+    position: absolute;
+    inset: 0;
+    background-color: var(--c-black-60);
+    backdrop-filter: blur(3.5px);
+    z-index: 1;
+
+    @include mobile {
+      background-color: var(--c-black-80);
+      backdrop-filter: blur(5px);
+    }
+  }
+
   // ---------------- Banner ----------------
   &__banner {
     position: absolute;
+    z-index: 2;
     left: desktop-vw(16px);
     bottom: desktop-vw(16px);
     width: desktop-vw(865px);
@@ -288,6 +351,7 @@ onUnmounted(() => {
     border: 0;
     padding: 0;
     cursor: pointer;
+    color: var(--c-beige-100); // currentColor used by text-decoration
     text-decoration: underline;
     text-underline-offset: desktop-vw(4px);
     transition: opacity 0.3s var(--ease-out-cubic);
@@ -338,6 +402,7 @@ onUnmounted(() => {
   // ---------------- Modal ----------------
   &__modal-wrap {
     position: absolute;
+    z-index: 2;
     inset: 0;
     display: flex;
     align-items: center;

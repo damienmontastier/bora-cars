@@ -35,12 +35,20 @@ useResizeObserver(itemRefs, () => {
   }, 420)
 })
 
+const analytics = useAnalytics()
+
 function toggle(key: string, index: number) {
   if (isSnapping.value)
     return
 
   const wasOpen = expanded.value === key
   const prevKey = expanded.value
+
+  analytics.trackFaqToggle({
+    question_index: index,
+    question_text: props.items[index]?.question,
+    expanded_state: !wasOpen,
+  })
   const itemEl = itemRefs.value[index]
   const answerInner = itemEl?.querySelector<HTMLElement>('.faq-item__answer-inner')
 
