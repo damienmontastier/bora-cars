@@ -310,7 +310,7 @@ onUnmounted(() => {
           <AppMenuCTA class="app-menu__btn" :menu-label="props.data?.menuLabel" :close-label="props.data?.closeLabel" />
 
           <div ref="mainClipRef" class="app-menu__main-clip">
-            <AtomsCTA ref="menuCtaRef" :to="settings?.contactLink" :theme="ctaTheme" class="app-menu__cta">
+            <AtomsCTA ref="menuCtaRef" :to="settings?.contactLink" :theme="ctaTheme" class="app-menu__cta" :tracking-extra="{ source: 'menu' }">
               {{ settings?.contactLink?.text }}
             </AtomsCTA>
           </div>

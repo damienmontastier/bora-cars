@@ -28,6 +28,20 @@ const activeSlide = ref(0)
 watch(slides, () => {
   activeSlide.value = 0
 })
+
+const analytics = useAnalytics()
+function onDotClick(i: number) {
+  if (i === activeSlide.value)
+    return
+  activeSlide.value = i
+  analytics.trackCarGalleryBrowse({
+    car_id: props.car._id,
+    car_brand: props.car.marque,
+    car_model: props.car.modele,
+    image_index: i,
+    total: slides.value.length,
+  })
+}
 </script>
 
 <template>
@@ -61,7 +75,7 @@ watch(slides, () => {
         class="car-hero__dot"
         :class="{ 'car-hero__dot--active': i === activeSlide }"
         :aria-label="t('car.hero.imageNumber', { n: i + 1 })"
-        @click="activeSlide = i"
+        @click="onDotClick(i)"
       />
     </div>
   </section>

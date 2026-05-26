@@ -32,6 +32,20 @@ usePageSeo(computed(() => car.value
   : undefined))
 
 useMenuCtaSnap()
+
+const analytics = useAnalytics()
+onMounted(() => {
+  if (!car.value)
+    return
+  analytics.trackVehicleView({
+    car_id: car.value._id,
+    car_slug: route.params.uid as string,
+    car_brand: car.value.marque,
+    car_model: car.value.modele,
+    car_price_per_day: car.value.prixJournalier ?? undefined,
+    car_category: car.value.gamme ?? undefined,
+  })
+})
 </script>
 
 <template>

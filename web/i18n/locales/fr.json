@@ -155,5 +155,38 @@
   "legal": {
     "notFound": "Page introuvable",
     "lastUpdated": "Dernière mise à jour : {date}"
+  },
+  "cookies": {
+    "title": "Cookies et confidentialité",
+    "description": "Nous utilisons des cookies pour assurer le bon fonctionnement du site, mesurer son audience et améliorer votre expérience. Certains cookies sont nécessaires, tandis que d'autres nécessitent votre consentement. Vous pouvez accepter, refuser ou personnaliser vos choix à tout moment.",
+    "changeSettings": "Changer les réglages",
+    "refuseAll": "Tout refuser",
+    "acceptAll": "Tout autoriser",
+    "modal": {
+      "title": "Le respect de votre vie privée",
+      "description": "Lorsque vous consultez notre site, nous pouvons utiliser des cookies et technologies similaires afin d'assurer son bon fonctionnement, d'améliorer votre expérience, de mesurer l'audience et, avec votre accord, de personnaliser nos contenus ou communications.\n\nVous pouvez accepter, refuser ou personnaliser l'utilisation des cookies non essentiels à tout moment. Certains cookies sont nécessaires au fonctionnement du site et ne peuvent pas être désactivés.",
+      "managePreferences": "Gérer les préférences de consentement",
+      "alwaysActive": "Toujours actif",
+      "toggleDetails": "Afficher le détail",
+      "confirm": "Confirmer la sélection",
+      "categories": {
+        "necessary": {
+          "title": "Technologies strictement nécessaires",
+          "description": "Indispensables au fonctionnement du site (navigation, sécurité, préférences de langue). Elles ne peuvent pas être désactivées."
+        },
+        "analytics": {
+          "title": "Technologies de mesure d'audience",
+          "description": "Nous permettent de mesurer la fréquentation du site et d'identifier les pages les plus consultées, afin d'améliorer continuellement votre expérience."
+        },
+        "marketing": {
+          "title": "Technologies marketing et publicité",
+          "description": "Utilisées pour vous proposer des contenus et publicités personnalisés, sur notre site comme sur d'autres plateformes."
+        },
+        "functional": {
+          "title": "Technologies fonctionnelles et personnalisation",
+          "description": "Permettent de mémoriser vos préférences et de personnaliser certains contenus pour vous offrir une expérience adaptée."
+        }
+      }
+    }
   }
 }

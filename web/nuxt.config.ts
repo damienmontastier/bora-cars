@@ -46,10 +46,32 @@ export default defineNuxtConfig({
     '@nuxtjs/sanity',
     'lenis/nuxt',
     '@nuxt/a11y',
+    '@nuxt/ui',
+    '@nuxt/scripts',
   ],
 
   a11y: {
     logIssues: false,
+  },
+
+  scripts: {
+    registry: process.env.NUXT_PUBLIC_GTM_ID
+      ? {
+          googleTagManager: {
+            id: process.env.NUXT_PUBLIC_GTM_ID,
+            // Google Consent Mode v2 — denied by default until the cookie banner is answered.
+            // `wait_for_update: 500` tells gtag to queue events for up to 500ms so the
+            // user's choice (pushed via consent.update()) is applied before tags fire.
+            defaultConsent: {
+              ad_storage: 'denied',
+              ad_user_data: 'denied',
+              ad_personalization: 'denied',
+              analytics_storage: 'denied',
+              wait_for_update: 500,
+            },
+          },
+        }
+      : {},
   },
 
   sanity: {

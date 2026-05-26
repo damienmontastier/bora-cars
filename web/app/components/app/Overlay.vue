@@ -1,10 +1,15 @@
 <script lang="ts" setup>
 const appStore = useAppStore()
 const { menuOpen } = toRefs(appStore)
+const { isOpen: cookiesOpen } = useCookies()
+
+const isActive = computed(
+  () => menuOpen.value || cookiesOpen.value,
+)
 </script>
 
 <template>
-  <div class="app-overlay" :class="{ 'is-active': menuOpen }">
+  <div class="app-overlay" :class="{ 'is-active': isActive }">
     <div class="app-overlay__background" />
   </div>
 </template>
@@ -21,15 +26,15 @@ const { menuOpen } = toRefs(appStore)
   &__background {
     width: 100%;
     height: 100%;
-    background-color: var(--c-black-50);
+    background-color: var(--c-black-60);
     opacity: 0;
     transition: opacity 0.3s var(--ease-out-cubic);
     pointer-events: none;
-    backdrop-filter: blur(2.5px);
+    backdrop-filter: blur(3.5px);
 
     @include mobile {
       background-color: var(--c-black-80);
-      backdrop-filter: blur(4.5px);
+      backdrop-filter: blur(5px);
     }
   }
 

@@ -1,9 +1,5 @@
 <script setup lang="ts">
-interface Partner {
-  src: string
-  alt: string
-  modifier: string
-}
+import type { Partner } from '~/queries/settings'
 
 interface Props {
   theme?: 'black' | 'orange'
@@ -13,18 +9,16 @@ withDefaults(defineProps<Props>(), {
   theme: 'black',
 })
 
-const partners: Partner[] = [
-  { src: '/img/partners/mariages.png', alt: 'Mariages.net', modifier: 'mariages' },
-  { src: '/img/partners/as.png', alt: 'AS', modifier: 'as' },
-  { src: '/img/partners/rentabl.png', alt: 'Rentabl.', modifier: 'rentabl' },
-  { src: '/img/partners/needgt.png', alt: 'Need GT', modifier: 'needgt' },
-  { src: '/img/partners/wonderent.png', alt: 'WondeRent', modifier: 'wonderent' },
-  { src: '/img/partners/gtzelite.png', alt: 'GTZ Elite', modifier: 'gtzelite' },
-]
+const settings = useSettings()
+const partners = computed<Partner[]>(() => settings.value?.partners ?? [])
+
+const partnerStyle = (partner: Partner) => ({
+  aspectRatio: partner.aspectRatio ? String(partner.aspectRatio) : undefined,
+})
 </script>
 
 <template>
-  <section class="app-elements-partners" :class="`--theme-${theme}`">
+  <section v-if="partners.length" class="app-elements-partners" :class="`--theme-${theme}`">
     <ElementsMarquee
       :duration="30"
       :repeat="3"
@@ -32,18 +26,20 @@ const partners: Partner[] = [
     >
       <ul class="app-elements-partners__row">
         <li
-          v-for="partner in partners"
-          :key="partner.modifier"
+          v-for="(partner, i) in partners"
+          :key="partner.imageUrl ?? i"
           class="app-elements-partners__item"
-          :class="`app-elements-partners__item--${partner.modifier}`"
+          :style="partnerStyle(partner)"
         >
-          <img
-            :src="partner.src"
-            :alt="partner.alt"
+          <NuxtImg
+            v-if="partner.imageUrl"
+            :src="partner.imageUrl"
+            :alt="partner.imageAlt ?? ''"
+            provider="sanity"
             class="app-elements-partners__logo"
             loading="lazy"
             decoding="async"
-          >
+          />
         </li>
       </ul>
     </ElementsMarquee>
@@ -100,48 +96,16 @@ const partners: Partner[] = [
     display: flex;
     align-items: center;
     justify-content: center;
+    height: desktop-vw(60px);
 
-    &--mariages {
-      height: desktop-vw(48px);
-      @include mobile {
-        height: mobile-vw(28px);
-      }
-    }
-    &--as {
-      height: desktop-vw(66px);
-      @include mobile {
-        height: mobile-vw(40px);
-      }
-    }
-    &--rentabl {
-      height: desktop-vw(42px);
-      @include mobile {
-        height: mobile-vw(24px);
-      }
-    }
-    &--needgt {
-      height: desktop-vw(60px);
-      @include mobile {
-        height: mobile-vw(36px);
-      }
-    }
-    &--wonderent {
-      height: desktop-vw(60px);
-      @include mobile {
-        height: mobile-vw(36px);
-      }
-    }
-    &--gtzelite {
-      height: desktop-vw(84px);
-      @include mobile {
-        height: mobile-vw(48px);
-      }
+    @include mobile {
+      height: mobile-vw(36px);
     }
   }
 
   &__logo {
     height: 100%;
-    width: auto;
+    width: 100%;
     object-fit: contain;
     display: block;
     user-select: none;

@@ -1,5 +1,5 @@
 import { CogIcon } from '@sanity/icons'
-import { defineField, defineType } from 'sanity'
+import { defineArrayMember, defineField, defineType } from 'sanity'
 import { seoType } from '../objects/seo'
 
 const TITLE = 'Paramètres'
@@ -11,6 +11,7 @@ export const settingsType = defineType({
   icon: CogIcon,
   groups: [
     { name: 'global', title: 'Global', default: true },
+    { name: 'partners', title: 'Partenaires' },
     { name: 'seo', title: 'SEO' },
   ],
   fields: [
@@ -20,6 +21,16 @@ export const settingsType = defineType({
       type: 'navLink',
       group: 'global',
       description: 'Utilisé pour tous les boutons "Contact" du site',
+    }),
+    defineField({
+      name: 'partners',
+      title: 'Logos partenaires',
+      type: 'array',
+      group: 'partners',
+      description: 'Logos affichés dans la marquee "Partenaires" (pages Accueil, Pro, Contact)',
+      of: [
+        defineArrayMember({ type: 'customImage' }),
+      ],
     }),
     defineField({
       name: 'fallbackTitle',

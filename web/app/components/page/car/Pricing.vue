@@ -31,6 +31,33 @@ const whenOptions = computed(() =>
 const durationLabel = computed(() => t(`car.pricing.duration.options.${duration.value}`))
 const whenLabel = computed(() => t(`car.pricing.when.options.${when.value}`))
 
+const analytics = useAnalytics()
+
+const vehicleParams = computed(() => ({
+  car_id: props.car._id,
+  car_brand: props.car.marque,
+  car_model: props.car.modele,
+  car_price_per_day: props.car.prixJournalier ?? undefined,
+}))
+
+watch(duration, (v) => {
+  analytics.trackRentalConfigChange({
+    ...vehicleParams.value,
+    field: 'duration',
+    duration: v,
+    when: when.value,
+  })
+})
+
+watch(when, (v) => {
+  analytics.trackRentalConfigChange({
+    ...vehicleParams.value,
+    field: 'when',
+    duration: duration.value,
+    when: v,
+  })
+})
+
 const WHATSAPP_HOST_RE = /^(?:[\w-]+\.)*(?:wa\.me|whatsapp\.com)$/i
 
 const contactTo = computed(() => {
@@ -62,6 +89,17 @@ const contactTo = computed(() => {
   parsed.searchParams.set('text', message)
   return parsed.toString()
 })
+
+// Extra params merged into BaseLink's auto-tracked click event.
+// BaseLink detects the URL kind (WhatsApp / email / phone / external) and emits
+// the matching event with this context layered on top.
+const ctaTrackingExtra = computed(() => ({
+  source: 'car_pricing',
+  ...vehicleParams.value,
+  duration: duration.value,
+  when: when.value,
+  price_text: formattedPrix.value ?? undefined,
+}))
 </script>
 
 <template>
@@ -94,6 +132,7 @@ const contactTo = computed(() => {
       :tiret-after="1"
       class="car-pricing__cta"
       :to="contactTo"
+      :tracking-extra="ctaTrackingExtra"
     >
       {{ t('car.pricing.contactCta') }}
     </AtomsCTA>

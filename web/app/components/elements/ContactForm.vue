@@ -26,7 +26,12 @@ interface FormPayload {
 
 type FormField = keyof FormPayload
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
+const analytics = useAnalytics()
+
+function subjectLabel(value: string) {
+  return props.subjectOptions?.find(o => o._key === value)?.label ?? value
+}
 
 const form = reactive<FormPayload>({
   lastName: '',
@@ -108,11 +113,19 @@ function onSubmit() {
   submitted.value = true
   if (!validate()) {
     statusMessage.value = t('contact.form.errors.summary')
+    analytics.trackContactFormError({
+      fields: fieldOrder.filter(f => !!errors[f]),
+      summary: statusMessage.value,
+    })
     focusFirstInvalid()
     return
   }
 
   statusMessage.value = ''
+  analytics.trackContactFormSubmit({
+    subject: subjectLabel(form.subject),
+    locale: locale.value,
+  })
   // eslint-disable-next-line no-console
   console.log('[contact form] submit', toRaw(form))
   emit('submit', toRaw(form))

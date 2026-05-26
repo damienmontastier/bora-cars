@@ -43,6 +43,8 @@ function close() {
   isOpen.value = false
 }
 
+const analytics = useAnalytics()
+
 function selectLocale(code: string, e: MouseEvent) {
   // let the browser handle modifier-key clicks (open in new tab, etc.)
   if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0)
@@ -53,6 +55,8 @@ function selectLocale(code: string, e: MouseEvent) {
     close()
     return
   }
+
+  analytics.trackLanguageSwitch({ from: locale.value, to: code })
 
   const path = switchLocalePath(code)
   close()

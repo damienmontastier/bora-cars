@@ -187,11 +187,6 @@ defineExpose({ mainRef, wrapperRef })
   &__inner {
     display: flex;
     flex-shrink: 0;
-
-    @include mobile {
-      flex-direction: column;
-      width: 100%;
-    }
   }
 
   & > * {

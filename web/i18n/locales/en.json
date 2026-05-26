@@ -155,5 +155,38 @@
   "legal": {
     "notFound": "Page not found",
     "lastUpdated": "Last updated: {date}"
+  },
+  "cookies": {
+    "title": "Cookies and privacy",
+    "description": "We use cookies to ensure the proper functioning of the site, measure its audience and improve your experience. Some cookies are required, while others need your consent. You can accept, refuse or customise your choices at any time.",
+    "changeSettings": "Change settings",
+    "refuseAll": "Refuse all",
+    "acceptAll": "Accept all",
+    "modal": {
+      "title": "Respecting your privacy",
+      "description": "When you browse our site, we may use cookies and similar technologies to ensure its proper functioning, improve your experience, measure audience and — with your consent — personalise our content or communications.\n\nYou can accept, refuse or customise the use of non-essential cookies at any time. Some cookies are required for the site to work and cannot be disabled.",
+      "managePreferences": "Manage consent preferences",
+      "alwaysActive": "Always active",
+      "toggleDetails": "Show details",
+      "confirm": "Confirm selection",
+      "categories": {
+        "necessary": {
+          "title": "Strictly necessary technologies",
+          "description": "Required for the site to function (navigation, security, language preferences). They cannot be disabled."
+        },
+        "analytics": {
+          "title": "Audience measurement technologies",
+          "description": "Let us measure site traffic and identify the most visited pages, so we can continuously improve your experience."
+        },
+        "marketing": {
+          "title": "Marketing and advertising technologies",
+          "description": "Used to deliver personalised content and advertising — on our site and on other platforms."
+        },
+        "functional": {
+          "title": "Functional and personalisation technologies",
+          "description": "Allow us to remember your preferences and personalise some content to provide a tailored experience."
+        }
+      }
+    }
   }
 }

@@ -93,8 +93,9 @@ const parallaxProps = computed((): Partial<ParallaxProps> => {
     min-width: 0;
 
     @include mobile {
-      gap: mobile-vw(8px);
-      padding: mobile-vw(8px) mobile-vw(8px);
+      flex-direction: column;
+      gap: mobile-vw(0px);
+      padding: mobile-vw(4px) mobile-vw(8px);
     }
   }
 
@@ -115,7 +116,7 @@ const parallaxProps = computed((): Partial<ParallaxProps> => {
     flex-shrink: 0;
 
     @include mobile {
-      width: mobile-vw(20px);
+      display: none;
     }
   }
 

@@ -10,6 +10,9 @@
 @use '@/assets/scss/font-style-classes';
 @use '@/assets/scss/layout-main';
 
+@import 'tailwindcss';
+@import '@nuxt/ui';
+
 html {
   width: 100%;
   scrollbar-width: thin;
