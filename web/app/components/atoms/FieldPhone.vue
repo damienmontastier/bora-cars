@@ -46,6 +46,7 @@ function onInput(e: Event) {
       'app-atoms-field-phone--error': invalid,
       'app-atoms-field-phone--floated': floated,
     }"
+    data-allow-mismatch="children"
   >
     <label
       :for="inputId"

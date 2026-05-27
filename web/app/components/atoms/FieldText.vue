@@ -43,6 +43,7 @@ const displayLabel = computed(() => props.required ? `${props.label}*` : props.l
       'app-atoms-field--error': invalid,
       'app-atoms-field--floated': floated,
     }"
+    data-allow-mismatch="children"
   >
     <label
       :for="inputId"

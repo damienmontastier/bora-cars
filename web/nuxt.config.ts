@@ -98,7 +98,7 @@ export default defineNuxtConfig({
     // },
   },
 
-  css: ['~/assets/scss/main.scss'],
+  css: ['~/assets/css/main.css', '~/assets/scss/main.scss'],
 
   i18n: {
     baseUrl: process.env.NUXT_SITE_URL ?? 'https://boracars.com',
