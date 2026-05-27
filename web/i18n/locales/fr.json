@@ -139,6 +139,7 @@
       "phone": "Numéro de téléphone",
       "subject": "Objet de la demande",
       "message": "Comment pouvons-nous vous aider ?",
+      "newsletter": "Je souhaite recevoir les actualités et offres exclusives de BORA CARS par email.",
       "submit": "Envoyer ma demande",
       "errors": {
         "required": "Ce champ est requis",
@@ -146,6 +147,16 @@
         "email": "Adresse email invalide",
         "phone": "Numéro de téléphone invalide",
         "summary": "Le formulaire contient des erreurs. Merci de corriger les champs indiqués."
+      },
+      "status": {
+        "submitting": "Envoi en cours…",
+        "success": "Votre demande a bien été envoyée. Nous vous recontactons rapidement.",
+        "error": "Une erreur est survenue. Veuillez réessayer dans quelques instants."
+      },
+      "consent": {
+        "before": "En soumettant ce formulaire, vous acceptez notre ",
+        "linkLabel": "politique de confidentialité",
+        "after": "."
       }
     }
   },

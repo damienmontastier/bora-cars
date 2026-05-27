@@ -11,10 +11,6 @@ const props = withDefaults(defineProps<Props>(), {
   submitLabel: null,
 })
 
-const emit = defineEmits<{
-  submit: [payload: FormPayload]
-}>()
-
 interface FormPayload {
   lastName: string
   firstName: string
@@ -22,12 +18,18 @@ interface FormPayload {
   phone: string
   subject: string
   message: string
+  newsletter: boolean
+  // Honeypot — hidden field, must stay empty. Bots fill it, humans don't see it.
+  website: string
 }
 
 type FormField = keyof FormPayload
+type SubmitState = 'idle' | 'submitting' | 'success' | 'error'
 
 const { t, locale } = useI18n()
 const analytics = useAnalytics()
+const utm = useUtm()
+const pageUrl = useRequestURL().href
 
 function subjectLabel(value: string) {
   return props.subjectOptions?.find(o => o._key === value)?.label ?? value
@@ -40,9 +42,11 @@ const form = reactive<FormPayload>({
   phone: '',
   subject: '',
   message: '',
+  newsletter: false,
+  website: '',
 })
 
-const errors = reactive<Record<FormField, string>>({
+const errors = reactive<Record<Exclude<FormField, 'newsletter'>, string>>({
   lastName: '',
   firstName: '',
   email: '',
@@ -52,6 +56,7 @@ const errors = reactive<Record<FormField, string>>({
 })
 
 const submitted = ref(false)
+const submitState = ref<SubmitState>('idle')
 const statusMessage = ref('')
 
 const selectOptions = computed(() =>
@@ -109,11 +114,28 @@ function focusFirstInvalid() {
   })
 }
 
-function onSubmit() {
+function resetForm() {
+  form.lastName = ''
+  form.firstName = ''
+  form.email = ''
+  form.phone = ''
+  form.subject = ''
+  form.message = ''
+  form.newsletter = false
+  form.website = ''
+  submitted.value = false
+}
+
+async function onSubmit() {
+  if (submitState.value === 'submitting')
+    return
+
   submitted.value = true
   if (!validate()) {
+    submitState.value = 'error'
     statusMessage.value = t('contact.form.errors.summary')
     analytics.trackContactFormError({
+      kind: 'validation',
       fields: fieldOrder.filter(f => !!errors[f]),
       summary: statusMessage.value,
     })
@@ -121,14 +143,43 @@ function onSubmit() {
     return
   }
 
-  statusMessage.value = ''
-  analytics.trackContactFormSubmit({
-    subject: subjectLabel(form.subject),
-    locale: locale.value,
-  })
-  // eslint-disable-next-line no-console
-  console.log('[contact form] submit', toRaw(form))
-  emit('submit', toRaw(form))
+  submitState.value = 'submitting'
+  statusMessage.value = t('contact.form.status.submitting')
+
+  const resolvedSubject = subjectLabel(form.subject)
+  analytics.trackContactFormSubmit({ subject: resolvedSubject, locale: locale.value })
+
+  try {
+    await $fetch('/api/contact', {
+      method: 'POST',
+      body: {
+        lastName: form.lastName,
+        firstName: form.firstName,
+        email: form.email,
+        phone: form.phone,
+        subject: resolvedSubject,
+        message: form.message,
+        newsletter: form.newsletter,
+        website: form.website,
+        locale: locale.value,
+        pageUrl,
+        utm: utm.read(),
+      },
+    })
+
+    submitState.value = 'success'
+    statusMessage.value = t('contact.form.status.success')
+    analytics.trackContactFormSuccess({ subject: resolvedSubject, locale: locale.value })
+    resetForm()
+  }
+  catch (err) {
+    submitState.value = 'error'
+    statusMessage.value = t('contact.form.status.error')
+    analytics.trackContactFormError({
+      kind: 'server',
+      summary: err instanceof Error ? err.message : String(err),
+    })
+  }
 }
 
 // Re-validate as the user fixes fields, but only AFTER the first submit attempt
@@ -138,7 +189,7 @@ watch(
     if (!submitted.value)
       return
     validate()
-    if (fieldOrder.every(f => !errors[f]))
+    if (fieldOrder.every(f => !errors[f]) && submitState.value === 'error')
       statusMessage.value = ''
   },
   { deep: true },
@@ -147,8 +198,26 @@ watch(
 
 <template>
   <form class="app-elements-contact-form" novalidate @submit.prevent="onSubmit">
+    <!-- Honeypot: bots fill it, humans never see it. Server discards filled submissions. -->
+    <div class="app-elements-contact-form__honeypot" aria-hidden="true">
+      <label for="contact-form-website">Website (do not fill)</label>
+      <input
+        id="contact-form-website"
+        v-model="form.website"
+        type="text"
+        name="website"
+        tabindex="-1"
+        autocomplete="off"
+      >
+    </div>
+
     <div class="app-elements-contact-form__fields">
       <div class="app-elements-contact-form__row">
+        <AtomsFieldText
+          v-model="form.firstName"
+          :label="t('contact.form.firstName')"
+          autocomplete="given-name"
+        />
         <AtomsFieldText
           ref="lastNameRef"
           v-model="form.lastName"
@@ -157,11 +226,6 @@ watch(
           :invalid="!!errors.lastName"
           :error-message="errors.lastName"
           required
-        />
-        <AtomsFieldText
-          v-model="form.firstName"
-          :label="t('contact.form.firstName')"
-          autocomplete="given-name"
         />
       </div>
 
@@ -203,10 +267,16 @@ watch(
         :error-message="errors.message"
         required
       />
+
+      <AtomsFieldCheckbox
+        v-model="form.newsletter"
+        :label="t('contact.form.newsletter')"
+      />
     </div>
 
     <div
       class="app-elements-contact-form__status"
+      :data-state="submitState"
       role="alert"
       aria-live="polite"
     >
@@ -216,11 +286,19 @@ watch(
     <button
       type="submit"
       class="app-elements-contact-form__submit"
+      :disabled="submitState === 'submitting'"
     >
       <TextsCTA :selectable="false" color="beige-100">
-        {{ submitLabel || t('contact.form.submit') }}
+        {{ submitState === 'submitting' ? t('contact.form.status.submitting') : (submitLabel || t('contact.form.submit')) }}
       </TextsCTA>
     </button>
+
+    <p class="app-elements-contact-form__consent">
+      {{ t('contact.form.consent.before') }}
+      <UtilsBaseLink :to="{ path: '/legal/politique-de-confidentialite' }">
+        {{ t('contact.form.consent.linkLabel') }}
+      </UtilsBaseLink>{{ t('contact.form.consent.after') }}
+    </p>
   </form>
 </template>
 
@@ -234,6 +312,14 @@ watch(
 
   @include mobile {
     gap: mobile-vw(24px);
+  }
+
+  &__honeypot {
+    position: absolute;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
   }
 
   &__fields {
@@ -266,6 +352,11 @@ watch(
     font-size: desktop-vw(14px);
     line-height: desktop-vw(20px);
 
+    &[data-state='submitting'],
+    &[data-state='success'] {
+      color: var(--c-black);
+    }
+
     &:empty {
       min-height: 0;
     }
@@ -293,8 +384,13 @@ watch(
       outline-offset: 3px;
     }
 
+    &:disabled {
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+
     @include hover {
-      &:hover {
+      &:hover:not(:disabled) {
         opacity: 0.8;
       }
     }
@@ -302,6 +398,35 @@ watch(
     @include mobile {
       width: 100%;
       padding: mobile-vw(14px) mobile-vw(24px);
+    }
+  }
+
+  &__consent {
+    width: 100%;
+    margin-top: desktop-vw(4px);
+    color: var(--c-black-60);
+    font-family: var(--font-haas-grot-disp-regular);
+    font-size: desktop-vw(12px);
+    line-height: 1.5;
+    text-align: right;
+
+    a {
+      color: inherit;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+      transition: opacity 0.2s var(--ease-out-cubic);
+
+      @include hover {
+        &:hover {
+          opacity: 0.7;
+        }
+      }
+    }
+
+    @include mobile {
+      margin-top: mobile-vw(4px);
+      font-size: mobile-vw(11px);
+      text-align: left;
     }
   }
 }

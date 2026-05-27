@@ -139,6 +139,7 @@
       "phone": "Phone number",
       "subject": "Subject of your request",
       "message": "How can we help you?",
+      "newsletter": "I'd like to receive news and exclusive offers from BORA CARS by email.",
       "submit": "Send my request",
       "errors": {
         "required": "This field is required",
@@ -146,6 +147,16 @@
         "email": "Invalid email address",
         "phone": "Invalid phone number",
         "summary": "The form contains errors. Please fix the indicated fields."
+      },
+      "status": {
+        "submitting": "Sending…",
+        "success": "Your request has been sent. We'll get back to you shortly.",
+        "error": "Something went wrong. Please try again in a moment."
+      },
+      "consent": {
+        "before": "By submitting this form, you agree to our ",
+        "linkLabel": "privacy policy",
+        "after": "."
       }
     }
   },

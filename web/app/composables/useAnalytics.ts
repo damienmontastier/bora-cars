@@ -66,8 +66,12 @@ export function useAnalytics() {
       track('contact_form_submit', params)
     },
 
-    trackContactFormError(params: { fields: string[], summary?: string }) {
-      track('contact_form_error', params)
+    trackContactFormSuccess(params: { subject?: string, locale?: string }) {
+      track('contact_form_success', params)
+    },
+
+    trackContactFormError(params: { fields?: string[], summary?: string, kind?: 'validation' | 'server' }) {
+      track('contact_form_error', { kind: 'validation', ...params })
     },
 
     trackRentalConfigChange(params: VehicleEventParams & RentalConfig & { field: 'duration' | 'when' }) {

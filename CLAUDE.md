@@ -18,7 +18,7 @@ npm run lint
 npm run lint:fix
 ```
 
-Copy `.blank.env` to `.env` and set `NUXT_PUBLIC_IS_FTP=false` to get started.
+Copy `.blank.env` to `.env`
 
 ## Architecture
 

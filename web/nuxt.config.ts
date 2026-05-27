@@ -192,8 +192,10 @@ export default defineNuxtConfig({
   },
 
   runtimeConfig: {
+    airtableToken: '', // NUXT_AIRTABLE_TOKEN — PAT scoped to data.records:write on the CRM base
+    airtableBaseId: '', // NUXT_AIRTABLE_BASE_ID
+    airtableTableId: '', // NUXT_AIRTABLE_TABLE_ID
     public: {
-      IS_FTP: process.env.NUXT_PUBLIC_IS_FTP === 'true',
       IS_PROD: process.env.NUXT_PUBLIC_IS_PROD === 'true',
       scripts: {
         googleTagManager: {
@@ -204,6 +206,9 @@ export default defineNuxtConfig({
   },
 
   nitro: {
+    // SSG hybrid on main (static HTML + Netlify Functions for server/api/*),
+    // SSR on develop. Local dev uses the default Nitro dev server regardless.
+    preset: process.env.NUXT_PUBLIC_IS_PROD === 'true' ? 'netlify_static' : 'netlify',
     prerender: {
       crawlLinks: true,
       routes: ['/sitemap.xml', '/robots.txt'],
