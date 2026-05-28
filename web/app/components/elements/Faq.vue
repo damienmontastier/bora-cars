@@ -1,8 +1,7 @@
 <script setup lang="ts">
-import { useResizeObserver } from '@vueuse/core'
 import gsap from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { useLenis } from 'lenis/vue'
+import Tempus from 'tempus'
 
 interface FaqItem {
   _key: string
@@ -12,115 +11,200 @@ interface FaqItem {
 
 const props = defineProps<{ items: FaqItem[] }>()
 
-const rootRef = ref<HTMLElement | null>(null)
 const itemRefs = ref<HTMLElement[]>([])
-const isSnapping = ref(false)
 const expanded = ref<string | null>(null)
+let activeTweens: gsap.core.Tween[] = []
 
 const lenis = useLenis()
-
-let ctx: gsap.Context | null = null
-const itemTimelines: gsap.core.Timeline[] = []
-
-// Debounce ST refresh to after the CSS transition (0.4s) to avoid per-frame
-// refresh thrash that causes yPercent jumps on the bg during accordion animation.
-let refreshTimer: ReturnType<typeof setTimeout> | null = null
-
-useResizeObserver(itemRefs, () => {
-  if (refreshTimer)
-    clearTimeout(refreshTimer)
-  refreshTimer = setTimeout(() => {
-    ScrollTrigger.refresh()
-    refreshTimer = null
-  }, 420)
-})
-
 const analytics = useAnalytics()
 
+const bgSetters: Array<(value: number) => void> = []
+const bgContentSetters: Array<(value: number) => void> = []
+const clamp01 = gsap.utils.clamp(0, 1)
+
+// Height is driven by a GSAP tween (replaces the CSS transition so it can't
+// desync against the scroll). Scroll uses Lenis's native scrollTo so user wheel/
+// touch input still interrupts it. The bg parallax reads the live rect every
+// frame via Tempus, so it stays coherent across both motions even though they
+// have different curves and durations.
+const HEIGHT_DURATION = 0.4
+const HEIGHT_EASE = 'cubic-bezier(0.215, 0.61, 0.355, 1)' // --ease-out-cubic
+const SCROLL_DURATION = 1
+
+// Live parallax: progress is recomputed every frame from getBoundingClientRect,
+// so the bg's yPercent always reflects the actual layout state, whatever the
+// height tween is doing.
+function updateParallax() {
+  const vh = window.innerHeight
+  for (let i = 0; i < itemRefs.value.length; i++) {
+    const item = itemRefs.value[i]
+    const setBg = bgSetters[i]
+    const setBgContent = bgContentSetters[i]
+    if (!item || !setBg || !setBgContent)
+      continue
+    const rect = item.getBoundingClientRect()
+    const h = rect.height
+    const progress = clamp01((vh / 2 + 0.125 * h - rect.top) / (1.25 * h))
+    const yPercent = -100 + progress * 200
+    setBg(yPercent)
+    setBgContent(-yPercent)
+  }
+}
+
+function getWrappers(itemEl: HTMLElement): HTMLElement[] {
+  return Array.from(itemEl.querySelectorAll<HTMLElement>('.faq-item__answer-wrapper'))
+}
+
+function measureExpandedHeight(itemEl: HTMLElement): number {
+  // Snapshot the wrapper's auto height as if `.is-expanded` was applied, without
+  // ever painting that state — sync set, read, revert.
+  const wrapper = itemEl.querySelector<HTMLElement>('.faq-item__answer-wrapper')
+  if (!wrapper)
+    return 0
+  const hadClass = wrapper.classList.contains('is-expanded')
+  const originalInline = wrapper.style.height
+  if (!hadClass)
+    wrapper.classList.add('is-expanded')
+  wrapper.style.height = 'auto'
+  const h = wrapper.getBoundingClientRect().height
+  wrapper.style.height = originalInline
+  if (!hadClass)
+    wrapper.classList.remove('is-expanded')
+  return h
+}
+
 function toggle(key: string, index: number) {
-  if (isSnapping.value)
-    return
+  // Kill any in-progress tweens so the user can re-toggle instantly. All
+  // subsequent measurements (getBoundingClientRect, lenis.scroll) then read the
+  // live mid-animation state — the next tween picks up smoothly from there.
+  for (const t of activeTweens) t.kill()
+  activeTweens = []
 
   const wasOpen = expanded.value === key
-  const prevKey = expanded.value
 
   analytics.trackFaqToggle({
     question_index: index,
     question_text: props.items[index]?.question,
     expanded_state: !wasOpen,
   })
+
   const itemEl = itemRefs.value[index]
-  const answerInner = itemEl?.querySelector<HTMLElement>('.faq-item__answer-inner')
+  if (!itemEl) {
+    expanded.value = wasOpen ? null : key
+    return
+  }
 
-  // When closing: use integer offsetHeight diff (exact — avoids float pb rounding error).
-  // When opening: predict from scrollHeight + pb (fallback formula, float — ST correction handles residual).
-  const headerEl = itemEl?.querySelector<HTMLElement>('.faq-item__header')
-  const expansion = wasOpen
-    ? (itemEl?.offsetHeight ?? 0) - (headerEl?.offsetHeight ?? 0)
-    : (answerInner?.scrollHeight ?? 0) + 32 * window.innerWidth / 1920
-  const heightDelta = wasOpen ? -expansion : expansion
+  const targetWrappers = getWrappers(itemEl)
+  if (!targetWrappers.length) {
+    expanded.value = wasOpen ? null : key
+    return
+  }
 
-  // If a different item was open ABOVE, its collapse shifts the current item up.
-  // Use the same integer-based measurement for the previous item's expansion.
-  let topDelta = 0
-  if (prevKey && prevKey !== key) {
-    const prevIndex = props.items.findIndex(i => i._key === prevKey)
-    if (prevIndex !== -1 && prevIndex < index) {
-      const prevEl = itemRefs.value[prevIndex]
-      const prevHeader = prevEl?.querySelector<HTMLElement>('.faq-item__header')
-      topDelta = -((prevEl?.offsetHeight ?? 0) - (prevHeader?.offsetHeight ?? 0))
-    }
+  // Target measurements
+  const targetFromH = targetWrappers[0]!.getBoundingClientRect().height
+  const targetToH = wasOpen ? 0 : measureExpandedHeight(itemEl)
+  const targetHeightDelta = targetToH - targetFromH
+
+  // Any item OTHER than the target that still has visible height — semantically
+  // expanded OR mid-close from a rapid previous toggle — must also be animated
+  // to 0. Tracking only `prevKey` (Vue state) misses items left stuck mid-close
+  // when the user spam-clicks between items.
+  interface ClosingItem { wrappers: HTMLElement[], fromH: number, index: number }
+  const closing: ClosingItem[] = []
+  itemRefs.value.forEach((it, i) => {
+    if (i === index || !it)
+      return
+    const ws = getWrappers(it)
+    const h = ws[0]?.getBoundingClientRect().height ?? 0
+    if (h > 0.5)
+      closing.push({ wrappers: ws, fromH: h, index: i })
+  })
+
+  // Re-centring scroll target: sum the heights of every closing item ABOVE the
+  // target (they'll shrink → target moves up in viewport).
+  const topDelta = closing
+    .filter(c => c.index < index)
+    .reduce((sum, c) => sum - c.fromH, 0)
+
+  const rect = itemEl.getBoundingClientRect()
+  const currentScroll = lenis.value?.scroll ?? window.scrollY
+  const currentCenter = currentScroll + rect.top + rect.height / 2 - window.innerHeight / 2
+  const targetScroll = currentCenter + topDelta + targetHeightDelta * 0.5
+
+  // Freeze inline heights BEFORE Vue flushes the class change.
+  for (const w of targetWrappers) w.style.height = `${targetFromH}px`
+  for (const c of closing) {
+    for (const w of c.wrappers) w.style.height = `${c.fromH}px`
   }
 
   expanded.value = wasOpen ? null : key
 
-  const stale = itemTimelines[index]?.scrollTrigger
-  if (!lenis.value || !stale)
+  if (!lenis.value) {
+    for (const w of targetWrappers) w.style.height = ''
+    for (const c of closing) {
+      for (const w of c.wrappers) w.style.height = ''
+    }
     return
+  }
 
-  isSnapping.value = true
-  lenis.value.scrollTo(stale.start + (stale.end - stale.start) * 0.5 + topDelta + heightDelta * 0.5, { duration: 1 })
+  // Height — single tween drives target + every closing item in lockstep.
+  const heightProxy = { p: 0 }
+  const heightTween = gsap.to(heightProxy, {
+    p: 1,
+    duration: HEIGHT_DURATION,
+    ease: HEIGHT_EASE,
+    onUpdate: () => {
+      const p = heightProxy.p
+      const tH = targetFromH + targetHeightDelta * p
+      for (const w of targetWrappers) w.style.height = `${tH}px`
+      for (const c of closing) {
+        const h = c.fromH * (1 - p)
+        for (const w of c.wrappers) w.style.height = `${h}px`
+      }
+    },
+    onComplete: () => {
+      // Hand control back to CSS — `.is-expanded` drives `height: auto` on the
+      // opened wrapper (window-resize resilient); closed wrappers fall back to
+      // the default `height: 0`.
+      for (const w of targetWrappers) w.style.height = ''
+      for (const c of closing) {
+        for (const w of c.wrappers) w.style.height = ''
+      }
+    },
+  })
 
-  setTimeout(() => {
-    ScrollTrigger.refresh()
-    const fresh = itemTimelines[index]?.scrollTrigger
-    if (fresh && lenis.value)
-      lenis.value.scrollTo(fresh.start + (fresh.end - fresh.start) * 0.5, { duration: 0.5 })
-    isSnapping.value = false
-  }, 450)
+  activeTweens = [heightTween]
+
+  // Scroll — Lenis native scrollTo, interruptible by user wheel/touch.
+  lenis.value.scrollTo(targetScroll, { duration: SCROLL_DURATION })
 }
 
-onMounted(() => {
-  ctx = gsap.context(() => {
-    itemRefs.value.forEach((item, i) => {
-      const bg = item.querySelector<HTMLElement>('.faq-item__bg')
-      const bgContent = item.querySelector<HTMLElement>('.faq-item__bg-content')
+let unsubTempus: (() => void) | undefined
 
-      itemTimelines[i] = gsap.timeline({
-        scrollTrigger: {
-          trigger: item,
-          start: 'top-=12.5% center',
-          end: 'bottom+=12.5% center',
-          scrub: true,
-          invalidateOnRefresh: true,
-        },
-      })
-        .fromTo(bg, { yPercent: -100 }, { yPercent: 100, ease: 'none' }, 0)
-        .fromTo(bgContent, { yPercent: 100 }, { yPercent: -100, ease: 'none' }, 0)
-    })
-  }, rootRef.value ?? undefined)
+onMounted(() => {
+  itemRefs.value.forEach((item, i) => {
+    const bg = item.querySelector<HTMLElement>('.faq-item__bg')
+    const bgContent = item.querySelector<HTMLElement>('.faq-item__bg-content')
+    if (bg)
+      bgSetters[i] = gsap.quickSetter(bg, 'yPercent') as (value: number) => void
+    if (bgContent)
+      bgContentSetters[i] = gsap.quickSetter(bgContent, 'yPercent') as (value: number) => void
+  })
+  // Run every frame via Tempus — independent of Lenis scroll events, so the
+  // parallax never gets stuck on a stale value if Lenis stops emitting before
+  // reaching its scrollTo target.
+  unsubTempus = Tempus.add(updateParallax)
 })
 
 onUnmounted(() => {
-  if (refreshTimer)
-    clearTimeout(refreshTimer)
-  ctx?.revert()
-  itemTimelines.length = 0
+  unsubTempus?.()
+  bgSetters.length = 0
+  bgContentSetters.length = 0
 })
 </script>
 
 <template>
-  <section ref="rootRef" class="app-elements-faq" :class="{ 'is-snapping': isSnapping }">
+  <section class="app-elements-faq">
     <ol class="app-elements-faq__list">
       <li
         v-for="(item, index) in items"
@@ -179,6 +263,10 @@ onUnmounted(() => {
   padding: desktop-vw(24px);
   background: var(--c-beige-100);
 
+  @include mobile {
+    padding: mobile-vw(16px);
+  }
+
   &__list {
     margin: 0;
     width: 100%;
@@ -193,6 +281,10 @@ onUnmounted(() => {
   border-bottom: 3px solid var(--c-black-100);
   margin-top: -1px;
 
+  @include mobile {
+    padding: 0 mobile-vw(8px);
+  }
+
   &:first-child {
     border-top: 3px solid var(--c-black-100);
     margin-top: 0;
@@ -203,6 +295,11 @@ onUnmounted(() => {
     align-items: center;
     gap: desktop-vw(64px);
     padding: desktop-vw(32px) 0;
+
+    @include mobile {
+      gap: mobile-vw(32px);
+      padding: mobile-vw(12px) 0;
+    }
   }
 
   &__question {
@@ -220,6 +317,11 @@ onUnmounted(() => {
     transform: rotate(-90deg);
     transition: transform 0.4s var(--ease-out-cubic);
 
+    @include mobile {
+      width: mobile-vw(40px);
+      height: mobile-vw(40px);
+    }
+
     &.is-open {
       transform: rotate(90deg);
     }
@@ -227,20 +329,20 @@ onUnmounted(() => {
     .svg-logo {
       width: desktop-vw(28px);
       height: auto;
+
+      @include mobile {
+        width: mobile-vw(20px);
+      }
     }
   }
 
   &__answer-wrapper {
-    display: grid;
-    grid-template-rows: 0fr;
+    box-sizing: border-box;
     overflow: hidden;
-    transition:
-      grid-template-rows 0.4s var(--ease-out-cubic),
-      padding-bottom 0.4s var(--ease-out-cubic);
+    height: 0;
 
     &.is-expanded {
-      grid-template-rows: 1fr;
-      padding-bottom: desktop-vw(32px);
+      height: auto;
     }
   }
 
@@ -249,17 +351,29 @@ onUnmounted(() => {
     width: 72.5%;
     display: block;
     white-space: pre-wrap;
+    padding-bottom: desktop-vw(32px);
+
+    @include mobile {
+      width: 100%;
+      padding-bottom: mobile-vw(12px);
+    }
   }
 
   &__answer-text {
     display: block;
     font-size: desktop-vw(26px);
     line-height: desktop-vw(30px);
+
+    @include mobile {
+      font-size: mobile-vw(12px);
+      line-height: mobile-vw(16px);
+    }
   }
 
   &__bg {
     position: absolute;
     inset: 0;
+    bottom: -3px;
     background: var(--c-black-100);
     pointer-events: none;
     z-index: 1;
@@ -275,6 +389,10 @@ onUnmounted(() => {
     flex-direction: column;
     height: 100%;
     padding: 0 desktop-vw(16px);
+
+    @include mobile {
+      padding: 0 mobile-vw(8px);
+    }
   }
 }
 </style>

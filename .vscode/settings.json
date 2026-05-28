@@ -43,6 +43,7 @@
     "astro",
     "svelte",
     "css",
+    "tailwindcss",
     "less",
     "scss",
     "pcss",
@@ -50,7 +51,7 @@
   ],
 
   "files.associations": {
-    "*.css": "tailwindcss"
+    "**/assets/css/main.css": "tailwindcss"
   },
   "editor.quickSuggestions": {
     "strings": "on"

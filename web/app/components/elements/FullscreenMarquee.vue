@@ -203,12 +203,21 @@ onUnmounted(() => {
     .app-elements-marquee__inner {
       gap: desktop-vw(64px);
       padding-right: desktop-vw(64px);
+
+      @include mobile {
+        gap: mobile-vw(32px);
+        padding-right: mobile-vw(32px);
+      }
     }
 
     &-wrapper {
       display: flex;
       flex-shrink: 0;
       gap: desktop-vw(64px);
+
+      @include mobile {
+        gap: mobile-vw(32px);
+      }
     }
   }
 
@@ -231,6 +240,11 @@ onUnmounted(() => {
     align-self: flex-end;
     margin-top: desktop-vw(16px);
     margin-right: desktop-vw(24px);
+
+    @include mobile {
+      margin-top: mobile-vw(16px);
+      margin-right: mobile-vw(16px);
+    }
   }
 }
 </style>
