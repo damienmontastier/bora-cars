@@ -178,6 +178,7 @@ onUnmounted(() => {
     align-items: center;
     justify-content: space-between;
     gap: desktop-vw(12px);
+    padding: 0px;
 
     @include mobile {
       gap: mobile-vw(12px);

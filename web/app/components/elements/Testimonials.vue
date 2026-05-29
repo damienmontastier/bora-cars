@@ -25,14 +25,26 @@ const props = defineProps<Props>()
 
 const { t } = useI18n()
 
-const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, dragFree: false })
+const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, dragFree: false, watchDrag: false })
 
 const selectedIndex = ref(0)
 const progress = ref(0)
-const progressInstant = ref(false)
+const progressOrigin = ref<'left center' | 'right center'>('left center')
 const progressFillRef = ref<HTMLElement | null>(null)
 
 const currentItem = computed(() => props.items[selectedIndex.value] ?? null)
+
+const visibleIndices = computed(() => {
+  const total = props.items.length
+  if (total === 0)
+    return new Set<number>()
+  const current = selectedIndex.value
+  return new Set([
+    current,
+    (current + 1) % total,
+    (current - 1 + total) % total,
+  ])
+})
 
 function onSelect() {
   const api = emblaApi.value
@@ -40,33 +52,67 @@ function onSelect() {
     return
 
   const newIndex = api.selectedScrollSnap()
-  const newProgress = props.items.length > 1
-    ? (newIndex + 1) / props.items.length
-    : 1
+  selectedIndex.value = newIndex
+
+  const total = props.items.length
+  if (total <= 1) {
+    progress.value = 1
+    return
+  }
+
+  const newProgress = (newIndex + 1) / total
 
   if (newProgress < progress.value) {
-    // Animate to 1 (exit right), then reset and animate to new value
-    progress.value = 1
-
-    const el = progressFillRef.value
-    const onTransitionEnd = () => {
-      el?.removeEventListener('transitionend', onTransitionEnd)
-      progressInstant.value = true
-      progress.value = 0
+    // Loop wrap: fill to 1 (if not there), wipe out from left (origin: right),
+    // then refill from left (origin: left). No invisible reset frame.
+    const refill = () => {
+      // We're at scaleX 0 (invisible). Switch origin back to left and animate to new.
+      progressOrigin.value = 'left center'
       requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          progressInstant.value = false
-          progress.value = newProgress
-        })
+        progress.value = newProgress
       })
     }
-    el?.addEventListener('transitionend', onTransitionEnd, { once: true })
+
+    const wipeOut = () => {
+      // Switch origin to right while scaleX is 1 (visually identical, full bar).
+      progressOrigin.value = 'right center'
+      const el = progressFillRef.value
+      if (!el) {
+        refill()
+        return
+      }
+      const onEnd = () => {
+        el.removeEventListener('transitionend', onEnd)
+        refill()
+      }
+      el.addEventListener('transitionend', onEnd, { once: true })
+      // Animate to 0: bar shrinks from the left edge inward
+      requestAnimationFrame(() => {
+        progress.value = 0
+      })
+    }
+
+    if (progress.value >= 0.999) {
+      wipeOut()
+      return
+    }
+
+    const el = progressFillRef.value
+    if (!el) {
+      progress.value = newProgress
+      return
+    }
+
+    const onEnd = () => {
+      el.removeEventListener('transitionend', onEnd)
+      wipeOut()
+    }
+    el.addEventListener('transitionend', onEnd, { once: true })
+    progress.value = 1
   }
   else {
     progress.value = newProgress
   }
-
-  selectedIndex.value = newIndex
 }
 
 watch(emblaApi, (api) => {
@@ -84,10 +130,21 @@ function scrollPrev() {
 function scrollNext() {
   emblaApi.value?.scrollNext()
 }
+
+const sectionRef = ref<HTMLElement | null>(null)
+usePointerSwipe(sectionRef, {
+  threshold: 30,
+  onSwipeEnd(_e, direction) {
+    if (direction === 'left')
+      scrollNext()
+    else if (direction === 'right')
+      scrollPrev()
+  },
+})
 </script>
 
 <template>
-  <section class="app-elements-testimonials">
+  <section ref="sectionRef" class="app-elements-testimonials">
     <!-- Backgrounds (crossfade) -->
     <div aria-hidden="true" class="app-elements-testimonials__backgrounds">
       <div
@@ -97,7 +154,7 @@ function scrollNext() {
         :class="{ 'is-active': i === selectedIndex }"
       >
         <ElementsMedia
-          v-if="item.backgroundImage?.imageUrl"
+          v-if="item.backgroundImage?.imageUrl && visibleIndices.has(i)"
           class="app-elements-testimonials__bg-media"
           :src="item.backgroundImage.imageUrl"
           :alt="item.backgroundImage.imageAlt ?? ''"
@@ -105,6 +162,7 @@ function scrollNext() {
           :hotspot="item.backgroundImage.imageHotspot"
           :crop="item.backgroundImage.imageCrop"
           :lazy="false"
+          :overlay="i === 0"
         />
       </div>
       <div class="app-elements-testimonials__gradient" />
@@ -145,9 +203,6 @@ function scrollNext() {
               class="app-elements-testimonials__slide"
             >
               <div class="app-elements-testimonials__quote-wrap">
-                <!-- <TextsP2 v-if="item.car" :selectable="false" color="beige-100" class="app-elements-testimonials__car-model">
-                  {{ item.car.marque }} {{ item.car.modele }}
-                </TextsP2> -->
                 <TextsH3 tag="p" :selectable="false" color="beige-100" class="app-elements-testimonials__quote">
                   &#8220;{{ item.quote }}&#8221;
                 </TextsH3>
@@ -160,7 +215,7 @@ function scrollNext() {
 
     <!-- Progress bar -->
     <div aria-hidden="true" class="app-elements-testimonials__progress">
-      <div ref="progressFillRef" class="app-elements-testimonials__progress-fill" :style="{ transform: `scaleX(${progress})`, transition: progressInstant ? 'none' : undefined }" />
+      <div ref="progressFillRef" class="app-elements-testimonials__progress-fill" :style="{ transform: `scaleX(${progress})`, transformOrigin: progressOrigin }" />
     </div>
   </section>
 </template>
@@ -174,6 +229,8 @@ function scrollNext() {
   padding: desktop-vw(40px) desktop-vw(24px);
   display: flex;
   flex-direction: column;
+  touch-action: pan-y;
+  user-select: none;
 
   &__backgrounds {
     position: absolute;
@@ -184,6 +241,8 @@ function scrollNext() {
     position: absolute;
     inset: 0;
     opacity: 0;
+    will-change: opacity;
+    transform: translateZ(0);
     transition: opacity 0.8s ease;
 
     &.is-active {
@@ -194,6 +253,7 @@ function scrollNext() {
   &__bg-media {
     width: 100%;
     height: 100%;
+    transform: translateZ(0);
   }
 
   &__gradient {
@@ -256,8 +316,6 @@ function scrollNext() {
     aspect-ratio: 1 / 1;
     border-radius: 4px;
     background: var(--c-beige-10);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
     border: none;
     cursor: pointer;
     transition: background 0.2s var(--ease-out-cubic);
@@ -294,17 +352,12 @@ function scrollNext() {
 
   &__embla-container {
     display: flex;
-    align-items: flex-end;
+    align-items: flex-start;
   }
 
   &__slide {
     flex: 0 0 100%;
     min-width: 0;
-  }
-
-  &__car-model {
-    display: inline;
-    margin-right: desktop-vw(16px);
   }
 
   &__quote {
@@ -326,7 +379,6 @@ function scrollNext() {
     height: 100%;
     width: 100%;
     background: var(--c-beige-100);
-    transform-origin: left center;
     transition: transform 0.4s ease;
   }
 }

@@ -89,7 +89,7 @@ const parallaxProps = computed((): Partial<ParallaxProps> => {
     align-items: center;
     justify-content: center;
     gap: desktop-vw(12px);
-    padding: desktop-vw(14px) desktop-vw(16px);
+    padding: desktop-vw(12px) desktop-vw(16px) 0 desktop-vw(16px);
     min-width: 0;
 
     @include mobile {

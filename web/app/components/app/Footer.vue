@@ -123,7 +123,7 @@ function scrollToTop() {
           <!-- Lang -->
           <div class="app-footer__column app-footer__column--lang">
             <div class="app-footer__column-items">
-              <AppMenuLangSwitcher :theme="ctaTheme" variant />
+              <AppMenuLangSwitcher class="app-footer__lang-switcher" :theme="ctaTheme" :footer-theme="theme" variant />
             </div>
           </div>
         </div>
@@ -249,10 +249,19 @@ function scrollToTop() {
     display: flex;
     gap: desktop-vw(40px);
     align-items: flex-start;
+    position: relative;
 
     @include mobile {
       flex-direction: column;
       gap: mobile-vw(40px);
+    }
+  }
+
+  &__lang-switcher {
+    @include mobile {
+      position: absolute;
+      top: 0;
+      right: 0;
     }
   }
 
@@ -355,9 +364,9 @@ function scrollToTop() {
   }
 
   &__link.back-to-top {
-    @include mobile {
+    /* @include mobile {
       display: none;
-    }
+    } */
   }
 
   &__copyright {

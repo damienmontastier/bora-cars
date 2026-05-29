@@ -371,8 +371,8 @@ onUnmounted(() => {
       border-color 0.4s var(--ease-out-cubic);
 
     @include mobile {
-      padding: mobile-vw(8px) mobile-vw(6px);
-      border-radius: mobile-vw(10px);
+      padding: mobile-vw(6px) mobile-vw(6px);
+      border-radius: mobile-vw(5px);
       max-width: calc(100vw - mobile-vw(6px));
     }
 
@@ -421,7 +421,7 @@ onUnmounted(() => {
     margin-left: desktop-vw(8px); // gap is inside the clip — invisible when clip width: 0
 
     @include mobile {
-      margin-left: mobile-vw(8px);
+      margin-left: mobile-vw(6px);
     }
   }
 }

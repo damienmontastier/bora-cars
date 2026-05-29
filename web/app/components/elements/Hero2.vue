@@ -192,6 +192,7 @@ onUnmounted(() => {
       flex-direction: column;
       gap: desktop-vw(24px);
       margin-top: auto;
+      width: desktop-vw(320px);
 
       @include mobile {
         margin-top: mobile-vw(50px);

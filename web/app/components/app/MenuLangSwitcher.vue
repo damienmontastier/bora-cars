@@ -4,11 +4,13 @@ import { onClickOutside, onKeyStroke } from '@vueuse/core'
 interface Props {
   theme?: 'white' | 'black' | 'orange'
   variant?: boolean
+  footerTheme?: 'white' | 'black' | 'orange'
 }
 
 const props = withDefaults(defineProps<Props>(), {
   theme: 'orange',
   variant: false,
+  footerTheme: 'orange',
 })
 
 const { locale, locales } = useI18n()
@@ -27,8 +29,28 @@ const themeTextColor = computed(() => ({
   orange: 'orange-100',
 }[props.theme]))
 
+// In footer variant, the dropdown background contrasts with the footer bg.
+// Open-state text color must contrast with that background.
+const dropdownBg = computed(() => ({
+  white: 'orange',
+  black: 'beige-100',
+  orange: 'black-100',
+}[props.footerTheme]))
+
+const openTextColor = computed(() => ({
+  white: 'beige-100',
+  black: 'black-100',
+  orange: 'beige-100',
+}[props.footerTheme]))
+
 const triggerTextColor = computed(() =>
-  isOpen.value ? 'beige-100' : themeTextColor.value,
+  isOpen.value ? (props.variant ? openTextColor.value : 'beige-100') : themeTextColor.value,
+)
+
+const itemTextColor = computed(() => props.variant ? openTextColor.value : 'beige-100')
+
+const langBgStyle = computed(() =>
+  props.variant ? { '--lang-bg': `var(--c-${dropdownBg.value})` } : undefined,
 )
 
 const otherLocales = computed(() =>
@@ -75,7 +97,7 @@ onKeyStroke('Escape', () => {
 </script>
 
 <template>
-  <div ref="rootRef" class="app-menu-lang" :class="[{ 'is-open': isOpen, '--variant-footer': variant }, `--theme-${theme}`]">
+  <div ref="rootRef" class="app-menu-lang" :class="[{ 'is-open': isOpen, '--variant-footer': variant }, `--theme-${theme}`]" :style="langBgStyle">
     <ul
       class="app-menu-lang__list"
       :inert="!isOpen"
@@ -91,7 +113,7 @@ onKeyStroke('Escape', () => {
           class="app-menu-lang__link"
           @click="selectLocale(loc.code, $event)"
         >
-          <TextsCTA color="beige-100">
+          <TextsCTA :color="itemTextColor">
             {{ loc.code.toUpperCase() }}
           </TextsCTA>
         </a>
@@ -230,13 +252,9 @@ onKeyStroke('Escape', () => {
     }
   }
 
-  // Variant footer: opens downward + theme-adaptive background
+  // Variant footer: opens downward, --lang-bg is set inline based on footerTheme
   &.--variant-footer {
     --lang-bg: var(--c-black-100);
-
-    &.--theme-black {
-      --lang-bg: var(--c-orange);
-    }
 
     &.is-open .app-menu-lang__trigger {
       background: var(--lang-bg);
