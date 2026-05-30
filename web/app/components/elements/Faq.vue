@@ -17,6 +17,7 @@ let activeTweens: gsap.core.Tween[] = []
 
 const lenis = useLenis()
 const analytics = useAnalytics()
+const { isMobile } = useBreakpoint()
 
 const bgSetters: Array<(value: number) => void> = []
 const bgContentSetters: Array<(value: number) => void> = []
@@ -182,6 +183,11 @@ function toggle(key: string, index: number) {
 let unsubTempus: (() => void) | undefined
 
 onMounted(() => {
+  // On mobile, open the first item by default. The CSS `.is-expanded` class
+  // drives `height: auto`, so setting `expanded` here is enough — no tween needed.
+  if (isMobile.value && props.items.length)
+    expanded.value = props.items[0]!._key
+
   itemRefs.value.forEach((item, i) => {
     const bg = item.querySelector<HTMLElement>('.faq-item__bg')
     const bgContent = item.querySelector<HTMLElement>('.faq-item__bg-content')
@@ -297,7 +303,7 @@ onUnmounted(() => {
     padding: desktop-vw(32px) 0;
 
     @include mobile {
-      gap: mobile-vw(32px);
+      gap: mobile-vw(25px);
       padding: mobile-vw(12px) 0;
     }
   }
@@ -305,6 +311,11 @@ onUnmounted(() => {
   &__question {
     flex: 1;
     min-width: 0;
+
+    @include mobile {
+      font-size: mobile-vw(28px);
+      line-height: mobile-vw(28px);
+    }
   }
 
   &__icon {

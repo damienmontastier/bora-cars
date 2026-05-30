@@ -198,6 +198,7 @@ onUnmounted(() => {
         margin-top: mobile-vw(50px);
         gap: mobile-vw(24px);
         align-items: flex-end;
+        width: 65%;
       }
     }
 
@@ -206,6 +207,7 @@ onUnmounted(() => {
 
       @include mobile {
         text-align: right;
+        width: 70%;
       }
     }
 
