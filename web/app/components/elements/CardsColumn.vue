@@ -214,7 +214,11 @@ onUnmounted(() => {
 
   &__left-heading {
     flex: 1;
-    width: 85%;
+    width: 90%;
+
+    @include mobile {
+      width: 100%;
+    }
   }
 
   &__left-bottom {
