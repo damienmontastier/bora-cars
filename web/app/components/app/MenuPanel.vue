@@ -95,7 +95,7 @@ onUnmounted(() => {
         <div class="app-menu-panel__nav-inner app-menu-panel__nav__bottom">
           <div class="app-menu-panel__nav__bottom-locations">
             <template v-for="(loc, i) in props.locations" :key="loc.city">
-              <AtomsCTASecondary :theme="panelTextColor">
+              <AtomsCTASecondary :to="loc.link" :theme="panelTextColor">
                 {{ loc.city }}
               </AtomsCTASecondary>
               <div v-if="i < props.locations.length - 1" class="app-menu-panel__nav__bottom-divider" :style="{ background: panelTextColor }" />

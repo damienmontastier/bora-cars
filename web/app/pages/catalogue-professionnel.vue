@@ -14,11 +14,13 @@ const { t } = useI18n()
 </script>
 
 <template>
-  <ElementsCatalogueListing
-    :title="page?.title"
-    :description="t('catalogueProfessionnel.description')"
-    :cars="cars"
-    :is-loading="isLoading"
-    :content-pre-footer="page?.contentPreFooter"
-  />
+  <main class="page-catalogue-professionnel">
+    <ElementsCatalogueListing
+      :title="page?.title"
+      :description="t('catalogueProfessionnel.description')"
+      :cars="cars"
+      :is-loading="isLoading"
+      :content-pre-footer="page?.contentPreFooter"
+    />
+  </main>
 </template>

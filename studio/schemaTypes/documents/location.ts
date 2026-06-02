@@ -34,6 +34,12 @@ export const locationType = defineType({
       description: 'Ex: tel:+33612345678',
       options: { enableText: true },
     }),
+    defineField({
+      name: 'link',
+      title: 'Lien',
+      type: 'customLink',
+      description: 'Lien optionnel (ex: Google Maps). Le libellé affiché reste le nom de la ville.',
+    }),
   ],
   preview: {
     select: { city: 'city', address: 'address' },

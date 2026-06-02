@@ -45,10 +45,12 @@ const structure = (S: any) =>
                 .child(S.document().schemaType('professionnel').documentId('professionnel')),
               S.listItem().title('Contact').id('contact').icon(EnvelopeIcon)
                 .child(S.document().schemaType('contact').documentId('contact')),
+              S.divider(),
               S.listItem().title('Catalogue').id('catalogue').icon(ArchiveIcon)
                 .child(S.document().schemaType('catalogue').documentId('catalogue')),
               S.listItem().title('Catalogue professionnel').id('catalogueProfessionnel').icon(CaseIcon)
                 .child(S.document().schemaType('catalogueProfessionnel').documentId('catalogueProfessionnel')),
+              S.divider(),
               S.listItem().title('Page Voiture').id('carPage').icon(CarIcon)
                 .child(S.document().schemaType('carPage').documentId('carPage')),
               S.documentTypeListItem('legalPage').title('Pages légales').icon(DocumentTextIcon),

@@ -5,6 +5,7 @@ export type { SanityLink }
 
 export interface MenuLocation {
   city: string
+  link?: SanityLink
 }
 
 export interface MenuData {
@@ -27,5 +28,15 @@ export const MENU_QUERY = `*[_type == "menu"][0]{
     "phone": link.phone,
     "internalLink": link.internalLink->{ "_id": _id, "_type": _type, "slug": slug.current }
   },
-  "locations": locations[]->{ ${i18n('city')} }
+  "locations": locations[]->{
+    ${i18n('city')},
+    "link": link{
+      "type": type,
+      "blank": blank,
+      "url": url,
+      "email": email,
+      "phone": phone,
+      "internalLink": internalLink->{ "_id": _id, "_type": _type, "slug": slug.current }
+    }
+  }
 }`

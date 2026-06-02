@@ -1,7 +1,7 @@
 import { CaseIcon } from '@sanity/icons'
 import { defineField, defineType } from 'sanity'
-import { GROUPS } from '../constants'
 import { seoType } from '../objects/seo'
+import { CatalogueCarsPreview } from '../../components/CatalogueCarsPreview'
 
 const TITLE = 'Catalogue professionnel'
 
@@ -10,13 +10,26 @@ export const catalogueProfessionnelType = defineType({
   title: TITLE,
   type: 'document',
   icon: CaseIcon,
-  groups: [...GROUPS, { name: 'whatsapp', title: 'WhatsApp' }],
+  groups: [
+    { name: 'editorial', title: 'Editorial', default: true },
+    { name: 'apercu', title: 'Aperçu' },
+    { name: 'seo', title: 'SEO' },
+    { name: 'whatsapp', title: 'WhatsApp' },
+  ],
   fields: [
     defineField({
       name: 'title',
       title: 'Titre',
       type: 'internationalizedArrayString',
       group: 'editorial',
+    }),
+    defineField({
+      name: 'carsPreview',
+      title: 'Véhicules dans ce catalogue',
+      type: 'string',
+      group: 'apercu',
+      readOnly: true,
+      components: { input: CatalogueCarsPreview as any },
     }),
     defineField({
       name: 'contentPreFooter',

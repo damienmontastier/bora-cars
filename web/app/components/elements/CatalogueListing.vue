@@ -15,7 +15,7 @@ const { t } = useI18n()
 </script>
 
 <template>
-  <main v-menu-theme="'black'" class="app-elements-catalogue-listing">
+  <div v-menu-theme="'black'" class="app-elements-catalogue-listing">
     <div v-menu-theme="'black'" class="app-elements-catalogue-listing__header">
       <TextsH1 v-if="title" class="app-elements-catalogue-listing__header-title">
         {{ title }}
@@ -26,9 +26,11 @@ const { t } = useI18n()
       </TextsP2>
     </div>
 
-    <div class="app-elements-catalogue-listing__filters">
-      {{ t('catalogue.filtersPlaceholder') }}
-    </div>
+    <DevOnly>
+      <div class="app-elements-catalogue-listing__filters">
+        {{ t('catalogue.filtersPlaceholder') }}
+      </div>
+    </DevOnly>
 
     <div class="app-elements-catalogue-listing__grid">
       <ElementsCatalogueCard
@@ -52,7 +54,7 @@ const { t } = useI18n()
     />
 
     <AppFooter />
-  </main>
+  </div>
 </template>
 
 <style lang="scss">
