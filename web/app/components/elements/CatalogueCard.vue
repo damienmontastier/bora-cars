@@ -8,7 +8,20 @@ interface Props {
 
 const { car, position } = defineProps<Props>()
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
+
+// Le schéma Sanity garantit qu'un seul des deux prix est renseigné.
+// On privilégie le mensuel s'il existe, sinon le journalier.
+const priceLabel = computed(() => {
+  const value = car.prixMensuel ?? car.prixJournalier ?? null
+  if (value == null)
+    return null
+  const numberLocale = locale.value === 'fr' ? 'fr-FR' : 'en-GB'
+  const price = new Intl.NumberFormat(numberLocale).format(value)
+  return car.prixMensuel != null
+    ? t('catalogue.card.startingFromMonthly', { price })
+    : t('catalogue.card.startingFrom', { price })
+})
 
 const analytics = useAnalytics()
 function onClick() {
@@ -44,8 +57,8 @@ function onClick() {
 
     <div class="app-elements-catalogue-card__info">
       <div class="app-elements-catalogue-card__name">
-        <TextsLabel class="app-elements-catalogue-card__marque">
-          {{ t('catalogue.card.startingFrom', { price: '2 350' }) }}
+        <TextsLabel v-if="priceLabel" class="app-elements-catalogue-card__marque">
+          {{ priceLabel }}
         </TextsLabel>
         <TextsH4 class="app-elements-catalogue-card__modele" color="black-100">
           {{ car.marque }} — {{ car.modele }}

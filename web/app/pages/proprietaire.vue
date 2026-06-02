@@ -10,7 +10,12 @@ watch(lang, (v) => {
 
 const { data: page } = await useSanityQuery<ProprietaireData>(PROPRIETAIRE_QUERY, params)
 
+// Message pré-rempli pour tous les CTA WhatsApp de cette page (injecté par BaseLink)
+provideWhatsappMessage(computed(() => page.value?.whatsappMessage))
+
 usePageSeo(computed(() => page.value?.seo))
+
+useMenuCtaSnap()
 </script>
 
 <template>

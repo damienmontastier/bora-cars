@@ -58,6 +58,21 @@ export const carType = defineType({
       type: 'specsLayout',
     }),
     defineField({
+      name: 'clientType',
+      title: 'Type de client',
+      type: 'array',
+      of: [defineArrayMember({ type: 'string' })],
+      description:
+        'Détermine dans quel catalogue la voiture apparaît. « Professionnel » → catalogue professionnel, « Particulier » → catalogue (standard). Laisser vide place la voiture dans le catalogue (standard) par défaut.',
+      options: {
+        list: [
+          { title: 'Professionnel', value: 'professionnel' },
+          { title: 'Particulier', value: 'particulier' },
+        ],
+        layout: 'grid',
+      },
+    }),
+    defineField({
       name: 'rentalTypes',
       title: 'Types de location',
       type: 'array',
@@ -65,7 +80,6 @@ export const carType = defineType({
       options: {
         list: [
           { title: 'Longue durée', value: 'longue-duree' },
-          { title: 'Professionnel', value: 'professionnel' },
           { title: 'Courte durée', value: 'courte-duree' },
         ],
         layout: 'grid',
@@ -183,6 +197,35 @@ export const carType = defineType({
       name: 'prixJournalier',
       title: 'Prix journalier (€)',
       type: 'number',
+      description: 'Renseignez soit le prix journalier, soit le prix mensuel (pas les deux).',
+      validation: (Rule) =>
+        Rule.custom((value, context) => {
+          const prixMensuel = (context.document as any)?.prixMensuel
+          if (value == null && prixMensuel == null) {
+            return 'Renseignez soit le prix journalier, soit le prix mensuel.'
+          }
+          if (value != null && prixMensuel != null) {
+            return 'Un seul des deux prix (journalier ou mensuel) doit être renseigné.'
+          }
+          return true
+        }),
+    }),
+    defineField({
+      name: 'prixMensuel',
+      title: 'Prix mensuel (€)',
+      type: 'number',
+      description: 'Renseignez soit le prix mensuel, soit le prix journalier (pas les deux).',
+      validation: (Rule) =>
+        Rule.custom((value, context) => {
+          const prixJournalier = (context.document as any)?.prixJournalier
+          if (value == null && prixJournalier == null) {
+            return 'Renseignez soit le prix mensuel, soit le prix journalier.'
+          }
+          if (value != null && prixJournalier != null) {
+            return 'Un seul des deux prix (journalier ou mensuel) doit être renseigné.'
+          }
+          return true
+        }),
     }),
     defineField({
       name: 'caution',

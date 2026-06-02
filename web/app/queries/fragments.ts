@@ -47,6 +47,24 @@ export function imageFields(field = 'image') {
 }
 
 /**
+ * Image fragment for when the current projection scope IS the image itself —
+ * e.g. members of an `array of customImage`, where `asset`/`hotspot`/`crop`/`alt`
+ * live directly on the item (no wrapping field).
+ *
+ * @example
+ * "images": images[] { ${imageMemberFields()} }
+ * // → [{ imageUrl, imageAlt, imageHotspot, imageCrop }]
+ */
+export function imageMemberFields() {
+  return `
+    "imageUrl": asset._ref,
+    ${i18n('alt', 'imageAlt')},
+    "imageHotspot": hotspot,
+    "imageCrop": crop
+  `
+}
+
+/**
  * Minimal image fragment (asset ref only).
  *
  * @param field - Sanity image field name (default: 'image')

@@ -1,18 +1,23 @@
-import { TagIcon } from '@sanity/icons'
+import { CaseIcon } from '@sanity/icons'
 import { defineField, defineType } from 'sanity'
 import { GROUPS } from '../constants'
 import { seoType } from '../objects/seo'
-import { WhatsappTemplateInput } from '../../components/WhatsappTemplateInput'
 
-const TITLE = 'Page Voiture'
+const TITLE = 'Catalogue professionnel'
 
-export const carPageType = defineType({
-  name: 'carPage',
+export const catalogueProfessionnelType = defineType({
+  name: 'catalogueProfessionnel',
   title: TITLE,
   type: 'document',
-  icon: TagIcon,
+  icon: CaseIcon,
   groups: [...GROUPS, { name: 'whatsapp', title: 'WhatsApp' }],
   fields: [
+    defineField({
+      name: 'title',
+      title: 'Titre',
+      type: 'internationalizedArrayString',
+      group: 'editorial',
+    }),
     defineField({
       name: 'contentPreFooter',
       title: 'Contenu (Bloc texte)',
@@ -22,17 +27,16 @@ export const carPageType = defineType({
     }),
     defineField({
       name: 'whatsappMessage',
-      title: 'Message WhatsApp (template)',
+      title: 'Message WhatsApp pré-rempli',
       type: 'internationalizedArrayText',
       group: 'whatsapp',
-      description: 'Modèle du message pré-rempli dans WhatsApp (CTA « Contacter » de la fiche). Insère les variables via les boutons au-dessus du champ. Laisser vide pour le message par défaut.',
-      components: { input: WhatsappTemplateInput },
+      description: 'Texte pré-rempli dans WhatsApp au clic sur un CTA de contact de cette page. Laisser vide pour un message vierge.',
     }),
     seoType,
   ],
   preview: {
     prepare() {
-      return { media: TagIcon, subtitle: 'Singleton', title: TITLE }
+      return { media: CaseIcon, subtitle: 'Singleton', title: TITLE }
     },
   },
 })

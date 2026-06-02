@@ -19,6 +19,17 @@ const gridStyle = computed(() => {
   }
 })
 
+// Tell the browser the real rendered width so it picks a right-sized srcset
+// candidate instead of the full-width (~1920px) default. On mobile (<800px)
+// every card is forced to `span 6` (full width → 100vw); on desktop (≥800px)
+// a card spans `grid.w` of the 12-col grid, so its width ≈ grid.w / 12 of the
+// viewport. Rounding up keeps a touch of headroom so we never under-fetch.
+const mediaSizes = computed(() => {
+  const span = card.grid?.w
+  const desktopVw = span ? Math.min(100, Math.ceil((span / 12) * 100)) : 50
+  return `100vw sm:${desktopVw}vw`
+})
+
 const parallaxProps = computed((): Partial<ParallaxProps> => {
   switch (card.cardType) {
     case 'xxl': return { speed: 0.2, scale: 1.03 }
@@ -46,6 +57,7 @@ const parallaxProps = computed((): Partial<ParallaxProps> => {
           provider="sanity"
           :hotspot="card.media.imageHotspot"
           :crop="card.media.imageCrop"
+          :sizes="mediaSizes"
         />
       </UtilsParallax>
     </div>

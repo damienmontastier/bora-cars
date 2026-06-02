@@ -2,6 +2,7 @@
 import process from 'node:process'
 import { defineOrganization } from 'nuxt-schema-org/schema'
 import { DEFAULT_LANGUAGE, LANGUAGES } from '../shared/languages'
+import { I18N_PAGES } from './app/config/I18N_CONFIG'
 
 const LOCALE_IETF: Record<string, string> = { fr: 'fr-FR', en: 'en-GB' }
 
@@ -86,7 +87,8 @@ export default defineNuxtConfig({
   },
 
   sanity: {
-    globalHelper: true,
+    // Pas de `globalHelper` ($sanity global) : la doc le déconseille et on ne
+    // l'utilise pas — useSanity()/useSanityQuery() sont auto-importés sans lui.
     projectId: process.env.NUXT_PUBLIC_SANITY_PROJECT_ID,
     dataset: process.env.NUXT_PUBLIC_SANITY_DATASET || 'production',
     apiVersion: '2026-04-06',
@@ -103,6 +105,11 @@ export default defineNuxtConfig({
   i18n: {
     baseUrl: process.env.NUXT_SITE_URL ?? 'https://boracars.com',
     strategy: 'prefix',
+    // URLs traduites par locale — définies dans app/config/I18N_CONFIG.ts.
+    // `customRoutes: 'config'` indique à i18n de lire les chemins depuis `pages`
+    // (et non depuis les composants). Liens internes → toujours via nom de route.
+    customRoutes: 'config',
+    pages: I18N_PAGES,
     compilation: {
       strictMessage: false,
       escapeHtml: false,
@@ -159,32 +166,43 @@ export default defineNuxtConfig({
   },
 
   fonts: {
+    // Polices locales servies depuis web/public/fonts/.
+    // On passe un `src` explicite plutôt que `provider: 'local'` : le provider
+    // local déduit la graisse du NOM de fichier et retire les mots-clés
+    // « Medium »/« Bold » du nom de famille, ce qui empêche de matcher des
+    // familles nommées HaasGrotDispMedium/HaasGrotDispBold (d'où les warnings
+    // « Could not produce font face declaration from local »). Avec un `src`,
+    // @nuxt/fonts émet la @font-face directement et court-circuite l'heuristique.
     families: [
       {
         name: 'Lora',
-        provider: 'local',
+        src: '/fonts/Lora-Regular.woff2',
         weight: 400,
+        style: 'normal',
         display: 'swap',
         global: true,
       },
       {
         name: 'HaasGrotDispMedium',
-        provider: 'local',
+        src: '/fonts/HaasGrotDispMedium.woff2',
         weight: 600,
+        style: 'normal',
         display: 'swap',
         global: true,
       },
       {
         name: 'HaasGrotDispRegular',
-        provider: 'local',
+        src: '/fonts/HaasGrotDispRegular.woff2',
         weight: 400,
+        style: 'normal',
         display: 'swap',
         global: true,
       },
       {
         name: 'HaasGrotDispBold',
-        provider: 'local',
+        src: '/fonts/HaasGrotDispBold.woff2',
         weight: 700,
+        style: 'normal',
         display: 'swap',
         global: true,
       },

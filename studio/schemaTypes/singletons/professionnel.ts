@@ -12,7 +12,7 @@ export const professionnelType = defineType({
   title: TITLE,
   type: 'document',
   icon: CaseIcon,
-  groups: GROUPS,
+  groups: [...GROUPS, { name: 'whatsapp', title: 'WhatsApp' }],
   fields: [
     defineField({
       name: 'modules',
@@ -33,6 +33,13 @@ export const professionnelType = defineType({
         defineArrayMember({ type: 'cardsColumn' }),
         defineArrayMember({ type: 'fullscreenMarquee' }),
       ],
+    }),
+    defineField({
+      name: 'whatsappMessage',
+      title: 'Message WhatsApp pré-rempli',
+      type: 'internationalizedArrayText',
+      group: 'whatsapp',
+      description: 'Texte pré-rempli dans WhatsApp au clic sur un CTA de contact de cette page. Laisser vide pour un message vierge.',
     }),
     seoType,
   ],

@@ -4,7 +4,7 @@ import { CAR_QUERY } from '~/queries/car'
 
 interface QueryResult {
   car: CarDetailData | null
-  page: { contentPreFooter?: CarPreFooter } | null
+  page: { contentPreFooter?: CarPreFooter, whatsappMessage?: string } | null
 }
 
 const route = useRoute()
@@ -77,7 +77,11 @@ onMounted(() => {
         <PageCarRentalInfo :car="car!" />
       </div>
 
-      <PageCarPricing v-if="car?.prixJournalier || car?.location" :car="car!" />
+      <PageCarPricing
+        v-if="car?.prixJournalier || car?.prixMensuel || car?.location"
+        :car="car!"
+        :whatsapp-template="page?.whatsappMessage"
+      />
     </section>
 
     <ElementsText

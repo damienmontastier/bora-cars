@@ -34,13 +34,13 @@ const themeTextColor = computed(() => ({
 const dropdownBg = computed(() => ({
   white: 'orange',
   black: 'beige-100',
-  orange: 'black-100',
+  orange: 'beige-100',
 }[props.footerTheme]))
 
 const openTextColor = computed(() => ({
   white: 'beige-100',
   black: 'black-100',
-  orange: 'beige-100',
+  orange: 'orange-100',
 }[props.footerTheme]))
 
 const triggerTextColor = computed(() =>
@@ -49,9 +49,17 @@ const triggerTextColor = computed(() =>
 
 const itemTextColor = computed(() => props.variant ? openTextColor.value : 'beige-100')
 
-const langBgStyle = computed(() =>
-  props.variant ? { '--lang-bg': `var(--c-${dropdownBg.value})` } : undefined,
-)
+// Non-variant (menu) dropdown background follows the active menu theme so the
+// open panel stays in the same colour family instead of always being orange.
+const menuDropdownBg = computed(() => ({
+  white: 'black-100',
+  black: 'black-100',
+  orange: 'orange',
+}[props.theme]))
+
+const langBgStyle = computed(() => ({
+  '--lang-bg': `var(--c-${props.variant ? dropdownBg.value : menuDropdownBg.value})`,
+}))
 
 const otherLocales = computed(() =>
   locales.value.filter(l => l.code !== locale.value),
@@ -140,6 +148,8 @@ onKeyStroke('Escape', () => {
 
 <style lang="scss">
 .app-menu-lang {
+  --lang-bg: var(--c-orange);
+
   position: relative;
   display: inline-flex;
 
@@ -147,7 +157,7 @@ onKeyStroke('Escape', () => {
     display: inline-flex;
     align-items: center;
     justify-content: space-between;
-    gap: desktop-vw(6px);
+    gap: desktop-vw(16px);
     padding: desktop-vw(8px) desktop-vw(14px);
     border-radius: desktop-vw(8px);
     background: transparent;
@@ -165,7 +175,7 @@ onKeyStroke('Escape', () => {
   }
 
   &.is-open &__trigger {
-    background: var(--c-orange);
+    background: var(--lang-bg);
     border-top-left-radius: 0;
     border-top-right-radius: 0;
   }
@@ -177,7 +187,7 @@ onKeyStroke('Escape', () => {
     transition: transform 0.35s var(--ease-out-cubic);
 
     svg {
-      width: desktop-vw(10px);
+      width: desktop-vw(16px);
       height: auto;
 
       @include mobile {
@@ -200,7 +210,7 @@ onKeyStroke('Escape', () => {
     padding: 0;
     display: flex;
     flex-direction: column;
-    background: var(--c-orange);
+    background: var(--lang-bg);
     clip-path: inset(100% 0 0 0 round #{desktop-vw(8px)} #{desktop-vw(8px)} 0 0);
     transition: clip-path 0.45s var(--ease-out-cubic);
     will-change: clip-path;
@@ -237,7 +247,7 @@ onKeyStroke('Escape', () => {
   &__link {
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
     padding: desktop-vw(8px) desktop-vw(14px);
     transition: opacity 0.25s var(--ease-out-cubic);
 

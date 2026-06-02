@@ -15,7 +15,7 @@ const props = defineProps({
     default: true,
   },
   preload: {
-    type: [Boolean, Object] as unknown as () => boolean | { fetchPriority?: 'high' | 'low' | 'auto' },
+    type: [Boolean, Object] as unknown as () => boolean | { fetchPriority: 'high' | 'low' | 'auto' },
     default: false,
   },
   sizes: {
@@ -66,6 +66,20 @@ function onLoad() {
 const loading = computed(() => props.lazy ? 'lazy' : 'eager')
 const hasSrc = computed(() => !!props.src)
 const resolvedProvider = computed(() => props.provider ?? undefined)
+
+// NuxtPicture only injects its `preload` <link> server-side, so on SPA
+// navigation the hero image is fetched as a normal, non-prioritised request —
+// the reveal blur lingers while it loads. Mirror the preload's fetchPriority
+// onto the real <img> (via imgAttrs → spread onto the inner <img>) so eager
+// media also loads at high priority on client-side navigation.
+const imgAttrs = computed(() => {
+  const fetchpriority = typeof props.preload === 'object'
+    ? props.preload.fetchPriority
+    : props.preload
+      ? 'high'
+      : undefined
+  return fetchpriority ? { fetchpriority } : {}
+})
 const localModifiers = computed(() => ({
   ...props.modifiers,
   ...(props.hotspot && { hotspot: props.hotspot }),
@@ -98,6 +112,7 @@ defineExpose({ mainRef, pictureRef })
         :sizes="sizes"
         :loading="loading"
         :preload="preload"
+        :img-attrs="imgAttrs"
         :provider="resolvedProvider"
         format="webp"
         :alt="alt"
@@ -120,6 +135,7 @@ defineExpose({ mainRef, pictureRef })
       :sizes="sizes"
       :loading="loading"
       :preload="preload"
+      :img-attrs="imgAttrs"
       :provider="resolvedProvider"
       format="webp"
       :alt="alt"

@@ -1,5 +1,5 @@
 import type { SanityImage, SeoData } from './fragments'
-import { imageFields, seoFields } from './fragments'
+import { imageFields, imageMemberFields, seoFields } from './fragments'
 import { i18n, i18nBlock } from './i18n'
 
 export interface CarLocation {
@@ -42,6 +42,7 @@ export interface CarDetailData {
   dureeMinimum?: number
   kmJourInclus?: number
   prixJournalier?: number
+  prixMensuel?: number
   caution?: number
   prixKmSupplementaire?: { prix?: number, km?: number }
   equipements?: string[]
@@ -53,6 +54,7 @@ export interface CarPageResult {
   car: CarDetailData | null
   page: {
     contentPreFooter?: CarPreFooter
+    whatsappMessage?: string
     seo?: SeoData
   } | null
 }
@@ -66,7 +68,7 @@ export const CAR_QUERY = `{
     "ogImageUrl": image.asset->url,
     ${imageFields()},
     "images": images[] {
-      ${imageFields()}
+      ${imageMemberFields()}
     },
     ${i18nBlock('description')},
     rentalTypes,
@@ -85,6 +87,7 @@ export const CAR_QUERY = `{
     dureeMinimum,
     kmJourInclus,
     prixJournalier,
+    prixMensuel,
     caution,
     prixKmSupplementaire { prix, km },
     ${i18n('equipements')},
@@ -102,6 +105,7 @@ export const CAR_QUERY = `{
       ${i18n('eyebrow')},
       ${i18nBlock('body')}
     },
+    ${i18n('whatsappMessage')},
     ${seoFields()}
   }
 }`

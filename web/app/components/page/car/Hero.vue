@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { CarDetailData } from '~/queries/car'
+import useEmblaCarousel from 'embla-carousel-vue'
 
 const props = defineProps<{ car: CarDetailData }>()
 
@@ -24,13 +25,40 @@ const slides = computed(() => {
   return out
 })
 
+const hasGallery = computed(() => slides.value.length > 1)
+
+const emblaOptions = computed(() => ({
+  loop: hasGallery.value,
+  align: 'center' as const,
+  watchDrag: hasGallery.value,
+  duration: 24,
+}))
+const [emblaRef, emblaApi] = useEmblaCarousel(emblaOptions)
+
 const activeSlide = ref(0)
-watch(slides, () => {
-  activeSlide.value = 0
+
+// Perf: only mount the heavy <ElementsMedia> (NuxtPicture + MediaOverlay's
+// backdrop-filter / IntersectionObserver) for the current slide ± buffer.
+// The slide wrappers stay in the DOM with a fixed flex-basis, so Embla keeps
+// measuring them correctly — only the inner media is gated.
+const SLIDE_BUFFER = 1
+const visibleIndices = computed(() => {
+  const total = slides.value.length
+  if (total <= 1)
+    return new Set<number>([0])
+  const cur = activeSlide.value
+  const set = new Set<number>()
+  for (let o = -SLIDE_BUFFER; o <= SLIDE_BUFFER; o++)
+    set.add((cur + o + total) % total)
+  return set
 })
 
 const analytics = useAnalytics()
-function onDotClick(i: number) {
+function onSelect() {
+  const api = emblaApi.value
+  if (!api)
+    return
+  const i = api.selectedScrollSnap()
   if (i === activeSlide.value)
     return
   activeSlide.value = i
@@ -42,32 +70,55 @@ function onDotClick(i: number) {
     total: slides.value.length,
   })
 }
+
+watch(emblaApi, (api) => {
+  if (!api)
+    return
+  api.on('select', onSelect)
+  api.on('reInit', onSelect)
+})
+
+// Re-measure Embla when the slide set changes (e.g. lang switch refetch).
+watch(slides, () => {
+  activeSlide.value = 0
+  nextTick(() => emblaApi.value?.reInit())
+})
+
+function scrollTo(i: number) {
+  emblaApi.value?.scrollTo(i)
+}
 </script>
 
 <template>
-  <section class="car-hero">
-    <div class="car-hero__media">
-      <template v-for="(slide, i) in slides" :key="i">
-        <ElementsMedia
-          v-show="i === activeSlide"
-          :src="slide.url"
-          :alt="slide.alt"
-          provider="sanity"
-          :hotspot="slide.hotspot"
-          :crop="slide.crop"
-          :lazy="i !== 0"
-          :preload="i === 0 ? { fetchPriority: 'high' } : false"
-          :overlay="i === 0"
-        />
-      </template>
+  <section class="car-hero" :class="{ 'car-hero--draggable': hasGallery }">
+    <div ref="emblaRef" class="car-hero__embla">
+      <div class="car-hero__embla-container">
+        <div
+          v-for="(slide, i) in slides"
+          :key="i"
+          class="car-hero__slide"
+        >
+          <ElementsMedia
+            v-if="visibleIndices.has(i)"
+            :src="slide.url"
+            :alt="slide.alt"
+            provider="sanity"
+            :hotspot="slide.hotspot"
+            :crop="slide.crop"
+            :lazy="i !== 0"
+            :preload="i === 0 ? { fetchPriority: 'high' } : false"
+            :overlay="i === 0"
+          />
+        </div>
+      </div>
       <div v-if="!slides.length" class="car-hero__placeholder" />
     </div>
 
-    <UtilsBaseLink to="/catalogue" class="car-hero__back" :aria-label="t('car.hero.backToCatalogue')">
+    <UtilsBaseLink :to="{ name: 'catalogue' }" class="car-hero__back" :aria-label="t('car.hero.backToCatalogue')">
       <SvgIconComplexArrow />
     </UtilsBaseLink>
 
-    <div v-if="slides.length > 1" class="car-hero__dots">
+    <div v-if="hasGallery" class="car-hero__dots">
       <button
         v-for="(_, i) in slides"
         :key="i"
@@ -75,7 +126,7 @@ function onDotClick(i: number) {
         class="car-hero__dot"
         :class="{ 'car-hero__dot--active': i === activeSlide }"
         :aria-label="t('car.hero.imageNumber', { n: i + 1 })"
-        @click="onDotClick(i)"
+        @click="scrollTo(i)"
       />
     </div>
   </section>
@@ -85,13 +136,38 @@ function onDotClick(i: number) {
 .car-hero {
   position: relative;
   width: 100%;
-  height: desktop-vw(800px);
+  height: desktop-vw(1050px);
   overflow: hidden;
   background: var(--c-beige-20);
 
-  &__media {
+  &--draggable {
+    .car-hero__embla {
+      cursor: grab;
+
+      &:active {
+        cursor: grabbing;
+      }
+    }
+  }
+
+  &__embla {
     position: absolute;
     inset: 0;
+    overflow: hidden;
+  }
+
+  &__embla-container {
+    display: flex;
+    height: 100%;
+    user-select: none;
+    touch-action: pan-y;
+  }
+
+  &__slide {
+    position: relative;
+    flex: 0 0 100%;
+    min-width: 0;
+    height: 100%;
 
     .app-elements-media {
       position: absolute;
@@ -131,19 +207,20 @@ function onDotClick(i: number) {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: desktop-vw(8px);
+    gap: desktop-vw(12px);
     padding: desktop-vw(24px);
     z-index: 2;
   }
 
   &__dot {
-    width: desktop-vw(14px);
-    height: desktop-vw(14px);
+    width: desktop-vw(18px);
+    height: desktop-vw(18px);
     border-radius: 50%;
-    background: var(--c-white-40);
+    background: var(--c-white-60);
     border: none;
     padding: 0;
     cursor: pointer;
+    box-shadow: 0 desktop-vw(1px) desktop-vw(6px) rgba(0, 0, 0, 0.45);
     transition: background 0.25s ease;
 
     &--active {

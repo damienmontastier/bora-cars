@@ -10,7 +10,7 @@ export const catalogueType = defineType({
   title: TITLE,
   type: 'document',
   icon: ArchiveIcon,
-  groups: GROUPS,
+  groups: [...GROUPS, { name: 'whatsapp', title: 'WhatsApp' }],
   fields: [
     defineField({
       name: 'title',
@@ -24,6 +24,13 @@ export const catalogueType = defineType({
       type: 'textBlock',
       group: 'editorial',
       validation: Rule => Rule.required(),
+    }),
+    defineField({
+      name: 'whatsappMessage',
+      title: 'Message WhatsApp pré-rempli',
+      type: 'internationalizedArrayText',
+      group: 'whatsapp',
+      description: 'Texte pré-rempli dans WhatsApp au clic sur un CTA de contact de cette page. Laisser vide pour un message vierge.',
     }),
     seoType,
   ],

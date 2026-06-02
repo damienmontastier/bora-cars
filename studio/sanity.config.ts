@@ -24,7 +24,7 @@ import { StudioLayout } from './components/StudioLayout'
 
 const CarIcon = () => createElement('span', null, '🚗')
 
-const SINGLETONS = new Set(['homepage', 'footer', 'menu', 'proprietaire', 'professionnel', 'contact', 'settings', 'catalogue', 'carPage'])
+const SINGLETONS = new Set(['homepage', 'footer', 'menu', 'proprietaire', 'professionnel', 'contact', 'settings', 'catalogue', 'catalogueProfessionnel', 'carPage'])
 
 const structure = (S: any) =>
   S.list()
@@ -47,6 +47,8 @@ const structure = (S: any) =>
                 .child(S.document().schemaType('contact').documentId('contact')),
               S.listItem().title('Catalogue').id('catalogue').icon(ArchiveIcon)
                 .child(S.document().schemaType('catalogue').documentId('catalogue')),
+              S.listItem().title('Catalogue professionnel').id('catalogueProfessionnel').icon(CaseIcon)
+                .child(S.document().schemaType('catalogueProfessionnel').documentId('catalogueProfessionnel')),
               S.listItem().title('Page Voiture').id('carPage').icon(CarIcon)
                 .child(S.document().schemaType('carPage').documentId('carPage')),
               S.documentTypeListItem('legalPage').title('Pages légales').icon(DocumentTextIcon),
@@ -71,7 +73,7 @@ export default defineConfig({
   projectId: 'xyw8hnp3',
   dataset: 'production',
   plugins: [
-    linkField({ linkableSchemaTypes: ['homepage', 'proprietaire', 'professionnel', 'car', 'contact', 'catalogue', 'legalPage'] }),
+    linkField({ linkableSchemaTypes: ['homepage', 'proprietaire', 'professionnel', 'car', 'contact', 'catalogue', 'catalogueProfessionnel', 'legalPage'] }),
     internationalizedArray({
       languages: SUPPORTED_LANGUAGES,
       defaultLanguages: ['fr', 'en'],

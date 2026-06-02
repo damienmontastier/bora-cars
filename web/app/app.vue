@@ -23,7 +23,6 @@ watch(fontsReady, (ready) => {
 
 const { finalizePendingLocaleChange, t } = useI18n()
 
-const sanity = useSanity()
 const settings = useSettings()
 const lang = useSanityLang()
 
@@ -41,12 +40,23 @@ watch(
   flushMenuLangIfSafe,
 )
 
-const [{ data: menu }, settingsData] = await Promise.all([
+// Settings feed the persistent menu CTA (contactLink) and the SEO meta, both
+// of which must reflect the active locale immediately — so, unlike the menu
+// panel (whose lang flush is deferred until it's closed), settings follow
+// `lang` directly via a reactive query that refetches on locale change.
+const settingsParams = reactive({ lang: lang.value })
+watch(lang, (v) => {
+  settingsParams.lang = v
+})
+
+const [{ data: menu }, { data: settingsData }] = await Promise.all([
   useSanityQuery<MenuData>(MENU_QUERY, menuParams),
-  sanity.fetch<SettingsData>(SETTINGS_QUERY, { lang: lang.value }),
+  useSanityQuery<SettingsData>(SETTINGS_QUERY, settingsParams),
 ])
 
-settings.value = settingsData
+watch(settingsData, (val) => {
+  settings.value = val ?? null
+}, { immediate: true })
 
 const { url: siteUrl, name: siteName, separator } = useSiteConfig()
 const { IS_PROD } = useRuntimeConfig().public

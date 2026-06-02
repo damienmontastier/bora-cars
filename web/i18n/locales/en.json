@@ -18,8 +18,12 @@
     "description": "Welcome to our collection. From the most comfortable SUV to the most radical sports car, browse our fleet and find the vehicle that suits you.",
     "filtersPlaceholder": "FILTERS",
     "card": {
-      "startingFrom": "From {price}€/day"
+      "startingFrom": "From {price}€/day",
+      "startingFromMonthly": "From {price}€/month"
     }
+  },
+  "catalogueProfessionnel": {
+    "description": "A fleet designed for businesses. Browse the vehicles available to rent for your company and your team."
   },
   "car": {
     "notFound": "Car not found",
@@ -99,6 +103,7 @@
     "pricing": {
       "priceFrom": "From {price}€",
       "perDay": "per day",
+      "perMonth": "per month",
       "contactCta": "Contact an advisor",
       "duration": {
         "label": "Duration",
@@ -123,7 +128,7 @@
       }
     },
     "whatsappMessage": {
-      "withPrice": "Hello,\n\nI'm interested in the *{marque} {modele}*.\n\n• Duration: {duree}\n• When: {quand}\n• From {prix}€ per day\n\nLink: {url}",
+      "withPrice": "Hello,\n\nI'm interested in the *{marque} {modele}*.\n\n• Duration: {duree}\n• When: {quand}\n• From {prix}€ {periode}\n\nLink: {url}",
       "withoutPrice": "Hello,\n\nI'm interested in the *{marque} {modele}*.\n\n• Duration: {duree}\n• When: {quand}\n\nLink: {url}"
     }
   },

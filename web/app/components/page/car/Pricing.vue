@@ -1,19 +1,26 @@
 <script setup lang="ts">
 import type { CarDetailData } from '~/queries/car'
 
-const props = defineProps<{ car: CarDetailData }>()
+const props = defineProps<{ car: CarDetailData, whatsappTemplate?: string }>()
 
 const settings = useSettings()
 const { t, locale } = useI18n()
 const requestUrl = useRequestURL()
 
+// Le schéma Sanity garantit qu'un seul des deux prix est renseigné.
+// On privilégie le mensuel s'il existe, sinon le journalier.
+const isMonthly = computed(() => props.car.prixMensuel != null)
+const priceValue = computed(() => props.car.prixMensuel ?? props.car.prixJournalier ?? null)
+
 const formattedPrix = computed(() => {
-  const p = props.car.prixJournalier
-  if (!p)
+  const p = priceValue.value
+  if (p == null)
     return null
   const numberLocale = locale.value === 'fr' ? 'fr-FR' : 'en-GB'
   return new Intl.NumberFormat(numberLocale).format(p)
 })
+
+const periodLabel = computed(() => isMonthly.value ? t('car.pricing.perMonth') : t('car.pricing.perDay'))
 
 const DURATION_KEYS = ['24h', '48h', '3days', '1week', '2weeks', '1month'] as const
 const WHEN_KEYS = ['today', 'tomorrow', 'weekend', 'nextweek', 'later'] as const
@@ -58,36 +65,49 @@ watch(when, (v) => {
   })
 })
 
-const WHATSAPP_HOST_RE = /^(?:[\w-]+\.)*(?:wa\.me|whatsapp\.com)$/i
+// 1ʳᵉ lettre en minuscule : les libellés « Quand » sont capitalisés pour le menu
+// déroulant, mais doivent s'intégrer en milieu de phrase dans le message.
+function lowerFirst(s: string) {
+  return s ? s.charAt(0).toLowerCase() + s.slice(1) : s
+}
+
+// Variables disponibles dans le template Sanity et dans l'i18n de secours.
+// marque / modele : laissés tels quels (valeurs Sanity).
+const whatsappParams = computed(() => ({
+  marque: props.car.marque,
+  modele: props.car.modele,
+  prix: formattedPrix.value ?? '',
+  periode: periodLabel.value,
+  duree: durationLabel.value,
+  quand: lowerFirst(whenLabel.value),
+  url: requestUrl.href,
+}))
+
+// Remplace les {tokens} d'un template par leurs valeurs.
+function fillTemplate(template: string, params: Record<string, string>) {
+  return template.replace(/\{(\w+)\}/g, (_, key) => params[key] ?? '')
+}
+
+// Template éditable depuis Sanity (carPage.whatsappMessage) ; sinon, message
+// i18n par défaut (car.whatsappMessage.withPrice / withoutPrice).
+const whatsappText = computed(() => {
+  const template = props.whatsappTemplate?.trim()
+  if (template)
+    return fillTemplate(template, whatsappParams.value)
+
+  const key = formattedPrix.value
+    ? 'car.whatsappMessage.withPrice'
+    : 'car.whatsappMessage.withoutPrice'
+  return t(key, whatsappParams.value)
+})
 
 const contactTo = computed(() => {
   const link = settings.value?.contactLink
   if (!link || link.type !== 'external' || !link.url)
     return link
-
-  let parsed: URL
-  try {
-    parsed = new URL(link.url)
-  }
-  catch {
-    return link
-  }
-  if (!WHATSAPP_HOST_RE.test(parsed.hostname))
-    return link
-
-  const key = formattedPrix.value
-    ? 'car.whatsappMessage.withPrice'
-    : 'car.whatsappMessage.withoutPrice'
-  const message = t(key, {
-    marque: props.car.marque,
-    modele: props.car.modele,
-    prix: formattedPrix.value ?? '',
-    duree: durationLabel.value,
-    quand: whenLabel.value,
-    url: requestUrl.href,
-  })
-  parsed.searchParams.set('text', message)
-  return parsed.toString()
+  // withWhatsappText renvoie l'URL inchangée si ce n'est pas un lien WhatsApp.
+  const withText = withWhatsappText(link.url, whatsappText.value)
+  return withText === link.url ? link : withText
 })
 
 // Extra params merged into BaseLink's auto-tracked click event.
@@ -109,7 +129,7 @@ const ctaTrackingExtra = computed(() => ({
         {{ t('car.pricing.priceFrom', { price: formattedPrix }) }}
       </TextsH4>
       <TextsP2 class="car-pricing__price-period">
-        {{ t('car.pricing.perDay') }}
+        {{ periodLabel }}
       </TextsP2>
     </div>
 

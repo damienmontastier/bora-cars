@@ -18,8 +18,12 @@
     "description": "Bienvenue dans notre collection. Du SUV tout confort à la sportive radicale, parcourez notre flotte et trouvez le véhicule qui vous correspond.",
     "filtersPlaceholder": "FILTRES",
     "card": {
-      "startingFrom": "À partir de {price}€/jour"
+      "startingFrom": "À partir de {price}€/jour",
+      "startingFromMonthly": "À partir de {price}€/mois"
     }
+  },
+  "catalogueProfessionnel": {
+    "description": "Une flotte pensée pour les professionnels. Découvrez les véhicules disponibles à la location pour votre entreprise et vos collaborateurs."
   },
   "car": {
     "notFound": "Voiture introuvable",
@@ -99,6 +103,7 @@
     "pricing": {
       "priceFrom": "À partir de {price}€",
       "perDay": "par jour",
+      "perMonth": "par mois",
       "contactCta": "Contacter un conseiller",
       "duration": {
         "label": "Durée",
@@ -123,7 +128,7 @@
       }
     },
     "whatsappMessage": {
-      "withPrice": "Bonjour,\n\nJe suis intéressé(e) par la *{marque} {modele}*.\n\n• Durée : {duree}\n• Quand : {quand}\n• À partir de {prix}€ par jour\n\nLien : {url}",
+      "withPrice": "Bonjour,\n\nJe suis intéressé(e) par la *{marque} {modele}*.\n\n• Durée : {duree}\n• Quand : {quand}\n• À partir de {prix}€ {periode}\n\nLien : {url}",
       "withoutPrice": "Bonjour,\n\nJe suis intéressé(e) par la *{marque} {modele}*.\n\n• Durée : {duree}\n• Quand : {quand}\n\nLien : {url}"
     }
   },

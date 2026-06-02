@@ -1,20 +1,8 @@
 <script setup>
-// Map Sanity singleton document IDs → route paths
-const INTERNAL_ROUTES = {
-  homepage: '/',
-  proprietaire: '/proprietaire',
-  professionnel: '/professionnel',
-  contact: '/contact',
-  catalogue: '/catalogue',
-}
-
-// Slug-based document types → route builder
-const SLUG_ROUTES = {
-  car: slug => slug ? `/car/${slug}` : undefined,
-  legalPage: slug => slug ? `/legal/${slug}` : undefined,
-}
-
-const WHATSAPP_HOST_RE = /^(?:[\w-]+\.)*(?:wa\.me|whatsapp\.com)$/i
+// Pont CMS → routeur : type de doc Sanity → route Nuxt (cf. I18N_CONFIG).
+// On résout vers `{ name, params }`, jamais un chemin en dur : c'est
+// `NuxtLinkLocale` qui produit ensuite le chemin localisé/traduit.
+import { SANITY_ROUTES } from '~/config/I18N_CONFIG'
 
 const props = defineProps({
   to: {
@@ -32,13 +20,15 @@ const props = defineProps({
   },
 })
 
+const WHATSAPP_HOST_RE = /^(?:[\w-]+\.)*(?:wa\.me|whatsapp\.com)$/i
+
 const { to } = toRefs(props)
 
 const analytics = useAnalytics()
+const whatsappMessage = useWhatsappMessage()
 
-// Si `to` est un objet lien Sanity, on le résout en string
-const resolvedTo = computed(() => {
-  const val = to.value
+// Si `to` est un objet lien Sanity, on le résout en string/route vue-router
+function resolveLink(val) {
   if (!val || typeof val === 'string')
     return val
 
@@ -50,15 +40,26 @@ const resolvedTo = computed(() => {
     return val.url
   if (val.type === 'internal') {
     const link = val.internalLink
-    if (!link)
+    const route = link && SANITY_ROUTES[link._type]
+    if (!route)
       return undefined
-    const slugRoute = SLUG_ROUTES[link._type]
-    if (slugRoute)
-      return slugRoute(link.slug)
-    return INTERNAL_ROUTES[link._id] ?? (link._id ? `/${link._id}` : undefined)
+    // Route dynamique (doc à slug) → on injecte le param ; sinon route nommée simple.
+    if (route.param)
+      return link.slug ? { name: route.name, params: { [route.param]: link.slug } } : undefined
+    return { name: route.name }
   }
 
-  return val // vue-router object
+  return val // vue-router object (ex. { name, params })
+}
+
+// Résout le lien, puis injecte le message WhatsApp de la page courante dans les
+// URL wa.me (no-op pour les autres liens). Le menu / la homepage ne fournissent
+// pas de message → lien nu.
+const resolvedTo = computed(() => {
+  const resolved = resolveLink(to.value)
+  return typeof resolved === 'string'
+    ? withWhatsappText(resolved, whatsappMessage.value)
+    : resolved
 })
 
 const isExternal = computed(() => {
