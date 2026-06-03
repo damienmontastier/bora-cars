@@ -226,12 +226,24 @@ export default defineNuxtConfig({
   },
 
   nitro: {
-    // SSG hybrid on main (static HTML + Netlify Functions for server/api/*),
-    // SSR on develop. Local dev uses the default Nitro dev server regardless.
-    preset: process.env.NUXT_PUBLIC_IS_PROD === 'true' ? 'netlify_static' : 'netlify',
+    // Toujours le preset `netlify` (jamais `netlify_static`) : la prod a besoin de
+    // Netlify Functions au runtime pour `/api/contact` (Airtable, token serveur) ET
+    // pour `/_i18n/<hash>/<locale>/messages.json` (chargement des traductions par
+    // @nuxtjs/i18n). `netlify_static` ne déploie AUCUNE fonction → ces deux routes
+    // 404 en prod. On obtient le "SSG" voulu en PRÉRENDANT les pages (HTML statique
+    // servi par le CDN) tout en gardant les fonctions : c'est le vrai hybride
+    // statique + serverless. Local dev = serveur Nitro par défaut.
+    preset: 'netlify',
     prerender: {
       crawlLinks: true,
-      routes: ['/sitemap.xml', '/robots.txt'],
+      // Prod : on prérend les pages localisées (crawl depuis /fr et /en) → HTML
+      // statique. La passe de prerender déclenche aussi l'écriture des
+      // `/_i18n/.../messages.json` (via prerenderRoutes() dans le plugin i18n).
+      // Develop : SSR pur (pages rendues à la volée par la fonction), build plus
+      // rapide et contenu Sanity toujours frais.
+      routes: process.env.NUXT_PUBLIC_IS_PROD === 'true'
+        ? ['/fr', '/en', '/sitemap.xml', '/robots.txt']
+        : ['/sitemap.xml', '/robots.txt'],
     },
   },
 

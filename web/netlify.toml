@@ -1,0 +1,29 @@
+# Netlify config — app "web" du monorepo (Base directory = web/ dans Netlify).
+# Le Sanity Studio se déploie séparément (`npm run studio:deploy`), pas par Netlify.
+#
+# Modèle de rendu : un SEUL preset, `netlify` (SSR + Netlify Functions), dans les
+# deux contextes (voir web/nuxt.config.ts → nitro.preset = 'netlify'). On NE passe
+# JAMAIS par `nuxt generate` / `netlify_static` : la prod a besoin de fonctions
+# runtime pour /api/contact (Airtable, token serveur) ET /_i18n/.../messages.json
+# (traductions @nuxtjs/i18n). C'est `NUXT_PUBLIC_IS_PROD` (ci-dessous, par contexte)
+# qui bascule prod = hybride (pages prérendues + fonctions) vs develop = SSR pur.
+
+[build]
+  # = `nuxt build` (cf. web/package.json). Pas de `generate`.
+  command = "npm run build"
+  # Sortie publique du preset Nitro `netlify` (relative au base directory web/).
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "22"
+
+# Production (branche main) → HYBRIDE : pages localisées prérendues en HTML statique
+# servi par le CDN + Netlify Functions pour /api/contact et /_i18n/*. IS_PROD=true
+# active le prerender des pages (nitro.prerender dans nuxt.config.ts) et l'indexabilité.
+[context.production.environment]
+  NUXT_PUBLIC_IS_PROD = "true"
+
+# Develop (branche develop) → SSR pur : pages rendues à la volée par la fonction,
+# build plus rapide, contenu Sanity toujours frais, site non indexable.
+[context.develop.environment]
+  NUXT_PUBLIC_IS_PROD = "false"
