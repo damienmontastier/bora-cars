@@ -14,10 +14,15 @@ const props = withDefaults(defineProps<{
   // `stacked` (défaut) : libellé empilé sur fond beige (formulaires, ex. Pricing).
   // `inline` : pilule bordée qui « hug » son contenu (barre de filtres catalogue).
   variant?: 'stacked' | 'inline'
+  // Ancrage du menu sur MOBILE en variante inline : `left` (déborde vers la
+  // droite, défaut — pour le 1ᵉʳ select) / `right` (déborde vers la gauche — pour
+  // le dernier select de la barre). Sans effet sur desktop (toujours à droite).
+  align?: 'left' | 'right'
 }>(), {
   label: undefined,
   placeholder: undefined,
   variant: 'stacked',
+  align: 'left',
 })
 
 const emit = defineEmits<{
@@ -135,7 +140,7 @@ function onKeydown(e: KeyboardEvent) {
 </script>
 
 <template>
-  <div ref="rootRef" class="atoms-select" :class="`atoms-select--${variant}`">
+  <div ref="rootRef" class="atoms-select" :class="[`atoms-select--${variant}`, { 'atoms-select--align-right': align === 'right' }]">
     <button
       :id="triggerId"
       ref="triggerRef"
@@ -382,9 +387,8 @@ function onKeydown(e: KeyboardEvent) {
       white-space: nowrap;
     }
 
-    // Ancré sur le bord DROIT de la pilule → le menu s'étend vers la gauche
-    // (dans la page) et ne déborde jamais à droite de l'écran, y compris pour
-    // le dernier filtre tout à droite de la barre.
+    // Desktop : le groupe de filtres est aligné à droite → on ancre le menu sur
+    // le bord DROIT de la pilule (déborde vers la gauche, jamais hors écran).
     .atoms-select__listbox {
       left: auto;
       right: 0;
@@ -393,7 +397,20 @@ function onKeydown(e: KeyboardEvent) {
       max-width: desktop-vw(360px);
 
       @include mobile {
+        // Mobile : le groupe part de la GAUCHE → ancrage à gauche par défaut
+        // (déborde vers la droite) pour que le 1ᵉʳ select reste dans le viewport.
+        left: 0;
+        right: auto;
         max-width: mobile-vw(280px);
+      }
+    }
+
+    // Dernier select de la barre : ancré à droite aussi sur mobile, sinon il
+    // déborderait à droite du viewport.
+    &.atoms-select--align-right .atoms-select__listbox {
+      @include mobile {
+        left: auto;
+        right: 0;
       }
     }
   }

@@ -81,15 +81,17 @@ export async function useCatalogueListing(query: string, carsQuery: string, face
     ...toGroqParams(filters),
   })
 
-  // `getCachedData: () => undefined` : on ne réutilise jamais le bucket de cache
-  // useAsyncData entre navigations. Sa clé est dérivée des params au 1ᵉʳ montage
-  // et useAsyncData resservirait sinon des résultats périmés — d'où les filtres
-  // ignorés en navigation SPA (venir d'une autre page) ou le payload SSG non
-  // filtré à l'hydratation. Ici, chaque montage refetch selon les params courants.
+  // Cache useAsyncData maîtrisé :
+  // - À l'HYDRATATION on réutilise le payload SSR → le 1ᵉʳ rendu client est
+  //   identique au serveur (aucun mismatch d'hydratation / décalage de useId).
+  // - En navigation CLIENT (isHydrating = false) on renvoie `undefined` pour
+  //   forcer un refetch et ne jamais resservir un bucket périmé (la clé est
+  //   dérivée des params au 1ᵉʳ montage), sinon les filtres sont ignorés en SPA.
   const result = useSanityQuery<CatalogueQueryResult>(query, params, {
-    getCachedData: () => undefined,
+    getCachedData: (key, nuxtApp) =>
+      nuxtApp.isHydrating ? (nuxtApp.payload.data[key] ?? nuxtApp.static.data[key]) : undefined,
   })
-  const { data } = result
+  const { data, refresh } = result
 
   // Facettes (valeurs distinctes par filtre), localisées → refetch au switch de langue.
   const { data: facetsData } = useSanityQuery<Record<string, (string | FilterOption)[]>>(facetsQuery, { lang })
@@ -126,11 +128,20 @@ export async function useCatalogueListing(query: string, carsQuery: string, face
     offset.value = CATALOGUE_LIMIT
   })
 
-  // L'URL est la source de vérité. Tout changement de query string — deep-link à
-  // l'hydratation, back/forward navigateur, ou notre propre setFilter — resync
-  // l'état des filtres + les params GROQ. La mutation de `params` (objet réactif
-  // surveillé par useSanityQuery) déclenche le refetch ; assigner une valeur
-  // identique est un no-op, donc setFilter ne provoque pas de double-fetch.
+  // SSG : la page est prérendue SANS query params, donc le payload (réutilisé à
+  // l'hydratation pour éviter le mismatch) n'est pas filtré. Une fois hydraté
+  // (client), si l'URL porte des filtres, on refetch pour charger les bons
+  // résultats. C'est une mise à jour post-hydratation, pas un mismatch.
+  onMounted(() => {
+    if (hasActiveFilters.value)
+      refresh()
+  })
+
+  // L'URL est la source de vérité. Tout changement de query string — back/forward
+  // navigateur ou notre propre setFilter — resync l'état des filtres + les params
+  // GROQ. La mutation de `params` (objet réactif surveillé par useSanityQuery)
+  // déclenche le refetch ; assigner une valeur identique est un no-op, donc
+  // setFilter ne provoque pas de double-fetch.
   watch(() => route.query, () => {
     for (const key of FILTER_STATE_KEYS)
       filters[key] = qStr(route.query[key])

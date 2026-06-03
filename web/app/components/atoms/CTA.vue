@@ -74,7 +74,7 @@ function reset() {
 // Vue patched the (now-detached) source text node — a locale switch landed the
 // new translation. Rebuild the word-split so the CTA follows the language.
 function onSourceTextChange() {
-  if (!isAnimated.value)
+  if (!props.animated)
     return
   reset()
   nextTick(init)
@@ -82,6 +82,8 @@ function onSourceTextChange() {
 
 function init() {
   if (initialized)
+    return
+  if (!props.animated)
     return
   if (!rootRef.value?.$el || rootRef.value.$el.offsetWidth === 0)
     return
@@ -119,6 +121,13 @@ function init() {
   const words = Array.from(el.querySelectorAll('.app-atoms-cta__word'))
   const tiretEl = el.querySelector('.app-atoms-cta__tiret')
 
+  // The hover morph (tiret collapse + words flipping together) is desktop-only.
+  // On mobile the tiret stays statically visible as a decorative separator —
+  // no timeline, no minWidth lock, no Flip. The split above already ran so the
+  // tiret is in the DOM; CSS keeps it shown (no `display: none` on mobile).
+  if (!isAnimated.value)
+    return
+
   rootRef.value.$el.style.minWidth = `${rootRef.value.$el.offsetWidth}px`
 
   gsap.set(tiretEl, { display: 'none' })
@@ -143,7 +152,7 @@ function init() {
 }
 
 onMounted(() => {
-  if (!isAnimated.value)
+  if (!props.animated)
     return
   watch(fontsLoaded, (loaded) => {
     if (loaded)
@@ -152,11 +161,10 @@ onMounted(() => {
 })
 
 const onResize = useDebounceFn(() => {
-  if (!isAnimated.value) {
-    if (initialized)
-      reset()
+  if (!props.animated)
     return
-  }
+  // Full rebuild on resize handles both breakpoint sides and any crossing:
+  // desktop rebuilds the timeline, mobile re-splits the static tiret.
   if (!initialized) {
     init()
     return
@@ -242,7 +250,9 @@ function onLeave() {
     margin: 0 desktop-vw(12px);
 
     @include mobile {
-      display: none;
+      width: mobile-vw(18px);
+      height: mobile-vw(2px);
+      margin: 0 mobile-vw(6.5px);
     }
   }
 }

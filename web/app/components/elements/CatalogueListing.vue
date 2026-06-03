@@ -86,9 +86,10 @@ function onSearchEnter() {
 
       <div class="app-elements-catalogue-listing__filters-group">
         <AtomsSelect
-          v-for="def in selectFilters"
+          v-for="(def, index) in selectFilters"
           :key="def.key"
           variant="inline"
+          :align="index === selectFilters.length - 1 && selectFilters.length > 1 ? 'right' : 'left'"
           :model-value="filters[def.key] ?? ''"
           :options="optionsFor(def)"
           :placeholder="t(`catalogue.filters.${def.key}`)"
@@ -276,18 +277,12 @@ function onSearchEnter() {
     align-items: center;
     gap: desktop-vw(8px);
 
+    // Mobile : on laisse les pilules passer à la ligne plutôt que de scroller
+    // horizontalement. Un `overflow-x: auto` ferait passer `overflow-y` à `auto`
+    // (règle CSS) et clipperait le menu déroulant des selects → invisible.
     @include mobile {
+      flex-wrap: wrap;
       gap: mobile-vw(8px);
-      overflow-x: auto;
-      scrollbar-width: none;
-
-      &::-webkit-scrollbar {
-        display: none;
-      }
-
-      > * {
-        flex: 0 0 auto;
-      }
     }
   }
 
