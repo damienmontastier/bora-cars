@@ -54,7 +54,7 @@ onMounted(() => {
 
     <section v-menu-theme="'white'" class="page-car__details">
       <div class="page-car__left">
-        <TextsH2 tag="h1" class="page-car__title">
+        <TextsH2 :animated="false" tag="h1" class="page-car__title">
           {{ car?.marque }}<br>{{ car?.modele }}
         </TextsH2>
 

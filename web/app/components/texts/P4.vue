@@ -24,6 +24,7 @@ const mainRef = ref(null)
 const classes = computed(() => ({
   'no-selectable': !props.selectable,
   'bold-text': props.weight === 'bold',
+  'regular-text': props.weight === 'regular',
 }))
 
 defineExpose({

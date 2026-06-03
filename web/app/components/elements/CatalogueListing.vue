@@ -21,7 +21,7 @@ const { t } = useI18n()
         {{ title }}
       </TextsH1>
 
-      <TextsP2 v-if="description" class="app-elements-catalogue-listing__header-description">
+      <TextsP2 v-if="description" weight="regular" class="app-elements-catalogue-listing__header-description">
         {{ description }}
       </TextsP2>
     </div>
@@ -93,6 +93,7 @@ const { t } = useI18n()
   &__header-description {
     max-width: desktop-vw(750px);
     width: 100%;
+    white-space: pre-line;
 
     @include mobile {
       max-width: none;

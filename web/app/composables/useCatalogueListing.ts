@@ -2,7 +2,7 @@ import type { CatalogueCar, CatalogueData } from '~/queries/catalogue'
 import { useInfiniteScroll } from '@vueuse/core'
 import { CATALOGUE_LIMIT } from '~/queries/catalogue'
 
-type CataloguePage = Pick<CatalogueData, 'title' | 'contentPreFooter' | 'whatsappMessage' | 'seo'>
+type CataloguePage = Pick<CatalogueData, 'title' | 'description' | 'contentPreFooter' | 'whatsappMessage' | 'seo'>
 
 interface CatalogueQueryResult {
   page: CataloguePage

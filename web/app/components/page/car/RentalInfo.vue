@@ -48,7 +48,7 @@ const fraisCells = computed<Cell[]>(() => {
   const c = props.car
   const items: Cell[] = []
   if (c.kmJourInclus)
-    items.push({ key: 'km', label: t('car.rental.kmJourInclus'), value: `${c.kmJourInclus} km` })
+    items.push({ key: 'km', label: t('car.rental.kmJourInclus'), value: `${c.kmJourInclus} ${t('car.rental.units.km')}` })
   if (c.caution)
     items.push({ key: 'caution', label: t('car.rental.caution'), value: `${new Intl.NumberFormat(numberLocale.value).format(c.caution)}€` })
   if (c.prixKmSupplementaire?.prix && c.prixKmSupplementaire?.km) {
@@ -57,7 +57,7 @@ const fraisCells = computed<Cell[]>(() => {
     items.push({
       key: 'km-supp',
       label: t('car.rental.kmSupplementaire'),
-      value: km > 1 ? `${price}€/${km} km` : `${price}€/km`,
+      value: km > 1 ? `${price}€/${km} ${t('car.rental.units.km')}` : `${price}€/${t('car.rental.units.km')}`,
     })
   }
   return items

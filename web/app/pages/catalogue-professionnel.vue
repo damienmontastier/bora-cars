@@ -9,15 +9,13 @@ usePageSeo(computed(() => page.value?.seo))
 provideWhatsappMessage(computed(() => page.value?.whatsappMessage))
 
 useMenuCtaSnap()
-
-const { t } = useI18n()
 </script>
 
 <template>
   <main class="page-catalogue-professionnel">
     <ElementsCatalogueListing
       :title="page?.title"
-      :description="t('catalogueProfessionnel.description')"
+      :description="page?.description"
       :cars="cars"
       :is-loading="isLoading"
       :content-pre-footer="page?.contentPreFooter"

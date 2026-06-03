@@ -15,15 +15,11 @@
     "close": "Close"
   },
   "catalogue": {
-    "description": "Welcome to our collection. From the most comfortable SUV to the most radical sports car, browse our fleet and find the vehicle that suits you.",
     "filtersPlaceholder": "FILTERS",
     "card": {
       "startingFrom": "From {price}€/day",
       "startingFromMonthly": "From {price}€/month"
     }
-  },
-  "catalogueProfessionnel": {
-    "description": "A fleet designed for businesses. Browse the vehicles available to rent for your company and your team."
   },
   "car": {
     "notFound": "Car not found",
@@ -89,7 +85,8 @@
       "units": {
         "years": "years",
         "day": "day",
-        "days": "days"
+        "days": "days",
+        "km": "km"
       },
       "type": {
         "longue-duree": "Long-term",

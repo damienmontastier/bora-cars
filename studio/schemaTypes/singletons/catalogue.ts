@@ -24,6 +24,13 @@ export const catalogueType = defineType({
       group: 'editorial',
     }),
     defineField({
+      name: 'description',
+      title: 'Description',
+      type: 'internationalizedArrayText',
+      group: 'editorial',
+      description: 'Texte d’introduction affiché en haut du catalogue.',
+    }),
+    defineField({
       name: 'carsPreview',
       title: 'Véhicules dans ce catalogue',
       type: 'string',

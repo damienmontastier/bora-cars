@@ -24,6 +24,7 @@ export interface CatalogueTextBlock {
 
 export interface CatalogueData {
   title?: string
+  description?: string
   contentPreFooter?: CatalogueTextBlock
   whatsappMessage?: string
   seo?: SeoData
@@ -57,6 +58,7 @@ function catalogueQuery(singleton: string, audience: CatalogueAudience) {
   return `{
     "page": *[_type == "${singleton}"][0]{
       ${i18n('title')},
+      ${i18n('description')},
       "contentPreFooter": contentPreFooter{
         ${i18n('eyebrow')},
         ${i18nBlock('body')}

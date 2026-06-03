@@ -15,15 +15,11 @@
     "close": "Fermer"
   },
   "catalogue": {
-    "description": "Bienvenue dans notre collection. Du SUV tout confort à la sportive radicale, parcourez notre flotte et trouvez le véhicule qui vous correspond.",
     "filtersPlaceholder": "FILTRES",
     "card": {
       "startingFrom": "À partir de {price}€/jour",
       "startingFromMonthly": "À partir de {price}€/mois"
     }
-  },
-  "catalogueProfessionnel": {
-    "description": "Une flotte pensée pour les professionnels. Découvrez les véhicules disponibles à la location pour votre entreprise et vos collaborateurs."
   },
   "car": {
     "notFound": "Voiture introuvable",
@@ -89,7 +85,8 @@
       "units": {
         "years": "ans",
         "day": "jour",
-        "days": "jours"
+        "days": "jours",
+        "km": "km"
       },
       "type": {
         "longue-duree": "Longue durée",
