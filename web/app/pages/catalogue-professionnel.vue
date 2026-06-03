@@ -27,6 +27,10 @@ useMenuCtaSnap()
 .page-catalogue-professionnel {
   .app-elements-catalogue-listing__header-title {
     max-width: desktop-vw(1000px);
+
+    @include mobile {
+      max-width: mobile-vw(100%);
+    }
   }
 }
 </style>

@@ -5,8 +5,9 @@ import { i18n, i18nBlock } from './i18n'
 export interface CarLocation {
   city?: string
   address?: string
-  email?: { type: string, email?: string, text?: string }
-  phone?: { type: string, phone?: string, text?: string }
+  postalCode?: string
+  addressLocality?: string
+  phone?: { type: string, phone?: string }
 }
 
 export interface CarPreFooter {
@@ -102,9 +103,10 @@ export const CAR_QUERY = `{
     ),
     location-> {
       ${i18n('city')},
-      ${i18n('address')},
-      "email": email { type, email, text },
-      "phone": phone { type, phone, text }
+      address,
+      postalCode,
+      addressLocality,
+      "phone": phone { type, phone }
     }
   },
   "page": *[_type == "carPage"][0] {

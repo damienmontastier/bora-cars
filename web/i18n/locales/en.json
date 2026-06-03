@@ -1,4 +1,8 @@
 {
+  "nuxtSiteConfig": {
+    "name": "BORA CARS",
+    "description": "Premium vehicle rental and management. BORA CARS, your premium mobility partner. Paris and Geneva."
+  },
   "seo": {
     "description": "Premium vehicle rental and management. BORA CARS, your premium mobility partner. Paris and Geneva."
   },

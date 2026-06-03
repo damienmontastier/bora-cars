@@ -1,4 +1,8 @@
 {
+  "nuxtSiteConfig": {
+    "name": "BORA CARS",
+    "description": "Location et gestion de véhicules haut de gamme. BORA CARS, votre partenaire mobilité premium. Paris et Genève."
+  },
   "seo": {
     "description": "Location et gestion de véhicules haut de gamme. BORA CARS, votre partenaire mobilité premium. Paris et Genève."
   },

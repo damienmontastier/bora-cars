@@ -17,10 +17,12 @@ import {
   EnvelopeIcon,
   ArchiveIcon,
   DocumentTextIcon,
+  RocketIcon,
 } from '@sanity/icons'
 import { schemaTypes } from './schemaTypes'
 import { SUPPORTED_LANGUAGES, LOCALIZED_DOCUMENT_TYPES } from './schemaTypes/constants'
 import { StudioLayout } from './components/StudioLayout'
+import { DeployTool } from './components/DeployTool'
 
 const CarIcon = () => createElement('span', null, '🚗')
 
@@ -133,6 +135,15 @@ export default defineConfig({
     assist(),
     structureTool({ structure }),
     visionTool(),
+  ],
+  tools: (prev) => [
+    ...prev,
+    {
+      name: 'deploy',
+      title: 'Publier',
+      icon: RocketIcon,
+      component: DeployTool,
+    },
   ],
   document: {
     actions: (input: any[], { schemaType }: { schemaType: string }) =>

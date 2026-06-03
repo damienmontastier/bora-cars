@@ -7,6 +7,15 @@ const settings = useSettings()
 const { t, locale } = useI18n()
 const requestUrl = useRequestURL()
 
+// Adresse affichée = rue + (code postal + ville réelle). Le libellé `city` (ex. « Paris »)
+// est affiché séparément comme titre du lieu (cf. template).
+const locationAddress = computed(() => {
+  const l = props.car.location
+  if (!l)
+    return ''
+  return [l.address, [l.postalCode, l.addressLocality].filter(Boolean).join(' ')].filter(Boolean).join(', ')
+})
+
 // Le schéma Sanity garantit qu'un seul des deux prix est renseigné.
 // On privilégie le mensuel s'il existe, sinon le journalier.
 const isMonthly = computed(() => props.car.prixMensuel != null)
@@ -161,8 +170,8 @@ const ctaTrackingExtra = computed(() => ({
       <TextsP1 v-if="car.location.city">
         {{ car.location.city }}
       </TextsP1>
-      <TextsP2 v-if="car.location.address" class="car-pricing__location-address">
-        {{ car.location.address }}
+      <TextsP2 v-if="locationAddress" class="car-pricing__location-address">
+        {{ locationAddress }}
       </TextsP2>
     </div>
   </aside>

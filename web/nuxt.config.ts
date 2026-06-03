@@ -1,6 +1,5 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 import process from 'node:process'
-import { defineOrganization } from 'nuxt-schema-org/schema'
 import { DEFAULT_LANGUAGE, LANGUAGES } from '../shared/languages'
 import { I18N_PAGES } from './app/config/I18N_CONFIG'
 
@@ -128,11 +127,16 @@ export default defineNuxtConfig({
   },
 
   schemaOrg: {
-    identity: defineOrganization({
-      name: 'BORA CARS',
-      logo: `${process.env.NUXT_SITE_URL ?? 'https://boracars.com'}/favicon.svg`,
-      sameAs: ['https://www.google.com/search?kgmid=/g/11yp0wsnj5'],
-    }),
+    // L'identité (AutoRental — location de voitures) est définie dynamiquement depuis
+    // Sanity dans app.vue (useSchemaOrg + defineLocalBusiness). WebSite/WebPage (+ leur
+    // i18n) sont auto-générés par le module et se rattachent à l'identité par @id (#identity).
+    //
+    // `reactive: false` est VOLONTAIRE : en `true`, le JSON-LD est rendu au SSR PUIS
+    // ré-injecté côté client → unhead fusionne les deux nodes #identity (même @id) et
+    // CONCATÈNE leurs tableaux (`sameAs`/`areaServed` apparaissent en double). Le JSON-LD
+    // n'étant lu que par les crawlers (qui voient le HTML SSR/prérendu, jamais la nav SPA),
+    // la réactivité au switch de langue n'apporte rien — on la coupe pour éviter le doublon.
+    reactive: false,
   },
 
   // Sitemap complet : pages statiques auto-découvertes (home, proprietaire,
@@ -146,7 +150,7 @@ export default defineNuxtConfig({
     format: ['avif', 'webp'],
     provider: process.env.NETLIFY ? 'netlify' : (process.env.npm_lifecycle_event === 'generate' ? 'ipxStatic' : 'ipx'),
 
-    quality: 90,
+    quality: 95,
 
     sanity: {
       projectId: process.env.NUXT_PUBLIC_SANITY_PROJECT_ID!,

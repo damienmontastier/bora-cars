@@ -137,8 +137,13 @@ function scrollTo(i: number) {
   position: relative;
   width: 100%;
   height: desktop-vw(950px);
+  max-height: 95dvh;
   overflow: hidden;
   background: var(--c-beige-20);
+
+  @include mobile {
+    height: mobile-vw(450px);
+  }
 
   &--draggable {
     .car-hero__embla {
