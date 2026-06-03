@@ -1,7 +1,11 @@
 <script lang="ts" setup>
-import { CATALOGUE_CARS_QUERY, CATALOGUE_QUERY } from '~/queries/catalogue'
+import { CATALOGUE_CARS_QUERY, CATALOGUE_FACETS_QUERY, CATALOGUE_QUERY } from '~/queries/catalogue'
 
-const { page, cars, isLoading } = await useCatalogueListing(CATALOGUE_QUERY, CATALOGUE_CARS_QUERY)
+const { page, cars, isLoading, facets, filters, setFilter, resetFilters, hasActiveFilters } = await useCatalogueListing(
+  CATALOGUE_QUERY,
+  CATALOGUE_CARS_QUERY,
+  CATALOGUE_FACETS_QUERY,
+)
 
 usePageSeo(computed(() => page.value?.seo))
 
@@ -19,6 +23,11 @@ useMenuCtaSnap()
       :cars="cars"
       :is-loading="isLoading"
       :content-pre-footer="page?.contentPreFooter"
+      :facets="facets"
+      :filters="filters"
+      :has-active-filters="hasActiveFilters"
+      @update-filter="setFilter"
+      @reset-filters="resetFilters"
     />
   </main>
 </template>

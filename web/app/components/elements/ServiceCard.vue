@@ -50,7 +50,7 @@ const gridStyle = computed(() => {
 // candidate when the card actually needs it, so ≤1920 screens aren't bloated
 // (the 1w/2w junk candidate from the bare 100vw is ignored — see
 // project_nuxt_image_sizes memory).
-const PARALLAX_HEADROOM = 1.5
+const PARALLAX_HEADROOM = 1.75
 
 const mediaSizes = computed(() => {
   const span = card.grid?.w

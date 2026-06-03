@@ -143,7 +143,7 @@ onUnmounted(() => {
               {{ item.number }}
             </TextsH3>
             <div class="cards-column__item-content">
-              <TextsH3 tag="span" :selectable="false" :animated="false"class="cards-column__item-title" :color="theme === 'white' ? 'beige-100' : 'black-100'">
+              <TextsH3 tag="span" :selectable="false" :animated="false" class="cards-column__item-title" :color="theme === 'white' ? 'beige-100' : 'black-100'">
                 {{ item.title }}
               </TextsH3>
               <TextsP2 :selectable="false" class="cards-column__item-description" :color="theme === 'white' ? 'beige-100' : 'black-100'">

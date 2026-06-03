@@ -11,9 +11,13 @@ const props = withDefaults(defineProps<{
   options: Option[]
   label?: string
   placeholder?: string
+  // `stacked` (défaut) : libellé empilé sur fond beige (formulaires, ex. Pricing).
+  // `inline` : pilule bordée qui « hug » son contenu (barre de filtres catalogue).
+  variant?: 'stacked' | 'inline'
 }>(), {
   label: undefined,
   placeholder: undefined,
+  variant: 'stacked',
 })
 
 const emit = defineEmits<{
@@ -38,9 +42,15 @@ const selectedIndex = computed(() =>
 )
 
 const displayValue = computed(() => {
+  // Valeur vide (filtre non sélectionné) → on affiche le placeholder = nom du champ.
+  if (props.modelValue === '' && props.placeholder)
+    return props.placeholder
   const found = props.options.find(o => o.value === props.modelValue)
   return found?.label ?? props.placeholder ?? ''
 })
+
+// État « actif » (uniquement en variante inline) : un filtre est sélectionné.
+const isActive = computed(() => props.variant === 'inline' && props.modelValue !== '')
 
 function open() {
   if (isOpen.value)
@@ -125,13 +135,13 @@ function onKeydown(e: KeyboardEvent) {
 </script>
 
 <template>
-  <div ref="rootRef" class="atoms-select">
+  <div ref="rootRef" class="atoms-select" :class="`atoms-select--${variant}`">
     <button
       :id="triggerId"
       ref="triggerRef"
       type="button"
       class="atoms-select__trigger"
-      :class="{ 'atoms-select__trigger--open': isOpen }"
+      :class="{ 'atoms-select__trigger--open': isOpen, 'atoms-select__trigger--active': isActive }"
       role="combobox"
       aria-haspopup="listbox"
       :aria-expanded="isOpen"
@@ -335,6 +345,57 @@ function onKeydown(e: KeyboardEvent) {
       background 0.15s ease 0s,
       opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1) calc(0.05s + var(--i, 0) * 0.035s),
       transform 0.4s cubic-bezier(0.16, 1, 0.3, 1) calc(0.05s + var(--i, 0) * 0.035s);
+  }
+
+  // Variante « pilule » bordée pour la barre de filtres (Figma catalogue).
+  &--inline {
+    width: auto;
+
+    .atoms-select__trigger {
+      justify-content: center;
+      gap: desktop-vw(12px);
+      height: desktop-vw(60px);
+      padding: desktop-vw(18px) desktop-vw(30px);
+      background: transparent;
+      border: 1px solid var(--c-black-5);
+
+      @include hover {
+        &:hover {
+          background: var(--c-black-5);
+        }
+      }
+
+      @include mobile {
+        height: mobile-vw(52px);
+        padding: mobile-vw(14px) mobile-vw(24px);
+        gap: mobile-vw(10px);
+      }
+    }
+
+    // Filtre sélectionné : bordure pleine pour le distinguer.
+    .atoms-select__trigger--active {
+      border-color: var(--c-black-100);
+    }
+
+    .atoms-select__trigger-content {
+      flex: 0 0 auto;
+      white-space: nowrap;
+    }
+
+    // Ancré sur le bord DROIT de la pilule → le menu s'étend vers la gauche
+    // (dans la page) et ne déborde jamais à droite de l'écran, y compris pour
+    // le dernier filtre tout à droite de la barre.
+    .atoms-select__listbox {
+      left: auto;
+      right: 0;
+      min-width: 100%;
+      width: max-content;
+      max-width: desktop-vw(360px);
+
+      @include mobile {
+        max-width: mobile-vw(280px);
+      }
+    }
   }
 }
 </style>

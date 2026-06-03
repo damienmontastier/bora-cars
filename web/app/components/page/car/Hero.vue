@@ -108,6 +108,7 @@ function scrollTo(i: number) {
             :lazy="i !== 0"
             :preload="i === 0 ? { fetchPriority: 'high' } : false"
             :overlay="false"
+            sizes="sm:100vw xl:100vw"
           />
         </div>
       </div>
@@ -137,12 +138,12 @@ function scrollTo(i: number) {
   position: relative;
   width: 100%;
   height: desktop-vw(950px);
-  max-height: 95dvh;
+  max-height: 85dvh;
   overflow: hidden;
   background: var(--c-beige-20);
 
   @include mobile {
-    height: mobile-vw(450px);
+    height: mobile-vw(600px);
   }
 
   &--draggable {
@@ -197,6 +198,10 @@ function scrollTo(i: number) {
     align-items: center;
     justify-content: center;
     z-index: 999;
+
+    @include mobile {
+      display: none;
+    }
 
     .svg-icon-complex-arrow {
       width: desktop-vw(48px);

@@ -50,7 +50,7 @@ function onClick() {
         provider="sanity"
         :hotspot="car.imageHotspot"
         :crop="car.imageCrop"
-        sizes="96vw sm:50vw"
+        sizes="96vw sm:85vw"
       />
       <div v-else class="app-elements-catalogue-card__placeholder" />
     </div>
@@ -84,6 +84,7 @@ function onClick() {
 
     .app-elements-media {
       transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      will-change: transform;
     }
   }
 

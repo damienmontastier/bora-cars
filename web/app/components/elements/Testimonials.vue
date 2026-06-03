@@ -163,6 +163,7 @@ usePointerSwipe(sectionRef, {
           :crop="item.backgroundImage.imageCrop"
           :lazy="false"
           :overlay="i === 0"
+          sizes="sm:100vw xl:100vw"
         />
       </div>
       <div class="app-elements-testimonials__gradient" />

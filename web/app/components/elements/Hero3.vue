@@ -128,6 +128,7 @@ onUnmounted(() => {
           :lazy="false"
           :preload="{ fetchPriority: 'high' }"
           :overlay="false"
+          sizes="sm:100vw xl:100vw"
         />
         <ElementsVideo
           v-else-if="data.backgroundMedia.mediaType === 'video' && data.backgroundMedia.videoUrl"

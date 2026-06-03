@@ -82,6 +82,7 @@ onUnmounted(() => {
           provider="sanity"
           :hotspot="data.backgroundMedia.imageHotspot"
           :crop="data.backgroundMedia.imageCrop"
+          sizes="sm:100vw xl:100vw"
         />
         <ElementsVideo
           v-else-if="data.backgroundMedia.mediaType === 'video' && data.backgroundMedia.videoUrl"

@@ -31,10 +31,28 @@
     "home": "BORA CARS — Home"
   },
   "catalogue": {
-    "filtersPlaceholder": "FILTERS",
     "card": {
       "startingFrom": "From {price}€/day",
       "startingFromMonthly": "From {price}€/month"
+    },
+    "filters": {
+      "search": "Search",
+      "marque": "Make",
+      "ville": "City",
+      "prix": "Price",
+      "all": {
+        "marque": "All makes",
+        "ville": "All cities",
+        "prix": "All prices"
+      },
+      "prixOptions": {
+        "0-500": "Under €500",
+        "500-1000": "€500 – €1,000",
+        "1000-2000": "€1,000 – €2,000",
+        "2000+": "Over €2,000"
+      },
+      "reset": "Reset",
+      "noResults": "No car matches these filters."
     }
   },
   "car": {
