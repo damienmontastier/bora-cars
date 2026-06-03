@@ -8,11 +8,9 @@ const props = defineProps({
 const { t } = useI18n()
 const localePath = useLocalePath()
 
-// Code d'erreur → chiffres. On colore le chiffre central en orange (404 → "0",
-// 500 → "0", etc.). Défaut 404, l'usage premier de cette page.
+// Code d'erreur affiché en eyebrow ("Erreur 404"). Défaut 404, l'usage premier
+// de cette page.
 const code = computed(() => String(props.error?.statusCode ?? 404))
-const digits = computed(() => code.value.split(''))
-const accentIndex = computed(() => Math.floor(digits.value.length / 2))
 
 // Page d'erreur Nuxt : rendue hors d'`app.vue`, donc un simple <NuxtLink> ne
 // purge pas forcément l'état d'erreur. `clearError({ redirect })` est le chemin
@@ -29,34 +27,27 @@ useSeoMeta({
 
 <template>
   <div class="app-error">
-    <header class="app-error__header">
-      <UtilsBaseLink class="app-error__logo" aria-label="BORA CARS" @click="goHome">
-        <SvgLogo color="beige-100" />
-      </UtilsBaseLink>
-    </header>
+    <AppAmbientBackground class="app-error__background" />
 
-    <main class="app-error__main">
-      <p class="app-error__code" aria-hidden="true">
-        <span
-          v-for="(digit, i) in digits"
-          :key="i"
-          class="app-error__digit"
-          :class="{ 'app-error__digit--accent': i === accentIndex }"
-        >{{ digit }}</span>
-      </p>
+    <main class="app-error__content">
+      <span class="app-error__label">{{ t('error.label') }} {{ code }}</span>
 
-      <div class="app-error__content">
-        <TextsH2 tag="h1" :animated="false" color="beige-100" class="app-error__title">
-          {{ t('error.title') }}
-        </TextsH2>
-        <TextsP3 color="beige-60" class="app-error__subtitle">
-          {{ t('error.subtitle') }}
-        </TextsP3>
-        <AtomsCTA theme="orange" :animated="false" class="app-error__cta" @click="goHome">
-          {{ t('error.cta') }}
-        </AtomsCTA>
-      </div>
+      <TextsH2 tag="h1" :animated="false" color="beige-100" class="app-error__title">
+        {{ t('error.title') }}
+      </TextsH2>
+
+      <TextsP3 color="beige-60" class="app-error__subtitle">
+        {{ t('error.subtitle') }}
+      </TextsP3>
+
+      <AtomsCTA theme="orange" :animated="false" class="app-error__cta" @click="goHome">
+        {{ t('error.cta') }}
+      </AtomsCTA>
     </main>
+
+    <UtilsBaseLink class="app-error__logo" aria-label="BORA CARS" @click="goHome">
+      <SvgLogo color="orange" />
+    </UtilsBaseLink>
 
     <DevOnly>
       <div v-if="error" class="app-error__debug">
@@ -75,95 +66,48 @@ useSeoMeta({
   inset: 0;
   z-index: 99999;
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   background-color: var(--c-black);
   color: var(--c-beige);
-  overflow-y: auto;
+  overflow: hidden;
 
-  &__header {
-    display: flex;
-    justify-content: center;
-    padding: desktop-vw(24px);
-
-    @include mobile {
-      padding: mobile-vw(16px);
-    }
-  }
-
-  &__logo {
-    display: block;
-    width: desktop-vw(220px);
-    padding: 0;
-    border: none;
-    background: none;
-    cursor: pointer;
-
-    @include mobile {
-      width: mobile-vw(150px);
-    }
-
-    .svg-logo {
-      width: 100%;
-      height: auto;
-      aspect-ratio: 1408 / 214;
-    }
-  }
-
-  &__main {
-    flex: 1;
+  &__content {
+    position: relative;
+    z-index: 1;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    gap: desktop-vw(48px);
+    gap: desktop-vw(16px);
+    max-width: desktop-vw(760px);
     padding: desktop-vw(24px);
     text-align: center;
 
     @include mobile {
-      gap: mobile-vw(40px);
+      gap: mobile-vw(16px);
+      max-width: 100%;
       padding: mobile-vw(24px) mobile-vw(16px);
     }
   }
 
-  &__code {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  &__label {
     font-family: var(--font-haas-grot-disp-medium);
-    font-weight: 600;
-    letter-spacing: -0.03em;
-    line-height: 0.8;
-  }
-
-  &__digit {
-    font-size: desktop-vw(380px);
-    line-height: 0.8;
-    color: var(--c-beige);
+    font-size: desktop-vw(11px);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--c-beige-50);
 
     @include mobile {
-      font-size: mobile-vw(110px);
-    }
-
-    &--accent {
-      color: var(--c-orange);
-    }
-  }
-
-  &__content {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: desktop-vw(20px);
-    max-width: desktop-vw(760px);
-
-    @include mobile {
-      gap: mobile-vw(16px);
-      max-width: 100%;
+      font-size: mobile-vw(10px);
     }
   }
 
   &__subtitle {
-    color: var(--c-beige-60);
+    max-width: desktop-vw(520px);
+
+    @include mobile {
+      max-width: 100%;
+    }
   }
 
   &__cta {
@@ -174,10 +118,35 @@ useSeoMeta({
     }
   }
 
+  &__logo {
+    position: fixed;
+    bottom: 24px;
+    left: desktop-vw(16px);
+    right: desktop-vw(16px);
+    z-index: 1;
+    display: block;
+    padding: 0;
+    border: none;
+    background: none;
+    cursor: pointer;
+
+    @include mobile {
+      left: mobile-vw(16px);
+      right: mobile-vw(16px);
+    }
+
+    .svg-logo {
+      width: 100%;
+      height: auto;
+      aspect-ratio: 1408 / 213;
+    }
+  }
+
   &__debug {
     position: fixed;
     left: desktop-vw(24px);
-    bottom: desktop-vw(24px);
+    top: desktop-vw(24px);
+    z-index: 2;
     max-width: 40vw;
     display: flex;
     flex-direction: column;

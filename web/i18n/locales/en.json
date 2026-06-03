@@ -12,6 +12,7 @@
     "catalogue": "Catalogue"
   },
   "error": {
+    "label": "Error",
     "title": "Oops, you've left the road",
     "subtitle": "This address doesn't exist or has moved.",
     "cta": "Back to home"

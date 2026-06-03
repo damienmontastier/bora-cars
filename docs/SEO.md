@@ -44,10 +44,16 @@ marque reconnue** et être **indexé**. C'est 90 % hors-code.
   serveur redirigeait à contre-sens (`/fr` → `/fr/`, à cause de `fr/index.html`). Fix
   appliqué dans `nuxt.config.ts` : `site.trailingSlash: false` (explicite) +
   `nitro.prerender.autoSubfolderIndex: false` (écrit `fr.html` → Netlify sert `/fr` en
-  200, redirige `/fr/` → `/fr`). **À VALIDER sur un deploy `develop`** : `/fr` doit
-  renvoyer 200 (plus de 301) et `/fr/` rediriger vers `/fr`. Tant que `main` n'est pas
-  redéployé, inspecter dans GSC la forme **avec** slash (`/fr/`, `/en/`) ; après deploy,
-  la forme **sans** slash (`/fr`, `/en`).
+  200, redirige `/fr/` → `/fr`).
+  - **✅ Validé en build local prod** (`nuxt build --dotenv .env.prod`, 0 erreur, 67 pages
+    HTML) : sortie `dist/fr.html` + `en.html` + voitures `.html` plats — **plus aucun**
+    `*/index.html` localisé ; `canonical` + `hreflang` + sitemap `__sitemap__/fr-FR.xml`
+    **tous en no-slash** (0 `<loc>` finissant par `/`) ; fonctions Netlify (`/api/contact`,
+    `/_i18n/*`, sitemap runtime) intactes. Baseline confirmée : prod (prérendu) `/fr` → 301
+    `/fr/` ; develop (SSR) `/fr` → 200 déjà (le slash ne venait que du prerender static).
+  - **Reste à confirmer au 1er deploy** : runtime Netlify `/fr` = 200 et `/fr/` → 301 `/fr`
+    (comportement host, non testable en local). En attendant le redeploy `main`, inspecter
+    dans GSC la forme **avec** slash (`/fr/`, `/en/`) ; après deploy, la forme **sans**.
   - Pas retenu : `site.trailingSlash: true` (Option B) → à contre-courant du défaut Nuxt
     et expose au bug i18n nuxt-modules/i18n#2096 (canonical i18n forcé en slash).
 
