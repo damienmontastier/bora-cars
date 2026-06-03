@@ -89,10 +89,13 @@ const componentProps = computed(() => {
     return { type: 'button' }
 
   if (isExternal.value) {
-    const blank = typeof to.value === 'object' ? to.value?.blank : true
+    // Lien web externe (http/https) → TOUJOURS nouvel onglet, peu importe le
+    // réglage `blank` côté Sanity (le plugin link-field le met à false par
+    // défaut, d'où des liens externes qui restaient dans l'onglet courant).
+    // mailto:/tel: ne déclenchent pas d'onglet → on n'ajoute pas `target`.
     return {
       href: resolvedTo.value,
-      ...(blank !== false && { target: '_blank', rel: 'noopener noreferrer' }),
+      ...(isValidURL(resolvedTo.value) && { target: '_blank', rel: 'noopener noreferrer' }),
     }
   }
 

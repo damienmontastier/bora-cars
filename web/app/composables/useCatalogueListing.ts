@@ -81,8 +81,15 @@ export async function useCatalogueListing(query: string, carsQuery: string, face
     ...toGroqParams(filters),
   })
 
-  const result = useSanityQuery<CatalogueQueryResult>(query, params)
-  const { data, refresh } = result
+  // `getCachedData: () => undefined` : on ne réutilise jamais le bucket de cache
+  // useAsyncData entre navigations. Sa clé est dérivée des params au 1ᵉʳ montage
+  // et useAsyncData resservirait sinon des résultats périmés — d'où les filtres
+  // ignorés en navigation SPA (venir d'une autre page) ou le payload SSG non
+  // filtré à l'hydratation. Ici, chaque montage refetch selon les params courants.
+  const result = useSanityQuery<CatalogueQueryResult>(query, params, {
+    getCachedData: () => undefined,
+  })
+  const { data } = result
 
   // Facettes (valeurs distinctes par filtre), localisées → refetch au switch de langue.
   const { data: facetsData } = useSanityQuery<Record<string, (string | FilterOption)[]>>(facetsQuery, { lang })
@@ -119,38 +126,15 @@ export async function useCatalogueListing(query: string, carsQuery: string, face
     offset.value = CATALOGUE_LIMIT
   })
 
-  // SSG (prod) : la page est prérendue au build SANS query params, donc le
-  // payload initial n'est pas filtré et useSanityQuery ne refetch pas à
-  // l'hydratation. Au montage (client uniquement), on resynchronise les filtres
-  // depuis l'URL réelle — sélection des selects + bouton « réinitialiser » — et
-  // on relance la requête si des filtres sont actifs, pour charger les bons
-  // résultats. Sans filtre actif : aucun refetch (cas courant inchangé).
-  onMounted(() => {
+  // L'URL est la source de vérité. Tout changement de query string — deep-link à
+  // l'hydratation, back/forward navigateur, ou notre propre setFilter — resync
+  // l'état des filtres + les params GROQ. La mutation de `params` (objet réactif
+  // surveillé par useSanityQuery) déclenche le refetch ; assigner une valeur
+  // identique est un no-op, donc setFilter ne provoque pas de double-fetch.
+  watch(() => route.query, () => {
     for (const key of FILTER_STATE_KEYS)
       filters[key] = qStr(route.query[key])
-    if (hasActiveFilters.value) {
-      Object.assign(params, toGroqParams(filters))
-      refresh()
-    }
-  })
-
-  // L'URL est la source de vérité : back/forward navigateur ou tout changement
-  // d'URL externe resynchronise les filtres et refetch. Le garde `changed` évite
-  // tout double-fetch quand c'est notre propre setFilter qui vient d'écrire l'URL
-  // (les filtres correspondent déjà → no-op).
-  watch(() => route.query, () => {
-    let changed = false
-    for (const key of FILTER_STATE_KEYS) {
-      const v = qStr(route.query[key])
-      if (filters[key] !== v) {
-        filters[key] = v
-        changed = true
-      }
-    }
-    if (changed) {
-      Object.assign(params, toGroqParams(filters))
-      refresh()
-    }
+    Object.assign(params, toGroqParams(filters))
   })
 
   // Applique un filtre : met à jour l'état, les params GROQ (→ refetch) et l'URL.
