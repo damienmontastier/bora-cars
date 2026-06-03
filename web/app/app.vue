@@ -150,34 +150,34 @@ onMounted(() => {
 <template>
   <UApp>
     <div id="app" class="app">
-      <AppUnderConstruction v-if="IS_PROD" />
+      <!-- <AppUnderConstruction v-if="IS_PROD" /> -->
 
-      <template v-else>
-        <AppLenis />
+      <!-- <template v-else> -->
+      <AppLenis />
 
-        <AppPreloader />
-        <AppMenu :data="menu" />
+      <AppPreloader />
+      <AppMenu :data="menu" />
 
-        <AppOverlay />
+      <AppOverlay />
 
-        <AppCookies />
+      <AppCookies />
 
-        <AppIdleScreen />
+      <AppIdleScreen />
 
-        <AppTransition ref="transitionRef" />
+      <AppTransition ref="transitionRef" />
 
-        <!-- <DevOnly>
+      <!-- <DevOnly>
         <AppMenuDev />
       </DevOnly> -->
 
-        <div id="app-page" class="app-page">
-          <NuxtPage :transition="pageTransition" />
-        </div>
+      <div id="app-page" class="app-page">
+        <NuxtPage :transition="pageTransition" />
+      </div>
 
-        <DevOnly>
-          <DebugPatrol />
-        </DevOnly>
-      </template>
+      <DevOnly>
+        <DebugPatrol />
+      </DevOnly>
+      <!-- </template> -->
     </div>
   </UApp>
 </template>
