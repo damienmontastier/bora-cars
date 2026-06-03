@@ -371,12 +371,6 @@ function scrollToTop() {
     }
   }
 
-  &__link.back-to-top {
-    /* @include mobile {
-      display: none;
-    } */
-  }
-
   &__copyright {
     flex: 1 0 0;
     color: var(--c-beige-100);

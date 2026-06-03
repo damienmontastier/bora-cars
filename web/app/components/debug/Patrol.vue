@@ -91,12 +91,6 @@ onClickOutside(itemsRef, () => {
       <div class="app-debug-patrol__states-info__block">
         <TextsP1 color="black" class="app-debug-patrol__states-info__block__title">
           App <br>
-          <!-- <button @click="cameraType = 'defaultbis'">
-            defaultbis
-          </button> <br>
-          <button @click="cameraType = 'default'">
-            default
-          </button> -->
         </TextsP1>
 
         <div class="app-debug-patrol__states-info__block__items">
@@ -160,9 +154,6 @@ onClickOutside(itemsRef, () => {
     transition:
       transform 0.2s var(--ease-out-cubic) 0s,
       opacity 0.2s var(--ease-out-cubic) 0s;
-    // top: 50%;
-    // left: 50%;
-    // transform: translate(-50%, -50%);
     pointer-events: auto;
 
     &.hide {

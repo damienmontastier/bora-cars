@@ -20,14 +20,43 @@ const gridStyle = computed(() => {
 })
 
 // Tell the browser the real rendered width so it picks a right-sized srcset
-// candidate instead of the full-width (~1920px) default. On mobile (<800px)
-// every card is forced to `span 6` (full width → 100vw); on desktop (≥800px)
-// a card spans `grid.w` of the 12-col grid, so its width ≈ grid.w / 12 of the
-// viewport. Rounding up keeps a touch of headroom so we never under-fetch.
+// candidate. On desktop (≥800px) a card spans `grid.w` of the 12-col grid, so
+// its SLOT width ≈ grid.w / 12 of the viewport — but the media RENDERS WIDER
+// than that slot, so sizing to the slot under-fetches (soft images even on a
+// ≤1920 retina laptop). Two compounding reasons, both from `UtilsParallax`:
+//
+//   1. Parallax overscan — the parallax target is TALLER than the slot
+//      (`height: 100% + offset*2`) and the <img> is `object-fit: cover`, so to
+//      cover the taller box the image scales up and renders ~8–12% WIDER than
+//      the slot (the extra width is cropped off the sides).
+//   2. End scale — the parallax tween zooms `scale: 1.02–1.03` at end of scroll.
+//
+// Combined that's roughly a ×1.15 headroom; we use 1.2 for retina rounding
+// margin. This is honest sizing, not over-fetching: the image really is painted
+// that wide. `@nuxt/image` derives every srcset candidate as
+// `vw × screenWidth × density`, so the declared vw is exactly what bounds the
+// candidates — under-declaring by ~15% makes them ~15% too small. Keep this at
+// ~1.2: pushing it higher to "force" sharpness just over-fetches every screen;
+// the `xxl` key below is the clean way to serve >1920 displays (see sizes note).
+//
+// On mobile (<800px) every card is forced to `span 6` (full width → 100vw) and
+// the parallax is disabled (default `disableOnMobile`), so there's no overscan:
+// the leading bare `100vw` (the mobile rule) takes no headroom.
+//
+// Each key generates a candidate `desktopVw% × screen × density`: `sm` (800) is
+// kept only to hold the mobile↔desktop boundary at 800px; `xl` (1920) is the
+// candidate a standard retina laptop lands on; `xxl` (2560) raises the ceiling
+// for >1920 displays (4K/5K/2560 externals). The browser only fetches the `xxl`
+// candidate when the card actually needs it, so ≤1920 screens aren't bloated
+// (the 1w/2w junk candidate from the bare 100vw is ignored — see
+// project_nuxt_image_sizes memory).
+const PARALLAX_HEADROOM = 1.5
+
 const mediaSizes = computed(() => {
   const span = card.grid?.w
-  const desktopVw = span ? Math.min(100, Math.ceil((span / 12) * 100)) : 50
-  return `100vw sm:${desktopVw}vw`
+  const base = span ? (span / 12) * 100 : 50
+  const desktopVw = Math.min(100, Math.ceil(base * PARALLAX_HEADROOM))
+  return `100vw sm:${desktopVw}vw xl:${desktopVw}vw xxl:${desktopVw}vw`
 })
 
 const parallaxProps = computed((): Partial<ParallaxProps> => {

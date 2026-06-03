@@ -30,7 +30,7 @@ const sharedMarqueeProps = computed(() => ({
   repeat: 4,
   animatedOnMobile: true,
   scrollVelocity: true,
-  scrollVelocitySpeed: 1.5,
+  scrollVelocitySpeed: 1.25,
   trigger: rootRef.value,
 }))
 

@@ -56,6 +56,11 @@ function onLeave(_el: Element, done: () => void) {
 function onBeforeEnter() {}
 
 function onEnter(_el: Element, done: () => void) {
+  // Nouvelle page montée + overlay encore opaque (scaleY:1) → moment idéal pour que
+  // router.options restaure / snap le scroll (back-forward, ancre cross-page) avant que
+  // l'overlay se lève, donc sans saut visible. cf. branches `onceHidden` du router.
+  transitionBus.emit('entering')
+
   if (!overlayRef.value) {
     lenis()?.start()
     done()

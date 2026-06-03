@@ -56,8 +56,8 @@ $desc-stagger: 0.06s;
 
 .car-description {
   --desc-ease: var(--ease-out-quint);
-  --desc-y-duration: 750ms; // 900ms
-  --desc-opacity-duration: 450ms; // 450ms
+  --desc-y-duration: 750ms;
+  --desc-opacity-duration: 450ms;
   --desc-clip-duration: 550ms;
 
   display: flex;

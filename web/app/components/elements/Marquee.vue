@@ -177,7 +177,6 @@ defineExpose({ mainRef, wrapperRef })
 <style lang="scss">
 .app-elements-marquee {
   position: relative;
-  // overflow: hidden;
 
   &__wrapper {
     display: flex;

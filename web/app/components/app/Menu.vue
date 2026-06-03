@@ -387,12 +387,6 @@ onUnmounted(() => {
     display: inline-flex;
     flex-shrink: 0; // prevent flex from overriding GSAP-controlled width
     width: 0; // hidden until GSAP expands it
-
-    // Cap on mobile so the pill never exceeds the viewport.
-    // `width: auto` measurements in JS naturally pick up this cap via offsetWidth.
-    @include mobile {
-      // max-width: calc(100vw - mobile-vw(160px));
-    }
   }
 
   &__btn {

@@ -118,6 +118,19 @@ export default defineNuxtConfig({
     skipSettingLocaleOnNavigate: true,
   },
 
+  // Apex `/` → /fr en 301 SERVEUR (edge). Avec `strategy: 'prefix'` aucune route
+  // n'existe pour `/` (seules /fr et /en). Sans cette règle, l'apex était redirigé
+  // PENDANT l'hydratation par `detectBrowserLanguage` (défaut i18n) — donc EN JS —
+  // ce que PSI signale comme « redirection supplémentaire côté client » (mauvais pour
+  // perf + SEO). Le preset Nitro `netlify` compile cette routeRules dans `_redirects`
+  // → vraie 301 au bord du CDN, AVANT toute fonction ou JS. Elle intercepte `/` avant
+  // que detectBrowserLanguage ne tourne, qu'on laisse donc ACTIVÉ (`redirectOn: 'root'`
+  // ne touche que l'apex, désormais géré ici ; conserver le défaut est recommandé côté
+  // SEO i18n). Query string préservée automatiquement par Netlify.
+  routeRules: {
+    '/': { redirect: { to: '/fr', statusCode: 301 } },
+  },
+
   site: {
     url: process.env.NUXT_SITE_URL ?? 'https://boracars.com',
     name: 'BORA CARS',
@@ -167,6 +180,11 @@ export default defineNuxtConfig({
       md: 1280,
       lg: 1440,
       xl: 1920,
+      // Above-design breakpoint: lets a `sizes` string opt into a higher srcset
+      // ceiling for >1920 displays (2560 / 4K / 5K externals) by referencing an
+      // `xxl:` key. Purely additive — only images whose `sizes` include `xxl:`
+      // emit the extra candidate, so it never bloats existing images.
+      xxl: 2560,
     },
   },
 

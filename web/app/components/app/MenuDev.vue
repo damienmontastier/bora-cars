@@ -3,8 +3,6 @@ const props = defineProps({
 
 })
 
-// const { to, color } =  toRefs(props)
-
 onMounted(() => {
 
 })
