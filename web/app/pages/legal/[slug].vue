@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import type { LegalPageData } from '~/queries/legal'
+import { onBeforeRouteLeave } from 'vue-router'
 import { LEGAL_PAGE_QUERY } from '~/queries/legal'
 import { getPortableTextComponents } from '~/utils/portableText'
 
@@ -24,17 +25,27 @@ useMenuCtaSnap()
 // Slugs traduits → le switcher de langue (`useSwitchLocalePath`) et les balises
 // `hreflang` génèrent la bonne URL localisée pour cette route dynamique. Sans
 // ça, i18n réutiliserait le slug courant pour l'autre langue (URL EN cassée).
+//
+// Appel DIRECT, sans watcher : `page.value` est déjà résolu (`await` + garde 404
+// ci-dessus) et les slugs ne changent pas pendant la vie du composant (le switch
+// de langue REMONTE la page → ce bloc est rejoué). Surtout PAS de `watchEffect` :
+// `setI18nParams` lit `router.currentRoute` ET mute le meta/head en interne ; un
+// watchEffect traquerait ces lectures et bouclerait à l'infini au switch de
+// langue (« Maximum recursive updates » dans AppMenuLangSwitcher).
 const setI18nParams = useSetI18nParams()
-watchEffect(() => {
-  if (!page.value)
-    return
-  setI18nParams({
-    fr: { slug: page.value.slugFr ?? undefined },
-    en: { slug: page.value.slugEn ?? undefined },
-  })
+setI18nParams({
+  fr: { slug: page.value.slugFr ?? undefined },
+  en: { slug: page.value.slugEn ?? undefined },
 })
+// i18n recopie ces params sur la route suivante (watch interne sur `fullPath`) ;
+// sans reset, le `slug` « fuit » vers les pages sans segment [slug] (home,
+// contact…) → le hreflang global (app.vue) + le switcher le repassent à
+// `router.resolve`, d'où « Discarded invalid param(s) slug ». On vide donc les
+// params AVANT de quitter (onBeforeRouteLeave, pas onUnmounted : ça doit
+// précéder la relecture du meta par le head global).
+onBeforeRouteLeave(() => setI18nParams({}))
 
-const portableTextComponents = computed(() => getPortableTextComponents({ color: 'black-100' }))
+const portableTextComponents = computed(() => getPortableTextComponents({ color: 'black-100', animated: false }))
 
 const lastUpdatedLabel = computed(() => {
   if (!page.value?.updatedAt)
@@ -42,7 +53,7 @@ const lastUpdatedLabel = computed(() => {
   const date = new Date(page.value.updatedAt)
   if (Number.isNaN(date.getTime()))
     return null
-  const formatted = new Intl.DateTimeFormat(locale.value, { month: 'long', year: 'numeric' }).format(date)
+  const formatted = new Intl.DateTimeFormat(locale.value, { day: 'numeric', month: 'long', year: 'numeric' }).format(date)
   return t('legal.lastUpdated', { date: formatted })
 })
 </script>
@@ -83,7 +94,7 @@ const lastUpdatedLabel = computed(() => {
     flex-direction: column;
     gap: desktop-vw(16px);
     width: 100%;
-    max-width: desktop-vw(720px);
+    max-width: desktop-vw(820px);
     margin: 0 auto;
     padding: desktop-vw(165px) 0 desktop-vw(24px);
 
@@ -105,7 +116,7 @@ const lastUpdatedLabel = computed(() => {
 
   &__body {
     width: 100%;
-    max-width: desktop-vw(720px);
+    max-width: desktop-vw(820px);
     margin: 0 auto;
     padding: desktop-vw(24px) 0 desktop-vw(80px);
     color: var(--c-black-100);
@@ -125,7 +136,7 @@ const lastUpdatedLabel = computed(() => {
 
     > .H3,
     > .H3 + * {
-      margin-top: desktop-vw(40px);
+      margin-top: desktop-vw(30px);
 
       @include mobile {
         margin-top: mobile-vw(28px);
@@ -140,6 +151,17 @@ const lastUpdatedLabel = computed(() => {
     u {
       text-decoration: underline;
       text-underline-offset: 0.15em;
+    }
+
+    .portable-link {
+      color: currentColor;
+      text-decoration: underline;
+      text-underline-offset: 0.15em;
+      transition: color 0.3s ease;
+
+      &:hover {
+        color: var(--c-orange);
+      }
     }
 
     .portable-list {

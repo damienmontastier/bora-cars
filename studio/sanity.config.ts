@@ -117,7 +117,11 @@ export default defineConfig({
                 { title: 'Gras', value: 'strong' },
                 { title: 'Souligné', value: 'underline' },
               ],
-              annotations: [],
+              // Lien riche (plugin link-field) : interne (réf. doc, localisé via
+              // BaseLink), externe, email ou téléphone. markDef `_type == "link"`.
+              annotations: [
+                { name: 'link', title: 'Lien', type: 'link' },
+              ],
             },
           }],
         }),

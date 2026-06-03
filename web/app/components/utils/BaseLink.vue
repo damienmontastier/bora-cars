@@ -36,8 +36,16 @@ function resolveLink(val) {
     return val.email ? `mailto:${val.email}` : undefined
   if (val.type === 'phone')
     return val.phone ? `tel:${val.phone}` : undefined
-  if (val.type === 'external')
-    return val.url
+  if (val.type === 'external') {
+    if (!val.url)
+      return undefined
+    // URL externe saisie sans schéma (ex. « www.exemple.com ») → on préfixe
+    // https://, sinon `isValidURL` (new URL()) échoue, le lien est considéré
+    // interne et `NuxtLinkLocale` le résout en chemin relatif cassé.
+    return /^(?:https?:)?\/\//i.test(val.url) || /^(?:mailto|tel):/i.test(val.url)
+      ? val.url
+      : `https://${val.url}`
+  }
   if (val.type === 'internal') {
     const link = val.internalLink
     const route = link && SANITY_ROUTES[link._type]
