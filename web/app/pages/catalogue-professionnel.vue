@@ -22,3 +22,11 @@ useMenuCtaSnap()
     />
   </main>
 </template>
+
+<style lang="scss">
+.page-catalogue-professionnel {
+  .app-elements-catalogue-listing__header-title {
+    max-width: desktop-vw(1000px);
+  }
+}
+</style>

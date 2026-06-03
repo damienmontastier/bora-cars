@@ -2,6 +2,11 @@
   "seo": {
     "description": "Premium vehicle rental and management. BORA CARS, your premium mobility partner. Paris and Geneva."
   },
+  "error": {
+    "title": "Oops, you've left the road",
+    "subtitle": "This address doesn't exist or has moved.",
+    "cta": "Back to home"
+  },
   "underConstruction": {
     "label": "Coming soon",
     "title": "Coming Soon"

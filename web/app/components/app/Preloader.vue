@@ -3,12 +3,14 @@ import { gsap } from 'gsap'
 import { useLenis } from 'lenis/vue'
 import { storeToRefs } from 'pinia'
 
-const BOUNCE_SPEED = 300
 const HOLD_AFTER_COMPLETE = 0.5
 const OUT_DURATION = 0.55
 const OUT_OVERLAP = 0.2
 const OUT_EASE = 'power3.inOut'
 const PRELOADER_DONE_DELAY = 0.15
+
+const logoColor = 'beige'
+const bgColor = 'orange'
 
 const appStore = useAppStore()
 const { preloaderDone, fontsLoaded } = storeToRefs(appStore)
@@ -20,7 +22,6 @@ const outProgressTrack = ref(0)
 const pathTopPct = ref(0)
 const pathBottomPct = ref(100)
 const logoRef = useTemplateRef<HTMLElement>('logoRef')
-const { logoColor, bgColor, start, stop } = useBouncingLogo(logoRef, { speed: BOUNCE_SPEED, cycleColors: false })
 
 const fillClipPath = computed(() => {
   const top = pathBottomPct.value - (pathBottomPct.value - pathTopPct.value) * progress.value
@@ -32,6 +33,9 @@ const trackClipPath = computed(() => {
   const bottom = (100 - pathBottomPct.value) + (pathBottomPct.value - pathTopPct.value + 5) * outProgressTrack.value
   return `inset(0 0 ${bottom}% 0)`
 })
+
+// Background wipes away bottom → top, in sync with the logo fill/track disappearance
+const bgClipPath = computed(() => `inset(0 0 ${outProgressTrack.value * 100}% 0)`)
 
 function measurePath() {
   const svg = logoRef.value?.querySelector('svg')
@@ -82,7 +86,6 @@ function finalize() {
       onComplete: () => {
         gsap.delayedCall(PRELOADER_DONE_DELAY, () => {
           preloaderDone.value = true
-          stop()
           lenis.value?.start()
         })
       },
@@ -103,7 +106,6 @@ watch(fontsLoaded, (loaded) => {
 onMounted(async () => {
   await nextTick()
   measurePath()
-  start()
 
   ctx = gsap.context(() => {}, logoRef.value!)
 
@@ -116,7 +118,6 @@ onMounted(async () => {
 onBeforeUnmount(() => {
   ctx?.revert()
   ctx = null
-  stop()
   lenis.value?.start()
 })
 </script>
@@ -125,8 +126,11 @@ onBeforeUnmount(() => {
   <div
     class="app-preloader"
     :class="{ 'app-preloader--done': preloaderDone }"
-    :style="{ backgroundColor: `var(--c-${bgColor})` }"
   >
+    <div
+      class="app-preloader__background"
+      :style="{ backgroundColor: `var(--c-${bgColor})`, clipPath: bgClipPath }"
+    />
     <div class="app-preloader__inner">
       <div
         ref="logoRef"
@@ -153,33 +157,40 @@ onBeforeUnmount(() => {
   position: fixed;
   inset: 0;
   z-index: 9999;
-  background: var(--c-black);
   overflow: hidden;
-  transition:
-    opacity 0.35s var(--ease-in-out-cubic),
-    background-color 0.3s var(--ease-out-cubic);
+  transition: opacity 0.35s var(--ease-in-out-cubic);
 
   &--done {
     opacity: 0;
     pointer-events: none;
   }
 
+  &__background {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    will-change: clip-path;
+  }
+
   &__inner {
     position: absolute;
     inset: 0;
+    z-index: 1;
   }
 
   &__logo {
     position: absolute;
-    top: 0;
-    left: 0;
+    top: 50%;
+    left: 50%;
     width: desktop-vw(200px);
     height: auto;
-    will-change: transform, opacity;
-    transform: translate3d(0, 0, 0);
     aspect-ratio: 1;
+    transform: translate(-50%, -50%);
+    transform-origin: center center;
+    will-change: transform, opacity;
     opacity: 0;
     transition: opacity 0.4s var(--ease-out-cubic);
+    animation: preloader-heartbeat 2.2s ease-in-out infinite both;
 
     &--visible {
       opacity: 1;
@@ -187,7 +198,6 @@ onBeforeUnmount(() => {
 
     @include mobile {
       width: mobile-vw(160px);
-      height: auto;
     }
   }
 
@@ -199,6 +209,41 @@ onBeforeUnmount(() => {
 
   &__logo-track {
     opacity: 0.5;
+  }
+}
+
+@keyframes preloader-heartbeat {
+  0% {
+    transform: translate(-50%, -50%) scale(1);
+    animation-timing-function: cubic-bezier(0.45, 0, 0.55, 1);
+  }
+
+  /* lub — franc, contraction nette */
+  12% {
+    transform: translate(-50%, -50%) scale(0.95);
+    animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  /* léger rebond élastique au relâchement */
+  25% {
+    transform: translate(-50%, -50%) scale(1.008);
+    animation-timing-function: cubic-bezier(0.45, 0, 0.55, 1);
+  }
+
+  /* dub — écho plus doux */
+  36% {
+    transform: translate(-50%, -50%) scale(0.972);
+    animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  /* retour au repos */
+  50% {
+    transform: translate(-50%, -50%) scale(1);
+  }
+
+  /* temps de repos long avant le prochain battement */
+  100% {
+    transform: translate(-50%, -50%) scale(1);
   }
 }
 </style>

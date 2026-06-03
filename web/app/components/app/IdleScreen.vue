@@ -11,7 +11,7 @@ const lenis = useLenis()
 
 const visible = ref(false)
 const logoRef = useTemplateRef<HTMLElement>('logoRef')
-const { logoColor, bgColor, start, stop } = useBouncingLogo(logoRef)
+const { logoColor, bgColor, start, stop } = useBouncingLogo(logoRef, { speed: 300, cycleColors: false })
 
 const { start: startShowTimer, stop: stopShowTimer } = useTimeoutFn(() => {
   visible.value = true

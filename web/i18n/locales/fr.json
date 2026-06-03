@@ -2,6 +2,11 @@
   "seo": {
     "description": "Location et gestion de véhicules haut de gamme. BORA CARS, votre partenaire mobilité premium. Paris et Genève."
   },
+  "error": {
+    "title": "Oups, vous avez quitté la route",
+    "subtitle": "Cette adresse n'existe pas ou a été déplacée.",
+    "cta": "Retour à l'accueil"
+  },
   "underConstruction": {
     "label": "Bientôt en ligne",
     "title": "Coming Soon"

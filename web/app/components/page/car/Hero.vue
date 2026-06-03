@@ -136,7 +136,7 @@ function scrollTo(i: number) {
 .car-hero {
   position: relative;
   width: 100%;
-  height: desktop-vw(1050px);
+  height: desktop-vw(950px);
   overflow: hidden;
   background: var(--c-beige-20);
 
