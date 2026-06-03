@@ -343,6 +343,7 @@ onUnmounted(() => {
           :crop="data.backgroundMedia.imageCrop"
           :lazy="false"
           :preload="{ fetchPriority: 'high' }"
+          :overlay="false"
         />
         <ElementsVideo
           v-else-if="data.backgroundMedia.mediaType === 'video' && data.backgroundMedia.videoUrl"
@@ -466,8 +467,7 @@ onUnmounted(() => {
     }
 
     .app-atoms-cta {
-      align-self: flex-end;
-      width: 100%;
+      align-self: flex-start;
     }
 
     .H1 {

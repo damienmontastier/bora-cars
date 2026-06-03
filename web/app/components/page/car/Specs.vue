@@ -35,17 +35,25 @@ function buildSpec(key: string, car: CarDetailData): Spec | null {
   }
 }
 
+// Ordre canonique des 8 specs (doit rester aligné avec le studio).
+const SPEC_KEYS = ['teinteExterieure', 'teinteInterieure', 'nombrePlaces', 'nombrePortes', 'gamme', 'annee', 'boiteVitesse', 'carburant']
+
 const fixedSpecs = computed<Spec[]>(() =>
   (props.car.specsLayout?.fixed ?? [])
     .map(k => buildSpec(k, props.car))
     .filter((s): s is Spec => s !== null),
 )
 
-const listSpecs = computed<Spec[]>(() =>
-  (props.car.specsLayout?.list ?? [])
-    .map(k => buildSpec(k, props.car))
-    .filter((s): s is Spec => s !== null),
-)
+// La liste affiche les specs rangées en « liste » PLUS toute spec non placée
+// dans la config globale — ainsi aucune valeur renseignée n'est jamais masquée.
+// Le filtre `buildSpec → null` retire celles dont la voiture n'a pas la valeur.
+const listSpecs = computed<Spec[]>(() => {
+  const fixed = props.car.specsLayout?.fixed ?? []
+  const list = props.car.specsLayout?.list ?? []
+  const placed = new Set([...fixed, ...list])
+  const ordered = [...list, ...SPEC_KEYS.filter(k => !placed.has(k))]
+  return ordered.map(k => buildSpec(k, props.car)).filter((s): s is Spec => s !== null)
+})
 </script>
 
 <template>

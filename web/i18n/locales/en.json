@@ -77,6 +77,8 @@
     "rental": {
       "title": "Rental information",
       "typeLabel": "Rental type",
+      "insuranceLabel": "Insurance",
+      "insuranceValue": "Included",
       "paymentsLabel": "Accepted payments",
       "ageMinimum": "Minimum age",
       "anciennetePermis": "Licence held since",

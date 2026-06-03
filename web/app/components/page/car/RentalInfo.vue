@@ -22,7 +22,13 @@ const paiements = computed<string[]>(() =>
   (props.car.paiementsAcceptes ?? []).map(p => tEnum('payment', p)),
 )
 
-const hasPills = computed(() => rentalTypes.value.length > 0 || paiements.value.length > 0)
+// Assurance — natif sur toutes les voitures : valeur Sanity sinon fallback i18n
+const assuranceTitle = computed(() => props.car.assuranceTitre || t('car.rental.insuranceLabel'))
+const assuranceValue = computed(() => props.car.assuranceSousTitre || t('car.rental.insuranceValue'))
+
+const hasPills = computed(() =>
+  Boolean(assuranceValue.value) || rentalTypes.value.length > 0 || paiements.value.length > 0,
+)
 
 const conditionsCells = computed<Cell[]>(() => {
   const c = props.car
@@ -77,6 +83,17 @@ const hasAny = computed(() =>
           <ul class="car-rental__pills">
             <li v-for="rt in rentalTypes" :key="rt" class="car-rental__pill">
               <TextsP1>{{ rt }}</TextsP1>
+            </li>
+          </ul>
+        </div>
+
+        <div class="car-rental__group">
+          <TextsP2 color="black-70" class="car-rental__group-label">
+            {{ assuranceTitle }}
+          </TextsP2>
+          <ul class="car-rental__pills">
+            <li class="car-rental__pill">
+              <TextsP1>{{ assuranceValue }}</TextsP1>
             </li>
           </ul>
         </div>

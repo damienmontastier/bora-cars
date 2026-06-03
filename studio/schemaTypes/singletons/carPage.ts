@@ -11,7 +11,7 @@ export const carPageType = defineType({
   title: TITLE,
   type: 'document',
   icon: TagIcon,
-  groups: [...GROUPS, { name: 'whatsapp', title: 'WhatsApp' }],
+  groups: [...GROUPS, { name: 'specs', title: 'Specs' }, { name: 'whatsapp', title: 'WhatsApp' }],
   fields: [
     defineField({
       name: 'contentPreFooter',
@@ -19,6 +19,17 @@ export const carPageType = defineType({
       type: 'textBlock',
       group: 'editorial',
       validation: Rule => Rule.required(),
+    }),
+    defineField({
+      name: 'specsLayout',
+      title: 'Mise en page des specs (global)',
+      type: 'specsLayout',
+      group: 'specs',
+      description: 'Ordre et répartition des caractéristiques, communs à TOUTES les fiches voiture. Sur une voiture, une spec ne s\'affiche que si son champ est renseigné — laisse le champ vide pour la masquer sur ce véhicule.',
+      initialValue: {
+        fixed: ['gamme', 'annee', 'boiteVitesse', 'carburant'],
+        list: ['nombrePlaces', 'nombrePortes', 'teinteExterieure', 'teinteInterieure'],
+      },
     }),
     defineField({
       name: 'whatsappMessage',

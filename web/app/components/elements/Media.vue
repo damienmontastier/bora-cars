@@ -93,9 +93,16 @@ const pictureRef = ref<any>(null)
 
 onMounted(() => {
   const el = pictureRef.value?.$el ?? pictureRef.value
-  const img = el?.querySelector?.('img') ?? el
-  if (img?.complete)
+  const img: HTMLImageElement | null = el?.querySelector?.('img') ?? null
+  // `load` doesn't bubble, so relying solely on NuxtPicture's emit is fragile.
+  // Listen on the real <img>, and reveal on `error` / missing-img too: an opaque
+  // reveal panel must never stay stuck covering the slot.
+  if (!img || img.complete) {
     onLoad()
+    return
+  }
+  img.addEventListener('load', onLoad, { once: true })
+  img.addEventListener('error', onLoad, { once: true })
 })
 
 defineExpose({ mainRef, pictureRef })

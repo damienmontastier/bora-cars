@@ -77,6 +77,8 @@
     "rental": {
       "title": "Informations de location",
       "typeLabel": "Type de location",
+      "insuranceLabel": "Assurance",
+      "insuranceValue": "Incluse",
       "paymentsLabel": "Paiements acceptés",
       "ageMinimum": "Âge minimum",
       "anciennetePermis": "Ancienneté de permis",

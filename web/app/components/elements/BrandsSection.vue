@@ -142,7 +142,7 @@ onUnmounted(() => {
           :data-brand="`left-${i}`"
           :class="{ 'is-hovered': hoveredBrand === `left-${i}` }"
         >
-          <NuxtImg v-if="car.imageUrl" class="brand-item__cursor" :src="car.imageUrl" :alt="`${car.marque} ${car.modele}`" provider="sanity" loading="eager" />
+          <NuxtImg v-if="car.imageUrl" class="brand-item__cursor" :src="car.imageUrl" :alt="`${car.marque} ${car.modele}`" provider="sanity" sizes="56vw sm:20vw" loading="eager" />
           <div v-else class="brand-item__cursor" />
           <UtilsBaseLink :to="{ name: 'car-uid', params: { uid: car.slug } }">
             <TextsH3 :selectable="false" :color="hoveredBrand === `left-${i}` ? 'orange' : 'beige-100'">
@@ -162,7 +162,7 @@ onUnmounted(() => {
           :data-brand="`right-${i}`"
           :class="{ 'is-hovered': hoveredBrand === `right-${i}` }"
         >
-          <NuxtImg v-if="car.imageUrl" class="brand-item__cursor" :src="car.imageUrl" :alt="`${car.marque} ${car.modele}`" provider="sanity" loading="eager" />
+          <NuxtImg v-if="car.imageUrl" class="brand-item__cursor" :src="car.imageUrl" :alt="`${car.marque} ${car.modele}`" provider="sanity" sizes="56vw sm:20vw" loading="eager" />
           <div v-else class="brand-item__cursor" />
           <UtilsBaseLink :to="{ name: 'car-uid', params: { uid: car.slug } }">
             <TextsH3 :selectable="false" :color="hoveredBrand === `right-${i}` ? 'orange' : 'beige-100'">

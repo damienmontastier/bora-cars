@@ -7,7 +7,7 @@ const props = withDefaults(defineProps<{
 }>(), {
   threshold: 0,
   borderRadius: '0px',
-  blur: '16px',
+  blur: '5px',
 })
 
 const REVEAL_S_PER_1000PX = 1.25
@@ -55,8 +55,8 @@ const revealDuration = computed(() => {
   inset: 0;
   opacity: 1;
   background-color: transparent;
-  backdrop-filter: blur(var(--overlay-blur, 24px));
-  -webkit-backdrop-filter: blur(var(--overlay-blur, 24px));
+  backdrop-filter: blur(var(--overlay-blur, 5px));
+  -webkit-backdrop-filter: blur(var(--overlay-blur, 5px));
   transition: opacity var(--reveal-duration, 1.2s) var(--ease-in-out-circ);
   pointer-events: none;
   z-index: 3;

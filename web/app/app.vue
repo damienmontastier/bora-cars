@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { MenuData } from '~/queries/menu'
 import type { SettingsData } from '~/queries/settings'
+import { useEventBus } from '@vueuse/core'
 import { MENU_QUERY } from '~/queries/menu'
 import { SETTINGS_QUERY } from '~/queries/settings'
 
@@ -26,37 +27,48 @@ const { finalizePendingLocaleChange, t } = useI18n()
 const settings = useSettings()
 const lang = useSanityLang()
 
+// Locale-dependent Sanity data — menu burger label + panel (`menu`), and every
+// `settings.contactLink` consumer (hero/menu/brands CTA text) + SEO (`settings`) —
+// must NOT swap before the page-transition overlay covers the screen, otherwise the
+// still-visible leaving page flips language mid-switch (and widths jump, e.g. the
+// burger's "Fermer"/"Close" sizer). So both queries refetch EARLY (params follow
+// `lang`, data ready in time) but their data is committed to the live refs only when
+// idle / on 'covered'. `navigating` is raised in this same tick — before a cache hit
+// could resolve synchronously — and cleared on 'covered' (Transition.vue emits it in
+// onLeave's onComplete = overlay fully covers the screen).
+const navigating = ref(false)
 const menuParams = reactive({ lang: lang.value })
-// Defer lang updates of the menu query until the menu is fully closed
-// (and not animating). Otherwise translations in the panel would swap
-// visibly while it's still closing on a locale switch.
-function flushMenuLangIfSafe() {
-  if (!appStore.menuOpen && !appStore.menuAnimating && menuParams.lang !== lang.value)
-    menuParams.lang = lang.value
-}
-watch(lang, flushMenuLangIfSafe)
-watch(
-  [() => appStore.menuOpen, () => appStore.menuAnimating],
-  flushMenuLangIfSafe,
-)
-
-// Settings feed the persistent menu CTA (contactLink) and the SEO meta, both
-// of which must reflect the active locale immediately — so, unlike the menu
-// panel (whose lang flush is deferred until it's closed), settings follow
-// `lang` directly via a reactive query that refetches on locale change.
 const settingsParams = reactive({ lang: lang.value })
 watch(lang, (v) => {
+  navigating.value = true
+  menuParams.lang = v
   settingsParams.lang = v
 })
 
-const [{ data: menu }, { data: settingsData }] = await Promise.all([
+const [{ data: menuData }, { data: settingsData }] = await Promise.all([
   useSanityQuery<MenuData>(MENU_QUERY, menuParams),
   useSanityQuery<SettingsData>(SETTINGS_QUERY, settingsParams),
 ])
 
-watch(settingsData, (val) => {
-  settings.value = val ?? null
+const menu = ref<MenuData | null>(menuData.value ?? null)
+function commitLocaleData() {
+  menu.value = menuData.value ?? null
+  settings.value = settingsData.value ?? null
+}
+// Initial load, plus any refetch that only resolves once we're idle again.
+watch([menuData, settingsData], () => {
+  if (!navigating.value)
+    commitLocaleData()
 }, { immediate: true })
+
+// During a navigation, swap exactly when the overlay covers the screen, then re-open commits.
+const transitionBus = useEventBus('page-transition')
+transitionBus.on((event) => {
+  if (event === 'covered') {
+    commitLocaleData()
+    navigating.value = false
+  }
+})
 
 const { url: siteUrl, name: siteName, separator } = useSiteConfig()
 const { IS_PROD } = useRuntimeConfig().public
@@ -112,6 +124,10 @@ const pageTransition = {
   },
   onBeforeEnter: async () => {
     await finalizePendingLocaleChange()
+    // Safety net: commit (and re-open commits) before the new page mounts, in case
+    // 'covered' didn't fire. Idempotent with the bus.
+    commitLocaleData()
+    navigating.value = false
     appStore.menuTheme = appStore.menuThemePending
     appStore.menuTransitioning = false
     transitionRef.value?.onBeforeEnter()

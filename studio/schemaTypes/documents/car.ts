@@ -53,9 +53,22 @@ export const carType = defineType({
       type: 'internationalizedArrayBlock',
     }),
     defineField({
+      name: 'overrideSpecsLayout',
+      title: 'Personnaliser la mise en page des specs',
+      type: 'boolean',
+      initialValue: false,
+      description:
+        'Par défaut, l\'ordre des caractéristiques suit la configuration globale (Page Voiture). Active cette option pour définir un ordre spécifique à cette voiture.',
+    }),
+    defineField({
       name: 'specsLayout',
-      title: 'Mise en page des specs',
+      title: 'Mise en page des specs (cette voiture)',
       type: 'specsLayout',
+      hidden: ({ document }) => !(document as any)?.overrideSpecsLayout,
+      initialValue: {
+        fixed: ['gamme', 'annee', 'boiteVitesse', 'carburant'],
+        list: ['nombrePlaces', 'nombrePortes', 'teinteExterieure', 'teinteInterieure'],
+      },
     }),
     defineField({
       name: 'clientType',
@@ -267,6 +280,24 @@ export const carType = defineType({
         ],
         layout: 'grid',
       },
+    }),
+    defineField({
+      name: 'assuranceTitre',
+      title: 'Assurance — Titre',
+      type: 'internationalizedArrayString',
+      initialValue: [
+        { _key: 'fr', _type: 'internationalizedArrayStringValue', value: 'Assurance' },
+        { _key: 'en', _type: 'internationalizedArrayStringValue', value: 'Insurance' },
+      ],
+    }),
+    defineField({
+      name: 'assuranceSousTitre',
+      title: 'Assurance — Sous-titre',
+      type: 'internationalizedArrayString',
+      initialValue: [
+        { _key: 'fr', _type: 'internationalizedArrayStringValue', value: 'Incluse' },
+        { _key: 'en', _type: 'internationalizedArrayStringValue', value: 'Included' },
+      ],
     }),
   ],
   preview: {

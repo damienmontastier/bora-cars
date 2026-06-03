@@ -107,7 +107,7 @@ function scrollTo(i: number) {
             :crop="slide.crop"
             :lazy="i !== 0"
             :preload="i === 0 ? { fetchPriority: 'high' } : false"
-            :overlay="i === 0"
+            :overlay="false"
           />
         </div>
       </div>

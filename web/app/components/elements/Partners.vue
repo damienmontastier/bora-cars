@@ -12,9 +12,11 @@ withDefaults(defineProps<Props>(), {
 const settings = useSettings()
 const partners = computed<Partner[]>(() => settings.value?.partners ?? [])
 
-const partnerStyle = (partner: Partner) => ({
-  aspectRatio: partner.aspectRatio ? String(partner.aspectRatio) : undefined,
-})
+function partnerStyle(partner: Partner) {
+  return {
+    aspectRatio: partner.aspectRatio ? String(partner.aspectRatio) : undefined,
+  }
+}
 </script>
 
 <template>
@@ -37,6 +39,7 @@ const partnerStyle = (partner: Partner) => ({
             :alt="partner.imageAlt ?? ''"
             provider="sanity"
             class="app-elements-partners__logo"
+            sizes="sm:20vw md:15vw"
             loading="lazy"
             decoding="async"
           />

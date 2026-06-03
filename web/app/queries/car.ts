@@ -47,6 +47,8 @@ export interface CarDetailData {
   prixKmSupplementaire?: { prix?: number, km?: number }
   equipements?: string[]
   paiementsAcceptes?: ('virement' | 'carte' | 'especes')[]
+  assuranceTitre?: string
+  assuranceSousTitre?: string
   specsLayout?: { fixed?: string[], list?: string[] }
 }
 
@@ -92,7 +94,12 @@ export const CAR_QUERY = `{
     prixKmSupplementaire { prix, km },
     ${i18n('equipements')},
     paiementsAcceptes,
-    specsLayout { fixed, list },
+    ${i18n('assuranceTitre')},
+    ${i18n('assuranceSousTitre')},
+    "specsLayout": select(
+      overrideSpecsLayout == true => specsLayout { fixed, list },
+      *[_type == "carPage"][0].specsLayout { fixed, list }
+    ),
     location-> {
       ${i18n('city')},
       ${i18n('address')},

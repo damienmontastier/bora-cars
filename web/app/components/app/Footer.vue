@@ -54,7 +54,15 @@ function scrollToTop() {
             <div class="app-footer__column-items">
               <div v-if="footer?.locations?.length" class="app-footer__cities">
                 <template v-for="(loc, i) in footer.locations" :key="loc.city">
-                  <span class="app-footer__city CTA-TEXT">{{ loc.city }}</span>
+                  <AtomsCTASecondary
+                    v-if="loc.link"
+                    :to="loc.link"
+                    :theme="ctaTheme"
+                    class="app-footer__city CTA-TEXT"
+                  >
+                    {{ loc.city }}
+                  </AtomsCTASecondary>
+                  <span v-else class="app-footer__city CTA-TEXT">{{ loc.city }}</span>
                   <span v-if="i < footer.locations.length - 1" class="app-footer__city-separator" />
                 </template>
               </div>

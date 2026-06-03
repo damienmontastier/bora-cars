@@ -103,6 +103,7 @@ onUnmounted(() => {
           :crop="data.backgroundMedia.imageCrop"
           :lazy="false"
           :preload="{ fetchPriority: 'high' }"
+          :overlay="false"
         />
         <ElementsVideo
           v-else-if="data.backgroundMedia.mediaType === 'video' && data.backgroundMedia.videoUrl"

@@ -5,6 +5,7 @@ export type { SanityLink }
 
 export interface FooterLocation {
   city: string
+  link?: SanityLink
 }
 
 export interface FooterData {
@@ -32,7 +33,17 @@ const linkProjection = `{
 
 export const FOOTER_QUERY = `*[_type == "footer"][0]{
   ${i18n('contactTitle')},
-  "locations": locations[]->{ ${i18n('city')} },
+  "locations": locations[]->{
+    ${i18n('city')},
+    "link": link{
+      "type": type,
+      "blank": blank,
+      "url": url,
+      "email": email,
+      "phone": phone,
+      "internalLink": internalLink->{ "_id": _id, "_type": _type, "slug": slug.current }
+    }
+  },
   "contactLinks": contactLinks[]${linkProjection},
   ${i18n('sitemapTitle')},
   "sitemap": sitemap[]${linkProjection},

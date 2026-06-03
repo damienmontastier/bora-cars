@@ -187,23 +187,27 @@ Wrapper around `NuxtPicture` with loading overlay support.
 | `alt` | String | `''` | Alt text |
 | `lazy` | Boolean | `true` | `loading="lazy"` vs `eager` |
 | `preload` | Boolean\|Object | `false` | Preload hint (`{ fetchPriority }`) |
-| `sizes` | String | — | Responsive sizes string |
+| `sizes` | String | `'sm:100vw xl:100vw'` | Responsive sizes string. **Always set this to match the real rendered width (read the CSS).** With the default, NuxtPicture over-fetches the full-width candidate — only correct for genuinely full-bleed media (heroes, full-screen backgrounds) |
 | `provider` | `'sanity'`\|`'ipx'`\|undefined | — | Nuxt Image provider |
 | `hotspot` | Object | — | Sanity hotspot `{ x, y, width, height }` |
 | `crop` | Object | — | Sanity crop `{ top, bottom, left, right }` |
 | `modifiers` | Object | — | Extra Nuxt Image modifiers |
-| `overlay` | Boolean | `true` | Show reveal overlay (disable for non-animated contexts) |
-| `overlayColor` | String | `'beige'` | CSS color token name for the overlay |
+| `overlay` | Boolean | `true` | Mount the `ElementsMediaOverlay` blur reveal. **Pass `false` whenever the media is wrapped in `UtilsParallax`** (heroes, `ServiceCard`, `FullscreenMarquee`) — a `backdrop-filter` re-rasterised under the parallax `transform` every frame is the worst perf case, ×N cards |
+| `parallax` | Boolean\|Object | `false` | Wrap the picture in `UtilsParallax`. Object form = `UtilsParallax` props (`speed`, `scale`, `position`, `reversed`, `id`, `trigger`) |
 
 Exposes `{ mainRef, pictureRef }`. Detects `img.complete` on mount to skip the reveal animation for cached images.
 
+`sizes` reference (screens: `sm:800, md:1280, lg:1440, xl:1920`): a card spanning `N` of a 12-col grid ≈ `N/12 * 100vw` on desktop; a full-bleed mobile element ≈ `100vw`. Express the value as `vw` (not fixed `px`) so it tracks the design's viewport-relative sizing; the browser handles DPR itself.
+
 ### ElementsMediaOverlay (`app/components/elements/MediaOverlay.vue`)
 
-Reveal overlay used inside `ElementsMedia`. Scales down (`scaleY: 1 → 0`, origin bottom) when both `loaded` and in-view. Shows a shimmer sweep while loading.
+Loading/reveal overlay mounted inside `ElementsMedia` (when `overlay` is true). A `backdrop-filter: blur(var(--overlay-blur))` layer at `opacity: 1` that fades to `opacity: 0` once both `loaded` and in-view (IntersectionObserver). A `::after` shimmer sweeps while loading.
 
-**Props:** `loaded: boolean`, `threshold?: number` (IO threshold, default 0.1), `color?: string` (CSS token, default `'beige'`), `borderRadius?: string`.
+**Props:** `loaded: boolean`, `blur?: string` (default `'5px'`), `threshold?: number` (default `0`), `borderRadius?: string` (default `'0px'`).
 
-Reveal duration scales with element height: `height / 1000 * 1.5s`, clamped to `[0.7s, 1.6s]`.
+Reveal is a fixed `0.5s` opacity fade with `--ease-out-quint` (no size-scaling — the easing carries the feel). Because `backdrop-filter` is heavy under a `transform`, media inside a `UtilsParallax` passes `:overlay="false"` instead.
+
+**Perf — the overlay unmounts itself after the reveal.** A `backdrop-filter` left at `opacity: 0` (or `blur(0)`) still forces per-frame layer isolation + filter recompute — invisible but expensive on every scroll frame, and brutal under a parallax transform. So once `loaded`/in-view latch true (the reveal never replays), the component drops its node via `v-if="!done"` ~`revealDuration` after the fade completes. Heroes skip the overlay entirely with `:overlay="false"` rather than paying for a full-screen `backdrop-filter` at all.
 
 ### ElementsMarquee (`app/components/elements/Marquee.vue`)
 

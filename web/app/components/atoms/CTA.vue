@@ -42,19 +42,42 @@ const textRef = useTemplateRef('textRef')
 
 let tl = null
 let initialized = false
-let originalText = ''
+// Vue's managed text node for the slot. Captured once, before init() overwrites
+// innerHTML with word spans. After that the node is detached from the DOM but Vue
+// keeps patching it on locale change (the persistent menu CTA never remounts) —
+// observing it lets us re-split with the new translation when `settings` updates.
+let sourceNode = null
+let mo = null
+
+function readSourceText() {
+  const fromNode = sourceNode?.nodeValue
+  if (fromNode != null)
+    return fromNode.trim()
+  return textRef.value?.root?.textContent?.trim() ?? ''
+}
 
 function reset() {
   tl?.kill()
   tl = null
   initialized = false
   const el = textRef.value?.root
-  if (el && originalText) {
-    el.textContent = originalText
-  }
+  const text = readSourceText()
+  // Never blank the element: when the source is transiently empty (e.g. settings
+  // null mid-refetch) keep what's there rather than wiping the CTA text.
+  if (el && text)
+    el.textContent = text
   if (rootRef.value?.$el) {
     rootRef.value.$el.style.minWidth = ''
   }
+}
+
+// Vue patched the (now-detached) source text node — a locale switch landed the
+// new translation. Rebuild the word-split so the CTA follows the language.
+function onSourceTextChange() {
+  if (!isAnimated.value)
+    return
+  reset()
+  nextTick(init)
 }
 
 function init() {
@@ -67,10 +90,20 @@ function init() {
 
   const el = textRef.value.root
 
-  if (!originalText)
-    originalText = el.textContent.trim()
+  // Capture Vue's text node once and observe it (never re-capture — Vue's vnode
+  // keeps referencing this exact node even after we detach it below). Pick the
+  // node that actually holds text: slot forwarding can leave empty boundary text
+  // nodes first, and that empty one is NOT what Vue patches on a locale change.
+  if (!sourceNode) {
+    const textNodes = Array.from(el.childNodes).filter(n => n.nodeType === Node.TEXT_NODE)
+    sourceNode = textNodes.find(n => n.nodeValue?.trim()) ?? textNodes[0] ?? null
+    if (sourceNode) {
+      mo = new MutationObserver(onSourceTextChange)
+      mo.observe(sourceNode, { characterData: true })
+    }
+  }
 
-  const wordsList = originalText.split(' ')
+  const wordsList = readSourceText().split(' ')
 
   if (wordsList.length <= 1)
     return
@@ -136,6 +169,7 @@ useResizeObserver(rootRef, onResize)
 
 onUnmounted(() => {
   tl?.kill()
+  mo?.disconnect()
 })
 
 defineExpose({ init })

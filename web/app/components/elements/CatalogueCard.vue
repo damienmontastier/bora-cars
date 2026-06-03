@@ -50,7 +50,7 @@ function onClick() {
         provider="sanity"
         :hotspot="car.imageHotspot"
         :crop="car.imageCrop"
-        sizes="sm:100vw md:33vw"
+        sizes="96vw sm:33vw"
       />
       <div v-else class="app-elements-catalogue-card__placeholder" />
     </div>
