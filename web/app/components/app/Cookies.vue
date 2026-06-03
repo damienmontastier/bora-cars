@@ -38,11 +38,12 @@ function onPendingUpdate(key: CookieCategoryKey, value: boolean) {
   pending.value = { ...pending.value, [key]: value }
 }
 
-// Lock scroll only when the centered modal is open (banner is non-blocking).
+// Lock scroll whenever the cookies layer is visible (banner or settings),
+// mirroring the preloader: the user must make a choice before scrolling.
 watch(
-  [isOpen, view],
-  ([open, v]) => {
-    if (open && v === 'settings')
+  isOpen,
+  (open) => {
+    if (open)
       lenis.value?.stop()
     else
       lenis.value?.start()

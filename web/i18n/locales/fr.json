@@ -17,7 +17,8 @@
   },
   "menu": {
     "open": "Menu",
-    "close": "Fermer"
+    "close": "Fermer",
+    "home": "BORA CARS — Accueil"
   },
   "catalogue": {
     "filtersPlaceholder": "FILTRES",

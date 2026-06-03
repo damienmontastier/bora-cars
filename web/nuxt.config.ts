@@ -135,10 +135,10 @@ export default defineNuxtConfig({
     }),
   },
 
-  sitemap: process.env.NUXT_PUBLIC_IS_PROD === 'true'
-    // En prod (under construction) : sitemap minimal avec juste la homepage (toutes les locales via _i18nTransform)
-    ? { excludeAppSources: true, urls: [{ loc: '/', _i18nTransform: true }] }
-    : { sources: ['/api/__sitemap__/urls'] },
+  // Sitemap complet : pages statiques auto-découvertes (home, proprietaire,
+  // professionnel, contact…) + fiches voitures via la source dynamique
+  // (/api/__sitemap__/urls → /car/<slug> pour chaque locale via _i18nTransform).
+  sitemap: { sources: ['/api/__sitemap__/urls'] },
 
   ogImage: { enabled: false },
 

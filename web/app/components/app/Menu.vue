@@ -300,7 +300,7 @@ onUnmounted(() => {
   <div class="app-menu">
     <div class="app-menu__inner">
       <div ref="logoWrapRef" class="app-menu__logo-wrap">
-        <UtilsBaseLink to="/">
+        <UtilsBaseLink to="/" :aria-label="$t('menu.home')">
           <SvgLogoMinimal class="app-menu__logo" :color="menuTheme" />
         </UtilsBaseLink>
       </div>
