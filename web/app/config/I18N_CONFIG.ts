@@ -31,7 +31,7 @@ export const I18N_PAGES: Record<string, Partial<Record<LocaleCode, string | fals
   'proprietaire': { fr: '/proprietaire', en: '/owner' },
   'professionnel': { fr: '/professionnel', en: '/business' },
   'contact': { fr: '/contact', en: '/contact' },
-  'catalogue': { fr: '/catalogue', en: '/catalogue' },
+  'catalogue': { fr: '/catalogue', en: '/catalog' },
   'catalogue-professionnel': { fr: '/catalogue-professionnel', en: '/business-catalog' },
   'car-uid': { fr: '/voiture/[uid]', en: '/car/[uid]' },
   'legal-slug': { fr: '/legal/[slug]', en: '/legal/[slug]' },

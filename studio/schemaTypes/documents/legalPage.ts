@@ -22,15 +22,31 @@ export const legalPageType = defineType({
     }),
     defineField({
       name: 'slug',
-      title: 'Slug',
+      title: 'Slug (FR)',
       type: 'slug',
       group: 'editorial',
-      description: 'URL : /legal/{slug} (ex. « mentions-legales », « conditions-generales »)',
+      description: 'URL française : /fr/legal/{slug} (ex. « mentions-legales », « conditions-generales »)',
       options: {
         source: (doc: any) => pickLocalized(doc.title) || '',
         maxLength: 96,
       },
       validation: (Rule) => Rule.required(),
+    }),
+    defineField({
+      name: 'slugEn',
+      title: 'Slug (EN)',
+      type: 'slug',
+      group: 'editorial',
+      description: 'URL anglaise : /en/legal/{slug} (ex. « legal-notice », « privacy-policy »). Optionnel — si vide, l’anglais réutilise le slug FR ci-dessus.',
+      options: {
+        // Pré-rempli depuis le titre EN (les items i18n portent une clé `language`).
+        source: (doc: any) => {
+          const arr = doc.title
+          const en = Array.isArray(arr) ? arr.find((x: any) => x?.language === 'en')?.value : ''
+          return typeof en === 'string' ? en : ''
+        },
+        maxLength: 96,
+      },
     }),
     defineField({
       name: 'content',

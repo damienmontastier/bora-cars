@@ -21,6 +21,19 @@ if (!page.value) {
 usePageSeo(computed(() => page.value?.seo))
 useMenuCtaSnap()
 
+// Slugs traduits → le switcher de langue (`useSwitchLocalePath`) et les balises
+// `hreflang` génèrent la bonne URL localisée pour cette route dynamique. Sans
+// ça, i18n réutiliserait le slug courant pour l'autre langue (URL EN cassée).
+const setI18nParams = useSetI18nParams()
+watchEffect(() => {
+  if (!page.value)
+    return
+  setI18nParams({
+    fr: { slug: page.value.slugFr ?? undefined },
+    en: { slug: page.value.slugEn ?? undefined },
+  })
+})
+
 const portableTextComponents = computed(() => getPortableTextComponents({ color: 'black-100' }))
 
 const lastUpdatedLabel = computed(() => {

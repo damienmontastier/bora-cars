@@ -124,6 +124,11 @@ export default defineNuxtConfig({
     defaultLocale: DEFAULT_LANGUAGE,
     separator: '—',
     indexable: process.env.NUXT_PUBLIC_IS_PROD === 'true',
+    // Pas de trailing slash (= défaut Nuxt/Nuxt-SEO, « most Nuxt sites don't need
+    // trailing slashes »). Pilote canonical / og:url / sitemap → tous en `/fr` (sans
+    // slash). Explicite pour figer l'intention (et garder cohérent avec le serveur,
+    // cf. nitro.prerender.autoSubfolderIndex ci-dessous).
+    trailingSlash: false,
   },
 
   schemaOrg: {
@@ -240,6 +245,13 @@ export default defineNuxtConfig({
     preset: 'netlify',
     prerender: {
       crawlLinks: true,
+      // Écrit `fr.html` au lieu de `fr/index.html` → Netlify sert `/fr` en 200 DIRECT
+      // (et redirige `/fr/` → `/fr`), au lieu de l'inverse. Aligne le serveur sur la
+      // canonical/sitemap déjà déclarées sans slash (site.trailingSlash: false). Sinon :
+      // canonical `/fr` pointant vers une 301 → bruit GSC (« Page avec redirection »,
+      // canonique déclarée ≠ choisie). N'affecte que le nommage des HTML prérendus —
+      // pas les fonctions /api ni /_i18n/*.messages.json (servies par Netlify Functions).
+      autoSubfolderIndex: false,
       // Prod : on prérend les pages localisées (crawl depuis /fr et /en) → HTML
       // statique. La passe de prerender déclenche aussi l'écriture des
       // `/_i18n/.../messages.json` (via prerenderRoutes() dans le plugin i18n).

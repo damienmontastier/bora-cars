@@ -1,6 +1,6 @@
 import type { InternalLinkRef, SanityImage } from './fragments'
 import { imageFields, imageRef } from './fragments'
-import { i18n, i18nBlock } from './i18n'
+import { i18n, i18nBlock, internalLinkSlug } from './i18n'
 
 // ─── Shared primitives ────────────────────────────────────────────────────────
 
@@ -163,7 +163,7 @@ export const MODULES_PROJECTION = `"modules": modules[]{
       "url": link.url,
       "email": link.email,
       "phone": link.phone,
-      "internalLink": link.internalLink->{ "_id": _id, "_type": _type, "slug": slug.current }
+      "internalLink": link.internalLink->{ "_id": _id, "_type": _type, ${internalLinkSlug} }
     }
   },
   _type == "fullscreenMarquee" => {
@@ -175,7 +175,7 @@ export const MODULES_PROJECTION = `"modules": modules[]{
       "url": link.url,
       "email": link.email,
       "phone": link.phone,
-      "internalLink": link.internalLink->{ "_id": _id, "_type": _type, "slug": slug.current }
+      "internalLink": link.internalLink->{ "_id": _id, "_type": _type, ${internalLinkSlug} }
     },
     "backgroundMedia": backgroundMedia {
       mediaType,

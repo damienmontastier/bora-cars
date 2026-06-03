@@ -1,5 +1,5 @@
 import type { SanityLink } from './home'
-import { i18n } from './i18n'
+import { i18n, internalLinkSlug } from './i18n'
 
 export type { SanityLink }
 
@@ -28,7 +28,7 @@ const linkProjection = `{
   "url": link.url,
   "email": link.email,
   "phone": link.phone,
-  "internalLink": link.internalLink->{ "_id": _id, "_type": _type, "slug": slug.current }
+  "internalLink": link.internalLink->{ "_id": _id, "_type": _type, ${internalLinkSlug} }
 }`
 
 export const FOOTER_QUERY = `*[_type == "footer"][0]{
@@ -41,7 +41,7 @@ export const FOOTER_QUERY = `*[_type == "footer"][0]{
       "url": url,
       "email": email,
       "phone": phone,
-      "internalLink": internalLink->{ "_id": _id, "_type": _type, "slug": slug.current }
+      "internalLink": internalLink->{ "_id": _id, "_type": _type, ${internalLinkSlug} }
     }
   },
   "contactLinks": contactLinks[]${linkProjection},

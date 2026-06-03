@@ -1,5 +1,5 @@
 import type { SanityLink } from './home'
-import { i18n } from './i18n'
+import { i18n, internalLinkSlug } from './i18n'
 
 export type { SanityLink }
 
@@ -26,7 +26,7 @@ export const MENU_QUERY = `*[_type == "menu"][0]{
     "url": link.url,
     "email": link.email,
     "phone": link.phone,
-    "internalLink": link.internalLink->{ "_id": _id, "_type": _type, "slug": slug.current }
+    "internalLink": link.internalLink->{ "_id": _id, "_type": _type, ${internalLinkSlug} }
   },
   "locations": locations[]->{
     ${i18n('city')},
@@ -36,7 +36,7 @@ export const MENU_QUERY = `*[_type == "menu"][0]{
       "url": url,
       "email": email,
       "phone": phone,
-      "internalLink": internalLink->{ "_id": _id, "_type": _type, "slug": slug.current }
+      "internalLink": internalLink->{ "_id": _id, "_type": _type, ${internalLinkSlug} }
     }
   }
 }`

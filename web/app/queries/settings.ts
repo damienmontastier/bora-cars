@@ -1,6 +1,6 @@
 import type { SanityLink } from './home'
 import { seoFields, type SanityImage, type SeoData } from './fragments'
-import { i18n } from './i18n'
+import { i18n, internalLinkSlug } from './i18n'
 
 export interface Partner extends SanityImage {
   aspectRatio?: number
@@ -32,7 +32,7 @@ const contactLinkProjection = `{
   "url": link.url,
   "email": link.email,
   "phone": link.phone,
-  "internalLink": link.internalLink->{ "_id": _id, "_type": _type, "slug": slug.current }
+  "internalLink": link.internalLink->{ "_id": _id, "_type": _type, ${internalLinkSlug} }
 }`
 
 export const SETTINGS_QUERY = `*[_type == "settings"][0]{

@@ -126,6 +126,10 @@ const businessSchema = computed(() => {
   const organization = defineOrganization({
     '@id': identityId,
     'name': siteName,
+    // Variante de casse usuelle ("Bora Cars") : aide Google à rattacher les
+    // requêtes de marque à l'entité plutôt qu'au modèle VW/Maserati « Bora ».
+    'alternateName': 'Bora Cars',
+    'slogan': t('seo.slogan'),
     'url': siteUrl,
     'logo': `${siteUrl}/logo.png`,
     'image': `${siteUrl}/og-bora-cars.jpg`,

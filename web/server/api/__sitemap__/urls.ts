@@ -6,6 +6,9 @@ import { I18N_PAGES } from '~/config/I18N_CONFIG'
 // (les URLs auto-découvertes du sitemap utilisent ces mêmes tags).
 const HREFLANG: Record<LocaleCode, string> = { fr: 'fr-FR', en: 'en-GB' }
 
+interface SitemapAlt { hreflang: string, href: string }
+interface SitemapEntry { loc: string, lastmod: string | undefined, alternatives: SitemapAlt[] }
+
 // Construit le `loc` localisé pour une route nommée + params dynamiques.
 // On NE peut PAS utiliser `_i18nTransform` ici : il reconstruit l'URL via
 // findPageMapping (match par préfixe statique), ce qui échoue pour une route
@@ -21,35 +24,60 @@ function localizedLoc(routeName: string, locale: LocaleCode, params: Record<stri
   return `/${locale}${path}`
 }
 
+// Entrées localisées d'une route dynamique : une `loc` par locale + le bloc
+// `alternatives` (hreflang croisés + x-default → fr). `paramsFor` peut renvoyer
+// un slug DIFFÉRENT par locale — c'est le cas des pages légales (slug FR vs slug
+// EN traduit) ; pour les voitures le slug est identique dans les deux langues.
+function localizedEntries(
+  routeName: string,
+  locales: LocaleCode[],
+  lastmod: string | undefined,
+  paramsFor: (locale: LocaleCode) => Record<string, string>,
+): SitemapEntry[] {
+  const alternatives: SitemapAlt[] = locales
+    .map(locale => ({ hreflang: HREFLANG[locale], href: localizedLoc(routeName, locale, paramsFor(locale)) }))
+    .filter((alt): alt is SitemapAlt => alt.href !== null)
+
+  const xDefault = localizedLoc(routeName, 'fr', paramsFor('fr'))
+  if (xDefault)
+    alternatives.push({ hreflang: 'x-default', href: xDefault })
+
+  return locales
+    .map(locale => ({ loc: localizedLoc(routeName, locale, paramsFor(locale)), lastmod, alternatives }))
+    .filter((entry): entry is SitemapEntry => entry.loc !== null)
+}
+
 export default defineSitemapEventHandler(async () => {
   const sanity = useSanity()
 
   // Locales déduites des mappings de la route (évite de réimporter LANGUAGES).
-  const locales = Object.keys(I18N_PAGES['car-uid'] ?? {}) as LocaleCode[]
+  const carLocales = Object.keys(I18N_PAGES['car-uid'] ?? {}) as LocaleCode[]
+  const legalLocales = Object.keys(I18N_PAGES['legal-slug'] ?? {}) as LocaleCode[]
 
   try {
-    const cars = await sanity.fetch<{ slug: string | null, lastmod: string | null }[]>(
-      `*[_type == "car" && defined(slug.current)]{"slug": slug.current, "lastmod": _updatedAt}`,
+    const [cars, legalPages] = await Promise.all([
+      sanity.fetch<{ slug: string | null, lastmod: string | null }[]>(
+        `*[_type == "car" && defined(slug.current)]{"slug": slug.current, "lastmod": _updatedAt}`,
+      ),
+      // slugEn retombe sur le slug FR si l'override anglais n'est pas renseigné.
+      sanity.fetch<{ slugFr: string | null, slugEn: string | null, lastmod: string | null }[]>(
+        `*[_type == "legalPage" && defined(slug.current)]{"slugFr": slug.current, "slugEn": coalesce(slugEn.current, slug.current), "lastmod": _updatedAt}`,
+      ),
+    ])
+
+    // `lastmod` = date de dernière modif Sanity → signal de fraîcheur pour les crawlers.
+    const carEntries = cars.flatMap(({ slug, lastmod }) =>
+      slug ? localizedEntries('car-uid', carLocales, lastmod ?? undefined, () => ({ uid: slug })) : [],
     )
 
-    return cars.flatMap(({ slug, lastmod }) => {
-      if (!slug)
+    const legalEntries = legalPages.flatMap(({ slugFr, slugEn, lastmod }) => {
+      if (!slugFr)
         return []
-
-      // hreflang : chaque version locale pointe vers les autres (+ x-default → fr).
-      const alternatives = locales
-        .map(locale => ({ hreflang: HREFLANG[locale], href: localizedLoc('car-uid', locale, { uid: slug }) }))
-        .filter((alt): alt is { hreflang: string, href: string } => alt.href !== null)
-
-      const xDefault = localizedLoc('car-uid', 'fr', { uid: slug })
-      if (xDefault)
-        alternatives.push({ hreflang: 'x-default', href: xDefault })
-
-      // `lastmod` = date de dernière modif Sanity → signal de fraîcheur pour les crawlers.
-      return locales
-        .map(locale => ({ loc: localizedLoc('car-uid', locale, { uid: slug }), lastmod: lastmod ?? undefined, alternatives }))
-        .filter((entry): entry is { loc: string, lastmod: string | undefined, alternatives: typeof alternatives } => entry.loc !== null)
+      const byLocale: Record<LocaleCode, string> = { fr: slugFr, en: slugEn ?? slugFr }
+      return localizedEntries('legal-slug', legalLocales, lastmod ?? undefined, locale => ({ slug: byLocale[locale] }))
     })
+
+    return [...carEntries, ...legalEntries]
   }
   catch {
     return []

@@ -4,20 +4,27 @@ import { i18n, i18nBlock } from './i18n'
 
 export interface LegalPageData {
   title: string | null
-  slug: string | null
+  slugFr: string | null
+  slugEn: string | null
   updatedAt: string | null
   content: any[] | null
   seo?: SeoData
 }
 
-export const LEGAL_PAGE_QUERY = `*[_type == "legalPage" && slug.current == $uid][0]{
+// Match l'URL par slug FR OU slug EN — robuste quelle que soit la locale d'entrée
+// (un lien EN arrive avec le slug EN). On renvoie les DEUX slugs : la page les
+// passe à `useSetI18nParams` pour que le switcher de langue + les `hreflang`
+// pointent vers la bonne URL localisée. `slugEn` retombe sur le slug FR si vide.
+export const LEGAL_PAGE_QUERY = `*[_type == "legalPage" && (slug.current == $uid || slugEn.current == $uid)][0]{
   ${i18n('title')},
-  "slug": slug.current,
+  "slugFr": slug.current,
+  "slugEn": coalesce(slugEn.current, slug.current),
   "updatedAt": _updatedAt,
   ${i18nBlock('content')},
   ${seoFields()}
 }`
 
 export const LEGAL_PAGE_SLUGS_QUERY = `*[_type == "legalPage" && defined(slug.current)]{
-  "slug": slug.current
+  "slugFr": slug.current,
+  "slugEn": coalesce(slugEn.current, slug.current)
 }`

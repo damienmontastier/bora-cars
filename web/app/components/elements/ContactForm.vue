@@ -295,7 +295,7 @@ watch(
 
     <p class="app-elements-contact-form__consent">
       {{ t('contact.form.consent.before') }}
-      <UtilsBaseLink :to="{ path: '/legal/politique-de-confidentialite' }">
+      <UtilsBaseLink :to="{ name: 'legal-slug', params: { slug: t('legal.privacySlug') } }">
         {{ t('contact.form.consent.linkLabel') }}
       </UtilsBaseLink>{{ t('contact.form.consent.after') }}
     </p>
