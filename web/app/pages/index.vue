@@ -11,6 +11,15 @@ watch(lang, (v) => {
 const { data: homepage } = await useSanityQuery<HomepageData>(HOMEPAGE_QUERY, params)
 
 usePageSeo(computed(() => homepage.value?.seo))
+
+// Accueil : la marque MÈNE le title (`BORA CARS — {texte}`), à l'inverse du template
+// global de app.vue (`{texte} — BORA CARS`). Override per-page via useHead — il prime
+// sur le template global tant que l'accueil est monté ; à la navigation le composant
+// se démonte et app.vue reprend la main.
+const { name: siteName, separator } = useSiteConfig()
+useHead({
+  titleTemplate: chunk => chunk ? `${siteName ?? 'BORA CARS'} ${separator ?? '—'} ${chunk}` : (siteName ?? 'BORA CARS'),
+})
 </script>
 
 <template>

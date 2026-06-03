@@ -80,6 +80,9 @@ transitionBus.on((event) => {
 const { url: siteUrl, name: siteName, separator } = useSiteConfig()
 const { IS_PROD } = useRuntimeConfig().public
 
+// Title GLOBAL : `{texte} — BORA CARS` (mot-clé descriptif devant → poids SEO + résiste
+// mieux à la troncature). L'accueil surcharge ce template pour mener par la marque
+// (`BORA CARS — {texte}`) directement dans `pages/index.vue` via useHead().
 useHead({
   titleTemplate: chunk => chunk ? `${chunk} ${separator ?? '—'} ${siteName ?? 'BORA CARS'}` : (siteName ?? 'BORA CARS'),
 })

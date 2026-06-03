@@ -28,11 +28,11 @@ export default defineSitemapEventHandler(async () => {
   const locales = Object.keys(I18N_PAGES['car-uid'] ?? {}) as LocaleCode[]
 
   try {
-    const cars = await sanity.fetch<{ slug: string | null }[]>(
-      `*[_type == "car" && defined(slug.current)]{"slug": slug.current}`,
+    const cars = await sanity.fetch<{ slug: string | null, lastmod: string | null }[]>(
+      `*[_type == "car" && defined(slug.current)]{"slug": slug.current, "lastmod": _updatedAt}`,
     )
 
-    return cars.flatMap(({ slug }) => {
+    return cars.flatMap(({ slug, lastmod }) => {
       if (!slug)
         return []
 
@@ -45,9 +45,10 @@ export default defineSitemapEventHandler(async () => {
       if (xDefault)
         alternatives.push({ hreflang: 'x-default', href: xDefault })
 
+      // `lastmod` = date de dernière modif Sanity → signal de fraîcheur pour les crawlers.
       return locales
-        .map(locale => ({ loc: localizedLoc('car-uid', locale, { uid: slug }), alternatives }))
-        .filter((entry): entry is { loc: string, alternatives: typeof alternatives } => entry.loc !== null)
+        .map(locale => ({ loc: localizedLoc('car-uid', locale, { uid: slug }), lastmod: lastmod ?? undefined, alternatives }))
+        .filter((entry): entry is { loc: string, lastmod: string | undefined, alternatives: typeof alternatives } => entry.loc !== null)
     })
   }
   catch {

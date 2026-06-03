@@ -31,6 +31,89 @@ usePageSeo(computed(() => car.value
   ? { title: `${car.value.marque} ${car.value.modele}`, image: car.value.ogImageUrl }
   : undefined))
 
+// ─── schema.org fiche voiture : Product (location) + fil d'Ariane ───
+// PAS de type `Car`/`Vehicle` : le rich result Google « Vehicle listing » est réservé aux
+// véhicules À VENDRE (VIN/kilométrage requis) ; le « Product snippet » aux produits
+// ACHETABLES. Pour de la LOCATION, aucun des deux ne s'applique → on décrit l'entité en
+// `Product` (warning-free), specs en `additionalProperty` (valides sur Product, pas de
+// « unknown property »), et l'`Offer` en `businessFunction: LeaseOut` + `UnitPriceSpecification`
+// = tarif PAR jour/mois (location, pas vente). Le WebPage auto reçoit `breadcrumb` +
+// `mainEntity`. reactive:false → rendu SSR/prérendu.
+const localePath = useLocalePath()
+const { url: siteUrl } = useSiteConfig()
+const abs = (p: string) => `${siteUrl}${p}`
+
+useSchemaOrg(computed(() => {
+  const c = car.value
+  if (!c)
+    return []
+
+  const images = [c.ogImageUrl].filter((u): u is string => !!u)
+  const plainDescription = (c.description ?? [])
+    .map(block => (block.children ?? []).map((child: { text?: string }) => child.text ?? '').join(''))
+    .join(' ')
+    .trim()
+
+  // Caractéristiques → additionalProperty, libellés/valeurs localisés (clés i18n existantes).
+  const specs: { '@type': 'PropertyValue', 'name': string, 'value': string | number, 'unitText'?: string }[] = []
+  if (c.carburant)
+    specs.push({ '@type': 'PropertyValue', 'name': t('car.specs.labels.carburant'), 'value': t(`car.specs.carburant.${c.carburant}`) })
+  if (c.boiteVitesse)
+    specs.push({ '@type': 'PropertyValue', 'name': t('car.specs.labels.boiteVitesse'), 'value': t(`car.specs.boite.${c.boiteVitesse}`) })
+  if (c.nombrePlaces)
+    specs.push({ '@type': 'PropertyValue', 'name': t('car.specs.labels.nombrePlaces'), 'value': c.nombrePlaces })
+  if (c.nombrePortes)
+    specs.push({ '@type': 'PropertyValue', 'name': t('car.specs.labels.nombrePortes'), 'value': c.nombrePortes })
+  if (c.annee)
+    specs.push({ '@type': 'PropertyValue', 'name': t('car.specs.labels.annee'), 'value': c.annee })
+  if (c.puissance)
+    specs.push({ '@type': 'PropertyValue', 'name': 'Puissance', 'value': c.puissance, 'unitText': t('car.highlights.powerUnit') })
+
+  // Le schéma Sanity garantit qu'un seul des deux prix est renseigné.
+  const price = c.prixJournalier ?? c.prixMensuel ?? null
+  const unitCode = c.prixJournalier != null ? 'DAY' : 'MON'
+  const carPath = localePath({ name: 'car-uid', params: { uid: c.slug } })
+
+  // `businessFunction`/`unitCode` ne sont pas dans le type Offer de @unhead → cast unique.
+  const product = defineProduct({
+    'name': `${c.marque} ${c.modele}`,
+    'sku': c.slug,
+    'brand': { '@type': 'Brand', 'name': c.marque },
+    ...(images.length ? { image: images } : {}),
+    ...(plainDescription ? { description: plainDescription } : {}),
+    ...(c.gamme ? { category: t(`car.specs.gamme.${c.gamme}`) } : {}),
+    ...(specs.length ? { additionalProperty: specs } : {}),
+    ...(price != null
+      ? {
+          offers: {
+            '@type': 'Offer',
+            'priceCurrency': 'EUR',
+            'businessFunction': 'http://purl.org/goodrelations/v1#LeaseOut',
+            'availability': 'https://schema.org/InStock',
+            'url': abs(carPath),
+            'priceSpecification': {
+              '@type': 'UnitPriceSpecification',
+              'price': price,
+              'priceCurrency': 'EUR',
+              'unitCode': unitCode,
+            },
+          },
+        }
+      : {}),
+  } as unknown as Parameters<typeof defineProduct>[0])
+
+  return [
+    product,
+    defineBreadcrumb({
+      itemListElement: [
+        { name: t('breadcrumb.home'), item: abs(localePath({ name: 'index' })) },
+        { name: t('breadcrumb.catalogue'), item: abs(localePath({ name: 'catalogue' })) },
+        { name: `${c.marque} ${c.modele}`, item: abs(carPath) },
+      ],
+    }),
+  ]
+}))
+
 useMenuCtaSnap()
 
 const analytics = useAnalytics()
