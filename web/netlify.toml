@@ -28,18 +28,9 @@
 [context.develop.environment]
   NUXT_PUBLIC_IS_PROD = "false"
 
-# Apex `/` → `/fr` en 301 FORCÉ.
-# `nuxt.config.ts` déclare déjà `routeRules: { '/': { redirect: '/fr', 301 } }`,
-# compilé par le preset Nitro `netlify` en règle `_redirects` (`/  /fr  301`).
-# MAIS la passe de prerender écrit aussi un `index.html` stub à la racine
-# (meta-refresh vers /fr) — et sur Netlify un fichier statique a priorité sur une
-# règle `_redirects` NON-forcée. Résultat : l'apex renvoyait `200 + meta-refresh`
-# au lieu du 301 voulu (mauvais pour le SEO : la racine = l'URL où Google lit le
-# « nom du site », et il n'y trouvait qu'un stub vide derrière une redirection molle).
-# `force = true` applique la 301 AVANT de servir le stub. Les règles `netlify.toml`
-# sont évaluées avant `_redirects`. Query string préservée par défaut.
-[[redirects]]
-  from = "/"
-  to = "/fr"
-  status = 301
-  force = true
+# NB : la redirection apex `/` → `/fr` (301) est gérée par la routeRule dans
+# nuxt.config.ts (→ règle `_redirects` au bord du CDN). On NE met PAS de
+# `[[redirects]]` forcé ici : Netlify évalue `_redirects` AVANT `netlify.toml`,
+# donc une règle forcée ici n'est jamais atteinte (le `_redirects` gagne). Le fix
+# réel est de ne pas générer le stub `index.html` qui « shadow » la 301 — voir
+# `nitro.prerender.ignore` dans nuxt.config.ts.

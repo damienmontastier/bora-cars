@@ -99,9 +99,12 @@ export const CATALOGUE_FILTERS: CatalogueFilterDef[] = [
     key: 'ville',
     enabled: true,
     type: 'facet',
-    // On compare la valeur FR (canonique) de la ville du lieu référencé, pour
-    // grouper toutes les agences d'une même ville indépendamment de la locale.
-    clause: `($ville == "" || location->city[language == "fr"][0].value == $ville)`,
+    // On filtre sur l'appartenance de la référence du lieu à l'ensemble des lieux
+    // dont la ville (valeur FR canonique) correspond — best practice Sanity
+    // (`ref._ref in *[…]._id`) : on résout les ids une fois plutôt que de
+    // déréférencer `location->…` par voiture. La clé FR groupe toutes les
+    // agences d'une même ville, indépendamment de la locale.
+    clause: `($ville == "" || location._ref in *[_type == "location" && city[language == "fr"][0].value == $ville]._id)`,
     facet: `"ville": *[_type == "location" && _id in array::unique(*[@AUDIENCE@ && defined(location)].location._ref)]{
       "value": city[language == "fr"][0].value,
       ${i18n('city', 'label')}

@@ -263,6 +263,18 @@ export default defineNuxtConfig({
     preset: 'netlify',
     prerender: {
       crawlLinks: true,
+      // NE PAS écrire le stub `/index.html`. La routeRule `'/': redirect 301` (plus
+      // haut) génère bien la règle `_redirects` au bord du CDN, MAIS la passe de
+      // prerender matérialise aussi la redirection en un `index.html` (meta-refresh
+      // vers /fr) à la racine. Or Netlify sert un fichier statique AVANT d'appliquer
+      // une règle `_redirects` non-forcée (« shadowing ») → l'apex renvoyait
+      // `200 + meta-refresh` au lieu de la 301 voulue (la racine étant l'URL où
+      // Google lit le « nom du site », il n'y trouvait qu'un stub vide). En sautant
+      // le rendu de `/`, plus de fichier à servir → la règle `_redirects 301`
+      // s'applique proprement. Matcher EXACT (jamais `'/'` en string : Nitro le
+      // matche en `startsWith` → ignorerait TOUTES les routes). `_redirects` est
+      // généré depuis routeRules (finalisation du preset), indépendant du prerender.
+      ignore: [route => route === '/'],
       // Écrit `fr.html` au lieu de `fr/index.html` → Netlify sert `/fr` en 200 DIRECT
       // (et redirige `/fr/` → `/fr`), au lieu de l'inverse. Aligne le serveur sur la
       // canonical/sitemap déjà déclarées sans slash (site.trailingSlash: false). Sinon :

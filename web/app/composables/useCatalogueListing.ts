@@ -82,7 +82,7 @@ export async function useCatalogueListing(query: string, carsQuery: string, face
   })
 
   const result = useSanityQuery<CatalogueQueryResult>(query, params)
-  const { data } = result
+  const { data, refresh } = result
 
   // Facettes (valeurs distinctes par filtre), localisées → refetch au switch de langue.
   const { data: facetsData } = useSanityQuery<Record<string, (string | FilterOption)[]>>(facetsQuery, { lang })
@@ -117,6 +117,40 @@ export async function useCatalogueListing(query: string, carsQuery: string, face
     cars.value = val?.cars ?? []
     total.value = val?.total ?? 0
     offset.value = CATALOGUE_LIMIT
+  })
+
+  // SSG (prod) : la page est prérendue au build SANS query params, donc le
+  // payload initial n'est pas filtré et useSanityQuery ne refetch pas à
+  // l'hydratation. Au montage (client uniquement), on resynchronise les filtres
+  // depuis l'URL réelle — sélection des selects + bouton « réinitialiser » — et
+  // on relance la requête si des filtres sont actifs, pour charger les bons
+  // résultats. Sans filtre actif : aucun refetch (cas courant inchangé).
+  onMounted(() => {
+    for (const key of FILTER_STATE_KEYS)
+      filters[key] = qStr(route.query[key])
+    if (hasActiveFilters.value) {
+      Object.assign(params, toGroqParams(filters))
+      refresh()
+    }
+  })
+
+  // L'URL est la source de vérité : back/forward navigateur ou tout changement
+  // d'URL externe resynchronise les filtres et refetch. Le garde `changed` évite
+  // tout double-fetch quand c'est notre propre setFilter qui vient d'écrire l'URL
+  // (les filtres correspondent déjà → no-op).
+  watch(() => route.query, () => {
+    let changed = false
+    for (const key of FILTER_STATE_KEYS) {
+      const v = qStr(route.query[key])
+      if (filters[key] !== v) {
+        filters[key] = v
+        changed = true
+      }
+    }
+    if (changed) {
+      Object.assign(params, toGroqParams(filters))
+      refresh()
+    }
   })
 
   // Applique un filtre : met à jour l'état, les params GROQ (→ refetch) et l'URL.
