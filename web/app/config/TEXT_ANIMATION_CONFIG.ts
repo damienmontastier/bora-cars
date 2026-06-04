@@ -22,8 +22,6 @@ export interface TextAnimationPreset {
   animate?: AnimateFn
 }
 
-// ─── Shared helpers ──────────────────────────────────────────────────────────
-
 function perspective(targets: Element[], depth = 2000) {
   return targets.forEach(el => gsapDefault.set(el.parentNode as Element, { perspective: depth }))
 }
@@ -32,11 +30,7 @@ function wordChars(word: Element) {
   return [...word.querySelectorAll('.char')] as Element[]
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-
 export const TEXT_ANIMATION_CONFIG = {
-
-  // ─── index.js ──────────────────────────────────────────────────────────────
 
   /** fx11 — chars slide in from the right (clipped) */
   'slide-x': {
@@ -175,8 +169,6 @@ export const TEXT_ANIMATION_CONFIG = {
     to: { ease: 'power4.inOut', opacity: 1, rotationY: 0, xPercent: 0, yPercent: 0, stagger: { each: -0.03, from: 0 } },
     scrollTrigger: { start: 'center bottom', end: 'bottom center-=30%', scrub: 0.9 },
   },
-
-  // ─── index2.js ─────────────────────────────────────────────────────────────
 
   /** fx16 — title rotates + words fade in sequentially */
   'word-fade': {

@@ -53,11 +53,19 @@ export interface CarDetailData {
   specsLayout?: { fixed?: string[], list?: string[] }
 }
 
+// Les 4 templates WhatsApp éditables (carPage), un par cas géré par useCarContact.
+export interface CarWhatsappTemplates {
+  withPrice?: string
+  withoutPrice?: string
+  simpleWithPrice?: string
+  simpleWithoutPrice?: string
+}
+
 export interface CarPageResult {
   car: CarDetailData | null
   page: {
     contentPreFooter?: CarPreFooter
-    whatsappMessage?: string
+    whatsapp?: CarWhatsappTemplates
     seo?: SeoData
   } | null
 }
@@ -114,7 +122,12 @@ export const CAR_QUERY = `{
       ${i18n('eyebrow')},
       ${i18nBlock('body')}
     },
-    ${i18n('whatsappMessage')},
+    "whatsapp": whatsapp {
+      ${i18n('withPrice')},
+      ${i18n('withoutPrice')},
+      ${i18n('simpleWithPrice')},
+      ${i18n('simpleWithoutPrice')}
+    },
     ${seoFields()}
   }
 }`

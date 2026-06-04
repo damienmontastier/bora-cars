@@ -1,7 +1,5 @@
 import { i18n } from './i18n'
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
 export interface InternalLinkRef {
   _id?: string
   _type?: string
@@ -20,8 +18,6 @@ export interface SanityImage {
   imageHotspot?: { x: number, y: number, width: number, height: number }
   imageCrop?: { top: number, bottom: number, left: number, right: number }
 }
-
-// ─── GROQ fragments ───────────────────────────────────────────────────────────
 
 /**
  * Full image fragment (asset ref + alt + hotspot + crop), injected flat on the parent object.

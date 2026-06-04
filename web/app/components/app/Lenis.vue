@@ -5,7 +5,7 @@ import Tempus from 'tempus'
 
 const lenisOptions = {
   autoRaf: false, // driven manually via Tempus
-  lerp: 0.1, // 0.1 by default
+  lerp: 0.1,
 }
 
 const lenisRef = ref()

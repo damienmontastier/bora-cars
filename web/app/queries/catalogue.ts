@@ -194,7 +194,6 @@ export const CATALOGUE_QUERY = catalogueQuery('catalogue', 'particulier')
 export const CATALOGUE_CARS_QUERY = catalogueCarsQuery('particulier')
 export const CATALOGUE_FACETS_QUERY = catalogueFacetsQuery('particulier')
 
-// Catalogue professionnel
 export const CATALOGUE_PRO_QUERY = catalogueQuery('catalogueProfessionnel', 'professionnel')
 export const CATALOGUE_PRO_CARS_QUERY = catalogueCarsQuery('professionnel')
 export const CATALOGUE_PRO_FACETS_QUERY = catalogueFacetsQuery('professionnel')

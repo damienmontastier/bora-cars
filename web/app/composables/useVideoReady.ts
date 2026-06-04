@@ -1,5 +1,5 @@
 import { onUnmounted } from 'vue'
-import { useBreakpoint } from '@/composables/useBreakpoint' // Assuming import path
+import { useBreakpoint } from '@/composables/useBreakpoint'
 
 export async function ensureVideoReady(video?: HTMLVideoElement): Promise<void> {
   if (!video)
@@ -16,11 +16,9 @@ export async function ensureVideoReady(video?: HTMLVideoElement): Promise<void> 
   await new Promise<void>((resolve) => {
     let timeout: ReturnType<typeof setTimeout>
 
-    // --- Fix: Use 'function' so these are hoisted and can reference each other ---
-
+    // Use 'function' so these are hoisted and can reference each other
     function cleanup() {
       clearTimeout(timeout)
-      // video is captured from parent scope, but ensure it exists
       if (!video)
         return
       video.removeEventListener('loadeddata', onReady)
@@ -32,8 +30,6 @@ export async function ensureVideoReady(video?: HTMLVideoElement): Promise<void> 
       cleanup()
       resolve()
     }
-
-    // -----------------------------------------------------------------------------
 
     timeout = setTimeout(() => {
       cleanup()

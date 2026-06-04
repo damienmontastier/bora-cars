@@ -143,7 +143,7 @@ function scrollTo(i: number) {
   background: var(--c-beige-20);
 
   @include mobile {
-    height: mobile-vw(600px);
+    height: mobile-vw(680px);
   }
 
   &--draggable {

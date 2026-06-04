@@ -23,4 +23,5 @@ export const LOCALIZED_DOCUMENT_TYPES = [
   'car',
   'location',
   'legalPage',
+  'glossaire',
 ]

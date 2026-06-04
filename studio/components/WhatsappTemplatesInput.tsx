@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useClient } from 'sanity'
-import type { ArrayOfObjectsInputProps } from 'sanity'
+import type { ObjectInputProps } from 'sanity'
 import { Box, Card, Flex, Select, Stack, Text } from '@sanity/ui'
 
 interface TemplateVariable {
@@ -8,8 +8,8 @@ interface TemplateVariable {
   label: string
 }
 
-// Variables interpolées côté front par Pricing.vue (fillTemplate).
-// Doivent rester synchronisées avec `whatsappParams` dans web/.../car/Pricing.vue.
+// Variables interpolées côté front par useCarContact (fillTemplate).
+// À garder synchronisées avec `whatsappParams` dans web/.../composables/useCarContact.ts.
 const VARIABLES: TemplateVariable[] = [
   { token: '{marque}', label: 'Marque' },
   { token: '{modele}', label: 'Modèle' },
@@ -19,6 +19,16 @@ const VARIABLES: TemplateVariable[] = [
   { token: '{quand}', label: 'Quand' },
   { token: '{url}', label: 'Lien fiche' },
 ]
+
+// Les 4 cas — même ordre/clé que l'objet `whatsapp` du schéma carPage.
+// `noDate` = barre sticky : pas de sélecteur durée/quand → {duree}/{quand} interdits.
+const FIELDS: { name: string, label: string, noDate: boolean }[] = [
+  { name: 'withPrice', label: 'Bloc tarif — avec prix', noDate: false },
+  { name: 'withoutPrice', label: 'Bloc tarif — sans prix', noDate: false },
+  { name: 'simpleWithPrice', label: 'Barre sticky — avec prix', noDate: true },
+  { name: 'simpleWithoutPrice', label: 'Barre sticky — sans prix', noDate: true },
+]
+const DATE_TOKENS = new Set(['duree', 'quand'])
 
 type Lang = 'fr' | 'en'
 const LANGS: { id: Lang, label: string }[] = [
@@ -41,14 +51,12 @@ interface TemplateValueItem {
   value?: string
 }
 
-// Reflètent les libellés réels du front (web/i18n/locales/*.json → car.pricing.*).
-// duree/quand = valeurs PAR DÉFAUT des sélecteurs de la fiche.
+// Reflètent les libellés réels du front (car.pricing.*) — valeurs PAR DÉFAUT des sélecteurs.
 const SAMPLE = {
   fr: { duree: '24h', quand: 'Ce week-end', perDay: 'par jour', perMonth: 'par mois' },
   en: { duree: '24h', quand: 'This weekend', perDay: 'per day', perMonth: 'per month' },
 }
 
-// 1ʳᵉ lettre en minuscule — miroir de Pricing.vue (libellé « Quand » en milieu de phrase).
 function lowerFirst(s: string): string {
   return s ? s.charAt(0).toLowerCase() + s.slice(1) : s
 }
@@ -67,15 +75,13 @@ function buildParams(car: CarOption, lang: Lang): Record<string, string> {
     periode: isMonthly ? s.perMonth : s.perDay,
     duree: s.duree,
     quand: lowerFirst(s.quand),
-    url: car.slug ? `/${lang}/car/${car.slug}` : '',
+    url: car.slug ? `/${lang}/voiture/${car.slug}` : '',
   }
 }
 
-// Tokens connus (sans accolades) et ceux dont la valeur vient du document `car`.
 const KNOWN_TOKENS = new Set(VARIABLES.map(v => v.token.slice(1, -1)))
 const CAR_TOKENS = new Set(['marque', 'modele', 'prix', 'url'])
 
-// Une variable issue du document `car` est-elle renseignée sur cette voiture ?
 function carFieldPresent(car: CarOption, token: string): boolean {
   switch (token) {
     case 'marque': return Boolean(car.marque)
@@ -86,7 +92,7 @@ function carFieldPresent(car: CarOption, token: string): boolean {
   }
 }
 
-// Marqueur surligné INLINE dans l'aperçu (valeur absente ou variable inconnue).
+// Marqueur surligné INLINE dans l'aperçu.
 function Marker({ color, title, children }: { color: string, title: string, children: React.ReactNode }) {
   return (
     <span
@@ -106,8 +112,39 @@ function Marker({ color, title, children }: { color: string, title: string, chil
   )
 }
 
-// Insère du texte dans un <textarea> contrôlé par React en déclenchant un vrai
-// event `input` — sinon Sanity (composant contrôlé) ne voit pas le changement.
+// Aperçu d'un template en segments : valeurs absentes / variables interdites surlignées.
+function renderPreview(template: string, car: CarOption, lang: Lang, noDate: boolean): React.ReactNode {
+  const params = buildParams(car, lang)
+  return template.split(/(\{\w+\})/g).map((part, i) => {
+    const m = part.match(/^\{(\w+)\}$/)
+    if (!m)
+      return <React.Fragment key={i}>{part}</React.Fragment>
+    const token = m[1]!
+    if (!KNOWN_TOKENS.has(token)) {
+      return (
+        <Marker key={i} color="#8b5cf6" title="Variable inconnue — sortira vide sur le site">
+          [{token} ?]
+        </Marker>
+      )
+    }
+    if (noDate && DATE_TOKENS.has(token)) {
+      return (
+        <Marker key={i} color="#e8a400" title="La barre sticky n'a pas de sélecteur durée/quand — cette valeur par défaut n'est PAS choisie par le client">
+          [{token} à éviter]
+        </Marker>
+      )
+    }
+    if (CAR_TOKENS.has(token) && !carFieldPresent(car, token)) {
+      return (
+        <Marker key={i} color="#e11900" title="Non renseigné sur cette voiture — sortira vide sur le site">
+          [{token} absent]
+        </Marker>
+      )
+    }
+    return <React.Fragment key={i}>{params[token] ?? ''}</React.Fragment>
+  })
+}
+
 function insertIntoTextarea(textarea: HTMLTextAreaElement, token: string) {
   const start = textarea.selectionStart ?? textarea.value.length
   const end = textarea.selectionEnd ?? textarea.value.length
@@ -123,13 +160,11 @@ function insertIntoTextarea(textarea: HTMLTextAreaElement, token: string) {
 }
 
 /**
- * Wrapper de champ pour le template de message WhatsApp de la fiche voiture.
- * Conserve l'UI internationalisée par défaut (`renderDefault`, textareas FR/EN)
- * et ajoute :
- *  - une barre de "chips" de variables (clic = insère / glisser-dépose = drop) ;
- *  - un aperçu du message final pour une voiture choisie dans la liste.
+ * Input de l'objet `whatsapp` (carPage) : les 4 templates partagent UNE seule barre
+ * de variables et UN seul aperçu (1 sélecteur voiture + 1 sélecteur langue), qui
+ * affiche les 4 messages finaux côte à côte.
  */
-export function WhatsappTemplateInput(props: ArrayOfObjectsInputProps) {
+export function WhatsappTemplatesInput(props: ObjectInputProps) {
   const { renderDefault, value } = props
   const containerRef = useRef<HTMLDivElement>(null)
   const lastFocused = useRef<HTMLTextAreaElement | null>(null)
@@ -168,44 +203,20 @@ export function WhatsappTemplateInput(props: ArrayOfObjectsInputProps) {
       insertIntoTextarea(textarea, token)
   }, [])
 
-  const template = useMemo(() => {
-    const items = (value ?? []) as TemplateValueItem[]
-    return items.find(i => i.language === lang)?.value ?? ''
-  }, [value, lang])
-
   const selectedCar = useMemo(
     () => cars.find(c => c._id === selectedId),
     [cars, selectedId],
   )
 
-  // Aperçu rendu en segments : chaque valeur absente / variable inconnue est
-  // surlignée INLINE, à l'endroit exact où elle manque dans la phrase.
-  const previewNodes = useMemo(() => {
-    if (!selectedCar || !template.trim())
-      return null
-    const params = buildParams(selectedCar, lang)
-    return template.split(/(\{\w+\})/g).map((part, i) => {
-      const m = part.match(/^\{(\w+)\}$/)
-      if (!m)
-        return <React.Fragment key={i}>{part}</React.Fragment>
-      const token = m[1]
-      if (!KNOWN_TOKENS.has(token)) {
-        return (
-          <Marker key={i} color="#8b5cf6" title="Variable inconnue — sortira vide sur le site">
-            [{token} ?]
-          </Marker>
-        )
-      }
-      if (CAR_TOKENS.has(token) && !carFieldPresent(selectedCar, token)) {
-        return (
-          <Marker key={i} color="#e11900" title="Non renseigné sur cette voiture — sortira vide sur le site">
-            [{token} absent]
-          </Marker>
-        )
-      }
-      return <React.Fragment key={i}>{params[token] ?? ''}</React.Fragment>
+  // Template courant de chaque champ, pour la langue choisie.
+  const templates = useMemo(() => {
+    const obj = (value ?? {}) as Record<string, TemplateValueItem[] | undefined>
+    return FIELDS.map((f) => {
+      const items = obj[f.name] ?? []
+      const tpl = items.find(i => i.language === lang)?.value ?? ''
+      return { ...f, tpl }
     })
-  }, [selectedCar, template, lang])
+  }, [value, lang])
 
   return (
     <div ref={containerRef} onFocusCapture={handleFocusCapture}>
@@ -250,7 +261,7 @@ export function WhatsappTemplateInput(props: ArrayOfObjectsInputProps) {
         <Card padding={3} radius={2} tone="transparent" border>
           <Stack space={3}>
             <Text size={1} weight="semibold" muted>
-              Aperçu du message
+              Aperçu des 4 messages
             </Text>
 
             <Flex gap={2} wrap="wrap">
@@ -281,22 +292,29 @@ export function WhatsappTemplateInput(props: ArrayOfObjectsInputProps) {
               </Box>
             </Flex>
 
-            {previewNodes
+            {selectedCar
               ? (
-                  <Card padding={3} radius={2} tone="positive" border>
-                    <Text size={1} style={{ whiteSpace: 'pre-wrap' }}>{previewNodes}</Text>
-                  </Card>
+                  <Stack space={2}>
+                    {templates.map(f => (
+                      <Card key={f.name} padding={3} radius={2} tone={f.tpl.trim() ? 'positive' : 'caution'} border>
+                        <Stack space={2}>
+                          <Text size={0} weight="semibold" muted>{f.label}</Text>
+                          {f.tpl.trim()
+                            ? <Text size={1} style={{ whiteSpace: 'pre-wrap' }}>{renderPreview(f.tpl, selectedCar, lang, f.noDate)}</Text>
+                            : <Text size={1} muted style={{ fontStyle: 'italic' }}>Vide → lien WhatsApp sans message pré-rempli.</Text>}
+                        </Stack>
+                      </Card>
+                    ))}
+                  </Stack>
                 )
               : (
                   <Text size={1} muted style={{ fontStyle: 'italic' }}>
-                    {selectedId
-                      ? 'Le template est vide pour cette langue → le message par défaut (i18n) sera utilisé.'
-                      : 'Choisis une voiture pour voir le message final.'}
+                    Choisis une voiture pour voir les 4 messages finaux.
                   </Text>
                 )}
 
             <Text size={0} muted>
-              Surligné = valeur absente (rouge) ou variable inconnue (violet) → sortira vide sur le site. durée / quand = valeurs par défaut · lien = chemin de la fiche (le domaine est ajouté sur le site).
+              Surligné : valeur absente sur la voiture (rouge), variable inconnue (violet) ou date à éviter sur la barre sticky (orange) · durée/quand = valeurs par défaut · lien = chemin de la fiche (le domaine est ajouté sur le site).
             </Text>
           </Stack>
         </Card>

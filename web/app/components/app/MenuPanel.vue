@@ -236,7 +236,6 @@ onUnmounted(() => {
     }
   }
 
-  // Active link, only when the panel is open
   &.is-open &__nav-inner:has(.router-link-exact-active) .CTA-TEXT-XL::after {
     transform: scaleX(1);
     transition-delay: 0.55s; // wait for stagger reveal on initial open; also sequences after old underline collapses on page swap

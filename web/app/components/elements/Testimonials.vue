@@ -145,7 +145,6 @@ usePointerSwipe(sectionRef, {
 
 <template>
   <section ref="sectionRef" class="app-elements-testimonials">
-    <!-- Backgrounds (crossfade) -->
     <div aria-hidden="true" class="app-elements-testimonials__backgrounds">
       <div
         v-for="(item, i) in items"
@@ -169,9 +168,7 @@ usePointerSwipe(sectionRef, {
       <div class="app-elements-testimonials__gradient" />
     </div>
 
-    <!-- Content -->
     <div class="app-elements-testimonials__inner">
-      <!-- Left: author + nav -->
       <div class="app-elements-testimonials__left">
         <Transition name="t-fade" mode="out-in">
           <div :key="selectedIndex" class="app-elements-testimonials__author">
@@ -179,7 +176,7 @@ usePointerSwipe(sectionRef, {
               {{ currentItem?.authorName }}
             </TextsP1>
             <TextsP2 :selectable="false" color="beige-100" class="app-elements-testimonials__author-role">
-              {{ currentItem?.authorRole }} <span>—</span> {{ currentItem?.car ? `${currentItem.car.marque} ${currentItem.car.modele}` : '' }}
+              {{ currentItem?.authorRole }}<span v-if="currentItem?.car" class="app-elements-testimonials__author-car"><span class="app-elements-testimonials__author-sep">—</span>{{ currentItem.car.marque }} {{ currentItem.car.modele }}</span>
             </TextsP2>
           </div>
         </Transition>
@@ -194,8 +191,11 @@ usePointerSwipe(sectionRef, {
         </div>
       </div>
 
-      <!-- Right: Embla quotes -->
+      <!-- Right: Embla quotes (mobile: car label sits above the quote) -->
       <div class="app-elements-testimonials__right">
+        <TextsP1 :selectable="false" color="beige-100" class="app-elements-testimonials__car-label">
+          {{ currentItem?.car ? `${currentItem.car.marque} ${currentItem.car.modele}` : '' }}
+        </TextsP1>
         <div ref="emblaRef" class="app-elements-testimonials__embla">
           <div class="app-elements-testimonials__embla-container">
             <div
@@ -214,7 +214,6 @@ usePointerSwipe(sectionRef, {
       </div>
     </div>
 
-    <!-- Progress bar -->
     <div aria-hidden="true" class="app-elements-testimonials__progress">
       <div ref="progressFillRef" class="app-elements-testimonials__progress-fill" :style="{ transform: `scaleX(${progress})`, transformOrigin: progressOrigin }" />
     </div>
@@ -295,10 +294,16 @@ usePointerSwipe(sectionRef, {
     line-height: desktop-vw(24px);
   }
 
-  &__author-role {
-    span {
-      display: inline-block;
-      margin: 0 desktop-vw(8px);
+  &__author-sep {
+    display: inline-block;
+    margin: 0 desktop-vw(8px);
+  }
+
+  // The car (marque + modèle) is appended to the role on desktop; on mobile it
+  // moves above the quote (see &__car-label) so it is hidden here.
+  &__author-car {
+    @include mobile {
+      display: none;
     }
   }
 
@@ -365,6 +370,11 @@ usePointerSwipe(sectionRef, {
     display: inline;
   }
 
+  // Car label above the quote — mobile only (on desktop the car lives in the role line).
+  &__car-label {
+    display: none;
+  }
+
   &__progress {
     position: absolute;
     z-index: 1;
@@ -382,9 +392,92 @@ usePointerSwipe(sectionRef, {
     background: var(--c-beige-100);
     transition: transform 0.4s ease;
   }
+
+  // ── Mobile ──────────────────────────────────────────────────────────────
+  // Single column, space-between: car + quote on top, author + nav at the
+  // bottom (column-reverse keeps the quote first in the DOM for Embla).
+  @include mobile {
+    min-height: mobile-vw(664px);
+    padding: mobile-vw(40px) mobile-vw(24px);
+
+    &__inner {
+      flex: 1;
+      flex-direction: column-reverse;
+      justify-content: space-between;
+      gap: mobile-vw(40px);
+    }
+
+    &__gradient {
+      background: linear-gradient(-31deg, rgba(12, 12, 10, 0) 0%, #0c0c0a 100%);
+    }
+
+    // Bottom row: author on the left, nav on the right, both bottom-aligned.
+    &__left {
+      flex-direction: row;
+      align-items: flex-end;
+      align-self: stretch;
+      width: 100%;
+      gap: mobile-vw(16px);
+    }
+
+    &__author {
+      flex: 1 1 auto;
+      min-width: 0;
+      gap: 0;
+    }
+
+    &__author-name {
+      font-size: mobile-vw(20px);
+      line-height: mobile-vw(24px);
+    }
+
+    &__author-role {
+      font-size: mobile-vw(18px);
+      line-height: mobile-vw(22px);
+    }
+
+    &__nav {
+      flex: 0 0 auto;
+      gap: mobile-vw(8px);
+    }
+
+    &__nav-btn {
+      width: mobile-vw(52px);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+    }
+
+    &__nav-icon {
+      width: mobile-vw(18px);
+      height: mobile-vw(18px);
+    }
+
+    // Top block: car label + quote, full width, left-aligned.
+    &__right {
+      flex: 0 1 auto;
+      width: 100%;
+      align-items: flex-start;
+      gap: mobile-vw(8px);
+    }
+
+    &__car-label {
+      display: block;
+      font-family: var(--font-haas-grot-disp-regular);
+      font-size: mobile-vw(18px);
+      line-height: mobile-vw(22px);
+    }
+
+    &__quote {
+      font-size: mobile-vw(32px);
+      line-height: mobile-vw(40px);
+    }
+
+    &__progress {
+      height: 3px;
+    }
+  }
 }
 
-// Author fade transition
 .t-fade-enter-active,
 .t-fade-leave-active {
   transition: opacity 0.3s ease;

@@ -23,8 +23,6 @@ const row2Items = computed<MarqueeItem[]>(() => {
   return allItems.value.slice(half)
 })
 
-// ─── Shared marquee props ─────────────────────────────────────────────────────
-
 const sharedMarqueeProps = computed(() => ({
   duration: 30,
   repeat: 4,
@@ -33,8 +31,6 @@ const sharedMarqueeProps = computed(() => ({
   scrollVelocitySpeed: 1.25,
   trigger: rootRef.value,
 }))
-
-// ─── Scroll: rows translate from top to bottom of section ────────────────────
 
 let ctx: gsap.Context | null = null
 
@@ -67,7 +63,6 @@ onUnmounted(() => {
 
 <template>
   <section ref="rootRef" class="app-elements-fullscreen-marquee">
-    <!-- Background -->
     <div class="app-elements-fullscreen-marquee__background-wrapper">
       <UtilsParallax
         v-if="data.backgroundMedia"
@@ -95,9 +90,7 @@ onUnmounted(() => {
 
     <div class="app-elements-fullscreen-marquee__overlay" />
 
-    <!-- Marquee rows -->
     <div ref="rowsRef" class="app-elements-fullscreen-marquee__rows">
-      <!-- Row 1 — first half, scrolls left -->
       <ElementsMarquee
         v-bind="sharedMarqueeProps"
         class="app-elements-fullscreen-marquee__row"
@@ -119,7 +112,6 @@ onUnmounted(() => {
         </div>
       </ElementsMarquee>
 
-      <!-- Row 2 — second half, scrolls right -->
       <ElementsMarquee
         v-bind="sharedMarqueeProps"
         :reversed="true"
@@ -142,7 +134,6 @@ onUnmounted(() => {
         </div>
       </ElementsMarquee>
 
-      <!-- CTA -->
       <AtomsCTA
         v-if="data.cta?.text"
         :to="data.cta"

@@ -18,6 +18,7 @@ import {
   ArchiveIcon,
   DocumentTextIcon,
   RocketIcon,
+  TranslateIcon,
 } from '@sanity/icons'
 import { schemaTypes } from './schemaTypes'
 import { SUPPORTED_LANGUAGES, LOCALIZED_DOCUMENT_TYPES } from './schemaTypes/constants'
@@ -26,7 +27,7 @@ import { DeployTool } from './components/DeployTool'
 
 const CarIcon = () => createElement('span', null, '🚗')
 
-const SINGLETONS = new Set(['homepage', 'footer', 'menu', 'proprietaire', 'professionnel', 'contact', 'settings', 'catalogue', 'catalogueProfessionnel', 'carPage'])
+const SINGLETONS = new Set(['homepage', 'footer', 'menu', 'proprietaire', 'professionnel', 'contact', 'settings', 'catalogue', 'catalogueProfessionnel', 'carPage', 'glossaire'])
 
 const structure = (S: any) =>
   S.list()
@@ -67,6 +68,8 @@ const structure = (S: any) =>
       S.listItem().title('Footer').id('footer').icon(StackCompactIcon)
         .child(S.document().schemaType('footer').documentId('footer')),
       S.divider(),
+      S.listItem().title('Glossaire (traductions)').id('glossaire').icon(TranslateIcon)
+        .child(S.document().schemaType('glossaire').documentId('glossaire')),
       S.listItem().title('Paramètres').id('settings').icon(CogIcon)
         .child(S.document().schemaType('settings').documentId('settings')),
     ])

@@ -12,7 +12,6 @@ function getHashElementScrollMarginTop(selector: string): number {
     }
   }
   catch {
-    // ignore
   }
   return 0
 }
@@ -27,7 +26,6 @@ export default <RouterConfig>{
       ;(window as any).lenis?.start()
     }
 
-    // ───────────────────────────── Même page ─────────────────────────────
     if (to.path === from.path) {
       const lenis = (window as any).lenis
 
@@ -53,7 +51,6 @@ export default <RouterConfig>{
       return { top: 0, behavior: 'smooth' }
     }
 
-    // ─────────────────────── Changement de page ───────────────────────
     // Toutes les remises à zéro / restaurations de scroll se font PENDANT que l'overlay
     // couvre l'écran. Transition.vue émet 'entering' au début de onEnter = nouvelle page
     // montée + overlay encore opaque. On scrolle là, puis l'overlay se lève sur la page

@@ -20,7 +20,6 @@ const { t } = useI18n()
 
 const lenis = useLenis()
 
-// Track which category descriptions are expanded in the settings panel.
 const expanded = ref<Record<CookieCategoryKey, boolean>>({
   necessary: false,
   analytics: false,
@@ -93,7 +92,6 @@ onUnmounted(() => {
         <div class="app-cookies__overlay" />
 
         <Transition name="app-cookies-view" mode="out-in">
-          <!-- Banner state: bottom-left orange card -->
           <div v-if="view === 'banner'" key="banner" class="app-cookies__banner">
         <div class="app-cookies__banner-text">
           <TextsP3 tag="h2" color="beige-100" weight="bold">
@@ -138,7 +136,6 @@ onUnmounted(() => {
         </div>
       </div>
 
-          <!-- Settings state: centered beige modal -->
           <div v-else key="settings" class="app-cookies__modal-wrap">
         <div class="app-cookies__modal">
           <div class="app-cookies__modal-scroll">
@@ -236,8 +233,6 @@ onUnmounted(() => {
 </template>
 
 <style lang="scss">
-// ---------------- Transitions ----------------
-// Outer open/close: fade in/out the whole cookies layer (overlay + content).
 .app-cookies-root-enter-active,
 .app-cookies-root-leave-active {
   transition: opacity 0.4s var(--ease-out-cubic);
@@ -247,7 +242,6 @@ onUnmounted(() => {
   opacity: 0;
 }
 
-// Inner view switch (banner <-> settings): scale + fade.
 .app-cookies-view-enter-active,
 .app-cookies-view-leave-active {
   transition:
@@ -287,7 +281,6 @@ onUnmounted(() => {
     }
   }
 
-  // ---------------- Banner ----------------
   &__banner {
     position: absolute;
     z-index: 2;
@@ -364,7 +357,6 @@ onUnmounted(() => {
     }
   }
 
-  // ---------------- Buttons ----------------
   &__btn {
     display: inline-flex;
     align-items: center;
@@ -400,7 +392,6 @@ onUnmounted(() => {
     }
   }
 
-  // ---------------- Modal ----------------
   &__modal-wrap {
     position: absolute;
     z-index: 2;

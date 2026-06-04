@@ -11,6 +11,7 @@ import { settingsType } from './singletons/settings'
 import { catalogueType } from './singletons/catalogue'
 import { catalogueProfessionnelType } from './singletons/catalogueProfessionnel'
 import { carPageType } from './singletons/carPage'
+import { glossaireType } from './singletons/glossaire'
 
 // Documents
 import { locationType } from './documents/location'
@@ -38,6 +39,7 @@ import { customLink } from './objects/customLink'
 import { navLink } from './objects/navLink'
 import { processStepType } from './objects/processStep'
 import { specsLayoutType } from './objects/specsLayout'
+import { glossaryEntry } from './objects/glossaryEntry'
 
 export const schemaTypes: SchemaTypeDefinition[] = [
   // Singletons
@@ -51,6 +53,7 @@ export const schemaTypes: SchemaTypeDefinition[] = [
   catalogueType,
   catalogueProfessionnelType,
   carPageType,
+  glossaireType,
 
   // Documents
   locationType,
@@ -78,4 +81,5 @@ export const schemaTypes: SchemaTypeDefinition[] = [
   navLink,
   processStepType,
   specsLayoutType,
+  glossaryEntry,
 ]

@@ -21,7 +21,6 @@ const { fontsLoaded, menuTheme } = toRefs(appStore)
 useMagicKeys({
   passive: false,
   onEventFired: (e) => {
-    // Toggle debug panel
     if (
       (e.key === 'o' || e.key === 'O')
       && (e.ctrlKey || e.metaKey)
@@ -31,7 +30,6 @@ useMagicKeys({
       isVisible.value = !isVisible.value
     }
 
-    // Toggle grid debug
     if (
       (e.key === 'g' || e.key === 'G')
       && (e.ctrlKey || e.metaKey)
@@ -41,7 +39,6 @@ useMagicKeys({
       patrolItems.grid = !patrolItems.grid
     }
 
-    // Toggle states info
     if (
       (e.key === 'i' || e.key === 'I')
       && (e.ctrlKey || e.metaKey)
@@ -68,7 +65,6 @@ onClickOutside(itemsRef, () => {
 
 <template>
   <div :class="{ hide: !isVisible }" class="app-debug-patrol">
-    <!-- ITEMS -->
     <div ref="items" :class="{ hide: !isVisible }" class="app-debug-patrol__items">
       <div :class="{ active: patrolItems.grid }" class="app-debug-patrol__item grid-item " @click="patrolItems.grid = !patrolItems.grid">
         #️⃣
@@ -78,15 +74,12 @@ onClickOutside(itemsRef, () => {
       </div>
     </div>
 
-    <!-- BACKGROUND -->
     <div :class="{ hide: !isVisible }" class="app-debug-patrol__background" />
 
-    <!-- GRID OVERLAY -->
     <div v-if="patrolItems.grid" class="app-debug-patrol__grid-overlay grid-inner">
       <span v-for="n in layoutColumnsCount" :key="n" class="grid-item" :style="{ background: `var(--c-${gridColor})` }" />
     </div>
 
-    <!-- STATES INFO -->
     <div v-if="patrolItems.statesInfo" class="app-debug-patrol__states-info">
       <div class="app-debug-patrol__states-info__block">
         <TextsP1 color="black" class="app-debug-patrol__states-info__block__title">

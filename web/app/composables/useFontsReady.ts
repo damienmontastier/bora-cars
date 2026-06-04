@@ -16,24 +16,19 @@ export function useFontsReady() {
   }
 
   async function checkFonts() {
-    // Sécurité: Si SSR ou pas de support, on débloque tout de suite
     if (!fontsSupported) {
       unlock()
       return
     }
 
-    // 2. Fallback de sécurité : Quoi qu'il arrive, on débloque après le timeout
+    // Fallback de sécurité : quoi qu'il arrive, on débloque après le timeout
     fallbackTimer = setTimeout(() => {
       console.warn('[Fonts] Timeout: Fonts took too long, showing content anyway.')
       unlock()
     }, fallbackTimeout)
 
     try {
-      // 3. On attend que le browser confirme que les polices critiques sont là
       await document.fonts.ready
-
-      // Optionnel : Vérifier spécifiquement ta police principale pour éviter d'attendre les widgets tiers
-      // const isMainFontLoaded = document.fonts.check('1em ALTRiviera-Regular')
 
       console.log('[Fonts] Fonts are ready')
       unlock()

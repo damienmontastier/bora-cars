@@ -101,7 +101,6 @@ function toggle(key: string, index: number) {
     return
   }
 
-  // Target measurements
   const targetFromH = targetWrappers[0]!.getBoundingClientRect().height
   const targetToH = wasOpen ? 0 : measureExpandedHeight(itemEl)
   const targetHeightDelta = targetToH - targetFromH
@@ -219,7 +218,6 @@ onUnmounted(() => {
         class="faq-item"
         @click="toggle(item._key, index)"
       >
-        <!-- Main content -->
         <div class="faq-item__header">
           <TextsH3 :selectable="false" class="faq-item__question">
             {{ item.question }}

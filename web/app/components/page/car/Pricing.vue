@@ -1,11 +1,25 @@
 <script setup lang="ts">
-import type { CarDetailData } from '~/queries/car'
+import type { CarDetailData, CarWhatsappTemplates } from '~/queries/car'
 
-const props = defineProps<{ car: CarDetailData, whatsappTemplate?: string }>()
+const props = defineProps<{ car: CarDetailData, whatsappTemplates?: CarWhatsappTemplates }>()
 
-const settings = useSettings()
-const { t, locale } = useI18n()
-const requestUrl = useRequestURL()
+const { t } = useI18n()
+
+// Tarif + contact WhatsApp mutualisés avec la barre sticky mobile (cf. useCarContact).
+const {
+  formattedPrix,
+  periodLabel,
+  duration,
+  when,
+  durationOptions,
+  whenOptions,
+  contactTo,
+  ctaTrackingExtra,
+  hasContact,
+} = useCarContact(() => props.car, {
+  whatsappTemplates: () => props.whatsappTemplates,
+  source: 'car_pricing',
+})
 
 // Adresse affichée = rue + (code postal + ville réelle). Le libellé `city` (ex. « Paris »)
 // est affiché séparément comme titre du lieu (cf. template).
@@ -15,120 +29,6 @@ const locationAddress = computed(() => {
     return ''
   return [l.address, [l.postalCode, l.addressLocality].filter(Boolean).join(' ')].filter(Boolean).join(', ')
 })
-
-// Le schéma Sanity garantit qu'un seul des deux prix est renseigné.
-// On privilégie le mensuel s'il existe, sinon le journalier.
-const isMonthly = computed(() => props.car.prixMensuel != null)
-const priceValue = computed(() => props.car.prixMensuel ?? props.car.prixJournalier ?? null)
-
-const formattedPrix = computed(() => {
-  const p = priceValue.value
-  if (p == null)
-    return null
-  const numberLocale = locale.value === 'fr' ? 'fr-FR' : 'en-GB'
-  return new Intl.NumberFormat(numberLocale).format(p)
-})
-
-const periodLabel = computed(() => isMonthly.value ? t('car.pricing.perMonth') : t('car.pricing.perDay'))
-
-const DURATION_KEYS = ['24h', '48h', '3days', '1week', '2weeks', '1month'] as const
-const WHEN_KEYS = ['today', 'tomorrow', 'weekend', 'nextweek', 'later'] as const
-
-const duration = ref<typeof DURATION_KEYS[number]>('24h')
-const when = ref<typeof WHEN_KEYS[number]>('weekend')
-
-const durationOptions = computed(() =>
-  DURATION_KEYS.map(k => ({ value: k, label: t(`car.pricing.duration.options.${k}`) })),
-)
-const whenOptions = computed(() =>
-  WHEN_KEYS.map(k => ({ value: k, label: t(`car.pricing.when.options.${k}`) })),
-)
-
-const durationLabel = computed(() => t(`car.pricing.duration.options.${duration.value}`))
-const whenLabel = computed(() => t(`car.pricing.when.options.${when.value}`))
-
-const analytics = useAnalytics()
-
-const vehicleParams = computed(() => ({
-  car_id: props.car._id,
-  car_brand: props.car.marque,
-  car_model: props.car.modele,
-  car_price_per_day: props.car.prixJournalier ?? undefined,
-}))
-
-watch(duration, (v) => {
-  analytics.trackRentalConfigChange({
-    ...vehicleParams.value,
-    field: 'duration',
-    duration: v,
-    when: when.value,
-  })
-})
-
-watch(when, (v) => {
-  analytics.trackRentalConfigChange({
-    ...vehicleParams.value,
-    field: 'when',
-    duration: duration.value,
-    when: v,
-  })
-})
-
-// 1ʳᵉ lettre en minuscule : les libellés « Quand » sont capitalisés pour le menu
-// déroulant, mais doivent s'intégrer en milieu de phrase dans le message.
-function lowerFirst(s: string) {
-  return s ? s.charAt(0).toLowerCase() + s.slice(1) : s
-}
-
-// Variables disponibles dans le template Sanity et dans l'i18n de secours.
-// marque / modele : laissés tels quels (valeurs Sanity).
-const whatsappParams = computed(() => ({
-  marque: props.car.marque,
-  modele: props.car.modele,
-  prix: formattedPrix.value ?? '',
-  periode: periodLabel.value,
-  duree: durationLabel.value,
-  quand: lowerFirst(whenLabel.value),
-  url: requestUrl.href,
-}))
-
-// Remplace les {tokens} d'un template par leurs valeurs.
-function fillTemplate(template: string, params: Record<string, string>) {
-  return template.replace(/\{(\w+)\}/g, (_, key) => params[key] ?? '')
-}
-
-// Template éditable depuis Sanity (carPage.whatsappMessage) ; sinon, message
-// i18n par défaut (car.whatsappMessage.withPrice / withoutPrice).
-const whatsappText = computed(() => {
-  const template = props.whatsappTemplate?.trim()
-  if (template)
-    return fillTemplate(template, whatsappParams.value)
-
-  const key = formattedPrix.value
-    ? 'car.whatsappMessage.withPrice'
-    : 'car.whatsappMessage.withoutPrice'
-  return t(key, whatsappParams.value)
-})
-
-const contactTo = computed(() => {
-  const link = settings.value?.contactLink
-  if (!link || link.type !== 'external' || !link.url)
-    return link
-  // withWhatsappText renvoie l'URL inchangée si ce n'est pas un lien WhatsApp.
-  const withText = withWhatsappText(link.url, whatsappText.value)
-  return withText === link.url ? link : withText
-})
-
-// Extra params merged into BaseLink's auto-tracked click event.
-// BaseLink detects the URL kind (WhatsApp / email / phone / external) and emits
-// the matching event with this context layered on top.
-const ctaTrackingExtra = computed(() => ({
-  source: 'car_pricing',
-  ...vehicleParams.value,
-  duration: duration.value,
-  when: when.value,
-  price_text: formattedPrix.value ?? undefined,
-}))
 </script>
 
 <template>
@@ -156,7 +56,7 @@ const ctaTrackingExtra = computed(() => ({
     </div>
 
     <AtomsCTA
-      v-if="settings?.contactLink"
+      v-if="hasContact"
       theme="orange"
       :tiret-after="1"
       class="car-pricing__cta"

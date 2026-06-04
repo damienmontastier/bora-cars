@@ -32,10 +32,8 @@ export function isValidURL(string) {
     return false
   }
 
-  // Première vérification avec URL constructor
   const validProtocol = url.protocol === 'http:' || url.protocol === 'https:'
 
-  // Seconde vérification avec une expression régulière
   const pattern = new RegExp('^(?:https?:\\/\\/)?' // protocol
     + '(?:(?:[a-z\\d](?:[a-z\\d-]{0,61}[a-z\\d])?\\.)+[a-z]{2,}|(?:\\d{1,3}\\.){3}\\d{1,3})' // domaine ou IPv4
     + '(?::\\d+)?(?:\\/[-\\w%.~+]*)*' // port et chemin
@@ -83,14 +81,13 @@ export function toKebabCase(string) {
   return string
     .toLowerCase()
     .trim()
-    .replace(/\s+/g, '-') // Replace spaces with hyphens
-    .replace(/[^a-z0-9-]/g, '') // Remove invalid characters
-    .replace(/-{2,}/g, '-') // Replace multiple hyphens with a single one
-    .replace(/^-|-$/g, '') // Remove leading or trailing hyphens
+    .replace(/\s+/g, '-')
+    .replace(/[^a-z0-9-]/g, '')
+    .replace(/-{2,}/g, '-')
+    .replace(/^-|-$/g, '')
 }
 
 export function camelCase(str) {
-  // Using replace method with regEx
   return str.replace(/^\w|[A-Z]|\b\w/g, (word, index) => {
     return index === 0 ? word.toLowerCase() : word.toUpperCase()
   }).replace(/\s+/g, '')
@@ -98,9 +95,9 @@ export function camelCase(str) {
 
 export function pascalCase(str) {
   return str
-    .replace(/\s(.)/g, (_, group1) => group1.toUpperCase()) // Majuscule après un espace
-    .replace(/^\w/, c => c.toUpperCase()) // Majuscule initiale
-    .replace(/\s+/g, '') // Retire tous les espaces
+    .replace(/\s(.)/g, (_, group1) => group1.toUpperCase())
+    .replace(/^\w/, c => c.toUpperCase())
+    .replace(/\s+/g, '')
 }
 
 export function formatDateByLocale(locale, d) {
@@ -147,20 +144,17 @@ export function sanityUrlToAssetId(url: string): string | null {
 }
 
 export function objectToUID(obj) {
-  // Helper function to generate a hash from a string
   function generateHash(str) {
     let hash = 0
     for (let i = 0; i < str.length; i++) {
       const char = str.charCodeAt(i)
-      hash = (hash << 5) - hash + char // Simple hash function
+      hash = (hash << 5) - hash + char
       hash |= 0 // Convert to 32-bit integer
     }
     return hash.toString(36) // Convert hash to base-36 for shorter UID
   }
 
-  // Convert the object to a string
   const objString = JSON.stringify(obj, Object.keys(obj).sort())
 
-  // Generate and return the hash as UID
   return generateHash(objString)
 }

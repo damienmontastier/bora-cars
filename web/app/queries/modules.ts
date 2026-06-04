@@ -2,8 +2,6 @@ import type { InternalLinkRef, SanityImage } from './fragments'
 import { imageFields, imageRef } from './fragments'
 import { i18n, i18nBlock, internalLinkSlug } from './i18n'
 
-// ─── Shared primitives ────────────────────────────────────────────────────────
-
 export interface SanityLink {
   _key?: string
   type: 'external' | 'email' | 'phone' | 'internal'
@@ -91,8 +89,6 @@ export interface TestimonialItem {
   }
 }
 
-// ─── Union type ───────────────────────────────────────────────────────────────
-
 export type PageModule
   = | ({ _type: 'hero', _key: string } & HeroData)
     | { _type: 'serviceCards', _key: string, cards: ServiceCard[] }
@@ -105,8 +101,6 @@ export type PageModule
     | { _type: 'faq', _key: string, items: Array<{ _key: string, question: string, answer?: string }> }
     | { _type: 'cardsColumn', _key: string, heading?: string, subtext?: string, cards: Array<{ _key: string, title: string, description?: string }> }
     | { _type: 'testimonials', _key: string, items: TestimonialItem[] }
-
-// ─── GROQ fragments ───────────────────────────────────────────────────────────
 
 export const HERO_PROJECTION = `{
   variant,

@@ -48,7 +48,6 @@ function scrollToTop() {
 
       <div class="app-footer__content">
         <div class="app-footer__columns">
-          <!-- Contact -->
           <div class="app-footer__column">
             <span class="app-footer__column-title P2">{{ footer?.contactTitle }}</span>
             <div class="app-footer__column-items">
@@ -80,7 +79,6 @@ function scrollToTop() {
             </div>
           </div>
 
-          <!-- Sitemap -->
           <div class="app-footer__column">
             <span class="app-footer__column-title P2">{{ footer?.sitemapTitle }}</span>
             <div class="app-footer__column-items">
@@ -96,7 +94,6 @@ function scrollToTop() {
             </div>
           </div>
 
-          <!-- Legal -->
           <div class="app-footer__column">
             <span class="app-footer__column-title P2">{{ footer?.legalTitle }}</span>
             <div class="app-footer__column-items">
@@ -112,7 +109,6 @@ function scrollToTop() {
             </div>
           </div>
 
-          <!-- Socials -->
           <div class="app-footer__column">
             <span class="app-footer__column-title P2">{{ footer?.socialsTitle }}</span>
             <div class="app-footer__column-items">
@@ -128,7 +124,6 @@ function scrollToTop() {
             </div>
           </div>
 
-          <!-- Lang -->
           <div class="app-footer__column app-footer__column--lang">
             <div class="app-footer__column-items">
               <AppMenuLangSwitcher class="app-footer__lang-switcher" :theme="ctaTheme" :footer-theme="theme" variant />

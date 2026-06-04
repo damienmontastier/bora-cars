@@ -1,10 +1,10 @@
 <script lang="ts" setup>
-import type { CarDetailData, CarPreFooter } from '~/queries/car'
+import type { CarDetailData, CarPreFooter, CarWhatsappTemplates } from '~/queries/car'
 import { CAR_QUERY } from '~/queries/car'
 
 interface QueryResult {
   car: CarDetailData | null
-  page: { contentPreFooter?: CarPreFooter, whatsappMessage?: string } | null
+  page: { contentPreFooter?: CarPreFooter, whatsapp?: CarWhatsappTemplates } | null
 }
 
 const route = useRoute()
@@ -116,6 +116,13 @@ useSchemaOrg(computed(() => {
 
 useMenuCtaSnap()
 
+// Sections observées par la barre sticky mobile : cachée sur le hero, visible
+// pendant les détails, cachée dès que le footer entre à l'écran.
+const heroRef = useTemplateRef<{ $el: HTMLElement }>('heroRef')
+const footerRef = useTemplateRef<{ $el: HTMLElement }>('footerRef')
+const heroEl = computed(() => heroRef.value?.$el ?? null)
+const footerEl = computed(() => footerRef.value?.$el ?? null)
+
 const analytics = useAnalytics()
 onMounted(() => {
   if (!car.value)
@@ -133,7 +140,7 @@ onMounted(() => {
 
 <template>
   <main class="page-car">
-    <PageCarHero v-menu-theme="'white'" :car="car!" />
+    <PageCarHero ref="heroRef" v-menu-theme="'white'" :car="car!" />
 
     <section v-menu-theme="'white'" class="page-car__details">
       <div class="page-car__left">
@@ -163,7 +170,7 @@ onMounted(() => {
       <PageCarPricing
         v-if="car?.prixJournalier || car?.prixMensuel || car?.location"
         :car="car!"
-        :whatsapp-template="page?.whatsappMessage"
+        :whatsapp-templates="page?.whatsapp"
       />
     </section>
 
@@ -173,7 +180,15 @@ onMounted(() => {
       :body="page.contentPreFooter.body"
     />
 
-    <AppFooter />
+    <AppFooter ref="footerRef" />
+
+    <PageCarStickyBar
+      v-if="car?.prixJournalier || car?.prixMensuel"
+      :car="car!"
+      :whatsapp-templates="page?.whatsapp"
+      :hero-el="heroEl"
+      :footer-el="footerEl"
+    />
   </main>
 </template>
 
