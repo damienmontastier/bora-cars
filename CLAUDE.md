@@ -194,7 +194,7 @@ Wrapper around `NuxtPicture` with loading overlay support.
 | `hotspot` | Object | — | Sanity hotspot `{ x, y, width, height }` |
 | `crop` | Object | — | Sanity crop `{ top, bottom, left, right }` |
 | `modifiers` | Object | — | Extra Nuxt Image modifiers |
-| `overlay` | Boolean | `true` | Mount the `ElementsMediaOverlay` blur reveal. **Pass `false` whenever the media is wrapped in `UtilsParallax`** (heroes, `ServiceCard`, `FullscreenMarquee`) — a `backdrop-filter` re-rasterised under the parallax `transform` every frame is the worst perf case, ×N cards |
+| `overlay` | Boolean\|Object | `true` | Mount the `ElementsMediaOverlay` loading reveal. Object form = `ElementsMediaOverlay` props (`variant`, `color`, `duration`, `blur`, `threshold`, `borderRadius`). **Two variants:** `blur` (default — `backdrop-filter` veil, heavy: pass `false` **or** use `panel` whenever the media sits under a `transform` — parallax heroes, `ServiceCard`, `FullscreenMarquee`, ×N cards) and `panel` (opaque colour `scaleY` wipe, transform-only — safe under a parallax/Embla `transform`, e.g. the car gallery hero `:overlay="{ variant: 'panel', color: 'orange-100' }"`) |
 | `parallax` | Boolean\|Object | `false` | Wrap the picture in `UtilsParallax`. Object form = `UtilsParallax` props (`speed`, `scale`, `position`, `reversed`, `id`, `trigger`) |
 
 Exposes `{ mainRef, pictureRef }`. Detects `img.complete` on mount to skip the reveal animation for cached images.
@@ -203,13 +203,17 @@ Exposes `{ mainRef, pictureRef }`. Detects `img.complete` on mount to skip the r
 
 ### ElementsMediaOverlay (`app/components/elements/MediaOverlay.vue`)
 
-Loading/reveal overlay mounted inside `ElementsMedia` (when `overlay` is true). A `backdrop-filter: blur(var(--overlay-blur))` layer at `opacity: 1` that fades to `opacity: 0` once both `loaded` and in-view (IntersectionObserver). A `::after` shimmer sweeps while loading.
+Loading/reveal overlay mounted inside `ElementsMedia` (when `overlay` is truthy). Reveal triggers once both `loaded` and in-view (IntersectionObserver) latch true. **Two variants via the `variant` prop:**
+- `blur` (default): a `backdrop-filter: blur(var(--overlay-blur))` veil at `opacity: 1` that fades to `0`. Heavy under a `transform`.
+- `panel`: an opaque `var(--c-{color})` panel (default `orange-100`) revealed by a `scaleY(1)→scaleY(0)` wipe. **Transform-only, no `backdrop-filter`** → stays smooth even on a dragging Embla slider — this is what the car gallery hero uses. Its `transform-origin: center top` + `--ease-in-out-expo` deliberately mirror the page transition's reveal (`Transition.vue`: same `orange-100`, `scaleY` toward the top, `expo.inOut`), so the media wipe reads as a continuation of the page curtain lifting.
 
-**Props:** `loaded: boolean`, `blur?: string` (default `'5px'`), `threshold?: number` (default `0`), `borderRadius?: string` (default `'0px'`).
+A `::after` shimmer (transform `translateX`, compositor-only — not `background-position`) sweeps while `is-loading` = `isShimmering` = in-view **and** not yet revealed, so it never animates offscreen.
 
-Reveal is a fixed `0.5s` opacity fade with `--ease-out-quint` (no size-scaling — the easing carries the feel). Because `backdrop-filter` is heavy under a `transform`, media inside a `UtilsParallax` passes `:overlay="false"` instead.
+**Props:** `loaded: boolean`, `variant?: 'blur' | 'panel'` (default `'blur'`), `color?: string` (CSS token name → `var(--c-{color})`, default `'orange-100'`, panel only), `duration?: number` (seconds; overrides the height-scaled default — e.g. the car hero panel uses `0.5` since a full-screen `scaleY` wipe at 1.2s drags), `blur?: string` (default `'5px'`, blur only), `threshold?: number` (default `0`), `borderRadius?: string` (default `'0px'`).
 
-**Perf — the overlay unmounts itself after the reveal.** A `backdrop-filter` left at `opacity: 0` (or `blur(0)`) still forces per-frame layer isolation + filter recompute — invisible but expensive on every scroll frame, and brutal under a parallax transform. So once `loaded`/in-view latch true (the reveal never replays), the component drops its node via `v-if="!done"` ~`revealDuration` after the fade completes. Heroes skip the overlay entirely with `:overlay="false"` rather than paying for a full-screen `backdrop-filter` at all.
+Reveal duration scales with element height (clamped `0.65s`–`1.2s`, `--ease-in-out-circ`) unless `duration` overrides it.
+
+**Perf — the overlay unmounts itself after the reveal.** A `backdrop-filter` left at `opacity: 0` still forces per-frame layer isolation + filter recompute — invisible but expensive every scroll frame, brutal under a parallax/Embla transform. So once revealed (the reveal never replays), the component drops its node via `v-if="!done"`, set on the reveal's **`transitionend`** (not a timer — so the fade is never cut off; if the event never fires the node simply stays, the original behaviour). Heroes can skip the overlay entirely with `:overlay="false"`; the car gallery hero instead uses the transform-only `panel` variant to get a loading wipe **without** any `backdrop-filter`. **Caveat for looping Embla galleries:** don't gate the media mount with a `visibleIndices` buffer — unmounting/remounting a slide on each loop re-creates the overlay and **replays the reveal on an already-loaded image**. Mount all slides (the panel variant + self-unmount keep it cheap) so each reveals exactly once.
 
 ### ElementsMarquee (`app/components/elements/Marquee.vue`)
 

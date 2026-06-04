@@ -37,21 +37,11 @@ const [emblaRef, emblaApi] = useEmblaCarousel(emblaOptions)
 
 const activeSlide = ref(0)
 
-// Perf: only mount the heavy <ElementsMedia> (NuxtPicture + MediaOverlay's
-// backdrop-filter / IntersectionObserver) for the current slide ± buffer.
-// The slide wrappers stay in the DOM with a fixed flex-basis, so Embla keeps
-// measuring them correctly — only the inner media is gated.
-const SLIDE_BUFFER = 1
-const visibleIndices = computed(() => {
-  const total = slides.value.length
-  if (total <= 1)
-    return new Set<number>([0])
-  const cur = activeSlide.value
-  const set = new Set<number>()
-  for (let o = -SLIDE_BUFFER; o <= SLIDE_BUFFER; o++)
-    set.add((cur + o + total) % total)
-  return set
-})
+// On monte TOUTES les slides (pas de gating ±buffer) : en loop, démonter/remonter une
+// slide recrée l'overlay et rejoue le reveal sur une image déjà chargée. Le variant
+// `panel` (pas de backdrop-filter) + l'auto-unmount de l'overlay gardent ça peu coûteux,
+// donc chaque image ne se révèle qu'une seule fois. La slide 0 charge en priorité haute,
+// les autres en `low` (préchargées sans bloquer le LCP).
 
 const analytics = useAnalytics()
 function onSelect() {
@@ -99,15 +89,16 @@ function scrollTo(i: number) {
           class="car-hero__slide"
         >
           <ElementsMedia
-            v-if="visibleIndices.has(i)"
             :src="slide.url"
             :alt="slide.alt"
             provider="sanity"
             :hotspot="slide.hotspot"
             :crop="slide.crop"
-            :lazy="i !== 0"
+            :lazy="false"
+            :fetch-priority="i === 0 ? 'high' : 'low'"
             :preload="i === 0 ? { fetchPriority: 'high' } : false"
-            :overlay="false"
+            :overlay="{ variant: 'panel', color: 'orange-100', duration: 0.5 }"
+            :modifiers="{ quality: 80 }"
             sizes="sm:100vw xl:100vw"
           />
         </div>

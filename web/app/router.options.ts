@@ -17,7 +17,7 @@ function getHashElementScrollMarginTop(selector: string): number {
 }
 
 export default <RouterConfig>{
-  scrollBehavior(to, from, savedPosition) {
+  scrollBehavior(to, from, _savedPosition) {
     const appStore = useAppStore()
 
     // Menu ouvert → on le ferme et on relâche le scroll au moindre changement de route.
@@ -70,24 +70,9 @@ export default <RouterConfig>{
       })
     }
 
-    // Retour navigateur (back / forward) → on restaure la position précédente, masqué.
-    // `preserveScroll` dit à Transition.onLeave de NE PAS forcer le scroll-to-top.
-    if (savedPosition) {
-      appStore.preserveScroll = true
-      return onceHidden((resolve) => {
-        appStore.preserveScroll = false
-        const lenis = (window as any).lenis
-        if (lenis) {
-          lenis.scrollTo(savedPosition.top, { immediate: true, force: true })
-          resolve(false)
-        }
-        else {
-          resolve(savedPosition)
-        }
-      })
-    }
-
     // Changement de page sans ancre → scroll-to-top géré par Transition.onLeave (masqué).
+    // `savedPosition` est volontairement ignoré : on veut TOUJOURS atterrir en haut de la
+    // page suivante, y compris au back / forward navigateur.
     if (!to.hash)
       return false
 

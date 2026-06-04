@@ -6,8 +6,6 @@ import gsap from 'gsap'
 const lenis = () => window.lenis as Lenis | undefined
 const transitionBus = useEventBus('page-transition')
 
-const appStore = useAppStore()
-
 const overlayRef = useTemplateRef('overlayRef')
 
 let ctx: gsap.Context | undefined
@@ -34,10 +32,9 @@ function onLeave(_el: Element, done: () => void) {
     gsap.timeline({
       onComplete: () => {
         transitionBus.emit('covered') // overlay fully covers screen — safe to reset menu
-        if (!appStore.preserveScroll) {
-          lenis()?.scrollTo(0, { immediate: true, force: true })
-          window.scrollTo(0, 0)
-        }
+        // Overlay opaque → on remet toujours en haut, masqué (y compris au back navigateur).
+        lenis()?.scrollTo(0, { immediate: true, force: true })
+        window.scrollTo(0, 0)
         gsap.delayedCall(0.25, done)
       },
     })

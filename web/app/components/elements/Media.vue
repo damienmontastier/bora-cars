@@ -18,6 +18,10 @@ const props = defineProps({
     type: [Boolean, Object] as unknown as () => boolean | { fetchPriority: 'high' | 'low' | 'auto' },
     default: false,
   },
+  fetchPriority: {
+    type: String as () => 'high' | 'low' | 'auto' | undefined,
+    default: undefined,
+  },
   sizes: {
     type: String,
     default: 'sm:100vw xl:100vw',
@@ -39,7 +43,7 @@ const props = defineProps({
     default: undefined,
   },
   overlay: {
-    type: Boolean,
+    type: [Boolean, Object] as unknown as () => boolean | OverlayProps,
     default: true,
   },
   parallax: {
@@ -55,6 +59,15 @@ interface ParallaxProps {
   reversed?: boolean
   id?: string
   trigger?: HTMLElement | null
+}
+
+interface OverlayProps {
+  variant?: 'blur' | 'panel'
+  color?: string
+  duration?: number
+  blur?: string
+  threshold?: number
+  borderRadius?: string
 }
 
 const isLoaded = ref(false)
@@ -73,12 +86,17 @@ const resolvedProvider = computed(() => props.provider ?? undefined)
 // onto the real <img> (via imgAttrs → spread onto the inner <img>) so eager
 // media also loads at high priority on client-side navigation.
 const imgAttrs = computed(() => {
-  const fetchpriority = typeof props.preload === 'object'
-    ? props.preload.fetchPriority
-    : props.preload
-      ? 'high'
-      : undefined
-  return fetchpriority ? { fetchpriority } : {}
+  // `fetchPriority` explicite l'emporte (ex. précharger les voisines d'un slider en
+  // `low` sans lien preload) ; sinon on le dérive de `preload`.
+  const fetchpriority = props.fetchPriority
+    ?? (typeof props.preload === 'object'
+      ? props.preload.fetchPriority
+      : props.preload
+        ? 'high'
+        : undefined)
+  // decoding async : laisse le navigateur décoder hors du thread principal, pour
+  // éviter qu'un gros décode (médias eager) ne fasse sauter une frame de scroll/drag.
+  return { decoding: 'async', ...(fetchpriority ? { fetchpriority } : {}) }
 })
 const localModifiers = computed(() => ({
   ...props.modifiers,
@@ -87,6 +105,9 @@ const localModifiers = computed(() => ({
 }))
 
 const wrapperProps = computed(() => (!props.parallax || props.parallax === true) ? {} : props.parallax as ParallaxProps)
+
+const showOverlay = computed(() => !!props.overlay)
+const overlayProps = computed(() => (!props.overlay || props.overlay === true) ? {} : props.overlay as OverlayProps)
 
 const mainRef = useTemplateRef<HTMLElement>('mainRef')
 const pictureRef = ref<any>(null)
@@ -127,8 +148,9 @@ defineExpose({ mainRef, pictureRef })
         @load="onLoad"
       />
       <ElementsMediaOverlay
-        v-if="hasSrc && overlay"
+        v-if="hasSrc && showOverlay"
         :loaded="isLoaded"
+        v-bind="overlayProps"
       />
       <div v-if="!hasSrc" ref="pictureRef" class="app-elements-media__fallback" />
     </div>
@@ -150,8 +172,9 @@ defineExpose({ mainRef, pictureRef })
       @load="onLoad"
     />
     <ElementsMediaOverlay
-      v-if="hasSrc && overlay"
+      v-if="hasSrc && showOverlay"
       :loaded="isLoaded"
+      v-bind="overlayProps"
     />
     <div v-if="!hasSrc" ref="pictureRef" class="app-elements-media__fallback" />
   </div>

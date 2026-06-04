@@ -9,6 +9,5 @@ export const useAppStore = defineStore('app', {
     menuTransitioning: false,
     menuOpen: false,
     menuAnimating: false,
-    preserveScroll: false,
   }),
 })

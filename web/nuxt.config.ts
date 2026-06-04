@@ -168,7 +168,7 @@ export default defineNuxtConfig({
     format: ['avif', 'webp'],
     provider: process.env.NETLIFY ? 'netlify' : (process.env.npm_lifecycle_event === 'generate' ? 'ipxStatic' : 'ipx'),
 
-    quality: 95,
+    quality: 90,
 
     sanity: {
       projectId: process.env.NUXT_PUBLIC_SANITY_PROJECT_ID!,
