@@ -118,7 +118,17 @@ onMounted(() => {
   // `load` doesn't bubble, so relying solely on NuxtPicture's emit is fragile.
   // Listen on the real <img>, and reveal on `error` / missing-img too: an opaque
   // reveal panel must never stay stuck covering the slot.
-  if (!img || img.complete) {
+  if (!img) {
+    onLoad()
+    return
+  }
+  // `img.complete` is ALSO true for a not-yet-started lazy image (below the fold),
+  // not only a finished one — but then `naturalWidth` is 0. Without this guard a
+  // lazy card marks itself "loaded" at mount, so the reveal fires the instant it
+  // scrolls into view — BEFORE the image has even begun downloading — wiping the
+  // overlay off an empty slot, then the image pops in after. Only skip the reveal
+  // for a GENUINELY decoded (cached) image; otherwise wait for the real `load`.
+  if (img.complete && img.naturalWidth > 0) {
     onLoad()
     return
   }

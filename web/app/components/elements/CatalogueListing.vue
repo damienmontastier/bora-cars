@@ -169,6 +169,8 @@ function onSearchEnter() {
 
     @include mobile {
       max-width: none;
+      font-size: mobile-vw(52px);
+      line-height: mobile-vw(52px);
     }
   }
 

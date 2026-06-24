@@ -154,6 +154,7 @@ function init() {
 onMounted(() => {
   if (!props.animated)
     return
+
   watch(fontsLoaded, (loaded) => {
     if (loaded)
       init()

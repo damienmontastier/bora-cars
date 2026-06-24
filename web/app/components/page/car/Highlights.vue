@@ -21,10 +21,10 @@ const hasContent = computed(() => !!props.puissance || formattedAcceleration.val
   <div v-if="hasContent" class="car-highlights">
     <div v-if="puissance" class="car-highlights__item">
       <div class="car-highlights__value">
-        <TextsH2 tag="span">
+        <TextsH2 :animated="false" tag="span">
           {{ puissance }}
         </TextsH2>
-        <TextsH3 tag="span">
+        <TextsH3 :animated="false" tag="span">
           {{ t('car.highlights.powerUnit') }}
         </TextsH3>
       </div>
@@ -34,10 +34,10 @@ const hasContent = computed(() => !!props.puissance || formattedAcceleration.val
     </div>
     <div v-if="formattedAcceleration" class="car-highlights__item">
       <div class="car-highlights__value">
-        <TextsH2 tag="span">
+        <TextsH2 :animated="false" tag="span">
           {{ formattedAcceleration }}
         </TextsH2>
-        <TextsH3 tag="span">
+        <TextsH3 :animated="false" tag="span">
           {{ t('car.highlights.accelerationUnit') }}
         </TextsH3>
       </div>

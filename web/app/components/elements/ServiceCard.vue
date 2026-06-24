@@ -86,6 +86,8 @@ const parallaxProps = computed((): Partial<ParallaxProps> => {
           provider="sanity"
           :hotspot="card.media.imageHotspot"
           :crop="card.media.imageCrop"
+          :modifiers="{ quality: 95 }"
+          :overlay="{ variant: 'panel', color: 'orange-100' }"
           :sizes="mediaSizes"
         />
       </UtilsParallax>

@@ -27,8 +27,32 @@ if (!car.value) {
 
 const hasDescription = computed(() => Array.isArray(car.value?.description) && car.value!.description.length > 0)
 
+// Texte brut de la description (portable text aplati). Réutilisé pour la meta
+// description ET le schema.org Product. Sans ça, usePageSeo retombe sur le
+// fallback global t('seo.description') → la MÊME meta description sur les 36 fiches
+// (signal de contenu dupliqué côté Google).
+const descriptionText = computed(() =>
+  (car.value?.description ?? [])
+    .map(block => (block.children ?? []).map((child: { text?: string }) => child.text ?? '').join(''))
+    .join(' ')
+    .replace(/\s+/g, ' ')
+    .trim(),
+)
+
+// Meta description ≈ 160 caractères, coupée sur une frontière de mot.
+const metaDescription = computed(() => {
+  const text = descriptionText.value
+  if (text.length <= 160)
+    return text
+  return `${text.slice(0, 160).replace(/\s+\S*$/, '')}…`
+})
+
 usePageSeo(computed(() => car.value
-  ? { title: `${car.value.marque} ${car.value.modele}`, image: car.value.ogImageUrl }
+  ? {
+      title: `${car.value.marque} ${car.value.modele}`,
+      description: metaDescription.value || undefined,
+      image: car.value.ogImageUrl,
+    }
   : undefined))
 
 // ─── schema.org fiche voiture : Product (location) + fil d'Ariane ───
@@ -49,10 +73,8 @@ useSchemaOrg(computed(() => {
     return []
 
   const images = [c.ogImageUrl].filter((u): u is string => !!u)
-  const plainDescription = (c.description ?? [])
-    .map(block => (block.children ?? []).map((child: { text?: string }) => child.text ?? '').join(''))
-    .join(' ')
-    .trim()
+  // Description complète (non tronquée) — partagée avec la meta description.
+  const plainDescription = descriptionText.value
 
   // Caractéristiques → additionalProperty, libellés/valeurs localisés (clés i18n existantes).
   const specs: { '@type': 'PropertyValue', 'name': string, 'value': string | number, 'unitText'?: string }[] = []

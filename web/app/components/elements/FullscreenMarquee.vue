@@ -77,6 +77,7 @@ onUnmounted(() => {
           provider="sanity"
           :hotspot="data.backgroundMedia.imageHotspot"
           :crop="data.backgroundMedia.imageCrop"
+          :overlay="{ variant: 'panel', color: 'orange-100', duration: 0.5 }"
           sizes="sm:100vw xl:100vw"
         />
         <ElementsVideo

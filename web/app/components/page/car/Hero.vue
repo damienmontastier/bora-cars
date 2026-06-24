@@ -129,7 +129,7 @@ function scrollTo(i: number) {
   position: relative;
   width: 100%;
   height: desktop-vw(950px);
-  max-height: 85dvh;
+  max-height: 87.5dvh;
   overflow: hidden;
   background: var(--c-beige-20);
 
