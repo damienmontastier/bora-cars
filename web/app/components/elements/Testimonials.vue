@@ -12,7 +12,9 @@ interface TestimonialItem {
   _key: string
   authorName: string
   authorRole?: string
+  useCar?: boolean
   car?: { marque: string, modele: string }
+  subtitle?: string
   quote: string
   backgroundImage?: BackgroundImage
 }
@@ -33,6 +35,19 @@ const progressOrigin = ref<'left center' | 'right center'>('left center')
 const progressFillRef = ref<HTMLElement | null>(null)
 
 const currentItem = computed(() => props.items[selectedIndex.value] ?? null)
+
+// Label shown next to the author (desktop) / above the quote (mobile): either the
+// linked car's "marque modèle", or a free subtitle when the item is not tied to a
+// car. `useCar` defaults to true (undefined → legacy car-linked items).
+function itemLabel(item: TestimonialItem | null): string {
+  if (!item)
+    return ''
+  if (item.useCar === false)
+    return item.subtitle ?? ''
+  return item.car ? `${item.car.marque} ${item.car.modele}` : ''
+}
+
+const currentLabel = computed(() => itemLabel(currentItem.value))
 
 const visibleIndices = computed(() => {
   const total = props.items.length
@@ -176,7 +191,7 @@ usePointerSwipe(sectionRef, {
               {{ currentItem?.authorName }}
             </TextsP1>
             <TextsP2 :selectable="false" color="beige-100" class="app-elements-testimonials__author-role">
-              {{ currentItem?.authorRole }}<span v-if="currentItem?.car" class="app-elements-testimonials__author-car"><span class="app-elements-testimonials__author-sep">—</span>{{ currentItem.car.marque }} {{ currentItem.car.modele }}</span>
+              {{ currentItem?.authorRole }}<span v-if="currentLabel" class="app-elements-testimonials__author-car"><span class="app-elements-testimonials__author-sep">—</span>{{ currentLabel }}</span>
             </TextsP2>
           </div>
         </Transition>
@@ -194,7 +209,7 @@ usePointerSwipe(sectionRef, {
       <!-- Right: Embla quotes (mobile: car label sits above the quote) -->
       <div class="app-elements-testimonials__right">
         <TextsP1 :selectable="false" color="beige-100" class="app-elements-testimonials__car-label">
-          {{ currentItem?.car ? `${currentItem.car.marque} ${currentItem.car.modele}` : '' }}
+          {{ currentLabel }}
         </TextsP1>
         <div ref="emblaRef" class="app-elements-testimonials__embla">
           <div class="app-elements-testimonials__embla-container">

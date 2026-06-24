@@ -79,7 +79,9 @@ export interface TestimonialItem {
   _key: string
   authorName: string
   authorRole?: string
+  useCar?: boolean
   car?: { marque: string, modele: string }
+  subtitle?: string
   quote: string
   backgroundImage?: {
     imageUrl?: string
@@ -202,7 +204,9 @@ export const MODULES_PROJECTION = `"modules": modules[]{
       _key,
       ${i18n('authorName')},
       ${i18n('authorRole')},
+      useCar,
       "car": car->{ marque, modele },
+      ${i18n('subtitle')},
       ${i18n('quote')},
       "backgroundImage": backgroundImage {
         "imageUrl": asset._ref,

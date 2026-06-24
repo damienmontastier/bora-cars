@@ -45,14 +45,9 @@ export default defineNuxtConfig({
     '@nuxtjs/i18n',
     '@nuxtjs/sanity',
     'lenis/nuxt',
-    '@nuxt/a11y',
     '@nuxt/ui',
     '@nuxt/scripts',
   ],
-
-  a11y: {
-    logIssues: false,
-  },
 
   scripts: {
     registry: {
@@ -61,6 +56,21 @@ export default defineNuxtConfig({
         // (env var: NUXT_PUBLIC_SCRIPTS_GOOGLE_TAG_MANAGER_ID).
         // This is critical: when the ID comes from runtime config, @nuxt/scripts
         // doesn't bundle gtm.js — it loads directly from googletagmanager.com.
+        // @nuxt/scripts v1 no longer auto-loads registry scripts: a `trigger` is
+        // required, else gtm.js is never injected (build warns "config without a
+        // trigger"). 'onNuxtReady' restores the v0 auto-load — correct for our
+        // Consent Mode v2 setup: the container loads on every visit (so
+        // `defaultConsent` denied-signals fire and cookieless pings work), storage
+        // stays denied until the banner is answered, then `consent.update()`
+        // (useCookies.ts) upgrades it at runtime. NB: `trigger: false` would NOT
+        // work here — it disables loading entirely (incl. our bare
+        // `useScriptGoogleTagManager()` calls), so GTM would never load.
+        trigger: 'onNuxtReady',
+        // The ID lands at runtime, so it's empty at build → @nuxt/scripts' build
+        // validator would warn "missing required field 'id'". That's a false alarm
+        // here (the env populates it on boot); skip the build-time required-field
+        // check. Has no runtime effect (validation is dev/build-only).
+        scriptOptions: { skipValidation: true },
         debug: process.env.NODE_ENV === 'development',
         // Google Consent Mode v2 — denied by default until the cookie banner is answered.
         // `wait_for_update: 500` tells gtag to queue events for up to 500ms so the

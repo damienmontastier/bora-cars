@@ -57,13 +57,13 @@ function onSearchEnter() {
 <template>
   <div v-menu-theme="'black'" class="app-elements-catalogue-listing">
     <div v-menu-theme="'black'" class="app-elements-catalogue-listing__header">
-      <TextsH1 v-if="title" class="app-elements-catalogue-listing__header-title">
+      <TextsH1 v-if="title" :animated="false" class="app-elements-catalogue-listing__header-title">
         {{ title }}
       </TextsH1>
 
-      <TextsP2 v-if="description" weight="regular" class="app-elements-catalogue-listing__header-description">
+      <TextsP1 v-if="description" weight="medium" class="app-elements-catalogue-listing__header-description">
         {{ description }}
-      </TextsP2>
+      </TextsP1>
     </div>
 
     <div class="app-elements-catalogue-listing__filters">

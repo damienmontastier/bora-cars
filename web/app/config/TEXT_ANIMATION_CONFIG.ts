@@ -45,7 +45,7 @@ export const TEXT_ANIMATION_CONFIG = {
     split: { type: 'lines', mask: 'lines' },
     from: { yPercent: 110 },
     to: { yPercent: 0, duration: 0.85, ease: 'expo.out', stagger: 0.1 },
-    scrollTrigger: { start: 'top bottom-=15%', scrub: false },
+    scrollTrigger: { start: 'top bottom-=10%', scrub: false },
   },
 
   /** fx1 — chars scatter in: scale up + random rotation */

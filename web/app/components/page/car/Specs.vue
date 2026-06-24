@@ -100,31 +100,20 @@ const listSpecs = computed<Spec[]>(() => {
       gap: mobile-vw(16px);
       padding: mobile-vw(16px) 0;
     }
-
-    &--fixed > .car-specs__item {
-      flex: 0 0 desktop-vw(250.67px);
-
-      @include mobile {
-        flex: 1 0 calc(50% - #{mobile-vw(8px)});
-      }
-    }
-
-    &--list > .car-specs__item {
-      flex: 0 0 calc((100% - #{desktop-vw(32px * 3)}) / 3);
-
-      @include mobile {
-        flex: 1 0 calc(50% - #{mobile-vw(8px)});
-      }
-    }
   }
 
+  // Toutes les specs partagent la même largeur d'item (grille 4 colonnes en
+  // desktop, 2 en mobile) pour que les rangées `--fixed` et `--list`
+  // s'alignent sur la même grille.
   &__item {
+    flex: 0 0 calc((100% - #{desktop-vw(32px)} * 3) / 4);
     min-width: 0;
     display: flex;
     flex-direction: column;
     gap: desktop-vw(8px);
 
     @include mobile {
+      flex: 1 0 calc(50% - #{mobile-vw(8px)});
       gap: mobile-vw(6px);
     }
   }
