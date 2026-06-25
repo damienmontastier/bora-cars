@@ -11,9 +11,10 @@ Référence complète de la stack analytics (GTM + GA4 + Consent Mode v2) — é
 - ✅ 4 Custom Dimensions GA4 créées (Car Brand, Car Model, CTA Source, Page Path)
 - ⏳ **À faire dans 24-48h** : marquer `whatsapp_click` + `contact_form_submit` comme événements clés (cf. §7) — les events doivent d'abord apparaître dans "Événements récents", ce qui prend jusqu'à 24h après les premières réceptions
 - ⏳ **À faire (quand t'as 5-10 min)** : créer le **Funnel Exploration "Lead — Bora Cars"** dans GA4 Explorations (cf. §7ter) — vue entonnoir Site visit → Catalogue → Car → Config rental → Lead
-- ✅ **Events HIGH priority instrumentés** : Hero CTA `source`, `catalogue_car_click`, `faq_toggle`, `back_to_top_click` (cf. §9bis)
-- ⏳ **À faire dans GTM** : ajouter ces 3 nouveaux events à la regex du trigger `Custom - Bora Events` + créer les DLVs pour les nouveaux params (cf. §9bis "Action GTM requise")
-- ⏳ **À instrumenter côté code (reste)** : events MEDIUM (infinite scroll, testimonial nav, car detail back, etc.) — cf. §9bis
+- ✅ **Events HIGH/MED instrumentés (code)** : Hero CTA `source`, `catalogue_car_click`, `faq_toggle`, `back_to_top_click`, **`service_card_click`**, **`testimonial_nav`**, **`catalogue_scroll_more`** (cf. §9bis). `contact_form_success` est câblé depuis le départ (`ContactForm.vue:172`).
+- ✅ **GTM déjà publié** : `catalogue_car_click|faq_toggle|back_to_top_click` sont déjà dans la regex du trigger `Custom - Bora Events` (vérifié dans le conteneur publié `GTM-K23JSRNH` le 2026-06-25).
+- ⏳ **À faire dans GTM (MàJ 2026-06-25)** : ajouter `contact_form_success`, `service_card_click`, `testimonial_nav`, `catalogue_scroll_more` à la regex + créer leurs DLVs (cf. §9bis « Action GTM requise — MàJ 2026-06-25 »).
+- ⏳ **Reste à instrumenter (code, optionnel)** : `car_detail_back_click`, `process_step_click` (cf. §9bis).
 - 🔜 **Plus tard** : ajouter Meta Pixel / Google Ads / LinkedIn Insight Tag (cf. §8)
 
 ## Contexte projet
@@ -559,14 +560,18 @@ Ces étapes s'enchainent pour TikTok Pixel, Bing UET, Snapchat Pixel, Reddit Pix
 | `email_click` | Clic lien `mailto:` (auto-detect BaseLink) | `url`, + tracking extra |
 | `phone_click` | Clic lien `tel:` (auto-detect BaseLink) | `url`, + tracking extra |
 | `external_link_click` | Clic lien externe non-whatsapp/email/phone (auto-detect BaseLink) | `url`, + tracking extra |
-| `contact_form_submit` | Submit form contact valide | `subject`, `locale` |
-| `contact_form_error` | Submit form contact invalide | `fields` (array), `summary` |
+| `contact_form_submit` | Submit form contact valide (avant POST) | `subject`, `locale` |
+| `contact_form_success` | Form contact confirmé (après POST 200) | `subject`, `locale` |
+| `contact_form_error` | Submit form contact invalide ou erreur serveur | `kind` (validation/server), `fields` (array), `summary` |
 | `rental_config_change` | Change duration ou when dans Pricing widget | `car_id`, `car_brand`, `car_model`, `field`, `duration`, `when` |
 | `language_switch` | Toggle FR/EN | `from`, `to` |
 | `car_gallery_browse` | Clic dot dans gallery car detail | `car_id`, `car_brand`, `car_model`, `image_index`, `total` |
 | `catalogue_car_click` | Clic sur une car card dans /catalogue | `car_id`, `car_slug`, `car_brand`, `car_model`, `position`, `source: 'catalogue'` |
 | `faq_toggle` | Open/close d'une question FAQ | `question_index`, `question_text`, `expanded_state` (bool) |
 | `back_to_top_click` | Clic sur "Retour en haut" du footer | `page`, `scroll_depth_percent` |
+| `service_card_click` | Clic sur une card service (home) | `card_type`, `card_label`, `page`, `position` |
+| `testimonial_nav` | Nav carousel témoignages (bouton ou swipe) | `direction`, `testimonial_index`, `page` |
+| `catalogue_scroll_more` | Lot suivant chargé en infinite-scroll catalogue | `loaded_car_count`, `total_cars`, `page_number`, `catalogue` |
 | `catalogue_filter` | (futur) Application d'un filtre | `filter_type`, `filter_value` |
 | `consent_granted` | Cookie accepted (analytics OR marketing OR functional) | — |
 | `consent_denied` | Cookie refused (tous off) | — |
@@ -585,7 +590,7 @@ Audit du repo Bora Cars — interactions existantes qui ne sont **PAS** trackée
 | **Hero CTA** sur home/proprietaire/professionnel | `components/elements/Hero1.vue`, `Hero2.vue`, `Hero3.vue` | Capté en `whatsapp_click`/`external_link_click` via `BaseLink` + enrichi `source` | `source` = `home_hero` / `proprietaire_hero` / `professionnel_hero` (calculé depuis `useRoute().path`) | ✅ Câblé en code |
 | **FAQ toggle** | `components/elements/Faq.vue` (fonction `toggle`) | `faq_toggle` | `question_index`, `question_text`, `expanded_state` (bool — la nouvelle valeur) | ✅ Câblé en code |
 | **Back-to-top click** | `components/app/Footer.vue` (fonction `scrollToTop`) | `back_to_top_click` | `page` (= route.path), `scroll_depth_percent` (0-100 selon position scroll au moment du click) | ✅ Câblé en code |
-| **Service card click** | `components/elements/ServiceCard.vue` | `service_card_click` | `card_type`, `card_label`, `page`, `position` | ⏳ Pas encore câblé |
+| **Service card click** | `components/elements/ServiceCard.vue` (+ `position` passé par `ServicesCards.vue`) | `service_card_click` | `card_type`, `card_label`, `page`, `position` | ✅ Câblé en code |
 
 ### 🚨 Action GTM requise après ce code update
 
@@ -618,13 +623,47 @@ Puis ajouter chacune dans le tag `GA4 Event - Bora Generic` (section Paramètres
 
 Note : les params `car_id`, `car_brand`, `car_model`, `source` utilisés par les nouveaux events ont déjà leurs DLVs créées (étape 3.2 du setup initial). Donc seuls les nouveaux params (`position`, `question_*`, `expanded_state`, `scroll_depth_percent`, `page`) nécessitent de nouvelles DLVs.
 
+### 🚨 Action GTM requise — MàJ 2026-06-25 (events `contact_form_success` + #5)
+
+Code livré : `contact_form_success` (déjà câblé), `service_card_click`, `testimonial_nav`,
+`catalogue_scroll_more`. Ils sont poussés dans le `dataLayer` mais **n'arrivent PAS encore
+dans GA4** tant que la regex du trigger ne les écoute pas. À faire dans GTM :
+
+**1. Regex COMPLÈTE du trigger `Custom - Bora Events`** (remplacer par ce copier-coller intégral) :
+
+```
+page_view|vehicle_view|whatsapp_click|email_click|phone_click|external_link_click|contact_form_submit|contact_form_success|contact_form_error|rental_config_change|language_switch|car_gallery_browse|consent_granted|consent_denied|catalogue_car_click|faq_toggle|back_to_top_click|service_card_click|testimonial_nav|catalogue_scroll_more
+```
+
+(ajouts vs la version publiée : `contact_form_success`, `service_card_click`, `testimonial_nav`, `catalogue_scroll_more`)
+
+**2. Nouvelles DLVs à créer** (Type = *Variable de couche de données*), puis à ajouter dans le tag `GA4 Event - Bora Generic` (Paramètres de l'événement) :
+
+| Nom GTM | Data Layer Variable Name | Event |
+|---|---|---|
+| `DLV - card_type` | `card_type` | service_card_click |
+| `DLV - card_label` | `card_label` | service_card_click |
+| `DLV - direction` | `direction` | testimonial_nav |
+| `DLV - testimonial_index` | `testimonial_index` | testimonial_nav |
+| `DLV - loaded_car_count` | `loaded_car_count` | catalogue_scroll_more |
+| `DLV - total_cars` | `total_cars` | catalogue_scroll_more |
+| `DLV - page_number` | `page_number` | catalogue_scroll_more |
+| `DLV - catalogue` | `catalogue` | catalogue_scroll_more |
+
+> `page` et `position` ont déjà leurs DLVs. `contact_form_success` réutilise `subject` + `locale`
+> (DLVs existantes) → **aucune nouvelle DLV pour lui**, juste l'ajout à la regex.
+
+**3. Submit / Publish** le conteneur. (Optionnel GA4 : `contact_form_success` est le signal de
+conversion le plus propre — tu peux le marquer en ⭐ événement clé à la place / en plus de
+`contact_form_submit`.)
+
 ### 🟡 MEDIUM PRIORITY (signaux optim/engagement)
 
 | Interaction | Fichier | Event recommandé | Params | Pourquoi |
 |---|---|---|---|---|
-| **Infinite scroll catalogue** | `pages/catalogue.vue` (`useInfiniteScroll`) | `catalogue_scroll_more` | `loaded_car_count`, `total_cars`, `page_number` | Mesure profondeur de scroll catalogue + perf de chargement. |
-| **Retour catalogue depuis fiche car** | `components/page/car/Hero.vue` (bouton back) | `car_detail_back_click` | `car_id`, `session_duration` | Indicateur de bounce sur fiche voiture. |
-| **Testimonial carousel prev/next** | `components/elements/Testimonials.vue` | `testimonial_nav` | `direction` (prev/next), `testimonial_index`, `page` | Engagement avec social proof. |
+| **Infinite scroll catalogue** | `composables/useCatalogueListing.ts` (`useInfiniteScroll`, partagé par les 2 catalogues) | `catalogue_scroll_more` | `loaded_car_count`, `total_cars`, `page_number`, `catalogue` (path) | ✅ Câblé en code |
+| **Retour catalogue depuis fiche car** | `components/page/car/Hero.vue` (bouton back) | `car_detail_back_click` | `car_id`, `session_duration` | ⏳ Pas câblé — indicateur de bounce sur fiche voiture. |
+| **Testimonial carousel prev/next** | `components/elements/Testimonials.vue` (boutons **et** swipe → `scrollPrev/Next`) | `testimonial_nav` | `direction` (prev/next), `testimonial_index` (cible), `page` | ✅ Câblé en code |
 | **Process steps interaction** | `components/elements/ProcessSteps.vue` (si clickable) | `process_step_click` | `step_index`, `step_name`, `page` | Engagement avec explication du parcours. |
 
 ### 🟢 LOW PRIORITY (nice-to-have)

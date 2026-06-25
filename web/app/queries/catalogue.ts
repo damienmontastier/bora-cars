@@ -2,7 +2,7 @@ import type { SeoData } from './fragments'
 import { imageFields, seoFields } from './fragments'
 import { i18n, i18nBlock } from './i18n'
 
-export const CATALOGUE_LIMIT = 18
+export const CATALOGUE_LIMIT = 25
 
 export interface CatalogueCar {
   _id: string

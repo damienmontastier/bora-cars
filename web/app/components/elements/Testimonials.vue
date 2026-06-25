@@ -26,6 +26,8 @@ interface Props {
 const props = defineProps<Props>()
 
 const { t } = useI18n()
+const route = useRoute()
+const analytics = useAnalytics()
 
 const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, dragFree: false, watchDrag: false })
 
@@ -138,12 +140,26 @@ watch(emblaApi, (api) => {
   onSelect()
 })
 
+// Tracked by buttons AND swipe (both routes go through scrollPrev/scrollNext).
+// Reports the destination index; no-op for a single-item carousel.
+function trackNav(direction: 'prev' | 'next') {
+  const total = props.items.length
+  if (total <= 1)
+    return
+  const target = direction === 'next'
+    ? (selectedIndex.value + 1) % total
+    : (selectedIndex.value - 1 + total) % total
+  analytics.trackTestimonialNav({ direction, testimonial_index: target, page: route.path })
+}
+
 function scrollPrev() {
   emblaApi.value?.scrollPrev()
+  trackNav('prev')
 }
 
 function scrollNext() {
   emblaApi.value?.scrollNext()
+  trackNav('next')
 }
 
 const sectionRef = ref<HTMLElement | null>(null)
@@ -314,8 +330,6 @@ usePointerSwipe(sectionRef, {
     margin: 0 desktop-vw(8px);
   }
 
-  // The car (marque + modèle) is appended to the role on desktop; on mobile it
-  // moves above the quote (see &__car-label) so it is hidden here.
   &__author-car {
     @include mobile {
       display: none;

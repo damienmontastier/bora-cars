@@ -62,6 +62,7 @@ export async function useCatalogueListing(query: string, carsQuery: string, face
   const sanity = useSanity()
   const route = useRoute()
   const router = useRouter()
+  const analytics = useAnalytics()
 
   // État des filtres initialisé depuis l'URL (rendu SSR + lien partagé déjà filtré).
   const initial: CatalogueFilters = {}
@@ -193,6 +194,12 @@ export async function useCatalogueListing(query: string, carsQuery: string, face
       if (next?.length) {
         cars.value.push(...next)
         offset.value += CATALOGUE_LIMIT
+        analytics.trackCatalogueScrollMore({
+          loaded_car_count: cars.value.length,
+          total_cars: total.value,
+          page_number: Math.round(offset.value / CATALOGUE_LIMIT),
+          catalogue: route.path,
+        })
       }
     },
     {

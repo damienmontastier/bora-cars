@@ -20,16 +20,16 @@ export interface RentalConfig {
   when?: string
 }
 
-export type ContactSource =
-  | 'menu'
-  | 'home'
-  | 'car_detail'
-  | 'car_pricing'
-  | 'professionnel'
-  | 'proprietaire'
-  | 'contact'
-  | 'footer'
-  | 'other'
+export type ContactSource
+  = | 'menu'
+    | 'home'
+    | 'car_detail'
+    | 'car_pricing'
+    | 'professionnel'
+    | 'proprietaire'
+    | 'contact'
+    | 'footer'
+    | 'other'
 
 export function useAnalytics() {
   function track(event: string, params?: Record<string, any>) {
@@ -100,6 +100,18 @@ export function useAnalytics() {
 
     trackBackToTop(params: { page?: string, scroll_depth_percent?: number }) {
       track('back_to_top_click', params)
+    },
+
+    trackServiceCardClick(params: { card_type?: string, card_label?: string, page?: string, position?: number }) {
+      track('service_card_click', params)
+    },
+
+    trackTestimonialNav(params: { direction: 'prev' | 'next', testimonial_index: number, page?: string }) {
+      track('testimonial_nav', params)
+    },
+
+    trackCatalogueScrollMore(params: { loaded_car_count: number, total_cars: number, page_number: number, catalogue?: string }) {
+      track('catalogue_scroll_more', params)
     },
   }
 }

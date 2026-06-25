@@ -12,9 +12,10 @@ defineProps<Props>()
   <section class="app-elements-services-cards">
     <div class="app-elements-services-cards__grid">
       <ElementsServiceCard
-        v-for="card in cards"
+        v-for="(card, i) in cards"
         :key="card._key"
         :card="card"
+        :position="i"
       />
     </div>
   </section>

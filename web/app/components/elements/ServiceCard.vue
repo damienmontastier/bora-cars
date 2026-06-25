@@ -6,9 +6,22 @@ type ParallaxProps = InstanceType<typeof UtilsParallax>['$props']
 
 interface Props {
   card: ServiceCard
+  position?: number
 }
 
-const { card } = defineProps<Props>()
+const { card, position } = defineProps<Props>()
+
+const route = useRoute()
+const analytics = useAnalytics()
+
+function onServiceCardClick() {
+  analytics.trackServiceCardClick({
+    card_type: card.cardType,
+    card_label: card.categoryLabel,
+    page: route.path,
+    position,
+  })
+}
 
 const gridStyle = computed(() => {
   if (!card.grid)
@@ -76,6 +89,7 @@ const parallaxProps = computed((): Partial<ParallaxProps> => {
     :style="gridStyle"
     class="app-elements-service-card"
     :class="`app-elements-service-card--${card.cardType}`"
+    @click="onServiceCardClick"
   >
     <div class="app-elements-service-card__media">
       <UtilsParallax v-bind="parallaxProps">
