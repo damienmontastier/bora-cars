@@ -139,6 +139,10 @@ export default defineNuxtConfig({
   // SEO i18n). Query string préservée automatiquement par Netlify.
   routeRules: {
     '/': { redirect: { to: '/fr', statusCode: 301 } },
+    // `/en/catalogue` = ancien chemin FR sous le préfixe EN (avant la traduction du
+    // chemin en `/catalog`). Migration STRUCTURELLE unique et bornée (le template
+    // d'URL ne rechangera pas), ≠ churn de contenu → OK en dur. 404 confirmée GSC.
+    '/en/catalogue': { redirect: { to: '/en/catalog', statusCode: 301 } },
   },
 
   site: {

@@ -93,139 +93,139 @@ onUnmounted(() => {
 
         <Transition name="app-cookies-view" mode="out-in">
           <div v-if="view === 'banner'" key="banner" class="app-cookies__banner">
-        <div class="app-cookies__banner-text">
-          <TextsP3 tag="h2" color="beige-100" weight="bold">
-            {{ t('cookies.title') }}
-          </TextsP3>
-          <TextsP1 tag="p" color="beige-100" weight="regular">
-            {{ t('cookies.description') }}
-          </TextsP1>
-        </div>
-
-        <div class="app-cookies__banner-actions">
-          <button
-            type="button"
-            class="app-cookies__settings-link"
-            @click="openSettings"
-          >
-            <TextsP1 tag="span" color="beige-100">
-              {{ t('cookies.changeSettings') }}
-            </TextsP1>
-          </button>
-
-          <div class="app-cookies__banner-buttons">
-            <button
-              type="button"
-              class="app-cookies__btn app-cookies__btn--outline"
-              @click="refuseAll"
-            >
-              <TextsCTA color="beige-100">
-                {{ t('cookies.refuseAll') }}
-              </TextsCTA>
-            </button>
-            <button
-              type="button"
-              class="app-cookies__btn app-cookies__btn--solid"
-              @click="acceptAll"
-            >
-              <TextsCTA color="black-100">
-                {{ t('cookies.acceptAll') }}
-              </TextsCTA>
-            </button>
-          </div>
-        </div>
-      </div>
-
-          <div v-else key="settings" class="app-cookies__modal-wrap">
-        <div class="app-cookies__modal">
-          <div class="app-cookies__modal-scroll">
-            <div class="app-cookies__intro">
-              <TextsP3 tag="h2" color="black-100" weight="bold">
-                {{ t('cookies.modal.title') }}
+            <div class="app-cookies__banner-text">
+              <TextsP3 tag="h2" color="beige-100" weight="bold">
+                {{ t('cookies.title') }}
               </TextsP3>
-              <TextsP1
-                tag="p"
-                color="black-100"
-                weight="regular"
-                class="app-cookies__intro-text"
-              >
-                {{ t('cookies.modal.description') }}
+              <TextsP1 tag="p" color="beige-100" weight="regular">
+                {{ t('cookies.description') }}
               </TextsP1>
             </div>
 
-            <div class="app-cookies__manage">
-              <TextsP3 tag="h3" color="black-100" weight="bold">
-                {{ t('cookies.modal.managePreferences') }}
-              </TextsP3>
+            <div class="app-cookies__banner-actions">
+              <button
+                type="button"
+                class="app-cookies__settings-link"
+                @click="openSettings"
+              >
+                <TextsP1 tag="span" color="beige-100">
+                  {{ t('cookies.changeSettings') }}
+                </TextsP1>
+              </button>
 
-              <ul class="app-cookies__list">
-                <li
-                  v-for="key in COOKIE_CATEGORY_KEYS"
-                  :key="key"
-                  class="app-cookies__row"
-                  :class="{ 'is-open': expanded[key] }"
+              <div class="app-cookies__banner-buttons">
+                <button
+                  type="button"
+                  class="app-cookies__btn app-cookies__btn--outline"
+                  @click="refuseAll"
                 >
-                  <div class="app-cookies__row-head">
-                    <TextsP1 tag="span" color="black-100" class="app-cookies__row-title">
-                      {{ t(`cookies.modal.categories.${key}.title`) }}
-                    </TextsP1>
-
-                    <div class="app-cookies__row-control">
-                      <TextsP1
-                        v-if="key === 'necessary'"
-                        tag="span"
-                        color="black-40"
-                      >
-                        {{ t('cookies.modal.alwaysActive') }}
-                      </TextsP1>
-                      <AtomsSwitch
-                        v-else
-                        :model-value="pending[key]"
-                        :aria-label="t(`cookies.modal.categories.${key}.title`)"
-                        @update:model-value="onPendingUpdate(key, $event)"
-                      />
-                    </div>
-
-                    <button
-                      type="button"
-                      class="app-cookies__row-toggle"
-                      :aria-expanded="expanded[key]"
-                      :aria-label="t('cookies.modal.toggleDetails')"
-                      @click="toggleExpanded(key)"
-                    >
-                      <SvgIconChevron color="black-100" />
-                    </button>
-                  </div>
-
-                  <div class="app-cookies__row-details">
-                    <div class="app-cookies__row-details-inner">
-                      <div class="app-cookies__row-details-content">
-                        <TextsP1
-                          tag="p"
-                          color="black-100"
-                          weight="regular"
-                        >
-                          {{ t(`cookies.modal.categories.${key}.description`) }}
-                        </TextsP1>
-                      </div>
-                    </div>
-                  </div>
-                </li>
-              </ul>
+                  <TextsCTA color="beige-100">
+                    {{ t('cookies.refuseAll') }}
+                  </TextsCTA>
+                </button>
+                <button
+                  type="button"
+                  class="app-cookies__btn app-cookies__btn--solid"
+                  @click="acceptAll"
+                >
+                  <TextsCTA color="black-100">
+                    {{ t('cookies.acceptAll') }}
+                  </TextsCTA>
+                </button>
+              </div>
             </div>
           </div>
 
-          <button
-            type="button"
-            class="app-cookies__btn app-cookies__btn--confirm"
-            @click="saveSelection"
-          >
-            <TextsCTA color="beige-100">
-              {{ t('cookies.modal.confirm') }}
-            </TextsCTA>
-          </button>
-        </div>
-      </div>
+          <div v-else key="settings" class="app-cookies__modal-wrap">
+            <div class="app-cookies__modal">
+              <div class="app-cookies__modal-scroll">
+                <div class="app-cookies__intro">
+                  <TextsP3 tag="h2" color="black-100" weight="bold">
+                    {{ t('cookies.modal.title') }}
+                  </TextsP3>
+                  <TextsP1
+                    tag="p"
+                    color="black-100"
+                    weight="regular"
+                    class="app-cookies__intro-text"
+                  >
+                    {{ t('cookies.modal.description') }}
+                  </TextsP1>
+                </div>
+
+                <div class="app-cookies__manage">
+                  <TextsP3 tag="h3" color="black-100" weight="bold">
+                    {{ t('cookies.modal.managePreferences') }}
+                  </TextsP3>
+
+                  <ul class="app-cookies__list">
+                    <li
+                      v-for="key in COOKIE_CATEGORY_KEYS"
+                      :key="key"
+                      class="app-cookies__row"
+                      :class="{ 'is-open': expanded[key] }"
+                    >
+                      <div class="app-cookies__row-head">
+                        <TextsP1 tag="span" color="black-100" class="app-cookies__row-title">
+                          {{ t(`cookies.modal.categories.${key}.title`) }}
+                        </TextsP1>
+
+                        <div class="app-cookies__row-control">
+                          <TextsP1
+                            v-if="key === 'necessary'"
+                            tag="span"
+                            color="black-40"
+                          >
+                            {{ t('cookies.modal.alwaysActive') }}
+                          </TextsP1>
+                          <AtomsSwitch
+                            v-else
+                            :model-value="pending[key]"
+                            :aria-label="t(`cookies.modal.categories.${key}.title`)"
+                            @update:model-value="onPendingUpdate(key, $event)"
+                          />
+                        </div>
+
+                        <button
+                          type="button"
+                          class="app-cookies__row-toggle"
+                          :aria-expanded="expanded[key]"
+                          :aria-label="t('cookies.modal.toggleDetails')"
+                          @click="toggleExpanded(key)"
+                        >
+                          <SvgIconChevron color="black-100" />
+                        </button>
+                      </div>
+
+                      <div class="app-cookies__row-details">
+                        <div class="app-cookies__row-details-inner">
+                          <div class="app-cookies__row-details-content">
+                            <TextsP1
+                              tag="p"
+                              color="black-100"
+                              weight="regular"
+                            >
+                              {{ t(`cookies.modal.categories.${key}.description`) }}
+                            </TextsP1>
+                          </div>
+                        </div>
+                      </div>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                class="app-cookies__btn app-cookies__btn--confirm"
+                @click="saveSelection"
+              >
+                <TextsCTA color="beige-100">
+                  {{ t('cookies.modal.confirm') }}
+                </TextsCTA>
+              </button>
+            </div>
+          </div>
         </Transition>
       </div>
     </Transition>

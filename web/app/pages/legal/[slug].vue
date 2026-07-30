@@ -19,6 +19,24 @@ if (!page.value) {
   throw createError({ statusCode: 404, statusMessage: t('legal.notFound') })
 }
 
+// ─── Redirection 301 des combinaisons locale × slug incohérentes ───
+// `LEGAL_PAGE_QUERY` matche par slug FR **OU** slug EN (robustesse d'entrée), donc
+// une combinaison croisée — ex. `/fr/legal/legal-notice` (slug ANGLAIS sous le
+// préfixe FR) — renvoie 200 avec le MÊME contenu que `/fr/legal/mentions-legales`.
+// Deux URLs, contenu identique, chacune self-canonical → « Page en double : Google
+// n'a pas choisi la même URL canonique » (GSC). On renvoie donc 301 vers l'URL
+// canonique de la locale COURANTE. Les liens internes pointent déjà vers le bon
+// slug (cf. `internalLinkSlug`) : ceci ne rattrape que les URLs héritées / devinées
+// / issues du sitemap (les « jumelles naïves » du module, cf. server/plugins).
+const localePath = useLocalePath()
+const canonicalSlug = locale.value === 'en' ? page.value.slugEn : page.value.slugFr
+if (canonicalSlug && route.params.slug !== canonicalSlug) {
+  await navigateTo(
+    localePath({ name: 'legal-slug', params: { slug: canonicalSlug } }),
+    { redirectCode: 301 },
+  )
+}
+
 usePageSeo(computed(() => page.value?.seo))
 useMenuCtaSnap()
 
