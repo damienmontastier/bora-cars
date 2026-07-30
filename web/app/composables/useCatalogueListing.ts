@@ -156,6 +156,10 @@ export async function useCatalogueListing(query: string, carsQuery: string, face
     filters[key] = value
     Object.assign(params, toGroqParams(filters))
     syncUrl()
+    // Tracking analytics : on n'émet que sur une SÉLECTION réelle (valeur non vide),
+    // pas sur un reset (value === '') → data propre « quel filtre × quelle valeur ».
+    if (value)
+      analytics.trackCatalogueFilter({ filter_type: key, filter_value: value })
   }
 
   function resetFilters() {
