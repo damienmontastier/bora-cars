@@ -111,7 +111,7 @@ onUnmounted(() => {
         <TextsP1 v-if="subtext" :color="theme === 'white' ? 'black-100' : 'beige-100'">
           {{ subtext }}
         </TextsP1>
-        <AtomsCTA v-if="settings?.contactLink?.text" :theme="theme === 'white' ? 'black' : 'white'" :to="settings.contactLink" :tiret-after="0">
+        <AtomsCTA v-if="settings?.contactLink?.text" :theme="theme === 'white' ? 'black' : 'white'" :to="settings.contactLink" :tiret-after="0" :tracking-extra="{ source: 'cards_column' }">
           {{ settings.contactLink.text }}
         </AtomsCTA>
       </div>

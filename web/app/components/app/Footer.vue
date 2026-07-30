@@ -72,6 +72,7 @@ function scrollToTop() {
                   :theme="ctaTheme"
                   :to="link"
                   class="app-footer__link CTA-TEXT"
+                  :tracking-extra="{ source: 'footer' }"
                 >
                   {{ link.text }}
                 </AtomsCTASecondary>

@@ -31,7 +31,7 @@ const settings = useSettings()
         {{ data.subtext }}
       </TextsP2>
 
-      <AtomsCTA v-if="settings?.contactLink?.text" theme="orange" :to="settings.contactLink">
+      <AtomsCTA v-if="settings?.contactLink?.text" theme="orange" :to="settings.contactLink" :tracking-extra="{ source: 'pitch' }">
         {{ settings.contactLink.text }}
       </AtomsCTA>
     </div>

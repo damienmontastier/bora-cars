@@ -196,7 +196,7 @@ onUnmounted(() => {
           </TextsP2>
         </div>
 
-        <AtomsCTA v-if="settings?.contactLink?.text" theme="white" :tiret-after="0" :to="settings.contactLink">
+        <AtomsCTA v-if="settings?.contactLink?.text" theme="white" :tiret-after="0" :to="settings.contactLink" :tracking-extra="{ source: 'brands_section' }">
           {{ settings.contactLink.text }}
         </AtomsCTA>
       </div>

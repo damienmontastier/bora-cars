@@ -33,6 +33,7 @@ const portableTextComponents = computed(() => getPortableTextComponents({
         theme="black"
         class="app-elements-text__cta"
         :to="settings.contactLink"
+        :tracking-extra="{ source: 'text_block' }"
       >
         {{ settings.contactLink.text }}
       </AtomsCTA>
