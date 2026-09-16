@@ -19,6 +19,7 @@
     "@sanity/icons": "^5.2.2",
     "@sanity/image-url": "^2.1.1",
     "@sanity/language-filter": "^5.0.18",
+    "@sanity/locale-fr-fr": "^1.2.37",
     "@sanity/ui": "^4.2.1",
     "@sanity/vision": "^6.14.0",
     "react": "^19.3.0",

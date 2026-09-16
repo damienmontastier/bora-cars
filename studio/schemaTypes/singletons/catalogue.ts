@@ -2,6 +2,7 @@ import { ArchiveIcon } from '@sanity/icons/Archive'
 import { defineField, defineType } from 'sanity'
 import { seoType } from '../objects/seo'
 import { CatalogueCarsPreview } from '../../components/CatalogueCarsPreview'
+import { PageWhatsappMessageInput } from '../../components/WhatsappTokenEditor'
 
 const TITLE = 'Catalogue'
 
@@ -50,7 +51,8 @@ export const catalogueType = defineType({
       title: 'Message WhatsApp pré-rempli',
       type: 'internationalizedArrayText',
       group: 'whatsapp',
-      description: 'Texte pré-rempli dans WhatsApp au clic sur un CTA de contact de cette page. Laisser vide pour un message vierge.',
+      description: 'Texte pré-rempli dans WhatsApp au clic sur un CTA de contact de cette page. Glisse le tag « Lien de la page » pour savoir, à la réception, de quelle page vient le contact. Laisser vide pour un message vierge.',
+      components: { input: PageWhatsappMessageInput },
     }),
     seoType,
   ],

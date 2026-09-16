@@ -16,69 +16,91 @@ import {
 import { useToast } from '@sanity/ui/toast'
 import { RocketIcon } from '@sanity/icons/Rocket'
 import { WarningOutlineIcon } from '@sanity/icons/WarningOutline'
+import { BUILD_HOOK, formatDateTime, readLastTriggered, triggerBuild } from '../lib/netlifyDeploy'
 
-// Outil « Publier » : POST sur le build hook Netlify (production / branche main)
-// pour redéclencher un build + redéploiement à la demande, sans attendre un push.
-// Fire-and-forget : `mode: 'no-cors'` envoie la requête sans préflight CORS — le
-// build part quoi qu'il arrive ; on ne lit pas la réponse (opaque).
+// Outil « Mise en ligne » : redéclenche un build + redéploiement de la production (branche
+// main) à la demande, sans attendre un push.
 
-const BUILD_HOOK = process.env.SANITY_STUDIO_NETLIFY_BUILD_HOOK
-const LAST_TRIGGERED_KEY = 'bora:netlify:last-triggered'
-
-function readLastTriggered(): string | null {
-  if (typeof localStorage === 'undefined') return null
-  return localStorage.getItem(LAST_TRIGGERED_KEY)
-}
-
-function formatDate(iso: string | null): string | null {
-  if (!iso) return null
-  const d = new Date(iso)
-  if (Number.isNaN(d.getTime())) return null
-  return d.toLocaleString('fr-FR', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  })
-}
-
-export function DeployTool() {
+/** Déclenchement du build avec toasts. `onTriggered` reçoit la date ISO du déclenchement. */
+export function useDeployTrigger(onTriggered?: (iso: string) => void) {
   const toast = useToast()
-  const [confirmOpen, setConfirmOpen] = useState(false)
   const [loading, setLoading] = useState(false)
-  const [lastTriggered, setLastTriggered] = useState<string | null>(() => readLastTriggered())
 
   const trigger = useCallback(async () => {
-    if (!BUILD_HOOK) return
     setLoading(true)
     try {
-      await fetch(BUILD_HOOK, { method: 'POST', mode: 'no-cors' })
-      const now = new Date().toISOString()
-      try {
-        localStorage.setItem(LAST_TRIGGERED_KEY, now)
-      } catch {
-        // localStorage indisponible (mode privé) — sans gravité.
-      }
-      setLastTriggered(now)
+      const iso = await triggerBuild()
+      onTriggered?.(iso)
       toast.push({
         status: 'success',
-        title: 'Build déclenché',
-        description: 'Netlify reconstruit le site de production. Comptez ~1–3 min avant la mise en ligne.',
+        title: 'Mise en ligne lancée',
+        description: 'Le site est en cours de reconstruction. Vos contenus publiés seront en ligne dans ~1–3 min.',
       })
-    } catch {
+    }
+    catch {
       toast.push({
         status: 'error',
         title: 'Échec du déclenchement',
         description: 'Impossible de joindre Netlify. Vérifiez votre connexion et réessayez.',
       })
-    } finally {
-      setLoading(false)
-      setConfirmOpen(false)
     }
-  }, [toast])
+    finally {
+      setLoading(false)
+    }
+  }, [toast, onTriggered])
 
-  const lastTriggeredLabel = formatDate(lastTriggered)
+  return { available: Boolean(BUILD_HOOK), loading, trigger }
+}
+
+export function DeployConfirmDialog({ loading, onConfirm, onClose }: {
+  loading: boolean
+  onConfirm: () => void
+  onClose: () => void
+}) {
+  return (
+    <Dialog
+      id="confirm-deploy"
+      header="Mettre le site en ligne ?"
+      width={0}
+      onClose={loading ? undefined : onClose}
+    >
+      <Box padding={4}>
+        <Stack gap={4}>
+          <Text size={1}>
+            Le site boracars.com va être reconstruit avec tout le contenu publié dans Sanity. Il
+            sera à jour dans ~1–3 min.
+          </Text>
+          <Text size={1} muted>
+            Les brouillons (contenus pas encore publiés) ne sont pas mis en ligne.
+          </Text>
+          <Flex justify="flex-end" gap={3}>
+            <Button text="Annuler" mode="ghost" disabled={loading} onClick={onClose} />
+            <Button
+              icon={RocketIcon}
+              text={loading ? 'Lancement…' : 'Mettre en ligne'}
+              tone="primary"
+              disabled={loading}
+              loading={loading}
+              onClick={onConfirm}
+            />
+          </Flex>
+        </Stack>
+      </Box>
+    </Dialog>
+  )
+}
+
+export function DeployTool() {
+  const [confirmOpen, setConfirmOpen] = useState(false)
+  const [lastTriggered, setLastTriggered] = useState<string | null>(() => readLastTriggered())
+  const { available, loading, trigger } = useDeployTrigger(setLastTriggered)
+
+  const confirm = useCallback(async () => {
+    await trigger()
+    setConfirmOpen(false)
+  }, [trigger])
+
+  const lastTriggeredLabel = formatDateTime(lastTriggered)
 
   return (
     <Container width={1} paddingX={4} paddingY={6}>
@@ -91,15 +113,15 @@ export function DeployTool() {
               </Text>
             </Box>
             <Stack gap={2}>
-              <Heading size={2}>Publier le site</Heading>
+              <Heading size={2}>Mettre le site en ligne</Heading>
               <Text size={1} muted>
-                Reconstruit et met en ligne la production (branche <code>main</code>) avec le contenu
-                actuel de Sanity.
+                Reconstruit le site boracars.com avec le contenu publié dans Sanity, pour que vos
+                modifications apparaissent en ligne.
               </Text>
             </Stack>
           </Flex>
 
-          {!BUILD_HOOK ? (
+          {!available ? (
             <Card padding={3} radius={2} tone="caution" border>
               <Flex align="flex-start" gap={3}>
                 <Text size={2}>
@@ -119,14 +141,14 @@ export function DeployTool() {
           ) : (
             <Stack gap={4}>
               <Text size={1} muted>
-                À utiliser après avoir modifié du contenu : la production étant prérendue, les
-                changements n'apparaissent en ligne qu'après un nouveau build.
+                À utiliser après avoir publié des contenus : le site étant pré-généré pour être rapide,
+                les changements n'apparaissent en ligne qu'après une mise en ligne.
               </Text>
 
               <Inline gap={3}>
                 <Button
                   icon={RocketIcon}
-                  text="Lancer le build"
+                  text="Mettre en ligne"
                   tone="primary"
                   disabled={loading}
                   onClick={() => setConfirmOpen(true)}
@@ -136,7 +158,7 @@ export function DeployTool() {
 
               <Flex align="center" gap={2}>
                 <Text size={1} muted>
-                  Dernière publication :
+                  Dernière mise en ligne :
                 </Text>
                 {lastTriggeredLabel ? (
                   <Badge tone="positive" fontSize={0}>
@@ -154,37 +176,11 @@ export function DeployTool() {
       </Card>
 
       {confirmOpen && (
-        <Dialog
-          id="confirm-deploy"
-          header="Publier le site ?"
-          width={0}
-          onClose={loading ? undefined : () => setConfirmOpen(false)}
-        >
-          <Box padding={4}>
-            <Stack gap={4}>
-              <Text size={1}>
-                Un nouveau build de production va être déclenché sur Netlify. Le site sera mis à jour
-                avec le contenu actuel dans ~1–3 min.
-              </Text>
-              <Flex justify="flex-end" gap={3}>
-                <Button
-                  text="Annuler"
-                  mode="ghost"
-                  disabled={loading}
-                  onClick={() => setConfirmOpen(false)}
-                />
-                <Button
-                  icon={RocketIcon}
-                  text={loading ? 'Déclenchement…' : 'Publier'}
-                  tone="primary"
-                  disabled={loading}
-                  loading={loading}
-                  onClick={trigger}
-                />
-              </Flex>
-            </Stack>
-          </Box>
-        </Dialog>
+        <DeployConfirmDialog
+          loading={loading}
+          onConfirm={confirm}
+          onClose={() => setConfirmOpen(false)}
+        />
       )}
     </Container>
   )

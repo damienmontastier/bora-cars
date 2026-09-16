@@ -61,7 +61,7 @@ export const carPageType = defineType({
       title: 'Messages WhatsApp',
       type: 'object',
       group: 'whatsapp',
-      description: '4 modèles de message pré-rempli (CTA « Contacter »), choisis automatiquement selon le contexte. Variables insérables via les boutons ; un aperçu commun (1 voiture + 1 langue) montre les 4 messages en bas. Laisser un champ vide = lien WhatsApp sans message pré-rempli.',
+      description: '4 modèles de message pré-rempli (CTA « Contacter »), choisis automatiquement selon le contexte. Glisse les tags dans les messages (ou clique pour les insérer au curseur) ; un aperçu commun (1 voiture + 1 langue) montre les 4 messages en bas. Laisser un champ vide = lien WhatsApp sans message pré-rempli.',
       components: { input: WhatsappTemplatesInput },
       options: { columns: 1 },
       fields: WHATSAPP_TEMPLATES.map(({ name, title, description }) =>

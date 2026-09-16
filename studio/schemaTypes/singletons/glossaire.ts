@@ -11,7 +11,7 @@ const TITLE = 'Glossaire'
 // NB : `nuxtSiteConfig` (nom/description du site) n'est PAS ici — il est lu au
 // build par nuxt-site-config (avant le runtime), donc l'éditer dans Sanity n'aurait
 // aucun effet. Sa valeur reste le fallback dans i18n/locales/*.json.
-const SECTIONS: { name: string, title: string, description: string }[] = [
+export const GLOSSAIRE_SECTIONS: { name: string, title: string, description: string }[] = [
   {
     name: 'seo',
     title: 'SEO / slogan',
@@ -37,8 +37,8 @@ export const glossaireType = defineType({
   title: TITLE,
   type: 'document',
   icon: TranslateIcon,
-  groups: SECTIONS.map(({ name, title }, i) => ({ name, title, default: i === 0 })),
-  fields: SECTIONS.map(({ name, title, description }) =>
+  groups: GLOSSAIRE_SECTIONS.map(({ name, title }, i) => ({ name, title, default: i === 0 })),
+  fields: GLOSSAIRE_SECTIONS.map(({ name, title, description }) =>
     defineField({
       name,
       title,

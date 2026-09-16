@@ -5,6 +5,7 @@ import { visionTool } from '@sanity/vision'
 import { linkField } from 'sanity-plugin-link-field'
 import { internationalizedArray } from 'sanity-plugin-internationalized-array'
 import { assist } from '@sanity/assist'
+import { frFRLocale } from '@sanity/locale-fr-fr'
 import { HomeIcon } from '@sanity/icons/Home'
 import { UserIcon } from '@sanity/icons/User'
 import { CaseIcon } from '@sanity/icons/Case'
@@ -19,14 +20,16 @@ import { DocumentTextIcon } from '@sanity/icons/DocumentText'
 import { RocketIcon } from '@sanity/icons/Rocket'
 import { TranslateIcon } from '@sanity/icons/Translate'
 import { LinkIcon } from '@sanity/icons/Link'
+import { DashboardIcon } from '@sanity/icons/Dashboard'
 import { schemaTypes } from './schemaTypes'
-import { SUPPORTED_LANGUAGES, LOCALIZED_DOCUMENT_TYPES } from './schemaTypes/constants'
+import { SUPPORTED_LANGUAGES, LOCALIZED_DOCUMENT_TYPES, SINGLETON_TYPES } from './schemaTypes/constants'
 import { StudioLayout } from './components/StudioLayout'
 import { DeployTool } from './components/DeployTool'
+import { DashboardTool } from './components/dashboard/DashboardTool'
 
 const CarIcon = () => createElement('span', null, '🚗')
 
-const SINGLETONS = new Set(['homepage', 'footer', 'menu', 'proprietaire', 'professionnel', 'contact', 'settings', 'catalogue', 'catalogueProfessionnel', 'carPage', 'glossaire', 'bio'])
+const SINGLETONS = new Set(SINGLETON_TYPES)
 
 const structure = (S: any) =>
   S.list()
@@ -84,6 +87,9 @@ export default defineConfig({
   projectId: 'xyw8hnp3',
   dataset: 'production',
   plugins: [
+    // Interface du Studio en français (« Publier », « Brouillon »…) : le client n'est pas
+    // anglophone et confondait brouillon / publié.
+    frFRLocale(),
     linkField({ linkableSchemaTypes: ['homepage', 'proprietaire', 'professionnel', 'car', 'contact', 'catalogue', 'catalogueProfessionnel', 'legalPage'] }),
     internationalizedArray({
       languages: SUPPORTED_LANGUAGES,
@@ -147,11 +153,19 @@ export default defineConfig({
     structureTool({ structure }),
     visionTool(),
   ],
+  // Dashboard en premier : c'est l'onglet ouvert par défaut à l'arrivée dans le Studio.
   tools: (prev) => [
+    {
+      name: 'dashboard',
+      title: 'Dashboard',
+      icon: DashboardIcon,
+      component: DashboardTool,
+    },
     ...prev,
     {
       name: 'deploy',
-      title: 'Publier',
+      // Pas « Publier » : c'est déjà le bouton des documents (publier ≠ mettre en ligne).
+      title: 'Mise en ligne',
       icon: RocketIcon,
       component: DeployTool,
     },

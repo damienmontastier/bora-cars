@@ -14,9 +14,19 @@ const WHATSAPP_MESSAGE_KEY = Symbol('whatsapp-message') as InjectionKey<Ref<stri
  *
  * Le menu et la homepage n'appellent pas cette fonction → leurs CTA WhatsApp
  * gardent un message vierge.
+ *
+ * Le message Sanity peut contenir le tag `{url}` (« Lien de la page » dans le
+ * Studio) : remplacé ici par l'URL complète de la page, pour savoir à la
+ * réception d'où vient le contact.
  */
 export function provideWhatsappMessage(message: MaybeRefOrGetter<string | undefined>) {
-  provide(WHATSAPP_MESSAGE_KEY, toRef(message))
+  const { url: siteUrl } = useSiteConfig()
+  const route = useRoute()
+  provide(WHATSAPP_MESSAGE_KEY, computed(() => {
+    const template = toValue(message)?.trim()
+    // Pas `useRequestURL()` : au prerender il vaut `http://localhost`, figé dans le href.
+    return template ? fillWhatsappTemplate(template, { url: `${siteUrl}${route.path}` }) : undefined
+  }))
 }
 
 /**

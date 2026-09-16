@@ -1,6 +1,7 @@
 import { LinkIcon } from '@sanity/icons/Link'
 import { defineArrayMember, defineField, defineType } from 'sanity'
 import { seoType } from '../objects/seo'
+import { BioWhatsappMessageInput } from '../../components/WhatsappTokenEditor'
 
 const TITLE = 'Bio (réseaux sociaux)'
 
@@ -51,7 +52,8 @@ export const bioType = defineType({
       type: 'internationalizedArrayText',
       group: 'whatsapp',
       description:
-        'Gabarit du message pré-rempli par le bouton WhatsApp de chaque story. Jetons remplacés par la voiture de la story : {marque}, {modele}, {prix} (montant avec devise, vide si pas de prix), {periode} (« par jour » / « par mois »), {url} (lien de sa fiche). Ex. « Bonjour, j’ai vu la {marque} {modele} sur votre Instagram, est-elle disponible ? ». Laisser vide pour un message vierge.',
+        'Gabarit du message pré-rempli par le bouton WhatsApp de chaque story. Glisse les tags dans le texte : ils sont remplacés par la voiture de la story — Marque, Modèle, Prix (montant avec devise, vide si pas de prix), Période (« par jour » / « par mois »), Lien fiche. Ex. « Bonjour, j’ai vu la [Marque] [Modèle] sur votre Instagram, est-elle disponible ? ». Laisser vide pour un message vierge.',
+      components: { input: BioWhatsappMessageInput },
     }),
     seoType,
   ],

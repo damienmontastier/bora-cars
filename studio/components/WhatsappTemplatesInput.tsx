@@ -1,24 +1,9 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { useClient } from 'sanity'
-import type { ObjectInputProps } from 'sanity'
+import type { ObjectInputProps, Path } from 'sanity'
 import { Box, Card, Flex, Select, Stack, Text } from '@sanity/ui'
-
-interface TemplateVariable {
-  token: string
-  label: string
-}
-
-// Variables interpolées côté front par useCarContact (fillTemplate).
-// À garder synchronisées avec `whatsappParams` dans web/.../composables/useCarContact.ts.
-const VARIABLES: TemplateVariable[] = [
-  { token: '{marque}', label: 'Marque' },
-  { token: '{modele}', label: 'Modèle' },
-  { token: '{prix}', label: 'Prix' },
-  { token: '{periode}', label: 'Période' },
-  { token: '{duree}', label: 'Durée' },
-  { token: '{quand}', label: 'Quand' },
-  { token: '{url}', label: 'Lien fiche' },
-]
+import type { TokenWarnings } from './WhatsappTokenEditor'
+import { CAR_VARIABLES, WhatsappTokenObjectScope, WhatsappTokenPalette } from './WhatsappTokenEditor'
 
 // Les 4 cas — même ordre/clé que l'objet `whatsapp` du schéma carPage.
 // `noDate` = barre sticky : pas de sélecteur durée/quand → {duree}/{quand} interdits.
@@ -29,6 +14,17 @@ const FIELDS: { name: string, label: string, noDate: boolean }[] = [
   { name: 'simpleWithoutPrice', label: 'Barre sticky — sans prix', noDate: true },
 ]
 const DATE_TOKENS = new Set(['duree', 'quand'])
+
+// Tags orange dans les templates de la barre sticky.
+const STICKY_WARNINGS: TokenWarnings = {
+  duree: 'à éviter : la barre sticky n’a pas de sélecteur de durée, le client n’a rien choisi.',
+  quand: 'à éviter : la barre sticky n’a pas de sélecteur « quand », le client n’a rien choisi.',
+}
+
+function warningsFor(path: Path): TokenWarnings | undefined {
+  const field = FIELDS.find(f => path.includes(f.name))
+  return field?.noDate ? STICKY_WARNINGS : undefined
+}
 
 type Lang = 'fr' | 'en'
 const LANGS: { id: Lang, label: string }[] = [
@@ -84,7 +80,7 @@ function buildParams(car: CarOption, lang: Lang): Record<string, string> {
   }
 }
 
-const KNOWN_TOKENS = new Set(VARIABLES.map(v => v.token.slice(1, -1)))
+const KNOWN_TOKENS = new Set(CAR_VARIABLES.map(v => v.name))
 const CAR_TOKENS = new Set(['marque', 'modele', 'prix', 'url'])
 
 function carFieldPresent(car: CarOption, token: string): boolean {
@@ -97,7 +93,6 @@ function carFieldPresent(car: CarOption, token: string): boolean {
   }
 }
 
-// Marqueur surligné INLINE dans l'aperçu.
 function Marker({ color, title, children }: { color: string, title: string, children: React.ReactNode }) {
   return (
     <span
@@ -151,29 +146,13 @@ function renderPreview(template: string, car: CarOption, lang: Lang, noDate: boo
   })
 }
 
-function insertIntoTextarea(textarea: HTMLTextAreaElement, token: string) {
-  const start = textarea.selectionStart ?? textarea.value.length
-  const end = textarea.selectionEnd ?? textarea.value.length
-  const next = textarea.value.slice(0, start) + token + textarea.value.slice(end)
-
-  const setValue = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value')?.set
-  setValue?.call(textarea, next)
-  textarea.dispatchEvent(new Event('input', { bubbles: true }))
-
-  const pos = start + token.length
-  textarea.focus()
-  textarea.setSelectionRange(pos, pos)
-}
-
 /**
- * Input de l'objet `whatsapp` (carPage) : les 4 templates partagent UNE seule barre
- * de variables et UN seul aperçu (1 sélecteur voiture + 1 sélecteur langue), qui
- * affiche les 4 messages finaux côte à côte.
+ * Input de l'objet `whatsapp` (carPage) : les 4 templates partagent UNE seule palette
+ * de tags (glisser-déposer dans l'éditeur à tags de chaque champ/langue) et UN seul
+ * aperçu (1 sélecteur voiture + 1 sélecteur langue) qui affiche les 4 messages finaux.
  */
 export function WhatsappTemplatesInput(props: ObjectInputProps) {
-  const { renderDefault, value } = props
-  const containerRef = useRef<HTMLDivElement>(null)
-  const lastFocused = useRef<HTMLTextAreaElement | null>(null)
+  const { value } = props
 
   const client = useClient({ apiVersion: '2026-04-06' })
   const [cars, setCars] = useState<CarOption[]>([])
@@ -193,28 +172,11 @@ export function WhatsappTemplatesInput(props: ObjectInputProps) {
     return () => { active = false }
   }, [client])
 
-  const handleFocusCapture = useCallback((e: React.FocusEvent) => {
-    if (e.target instanceof HTMLTextAreaElement)
-      lastFocused.current = e.target
-  }, [])
-
-  const insert = useCallback((token: string) => {
-    const root = containerRef.current
-    if (!root)
-      return
-    let textarea = lastFocused.current
-    if (!textarea || !root.contains(textarea))
-      textarea = root.querySelector('textarea')
-    if (textarea)
-      insertIntoTextarea(textarea, token)
-  }, [])
-
   const selectedCar = useMemo(
     () => cars.find(c => c._id === selectedId),
     [cars, selectedId],
   )
 
-  // Template courant de chaque champ, pour la langue choisie.
   const templates = useMemo(() => {
     const obj = (value ?? {}) as Record<string, TemplateValueItem[] | undefined>
     return FIELDS.map((f) => {
@@ -225,106 +187,78 @@ export function WhatsappTemplatesInput(props: ObjectInputProps) {
   }, [value, lang])
 
   return (
-    <div ref={containerRef} onFocusCapture={handleFocusCapture}>
-      <Stack gap={3}>
-        <Card padding={3} radius={2} tone="primary" border>
-          <Stack gap={3}>
-            <Text size={1} weight="semibold" muted>
-              Variables — clique pour insérer dans le champ actif, ou glisse-dépose dans le texte
-            </Text>
-            <Flex gap={2} wrap="wrap">
-              {VARIABLES.map(v => (
-                <Card
-                  key={v.token}
-                  as="button"
-                  type="button"
-                  padding={2}
-                  radius={2}
-                  tone="primary"
-                  border
-                  draggable
-                  onDragStart={(e: React.DragEvent) => {
-                    e.dataTransfer.setData('text/plain', v.token)
-                    e.dataTransfer.effectAllowed = 'copy'
-                  }}
-                  onClick={() => insert(v.token)}
-                  style={{ cursor: 'grab' }}
-                >
-                  <Flex align="center" gap={2}>
-                    <Text size={1} weight="medium">⋮⋮ {v.label}</Text>
-                    <Text size={0} muted>
-                      <code>{v.token}</code>
-                    </Text>
-                  </Flex>
-                </Card>
-              ))}
-            </Flex>
-          </Stack>
-        </Card>
+    <WhatsappTokenObjectScope props={props} variables={CAR_VARIABLES} warningsFor={warningsFor}>
+      {defaultInput => (
+        <Stack gap={3}>
+          <WhatsappTokenPalette
+            readOnly={props.readOnly}
+            hint="Tag orange = à éviter sur la barre sticky · violet = variable inconnue (sortira vide)."
+          />
 
-        {renderDefault(props)}
+          {defaultInput}
 
-        <Card padding={3} radius={2} tone="transparent" border>
-          <Stack gap={3}>
-            <Text size={1} weight="semibold" muted>
-              Aperçu des 4 messages
-            </Text>
+          <Card padding={3} radius={2} tone="transparent" border>
+            <Stack gap={3}>
+              <Text size={1} weight="semibold" muted>
+                Aperçu des 4 messages
+              </Text>
 
-            <Flex gap={2} wrap="wrap">
-              <Box flex={1} style={{ minWidth: 200 }}>
-                <Select
-                  fontSize={1}
-                  value={selectedId}
-                  onChange={e => setSelectedId(e.currentTarget.value)}
-                >
-                  <option value="">— Choisir une voiture —</option>
-                  {cars.map(c => (
-                    <option key={c._id} value={c._id}>
-                      {[c.marque, c.modele].filter(Boolean).join(' ') || c._id}
-                    </option>
-                  ))}
-                </Select>
-              </Box>
-              <Box style={{ minWidth: 130 }}>
-                <Select
-                  fontSize={1}
-                  value={lang}
-                  onChange={e => setLang(e.currentTarget.value as Lang)}
-                >
-                  {LANGS.map(l => (
-                    <option key={l.id} value={l.id}>{l.label}</option>
-                  ))}
-                </Select>
-              </Box>
-            </Flex>
-
-            {selectedCar
-              ? (
-                  <Stack gap={2}>
-                    {templates.map(f => (
-                      <Card key={f.name} padding={3} radius={2} tone={f.tpl.trim() ? 'positive' : 'caution'} border>
-                        <Stack gap={2}>
-                          <Text size={0} weight="semibold" muted>{f.label}</Text>
-                          {f.tpl.trim()
-                            ? <Text size={1} style={{ whiteSpace: 'pre-wrap' }}>{renderPreview(f.tpl, selectedCar, lang, f.noDate)}</Text>
-                            : <Text size={1} muted style={{ fontStyle: 'italic' }}>Vide → lien WhatsApp sans message pré-rempli.</Text>}
-                        </Stack>
-                      </Card>
+              <Flex gap={2} wrap="wrap">
+                <Box flex={1} style={{ minWidth: 200 }}>
+                  <Select
+                    fontSize={1}
+                    value={selectedId}
+                    onChange={e => setSelectedId(e.currentTarget.value)}
+                  >
+                    <option value="">— Choisir une voiture —</option>
+                    {cars.map(c => (
+                      <option key={c._id} value={c._id}>
+                        {[c.marque, c.modele].filter(Boolean).join(' ') || c._id}
+                      </option>
                     ))}
-                  </Stack>
-                )
-              : (
-                  <Text size={1} muted style={{ fontStyle: 'italic' }}>
-                    Choisis une voiture pour voir les 4 messages finaux.
-                  </Text>
-                )}
+                  </Select>
+                </Box>
+                <Box style={{ minWidth: 130 }}>
+                  <Select
+                    fontSize={1}
+                    value={lang}
+                    onChange={e => setLang(e.currentTarget.value as Lang)}
+                  >
+                    {LANGS.map(l => (
+                      <option key={l.id} value={l.id}>{l.label}</option>
+                    ))}
+                  </Select>
+                </Box>
+              </Flex>
 
-            <Text size={0} muted>
-              Surligné : valeur absente sur la voiture (rouge), variable inconnue (violet) ou date à éviter sur la barre sticky (orange) · durée/quand = valeurs par défaut · lien = chemin de la fiche (le domaine est ajouté sur le site).
-            </Text>
-          </Stack>
-        </Card>
-      </Stack>
-    </div>
+              {selectedCar
+                ? (
+                    <Stack gap={2}>
+                      {templates.map(f => (
+                        <Card key={f.name} padding={3} radius={2} tone={f.tpl.trim() ? 'positive' : 'caution'} border>
+                          <Stack gap={2}>
+                            <Text size={0} weight="semibold" muted>{f.label}</Text>
+                            {f.tpl.trim()
+                              ? <Text size={1} style={{ whiteSpace: 'pre-wrap' }}>{renderPreview(f.tpl, selectedCar, lang, f.noDate)}</Text>
+                              : <Text size={1} muted style={{ fontStyle: 'italic' }}>Vide → lien WhatsApp sans message pré-rempli.</Text>}
+                          </Stack>
+                        </Card>
+                      ))}
+                    </Stack>
+                  )
+                : (
+                    <Text size={1} muted style={{ fontStyle: 'italic' }}>
+                      Choisis une voiture pour voir les 4 messages finaux.
+                    </Text>
+                  )}
+
+              <Text size={0} muted>
+                Surligné : valeur absente sur la voiture (rouge), variable inconnue (violet) ou date à éviter sur la barre sticky (orange) · durée/quand = valeurs par défaut · lien = chemin de la fiche (le domaine est ajouté sur le site).
+              </Text>
+            </Stack>
+          </Card>
+        </Stack>
+      )}
+    </WhatsappTokenObjectScope>
   )
 }

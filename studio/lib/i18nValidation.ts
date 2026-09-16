@@ -27,6 +27,21 @@ const isEmpty = (value: unknown): boolean => {
 }
 
 /**
+ * Languages (uppercased, e.g. `['EN']`) with no usable value in an
+ * internationalizedArray* field. Every language is missing when the field is empty.
+ * Shared by `requireAllLanguages` and the Dashboard checks.
+ */
+export const missingLanguages = (value: unknown): string[] => {
+  const items = Array.isArray(value) ? (value as LocalizedItem[]) : []
+  return REQUIRED_LANG_IDS
+    .filter((lang) => {
+      const item = items.find((it) => it.language === lang)
+      return !item || isEmpty(item.value)
+    })
+    .map((lang) => lang.toUpperCase())
+}
+
+/**
  * Validation for required internationalizedArray* fields.
  * Ensures every supported language has a non-empty value.
  *
@@ -42,14 +57,7 @@ export const requireAllLanguages = (rule: any) =>
     if (!Array.isArray(value) || value.length === 0) {
       return `Required for ${REQUIRED_LANG_LABEL.join(' & ')}`
     }
-    const items = value as LocalizedItem[]
-    const missing: string[] = []
-    for (const lang of REQUIRED_LANG_IDS) {
-      const item = items.find((it) => it.language === lang)
-      if (!item || isEmpty(item.value)) {
-        missing.push(lang.toUpperCase())
-      }
-    }
+    const missing = missingLanguages(value)
     if (missing.length > 0) {
       return `Missing translation: ${missing.join(', ')}`
     }

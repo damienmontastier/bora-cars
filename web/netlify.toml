@@ -34,3 +34,12 @@
 # donc une règle forcée ici n'est jamais atteinte (le `_redirects` gagne). Le fix
 # réel est de ne pas générer le stub `index.html` qui « shadow » la 301 — voir
 # `nitro.prerender.ignore` dans nuxt.config.ts.
+
+# Le Dashboard du Studio Sanity (autre origine) lit dans ce manifest Nuxt la date du
+# build en ligne (`{ id, timestamp }`), pour signaler les contenus publiés pas encore
+# en ligne et détecter la fin d'une mise à jour — cf. studio/lib/netlifyDeploy.ts.
+# Données publiques, lecture seule : `*` suffit.
+[[headers]]
+  for = "/_nuxt/builds/latest.json"
+  [headers.values]
+    Access-Control-Allow-Origin = "*"
