@@ -1,4 +1,5 @@
 import type { InjectionKey, MaybeRefOrGetter, Ref } from 'vue'
+import type { SanityLink } from '~/queries/modules'
 
 // wa.me / whatsapp.com (et sous-domaines) — même règle que BaseLink / Pricing.
 const WHATSAPP_HOST_RE = /^(?:[\w-]+\.)*(?:wa\.me|whatsapp\.com)$/i
@@ -47,4 +48,26 @@ export function withWhatsappText(url: string | undefined, message?: string): str
 
   parsed.searchParams.set('text', message)
   return parsed.toString()
+}
+
+/**
+ * Remplit un gabarit de message WhatsApp éditable dans Sanity : chaque jeton
+ * `{nom}` est remplacé par `params.nom` (jeton inconnu → chaîne vide).
+ */
+export function fillWhatsappTemplate(template: string, params: Record<string, string>): string {
+  return template.replace(/\{(\w+)\}/g, (_, key) => params[key] ?? '')
+}
+
+/**
+ * Lien de contact (`settings.contactLink`) avec un message pré-rempli PROPRE à
+ * un CTA (ex. la voiture d'une fiche ou d'une story). Renvoie l'URL wa.me + `?text=`
+ * si le lien est WhatsApp et le message non vide, sinon le lien Sanity tel quel.
+ * ⚠ Réservé aux pages qui n'appellent PAS `provideWhatsappMessage` : `BaseLink`
+ * remplacerait ce `text` par le message de page.
+ */
+export function whatsappContactTo(link: SanityLink | undefined, message: string): SanityLink | string | undefined {
+  if (!link || link.type !== 'external' || !link.url)
+    return link
+  const withText = withWhatsappText(link.url, message)
+  return withText === link.url ? link : withText
 }

@@ -13,10 +13,6 @@ function lowerFirst(s: string) {
   return s ? s.charAt(0).toLowerCase() + s.slice(1) : s
 }
 
-function fillTemplate(template: string, params: Record<string, string>) {
-  return template.replace(/\{(\w+)\}/g, (_, key) => params[key] ?? '')
-}
-
 interface CarContactOptions {
   // Les 4 templates WhatsApp éditables depuis Sanity (carPage.whatsapp). useCarContact
   // choisit le bon selon `schedule` × présence d'un prix ; fallback i18n si vide.
@@ -127,17 +123,10 @@ export function useCarContact(car: MaybeRefOrGetter<CarDetailData>, options: Car
       ? (hasPrice ? 'withPrice' : 'withoutPrice')
       : (hasPrice ? 'simpleWithPrice' : 'simpleWithoutPrice')
     const template = toValue(options.whatsappTemplates)?.[caseKey]?.trim()
-    return template ? fillTemplate(template, whatsappParams.value) : ''
+    return template ? fillWhatsappTemplate(template, whatsappParams.value) : ''
   })
 
-  const contactTo = computed(() => {
-    const link = settings.value?.contactLink
-    if (!link || link.type !== 'external' || !link.url)
-      return link
-    // withWhatsappText renvoie l'URL inchangée si ce n'est pas un lien WhatsApp.
-    const withText = withWhatsappText(link.url, whatsappText.value)
-    return withText === link.url ? link : withText
-  })
+  const contactTo = computed(() => whatsappContactTo(settings.value?.contactLink, whatsappText.value))
 
   const hasContact = computed(() => !!settings.value?.contactLink)
 

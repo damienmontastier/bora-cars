@@ -14,6 +14,7 @@ const SECTIONS = [
   'menu',
   'catalogue',
   'car',
+  'bio',
   'testimonials',
   'contact',
   'media',

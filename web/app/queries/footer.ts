@@ -31,6 +31,15 @@ const linkProjection = `{
   "internalLink": link.internalLink->{ "_id": _id, "_type": _type, ${internalLinkSlug} }
 }`
 
+export interface FooterLegalData {
+  legalLinks?: SanityLink[]
+}
+
+// Footer réduit (`AppFooterMini`) : seuls les liens légaux sont nécessaires.
+export const FOOTER_LEGAL_QUERY = `*[_type == "footer"][0]{
+  "legalLinks": legalLinks[]${linkProjection}
+}`
+
 export const FOOTER_QUERY = `*[_type == "footer"][0]{
   ${i18n('contactTitle')},
   "locations": locations[]->{

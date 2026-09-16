@@ -18,7 +18,7 @@ const props = defineProps({
   theme: {
     type: String,
     default: 'white',
-    validator: v => ['white', 'black', 'orange'].includes(v),
+    validator: v => ['white', 'beige', 'black', 'orange'].includes(v),
   },
 })
 
@@ -30,6 +30,7 @@ const isAnimated = computed(() => props.animated && !isMobile.value)
 
 const themeTextColor = computed(() => ({
   white: 'black-100',
+  beige: 'black-100',
   black: 'beige-100',
   orange: 'beige-100',
 }[props.theme]))
@@ -234,6 +235,10 @@ function onLeave() {
 
   &--white {
     background: var(--c-white);
+  }
+
+  &--beige {
+    background: var(--c-beige);
   }
 
   &--black {

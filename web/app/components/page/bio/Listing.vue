@@ -1,50 +1,71 @@
 <script lang="ts" setup>
 import type { CatalogueCar } from '~/queries/catalogue'
-import type { SanityLink } from '~/queries/modules'
 
 interface Props {
-  title?: string
-  description?: string
-  quickLinks?: SanityLink[]
   cars: CatalogueCar[]
+  // Gabarit WhatsApp du singleton `bio`, transmis à chaque story.
+  whatsappTemplate?: string
 }
 
-defineProps<Props>()
+const props = defineProps<Props>()
+
+const { t } = useI18n()
+
+// « 06 voitures » — pluriel vue-i18n (« {count} voiture | {count} voitures »),
+// nombre affiché sur deux chiffres comme le compteur des stories.
+const countLabel = computed(() => {
+  const n = props.cars.length
+  return t('bio.header.count', { count: String(n).padStart(2, '0') }, n)
+})
 </script>
 
 <template>
-  <div v-menu-theme="'black'" class="page-bio-listing">
-    <div class="page-bio-listing__header">
-      <TextsH1 v-if="title" :animated="false" class="page-bio-listing__title">
-        {{ title }}
-      </TextsH1>
+  <div class="page-bio-listing">
+    <header class="page-bio-listing__header">
+      <div class="page-bio-listing__heading">
+        <TextsP2 color="beige-100" class="page-bio-listing__eyebrow">
+          {{ t('bio.header.eyebrow') }}
+        </TextsP2>
+        <TextsH2 tag="h1" color="beige-100" :animated="false" class="page-bio-listing__title">
+          {{ t('bio.header.title') }}
+        </TextsH2>
+      </div>
 
-      <TextsP1 v-if="description" weight="medium" class="page-bio-listing__description">
-        {{ description }}
-      </TextsP1>
+      <TextsLabel v-if="cars.length" color="beige-40" class="page-bio-listing__count">
+        {{ countLabel }}
+      </TextsLabel>
+    </header>
 
-      <nav v-if="quickLinks?.length" class="page-bio-listing__links">
-        <AtomsCTA
-          v-for="link in quickLinks"
-          :key="link._key"
-          :to="link"
-          theme="black"
-          class="page-bio-listing__link"
-        >
-          {{ link.text }}
-        </AtomsCTA>
-      </nav>
-    </div>
-
-    <!-- Même carte que le catalogue : le clic est déjà tracké (trackCatalogueCarClick). -->
-    <div v-if="cars.length" class="page-bio-listing__grid">
-      <ElementsCatalogueCard
+    <!-- Une voiture = une story. L'ordre est celui du Studio : la 1ʳᵉ porte le badge « Dernier post ». -->
+    <div v-if="cars.length" class="page-bio-listing__stories">
+      <PageBioStory
         v-for="(car, index) in cars"
         :key="car._id"
         :car="car"
-        :position="index"
+        :index="index"
+        :total="cars.length"
+        :whatsapp-template="whatsappTemplate"
       />
     </div>
+
+    <section class="page-bio-listing__end">
+      <div class="page-bio-listing__end-inner">
+        <TextsP2 color="beige-100" class="page-bio-listing__end-eyebrow">
+          {{ t('bio.end.eyebrow') }}
+        </TextsP2>
+        <TextsH3 tag="p" color="beige-100" class="page-bio-listing__end-text">
+          {{ t('bio.end.text') }}
+        </TextsH3>
+        <AtomsCTA
+          :to="{ name: 'catalogue' }"
+          theme="beige"
+          :tiret-after="1"
+          class="page-bio-listing__end-cta"
+        >
+          {{ t('bio.end.cta') }}
+        </AtomsCTA>
+      </div>
+    </section>
   </div>
 </template>
 
@@ -52,67 +73,110 @@ defineProps<Props>()
 .page-bio-listing {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
 
+  // Le menu est fixe : le haut du header réserve sa hauteur (92px desktop, 64px mobile).
   &__header {
     display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 15px;
-    padding: desktop-vw(160px) desktop-vw(24px) desktop-vw(24px);
-    text-align: center;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: desktop-vw(24px);
+    padding: desktop-vw(148px) desktop-vw(8px) desktop-vw(40px);
 
     @include mobile {
-      padding: mobile-vw(120px) mobile-vw(8px) mobile-vw(32px) mobile-vw(8px);
+      padding: mobile-vw(96px) mobile-vw(8px) mobile-vw(24px);
     }
   }
 
-  &__title {
-    width: 100%;
-    max-width: desktop-vw(900px);
-
-    @include mobile {
-      max-width: none;
-      font-size: mobile-vw(52px);
-      line-height: mobile-vw(52px);
-    }
-  }
-
-  &__description {
-    width: 100%;
-    max-width: desktop-vw(750px);
-    white-space: pre-line;
-
-    @include mobile {
-      max-width: none;
-    }
-  }
-
-  &__links {
+  &__heading {
     display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: center;
-    gap: desktop-vw(12px);
-    margin-top: desktop-vw(16px);
+    flex-direction: column;
+    gap: desktop-vw(8px);
+    max-width: desktop-vw(1000px);
 
     @include mobile {
-      gap: mobile-vw(10px);
-      margin-top: mobile-vw(12px);
+      gap: mobile-vw(8px);
+      max-width: none;
     }
   }
 
-  &__grid {
+  &__eyebrow {
+    @include mobile {
+      font-size: mobile-vw(12px);
+      line-height: mobile-vw(16px);
+    }
+  }
+
+  // Heading 2 en desktop (72/76), Heading 1 en mobile (64/64).
+  &__title {
+    @include mobile {
+      font-size: mobile-vw(64px);
+      line-height: mobile-vw(64px);
+    }
+  }
+
+  &__count {
+    flex-shrink: 0;
+    white-space: nowrap;
+
+    @include mobile {
+      display: none;
+    }
+  }
+
+  // Grille de stories 3 colonnes en desktop, pile verticale en mobile.
+  &__stories {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: desktop-vw(40px) desktop-vw(12px);
-    padding: desktop-vw(24px) desktop-vw(8px) desktop-vw(64px) desktop-vw(8px);
+    gap: desktop-vw(8px);
+    padding: 0 desktop-vw(8px);
 
     @include mobile {
       grid-template-columns: 1fr;
-      gap: mobile-vw(12px);
-      padding: mobile-vw(8px) mobile-vw(8px) mobile-vw(40px) mobile-vw(8px);
+      gap: mobile-vw(8px);
+      padding: 0 mobile-vw(8px);
+    }
+  }
+
+  &__end {
+    padding: desktop-vw(160px) desktop-vw(24px) desktop-vw(160px) desktop-vw(584px);
+
+    @include mobile {
+      padding: mobile-vw(48px) mobile-vw(8px);
+    }
+  }
+
+  &__end-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: desktop-vw(32px);
+    max-width: desktop-vw(832px);
+
+    @include mobile {
+      gap: mobile-vw(16px);
+      max-width: none;
+    }
+  }
+
+  &__end-eyebrow {
+    @include mobile {
+      display: none;
+    }
+  }
+
+  // Heading 3 en desktop (48/52), Body L regular en mobile (20/26).
+  &__end-text {
+    @include mobile {
+      font-family: var(--font-haas-grot-disp-regular);
+      font-size: mobile-vw(20px);
+      line-height: mobile-vw(26px);
+      font-weight: 500;
+    }
+  }
+
+  &__end-cta {
+    @include mobile {
+      width: 100%;
     }
   }
 }

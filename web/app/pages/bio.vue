@@ -3,13 +3,18 @@ import type { BioData } from '~/queries/bio'
 import type { CatalogueCar } from '~/queries/catalogue'
 import { BIO_QUERY } from '~/queries/bio'
 
-// Page « link in bio » : destination du lien en bio Instagram, elle liste les
-// voitures citées dans les posts / stories (liste ordonnée à la main côté Studio).
+// Page « link in bio » : destination du lien en bio Instagram (maquette Figma
+// « piste C · Stories ») — une story plein cadre par voiture citée dans les posts,
+// avec WhatsApp et fiche sur chaque carte.
 //
 // La page est en `noindex, follow` (+ exclue du sitemap) — la règle est déclarée
 // dans `nuxt.config.ts` → `routeRules`, PAS ici : Nuxt 4 scanne les métas de page
 // après le hook où @nuxtjs/robots collecte `definePageMeta({ robots })`, donc une
 // déclaration locale serait silencieusement ignorée.
+//
+// Pas de `provideWhatsappMessage` ici : chaque story construit son propre message
+// (gabarit `whatsappMessage` rempli avec SA voiture), que le message de page
+// écraserait dans `BaseLink`.
 
 const lang = useSanityLang()
 
@@ -27,22 +32,23 @@ const cars = computed<CatalogueCar[]>(() =>
 
 usePageSeo(computed(() => page.value?.seo))
 
-// Message pré-rempli pour les CTA WhatsApp de cette page (injecté par BaseLink) —
-// sert à repérer les contacts venus d'Instagram.
-provideWhatsappMessage(computed(() => page.value?.whatsappMessage))
-
 // Page sans hero : sans ça le CTA du menu reste masqué (il est normalement
 // « libéré » par l'animation du hero).
 useMenuCtaSnap()
 </script>
 
 <template>
-  <main class="page-bio">
-    <PageBioListing
-      :title="page?.title"
-      :description="page?.description"
-      :quick-links="page?.quickLinks"
-      :cars="cars"
-    />
+  <main v-menu-theme="'white'" class="page-bio">
+    <PageBioListing :cars="cars" :whatsapp-template="page?.whatsappMessage" />
+
+    <!-- Footer réduit : le menu couvre déjà la navigation (cf. AppFooterMini). -->
+    <AppFooterMini theme="black" />
   </main>
 </template>
+
+<style lang="scss">
+.page-bio {
+  min-height: 100vh;
+  background: var(--c-black);
+}
+</style>

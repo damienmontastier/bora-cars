@@ -90,7 +90,7 @@ export function useAnalytics() {
       track('car_gallery_browse', params)
     },
 
-    trackCatalogueCarClick(params: VehicleEventParams & { position?: number }) {
+    trackCatalogueCarClick(params: VehicleEventParams & { position?: number, source?: string }) {
       track('catalogue_car_click', { source: 'catalogue', ...params })
     },
 

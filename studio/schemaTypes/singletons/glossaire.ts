@@ -24,6 +24,7 @@ const SECTIONS: { name: string, title: string, description: string }[] = [
   { name: 'menu', title: 'Menu', description: 'Menu principal : libellés Ouvrir / Fermer et lien Accueil.' },
   { name: 'catalogue', title: 'Catalogue', description: 'Page catalogue : cartes voiture (« À partir de… ») et filtres (marque, ville, prix, réinitialiser, aucun résultat).' },
   { name: 'car', title: 'Voiture (fiche)', description: 'Fiche voiture : en-tête, description, caractéristiques (specs), informations de location, bloc tarif et sélecteurs durée / quand.' },
+  { name: 'bio', title: 'Bio (Instagram)', description: 'Page /bio (lien en bio Instagram) : surtitre, titre et compteur de voitures, textes des stories (« Dernier post », prix, boutons) et bloc de fin de liste.' },
   { name: 'testimonials', title: 'Témoignages', description: 'Carrousel de témoignages : boutons précédent / suivant.' },
   { name: 'contact', title: 'Contact (formulaire)', description: 'Formulaire de contact : libellés des champs, messages d\'erreur, états d\'envoi et texte de consentement.' },
   { name: 'media', title: 'Media', description: 'Textes des composants média (ex. « image manquante »).' },
