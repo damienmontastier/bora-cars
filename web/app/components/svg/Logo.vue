@@ -16,7 +16,7 @@ const props = defineProps({
 </template>
 
 <style lang="scss">
-.svg-logo {
+:where(.svg-logo) {
   display: block;
   width: 100%;
   height: 100%;

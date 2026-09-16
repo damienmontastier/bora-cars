@@ -20,6 +20,7 @@ watch(lang, (v) => {
 const { data: footer } = await useSanityQuery<FooterData>(FOOTER_QUERY, params)
 
 const { t } = useI18n()
+const { openSettings: openCookieSettings } = useCookies()
 const lenis = useLenis()
 const currentYear = new Date().getFullYear()
 
@@ -106,6 +107,9 @@ function scrollToTop() {
                 class="app-footer__link CTA-TEXT"
               >
                 {{ link.text }}
+              </AtomsCTASecondary>
+              <AtomsCTASecondary :theme="ctaTheme" class="app-footer__link CTA-TEXT" @click="openCookieSettings">
+                {{ t('footer.manageCookies') }}
               </AtomsCTASecondary>
             </div>
           </div>

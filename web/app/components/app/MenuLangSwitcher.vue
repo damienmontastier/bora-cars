@@ -17,6 +17,13 @@ const { locale, locales } = useI18n()
 const switchLocalePath = useSwitchLocalePath()
 const router = useRouter()
 
+// useSetI18nParams sets the translated slug after this renders (non-reactive meta): remount the links.
+const linksKey = ref(0)
+const offPageFinish = useNuxtApp().hook('page:finish', () => {
+  linksKey.value++
+})
+onBeforeUnmount(offPageFinish)
+
 const appStore = useAppStore()
 const { menuOpen } = toRefs(appStore)
 
@@ -75,25 +82,19 @@ function close() {
 
 const analytics = useAnalytics()
 
+// Capture phase: cancels RouterLink's navigation and resolves the path once the page has set its slug.
 function selectLocale(code: string, e: MouseEvent) {
   // let the browser handle modifier-key clicks (open in new tab, etc.)
   if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0)
     return
 
   e.preventDefault()
-  if (code === locale.value) {
-    close()
-    return
-  }
-
   analytics.trackLanguageSwitch({ from: locale.value, to: code })
-
-  const path = switchLocalePath(code)
   close()
   menuOpen.value = false
   // Navigate in parallel with menu close — translation stability is handled
   // in app.vue (menuParams.lang only flushes when menu is fully closed).
-  router.push(path)
+  router.push(switchLocalePath(code))
 }
 
 onClickOutside(rootRef, close)
@@ -116,15 +117,17 @@ onKeyStroke('Escape', () => {
         class="app-menu-lang__item"
         :style="{ '--i': i }"
       >
-        <a
-          :href="switchLocalePath(loc.code)"
+        <SwitchLocalePathLink
+          :key="`${loc.code}-${linksKey}`"
+          :locale="loc.code"
           class="app-menu-lang__link"
-          @click="selectLocale(loc.code, $event)"
+          data-allow-mismatch="attribute"
+          @click.capture="selectLocale(loc.code, $event)"
         >
           <TextsCTA :color="itemTextColor">
             {{ loc.code.toUpperCase() }}
           </TextsCTA>
-        </a>
+        </SwitchLocalePathLink>
       </li>
     </ul>
 

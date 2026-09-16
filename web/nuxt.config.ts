@@ -350,6 +350,14 @@ export default defineNuxtConfig({
     },
   },
 
+  hooks: {
+    // Pas de <link rel="prefetch"> vers Tweakpane : le panneau debug n'est chargé que hors prod.
+    'build:manifest': (manifest) => {
+      for (const item of Object.values(manifest))
+        item.dynamicImports = item.dynamicImports?.filter(key => !key.includes('tweakpane'))
+    },
+  },
+
   vite: {
     css: {
       preprocessorOptions: {

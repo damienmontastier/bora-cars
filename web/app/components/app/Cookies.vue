@@ -79,7 +79,7 @@ onUnmounted(() => {
 
 <template>
   <Teleport to="body">
-    <Transition name="app-cookies-root">
+    <Transition name="app-cookies-root" :duration="400">
       <div
         v-if="isOpen"
         class="app-cookies"
@@ -233,13 +233,27 @@ onUnmounted(() => {
 </template>
 
 <style lang="scss">
+// No opacity fade on the root: an ancestor with opacity < 1 breaks the overlay's backdrop-filter.
 .app-cookies-root-enter-active,
 .app-cookies-root-leave-active {
-  transition: opacity 0.4s var(--ease-out-cubic);
+  > .app-cookies__overlay {
+    transition:
+      background-color 0.4s var(--ease-out-cubic),
+      backdrop-filter 0.4s var(--ease-out-cubic);
+  }
+  > :not(.app-cookies__overlay) {
+    transition: opacity 0.4s var(--ease-out-cubic);
+  }
 }
 .app-cookies-root-enter-from,
 .app-cookies-root-leave-to {
-  opacity: 0;
+  > .app-cookies__overlay {
+    background-color: transparent;
+    backdrop-filter: blur(0px);
+  }
+  > :not(.app-cookies__overlay) {
+    opacity: 0;
+  }
 }
 
 .app-cookies-view-enter-active,

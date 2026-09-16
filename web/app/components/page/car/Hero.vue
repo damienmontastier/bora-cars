@@ -98,8 +98,9 @@ function scrollTo(i: number) {
             :fetch-priority="i === 0 ? 'high' : 'low'"
             :preload="i === 0 ? { fetchPriority: 'high' } : false"
             :overlay="{ variant: 'panel', color: 'orange-100', duration: 0.5 }"
-            :modifiers="{ quality: 80 }"
-            sizes="sm:100vw xl:100vw"
+            :ratio="1920 / 950"
+            :mobile-ratio="414 / 680"
+            sizes="md:100vw lg:100vw xl:100vw"
           />
         </div>
       </div>

@@ -213,6 +213,11 @@ function onSearchEnter() {
     color: var(--c-black-100);
     cursor: text;
 
+    &:focus-within {
+      outline: 2px solid var(--c-black-100);
+      outline-offset: 2px;
+    }
+
     @include mobile {
       width: 100%;
       height: mobile-vw(52px);

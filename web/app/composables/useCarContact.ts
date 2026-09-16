@@ -37,7 +37,8 @@ interface CarContactOptions {
 export function useCarContact(car: MaybeRefOrGetter<CarDetailData>, options: CarContactOptions) {
   const settings = useSettings()
   const { t } = useI18n()
-  const requestUrl = useRequestURL()
+  const { url: siteUrl } = useSiteConfig()
+  const route = useRoute()
   const analytics = useAnalytics()
 
   // Contexte avec sélecteurs de dates (bloc Pricing) ou non (barre sticky).
@@ -109,7 +110,8 @@ export function useCarContact(car: MaybeRefOrGetter<CarDetailData>, options: Car
     periode: periodLabel.value,
     duree: durationLabel.value,
     quand: lowerFirst(whenLabel.value),
-    url: requestUrl.href,
+    // Pas `useRequestURL()` : au prerender il vaut `http://localhost`, figé dans le href.
+    url: `${siteUrl}${route.path}`,
   }))
 
   // Message WhatsApp — 1 cas sur 4, depuis les templates éditables carPage.whatsapp.

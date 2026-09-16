@@ -88,7 +88,8 @@ useHead({
 })
 
 // Image OG globale (repli quand une page n'en fournit pas) + ses dimensions.
-const globalOgImage = computed(() => settings.value?.seo?.image || `${siteUrl}/og-bora-cars.jpg`)
+const ogImageUrl = useOgImageUrl()
+const globalOgImage = computed(() => ogImageUrl(settings.value?.seo))
 
 useSeoMeta({
   title: () => settings.value?.fallbackTitle ?? 'BORA CARS',

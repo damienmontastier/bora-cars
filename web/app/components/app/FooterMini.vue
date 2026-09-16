@@ -25,6 +25,7 @@ watch(lang, (v) => {
 const { data: footer } = await useSanityQuery<FooterLegalData>(FOOTER_LEGAL_QUERY, params)
 
 const { t } = useI18n()
+const { openSettings: openCookieSettings } = useCookies()
 const lenis = useLenis()
 const currentYear = new Date().getFullYear()
 
@@ -54,14 +55,17 @@ function scrollToTop() {
       </TextsP2>
     </div>
 
-    <nav v-if="footer?.legalLinks?.length" class="app-footer-mini__legal">
+    <nav class="app-footer-mini__legal">
       <AtomsCTASecondary
-        v-for="link in footer.legalLinks"
+        v-for="link in footer?.legalLinks"
         :key="link._key"
         :to="link"
         :theme="linkTheme"
       >
         {{ link.text }}
+      </AtomsCTASecondary>
+      <AtomsCTASecondary :theme="linkTheme" @click="openCookieSettings">
+        {{ t('footer.manageCookies') }}
       </AtomsCTASecondary>
     </nav>
 

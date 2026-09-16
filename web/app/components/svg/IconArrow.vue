@@ -16,7 +16,7 @@ const props = defineProps({
 </template>
 
 <style lang="scss">
-.svg-icon-arrow {
+:where(.svg-icon-arrow) {
   display: block;
   width: 100%;
   height: 100%;

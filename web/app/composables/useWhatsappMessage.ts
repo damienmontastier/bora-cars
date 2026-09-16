@@ -53,9 +53,13 @@ export function withWhatsappText(url: string | undefined, message?: string): str
 /**
  * Remplit un gabarit de message WhatsApp éditable dans Sanity : chaque jeton
  * `{nom}` est remplacé par `params.nom` (jeton inconnu → chaîne vide).
+ * Un `€` collé à `{prix}` est retiré : `{prix}` contient déjà la devise.
  */
 export function fillWhatsappTemplate(template: string, params: Record<string, string>): string {
-  return template.replace(/\{(\w+)\}/g, (_, key) => params[key] ?? '')
+  return template
+    .replace(/€\s*(\{prix\})/g, '$1')
+    .replace(/(\{prix\})\s*€/g, '$1')
+    .replace(/\{(\w+)\}/g, (_, key) => params[key] ?? '')
 }
 
 /**

@@ -16,7 +16,7 @@ const props = defineProps({
 </template>
 
 <style lang="scss">
-.svg-logo-minimal-footer {
+:where(.svg-logo-minimal-footer) {
   svg {
     display: block;
     width: 100%;

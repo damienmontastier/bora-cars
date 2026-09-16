@@ -1,18 +1,38 @@
 import type { SeoData } from '~/queries/fragments'
 
-export function usePageSeo(seo: Ref<SeoData | undefined>) {
+// JPEG plutôt que WebP : LinkedIn n'affiche pas d'aperçu pour une og:image WebP.
+export function useOgImageUrl() {
+  const $img = useImage()
   const { url: siteUrl } = useSiteConfig()
-  const { t } = useI18n()
 
-  const ogImage = computed(() => seo.value?.image || `${siteUrl}/og-bora-cars.jpg`)
+  return (seo?: SeoData) => {
+    if (!seo?.image)
+      return `${siteUrl}/og-bora-cars.jpg`
+    // ID d'asset plutôt qu'URL CDN : sinon le provider ne convertit pas `crop` en `rect`.
+    return $img(sanityUrlToAssetId(seo.image) ?? seo.image, {
+      width: 1200,
+      height: 630,
+      fit: 'cover',
+      format: 'jpg',
+      quality: 90,
+      ...(seo.imageHotspot && { hotspot: seo.imageHotspot }),
+      ...(seo.imageCrop && { crop: seo.imageCrop }),
+    }, { provider: 'sanity' })
+  }
+}
+
+export function usePageSeo(seo: Ref<SeoData | undefined>) {
+  const { t } = useI18n()
+  const ogImageUrl = useOgImageUrl()
+
+  const ogImage = computed(() => ogImageUrl(seo.value))
 
   useSeoMeta({
     title: () => seo.value?.title || undefined,
     description: () => (seo.value?.description || t('seo.description')).trim(),
     ogImage: () => ogImage.value,
     // Dimensions obligatoires pour un aperçu fiable (WhatsApp/LinkedIn/Facebook
-    // n'affichent pas toujours l'image sans elles). Lues dans l'URL — l'asset Sanity
-    // porte sa taille dans son nom de fichier. Cf. `ogImageSize`.
+    // n'affichent pas toujours l'image sans elles). Cf. `ogImageSize`.
     ogImageWidth: () => ogImageSize(ogImage.value)?.width,
     ogImageHeight: () => ogImageSize(ogImage.value)?.height,
   })

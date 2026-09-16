@@ -1,12 +1,16 @@
-import * as EssentialsPlugin from '@tweakpane/plugin-essentials'
-import { Pane } from 'tweakpane'
 import { nextTick } from 'vue'
 
-export default defineNuxtPlugin((nuxtApp) => {
+export default defineNuxtPlugin(async (nuxtApp) => {
   const config = useRuntimeConfig()
 
   if (config.public.IS_PROD)
     return
+
+  // Imports dynamiques : sinon Tweakpane (~300 Ko) part dans le bundle de prod.
+  const [{ Pane }, EssentialsPlugin] = await Promise.all([
+    import('tweakpane'),
+    import('@tweakpane/plugin-essentials'),
+  ])
 
   let container = document.getElementById('app-debug-pane')
   container = document.createElement('div')

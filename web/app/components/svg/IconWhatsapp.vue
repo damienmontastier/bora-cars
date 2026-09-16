@@ -24,7 +24,7 @@ defineProps({
 </template>
 
 <style lang="scss">
-.svg-icon-whatsapp {
+:where(.svg-icon-whatsapp) {
   display: block;
   width: 100%;
   height: 100%;

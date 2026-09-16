@@ -28,11 +28,12 @@ if (!page.value) {
 // canonique de la locale COURANTE. Les liens internes pointent déjà vers le bon
 // slug (cf. `internalLinkSlug`) : ceci ne rattrape que les URLs héritées / devinées
 // / issues du sitemap (les « jumelles naïves » du module, cf. server/plugins).
+// `lang` et non `locale` : en navigation client, `locale` vaut encore l'ancienne langue.
 const localePath = useLocalePath()
-const canonicalSlug = locale.value === 'en' ? page.value.slugEn : page.value.slugFr
+const canonicalSlug = lang.value === 'en' ? page.value.slugEn : page.value.slugFr
 if (canonicalSlug && route.params.slug !== canonicalSlug) {
   await navigateTo(
-    localePath({ name: 'legal-slug', params: { slug: canonicalSlug } }),
+    localePath({ name: 'legal-slug', params: { slug: canonicalSlug } }, lang.value),
     { redirectCode: 301 },
   )
 }

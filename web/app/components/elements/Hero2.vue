@@ -117,7 +117,7 @@ onUnmounted(() => {
 
     <div class="app-elements-hero-2__content">
       <div class="app-elements-hero-2__top">
-        <TextsH2 v-if="data?.heading" color="beige-100">
+        <TextsH2 v-if="data?.heading" tag="h1" color="beige-100">
           {{ data.heading }}
         </TextsH2>
 

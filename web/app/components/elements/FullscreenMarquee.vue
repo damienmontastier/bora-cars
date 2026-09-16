@@ -104,6 +104,7 @@ onUnmounted(() => {
             class="app-elements-fullscreen-marquee__link"
           >
             <TextsH1
+              tag="p"
               color="beige-100"
               class="app-elements-fullscreen-marquee__item"
             >
@@ -126,6 +127,7 @@ onUnmounted(() => {
             class="app-elements-fullscreen-marquee__link"
           >
             <TextsH1
+              tag="p"
               color="beige-100"
               class="app-elements-fullscreen-marquee__item"
             >

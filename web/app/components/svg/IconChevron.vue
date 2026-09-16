@@ -23,7 +23,7 @@ defineProps({
 </template>
 
 <style lang="scss">
-.svg-icon-chevron {
+:where(.svg-icon-chevron) {
   display: block;
   width: 100%;
   height: auto;

@@ -173,6 +173,10 @@ export function ogImageSize(url: string | undefined | null): { width: number, he
     return null
   if (url.includes('/og-bora-cars.jpg'))
     return { ...OG_FALLBACK_IMAGE_SIZE }
+  const w = url.match(/[?&]w=(\d+)/)?.[1]
+  const h = url.match(/[?&]h=(\d+)/)?.[1]
+  if (w && h)
+    return { width: Number(w), height: Number(h) }
   // `…/<assetId>-<largeur>x<hauteur>.<ext>` (+ query params éventuels)
   const match = url.match(/-(\d+)x(\d+)\.\w+(?:\?.*)?$/)
   if (!match)

@@ -157,6 +157,7 @@ async function onSubmit() {
         firstName: form.firstName,
         email: form.email,
         phone: form.phone,
+        subjectKey: form.subject,
         subject: resolvedSubject,
         message: form.message,
         newsletter: form.newsletter,

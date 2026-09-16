@@ -65,7 +65,12 @@ function buildParams(car: CarOption, lang: Lang): Record<string, string> {
   const isMonthly = car.prixMensuel != null
   const price = car.prixMensuel ?? car.prixJournalier
   const prix = price != null
-    ? new Intl.NumberFormat(lang === 'fr' ? 'fr-FR' : 'en-GB').format(price)
+    ? new Intl.NumberFormat(lang === 'fr' ? 'fr-FR' : 'en-GB', {
+        style: 'currency',
+        currency: 'EUR',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+      }).format(price)
     : ''
   const s = SAMPLE[lang]
   return {
@@ -115,7 +120,8 @@ function Marker({ color, title, children }: { color: string, title: string, chil
 // Aperçu d'un template en segments : valeurs absentes / variables interdites surlignées.
 function renderPreview(template: string, car: CarOption, lang: Lang, noDate: boolean): React.ReactNode {
   const params = buildParams(car, lang)
-  return template.split(/(\{\w+\})/g).map((part, i) => {
+  const cleaned = template.replace(/€\s*(\{prix\})/g, '$1').replace(/(\{prix\})\s*€/g, '$1')
+  return cleaned.split(/(\{\w+\})/g).map((part, i) => {
     const m = part.match(/^\{(\w+)\}$/)
     if (!m)
       return <React.Fragment key={i}>{part}</React.Fragment>

@@ -3,6 +3,7 @@ interface ContactPayload {
   firstName?: string
   email?: string
   phone?: string
+  subjectKey?: string
   subject?: string
   message?: string
   newsletter?: boolean
@@ -17,11 +18,21 @@ interface ContactPayload {
   }
 }
 
-const EMAIL_RX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+// No `.` in domain labels: avoids catastrophic backtracking.
+const EMAIL_RX = /^[^\s@]+@[^\s@.]+(?:\.[^\s@.]+)+$/
+
+const MAX_LENGTH = { name: 100, email: 254, phone: 40, subject: 200, message: 10000, meta: 2000 }
 
 // Existing Airtable « Type de demande » choice, used when the subject can't be
 // matched against Sanity (see resolveSubject).
 const FALLBACK_SUBJECT = 'Autre'
+
+// Owner option left out on purpose: FLOW or FLEX is decided with the owner.
+const LEAD_TYPE_BY_SUBJECT_KEY: Record<string, string> = {
+  '88b02953258b': 'LCD — Location courte durée',
+  'ea34c6eaf461': 'LLD PRO — Leasing société',
+  'ee37b0534b50': 'Autre',
+}
 
 // The body is untrusted: the TS interface says string, the wire can send anything.
 // Non-strings become '' so they fail validation instead of crashing on .trim().
@@ -29,24 +40,33 @@ function str(value: unknown) {
   return typeof value === 'string' ? value.trim() : ''
 }
 
-// `typecast: true` makes Airtable create a select option for ANY string, so the
-// subject is checked against every localized label of the Sanity
-// `contact.subjectOptions` (the form sends the label of the current locale).
-// Unknown or unverifiable subjects fall back to « Autre » instead of a 422: the
-// prerendered form can still offer a label renamed in Sanity until the next
-// deploy, and a Sanity outage must not lose a lead.
-async function resolveSubject(subject: string) {
+interface SubjectOption {
+  key: string
+  fr: string | null
+  labels: (string | null)[] | null
+}
+
+// `typecast: true` creates an Airtable option for ANY string: always send the FR label
+// of a known Sanity option (by `_key`, else by any localized label), « Autre » otherwise.
+async function resolveSubject(key: string, label: string): Promise<{ label: string, key?: string }> {
   try {
-    const labels = await useSanity().fetch<(string | null)[] | null>(
-      `*[_type == "contact"][0].subjectOptions[].label[].value`,
+    const options = await useSanity().fetch<SubjectOption[] | null>(
+      `*[_type == "contact"][0].subjectOptions[]{
+        "key": _key,
+        "fr": label[language == "fr"][0].value,
+        "labels": label[].value
+      }`,
     )
-    if (labels?.some(label => label?.trim() === subject))
-      return subject
+    const option = options?.find(o => !!key && o.key === key)
+      ?? options?.find(o => !!label && !!o.labels?.some(l => l?.trim() === label))
+    const fr = option?.fr?.trim()
+    if (fr)
+      return { label: fr, key: option!.key }
   }
   catch {
     console.warn('[api/contact] Could not load subject options from Sanity')
   }
-  return FALLBACK_SUBJECT
+  return { label: FALLBACK_SUBJECT }
 }
 
 export default defineEventHandler(async (event) => {
@@ -70,15 +90,23 @@ export default defineEventHandler(async (event) => {
   const firstName = str(body?.firstName)
   const email = str(body?.email)
   const phone = str(body?.phone)
+  const subjectKey = str(body?.subjectKey)
   const subject = str(body?.subject)
   const message = str(body?.message)
 
   const invalid: string[] = []
-  if (!lastName) invalid.push('lastName')
-  if (!email || !EMAIL_RX.test(email)) invalid.push('email')
-  if (!phone || phone.replace(/\D/g, '').length < 8) invalid.push('phone')
-  if (!subject) invalid.push('subject')
-  if (!message) invalid.push('message')
+  if (!lastName || lastName.length > MAX_LENGTH.name)
+    invalid.push('lastName')
+  if (firstName.length > MAX_LENGTH.name)
+    invalid.push('firstName')
+  if (!email || email.length > MAX_LENGTH.email || !EMAIL_RX.test(email))
+    invalid.push('email')
+  if (!phone || phone.length > MAX_LENGTH.phone || phone.replace(/\D/g, '').length < 8)
+    invalid.push('phone')
+  if ((!subjectKey && !subject) || subjectKey.length > MAX_LENGTH.subject || subject.length > MAX_LENGTH.subject)
+    invalid.push('subject')
+  if (!message || message.length > MAX_LENGTH.message)
+    invalid.push('message')
 
   if (invalid.length) {
     throw createError({
@@ -89,6 +117,8 @@ export default defineEventHandler(async (event) => {
   }
 
   const fullName = firstName ? `${firstName} ${lastName}` : lastName
+  const resolvedSubject = await resolveSubject(subjectKey, subject)
+  const leadType = resolvedSubject.key ? LEAD_TYPE_BY_SUBJECT_KEY[resolvedSubject.key] : undefined
   const langue = str(body?.locale).toUpperCase() === 'EN' ? 'EN' : 'FR'
 
   const fields: Record<string, unknown> = {
@@ -96,8 +126,12 @@ export default defineEventHandler(async (event) => {
     'Email': email,
     'Téléphone': phone,
     'Message': message,
-    'Type de demande': await resolveSubject(subject),
+    'Type de demande': resolvedSubject.label,
+    ...(leadType && { 'Type de lead': leadType }),
     'Langue': langue,
+    'Canal': 'Site web',
+    'Étape': 'Nouveau',
+    // Legacy fields still read by CRM views/automations.
     'Source': 'Site web',
     'Statut': 'Nouveau',
     // Consent: the form displays a visible GDPR mention above submission.
@@ -106,13 +140,13 @@ export default defineEventHandler(async (event) => {
     'Opt-in newsletter': body?.newsletter === true,
   }
 
-  const pageUrl = str(body?.pageUrl)
+  const pageUrl = str(body?.pageUrl).slice(0, MAX_LENGTH.meta)
   if (pageUrl)
     fields['Page d\'origine'] = pageUrl
 
-  const utmSource = str(body?.utm?.utm_source)
-  const utmMedium = str(body?.utm?.utm_medium)
-  const utmCampaign = str(body?.utm?.utm_campaign)
+  const utmSource = str(body?.utm?.utm_source).slice(0, MAX_LENGTH.subject)
+  const utmMedium = str(body?.utm?.utm_medium).slice(0, MAX_LENGTH.subject)
+  const utmCampaign = str(body?.utm?.utm_campaign).slice(0, MAX_LENGTH.subject)
   if (utmSource)
     fields['UTM source'] = utmSource
   if (utmMedium)
@@ -121,17 +155,19 @@ export default defineEventHandler(async (event) => {
     fields['UTM campaign'] = utmCampaign
 
   try {
-    await $fetch(`https://api.airtable.com/v0/${airtableBaseId}/${encodeURIComponent(airtableTableId)}`, {
+    const { dropped } = await createAirtableRecord(recordFields => $fetch(`https://api.airtable.com/v0/${airtableBaseId}/${encodeURIComponent(airtableTableId)}`, {
       method: 'POST',
       headers: {
-        Authorization: `Bearer ${airtableToken}`,
+        'Authorization': `Bearer ${airtableToken}`,
         'Content-Type': 'application/json',
       },
       // typecast: true → Airtable accepts new singleSelect values dynamically
       // (creates the option on the fly instead of erroring). Source of truth = Sanity,
       // enforced by resolveSubject() — the only client-driven select field.
-      body: { fields, typecast: true },
-    })
+      body: { fields: recordFields, typecast: true },
+    }), fields)
+    if (dropped.length)
+      console.warn('[api/contact] Airtable fields no longer exist, lead saved without them:', dropped)
 
     return { ok: true }
   }

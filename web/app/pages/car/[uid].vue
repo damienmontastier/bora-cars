@@ -47,11 +47,21 @@ const metaDescription = computed(() => {
   return `${text.slice(0, 160).replace(/\s+\S*$/, '')}…`
 })
 
+const seoTitle = computed(() => {
+  if (!car.value)
+    return undefined
+  const name = `${car.value.marque} ${car.value.modele}`.replace(/\s+/g, ' ').trim()
+  const city = car.value.location?.city?.trim()
+  return city ? t('car.seo.title', { car: name, city }) : t('car.seo.titleNoCity', { car: name })
+})
+
 usePageSeo(computed(() => car.value
   ? {
-      title: `${car.value.marque} ${car.value.modele}`,
+      title: seoTitle.value,
       description: metaDescription.value || undefined,
       image: car.value.ogImageUrl,
+      imageHotspot: car.value.imageHotspot,
+      imageCrop: car.value.imageCrop,
     }
   : undefined))
 

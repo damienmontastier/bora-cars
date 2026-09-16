@@ -42,6 +42,18 @@ const props = defineProps({
     type: Object,
     default: undefined,
   },
+  ratio: {
+    type: Number,
+    default: undefined,
+  },
+  mobileRatio: {
+    type: Number,
+    default: undefined,
+  },
+  mobileSizes: {
+    type: String,
+    default: '400:100vw 600:100vw sm:100vw',
+  },
   overlay: {
     type: [Boolean, Object] as unknown as () => boolean | OverlayProps,
     default: true,
@@ -104,6 +116,58 @@ const localModifiers = computed(() => ({
   ...(props.crop && { crop: props.crop }),
 }))
 
+const MOBILE_MEDIA = '(max-width: 799px)'
+const DESKTOP_MEDIA = '(min-width: 800px)'
+
+const $img = useImage()
+
+function croppedSizes(sizes: string, ratio: number) {
+  return $img.getSizes(props.src!, {
+    provider: resolvedProvider.value,
+    sizes,
+    modifiers: {
+      ...localModifiers.value,
+      format: 'webp',
+      quality: $img.options.quality,
+      fit: 'cover',
+      width: 1000,
+      height: Math.round(1000 / ratio),
+    },
+  })
+}
+
+const cropped = computed(() => {
+  if (!props.src || !props.ratio)
+    return null
+  return {
+    desktop: croppedSizes(props.sizes, props.ratio),
+    mobile: props.mobileRatio ? croppedSizes(props.mobileSizes, props.mobileRatio) : null,
+  }
+})
+
+if (import.meta.server && props.preload && cropped.value) {
+  const fetchpriority = typeof props.preload === 'object' ? props.preload.fetchPriority : undefined
+  useHead({
+    link: () => {
+      const c = cropped.value
+      if (!c)
+        return []
+      const link = (sources: { srcset: string, sizes?: string }, media?: string) => ({
+        rel: 'preload',
+        as: 'image',
+        type: 'image/webp',
+        imagesrcset: sources.srcset,
+        ...(sources.sizes && { imagesizes: sources.sizes }),
+        ...(media && { media }),
+        ...(fetchpriority && { fetchpriority }),
+      })
+      return c.mobile
+        ? [link(c.mobile, MOBILE_MEDIA), link(c.desktop, DESKTOP_MEDIA)]
+        : [link(c.desktop)]
+    },
+  })
+}
+
 const wrapperProps = computed(() => (!props.parallax || props.parallax === true) ? {} : props.parallax as ParallaxProps)
 
 const showOverlay = computed(() => !!props.overlay)
@@ -143,7 +207,7 @@ defineExpose({ mainRef, pictureRef })
   <UtilsParallax v-if="props.parallax" v-bind="wrapperProps">
     <div ref="mainRef" class="app-elements-media" v-bind="$attrs">
       <NuxtPicture
-        v-if="hasSrc"
+        v-if="hasSrc && !cropped"
         ref="pictureRef"
         class="app-elements-media__image"
         :src="src!"
@@ -157,6 +221,24 @@ defineExpose({ mainRef, pictureRef })
         :modifiers="localModifiers"
         @load="onLoad"
       />
+      <picture v-else-if="cropped" ref="pictureRef" class="app-elements-media__image">
+        <source
+          v-if="cropped.mobile"
+          :media="MOBILE_MEDIA"
+          type="image/webp"
+          :srcset="cropped.mobile.srcset"
+          :sizes="cropped.mobile.sizes"
+        >
+        <img
+          :src="cropped.desktop.src"
+          :srcset="cropped.desktop.srcset"
+          :sizes="cropped.desktop.sizes"
+          :loading="loading"
+          :alt="alt"
+          v-bind="imgAttrs"
+          @load="onLoad"
+        >
+      </picture>
       <ElementsMediaOverlay
         v-if="hasSrc && showOverlay"
         :loaded="isLoaded"
@@ -167,7 +249,7 @@ defineExpose({ mainRef, pictureRef })
   </UtilsParallax>
   <div v-else ref="mainRef" class="app-elements-media" v-bind="$attrs">
     <NuxtPicture
-      v-if="hasSrc"
+      v-if="hasSrc && !cropped"
       ref="pictureRef"
       class="app-elements-media__image"
       :src="src!"
@@ -181,6 +263,24 @@ defineExpose({ mainRef, pictureRef })
       :modifiers="localModifiers"
       @load="onLoad"
     />
+    <picture v-else-if="cropped" ref="pictureRef" class="app-elements-media__image">
+      <source
+        v-if="cropped.mobile"
+        :media="MOBILE_MEDIA"
+        type="image/webp"
+        :srcset="cropped.mobile.srcset"
+        :sizes="cropped.mobile.sizes"
+      >
+      <img
+        :src="cropped.desktop.src"
+        :srcset="cropped.desktop.srcset"
+        :sizes="cropped.desktop.sizes"
+        :loading="loading"
+        :alt="alt"
+        v-bind="imgAttrs"
+        @load="onLoad"
+      >
+    </picture>
     <ElementsMediaOverlay
       v-if="hasSrc && showOverlay"
       :loaded="isLoaded"

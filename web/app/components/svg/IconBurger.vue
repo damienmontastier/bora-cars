@@ -51,7 +51,7 @@ watch(() => props.open, (val) => {
 </template>
 
 <style lang="scss">
-.svg-icon-burger {
+:where(.svg-icon-burger) {
   display: block;
   width: 100%;
   height: 100%;

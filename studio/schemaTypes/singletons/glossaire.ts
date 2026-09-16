@@ -20,7 +20,7 @@ const SECTIONS: { name: string, title: string, description: string }[] = [
   { name: 'breadcrumb', title: 'Fil d\'Ariane', description: 'Libellés du fil d\'Ariane (Accueil, Catalogue) affiché sur les fiches voiture.' },
   { name: 'error', title: 'Erreur 404', description: 'Textes de la page d\'erreur 404 (page introuvable).' },
   { name: 'underConstruction', title: 'Coming soon', description: 'Textes de la page « bientôt en ligne ».' },
-  { name: 'footer', title: 'Footer', description: 'Pied de page : copyright et bouton « retour en haut ».' },
+  { name: 'footer', title: 'Footer', description: 'Pied de page : copyright, bouton « retour en haut » et lien « Gérer les cookies ».' },
   { name: 'menu', title: 'Menu', description: 'Menu principal : libellés Ouvrir / Fermer et lien Accueil.' },
   { name: 'catalogue', title: 'Catalogue', description: 'Page catalogue : cartes voiture (« À partir de… ») et filtres (marque, ville, prix, réinitialiser, aucun résultat).' },
   { name: 'car', title: 'Voiture (fiche)', description: 'Fiche voiture : en-tête, description, caractéristiques (specs), informations de location, bloc tarif et sélecteurs durée / quand.' },

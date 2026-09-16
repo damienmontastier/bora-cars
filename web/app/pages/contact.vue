@@ -20,7 +20,7 @@ useMenuCtaSnap()
     <section class="page-contact__hero">
       <div class="page-contact__grid">
         <div class="page-contact__heading">
-          <TextsH2 v-if="page?.heading" :animated="false">
+          <TextsH2 v-if="page?.heading" tag="h1" :animated="false">
             {{ page.heading }}
           </TextsH2>
         </div>

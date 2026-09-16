@@ -12,7 +12,7 @@ const WHATSAPP_TEMPLATES = [
   {
     name: 'withPrice',
     title: 'Bloc tarif — avec prix',
-    description: 'Bloc tarif de la fiche, quand un prix est affiché. Le client y choisit une durée ET un « quand » → tu peux utiliser {duree} et {quand}. Variables : {marque} {modele} {prix} {periode} {duree} {quand} {url}.',
+    description: 'Bloc tarif de la fiche, quand un prix est affiché. Le client y choisit une durée ET un « quand » → tu peux utiliser {duree} et {quand}. Variables : {marque} {modele} {prix} {periode} {duree} {quand} {url}. {prix} inclut déjà la devise (« 900 € ») : n\'ajoute pas de €.',
   },
   {
     name: 'withoutPrice',
@@ -22,7 +22,7 @@ const WHATSAPP_TEMPLATES = [
   {
     name: 'simpleWithPrice',
     title: 'Barre sticky — avec prix',
-    description: '⚠️ Barre sticky mobile : il n\'y a AUCUN sélecteur de durée ni de « quand » ici → n\'utilise PAS {duree} ni {quand} (ils afficheraient une valeur par défaut non choisie par le client). Variables : {marque} {modele} {prix} {periode} {url}.',
+    description: '⚠️ Barre sticky mobile : il n\'y a AUCUN sélecteur de durée ni de « quand » ici → n\'utilise PAS {duree} ni {quand} (ils afficheraient une valeur par défaut non choisie par le client). Variables : {marque} {modele} {prix} {periode} {url}. {prix} inclut déjà la devise (« 900 € ») : n\'ajoute pas de €.',
   },
   {
     name: 'simpleWithoutPrice',
