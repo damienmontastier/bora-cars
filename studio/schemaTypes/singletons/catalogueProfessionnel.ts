@@ -1,4 +1,4 @@
-import { CaseIcon } from '@sanity/icons'
+import { CaseIcon } from '@sanity/icons/Case'
 import { defineField, defineType } from 'sanity'
 import { seoType } from '../objects/seo'
 import { CatalogueCarsPreview } from '../../components/CatalogueCarsPreview'

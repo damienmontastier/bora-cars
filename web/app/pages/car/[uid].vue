@@ -92,6 +92,10 @@ useSchemaOrg(computed(() => {
     specs.push({ '@type': 'PropertyValue', 'name': 'Puissance', 'value': c.puissance, 'unitText': t('car.highlights.powerUnit') })
 
   // Le schéma Sanity garantit qu'un seul des deux prix est renseigné.
+  // Prix TOUJOURS en EUR ici, quelle que soit la devise choisie par le visiteur : le
+  // sélecteur EUR / CHF (cf. useCurrency) ne convertit qu'à l'affichage, et le JSON-LD
+  // doit porter le tarif canonique — il est de toute façon lu dans le HTML prérendu,
+  // qui ne connaît aucune préférence visiteur.
   const price = c.prixJournalier ?? c.prixMensuel ?? null
   const unitCode = c.prixJournalier != null ? 'DAY' : 'MON'
   const carPath = localePath({ name: 'car-uid', params: { uid: c.slug } })

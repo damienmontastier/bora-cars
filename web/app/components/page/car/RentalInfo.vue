@@ -14,6 +14,15 @@ function tEnum(group: 'type' | 'payment', value: string): string {
   return te(key) ? t(key) : value
 }
 
+// Les forfaits mensuels atteignent des milliers de km → séparateur de milliers localisé.
+function formatKm(value: number): string {
+  return new Intl.NumberFormat(numberLocale.value).format(value)
+}
+
+// Caution et prix au km suivent le sélecteur de devise de la fiche (cf. useCurrency) :
+// les montants sont stockés en euros dans Sanity et convertis à l'affichage.
+const { formatPrice } = useCurrency()
+
 const rentalTypes = computed<string[]>(() =>
   (props.car.rentalTypes ?? []).map(v => tEnum('type', v)),
 )
@@ -38,7 +47,9 @@ const conditionsCells = computed<Cell[]>(() => {
   if (c.anciennetePermis != null)
     items.push({ key: 'anciennete', label: t('car.rental.anciennetePermis'), value: `${c.anciennetePermis} ${t('car.rental.units.years')}` })
   if (c.dureeMinimum) {
-    const unit = c.dureeMinimum > 1 ? t('car.rental.units.days') : t('car.rental.units.day')
+    // Unité optionnelle côté Sanity : les fiches existantes (sans valeur) restent en jours.
+    const scale = c.dureeMinimumUnite === 'mois' ? 'month' : 'day'
+    const unit = t(`car.rental.units.${scale}${c.dureeMinimum > 1 ? 's' : ''}`)
     items.push({ key: 'duree', label: t('car.rental.dureeMinimum'), value: `${c.dureeMinimum} ${unit}` })
   }
   return items
@@ -48,16 +59,19 @@ const fraisCells = computed<Cell[]>(() => {
   const c = props.car
   const items: Cell[] = []
   if (c.kmJourInclus)
-    items.push({ key: 'km', label: t('car.rental.kmJourInclus'), value: `${c.kmJourInclus} ${t('car.rental.units.km')}` })
+    items.push({ key: 'km', label: t('car.rental.kmJourInclus'), value: `${formatKm(c.kmJourInclus)} ${t('car.rental.units.km')}` })
+  if (c.kmMoisInclus)
+    items.push({ key: 'km-mois', label: t('car.rental.kmMoisInclus'), value: `${formatKm(c.kmMoisInclus)} ${t('car.rental.units.km')}` })
   if (c.caution)
-    items.push({ key: 'caution', label: t('car.rental.caution'), value: `${new Intl.NumberFormat(numberLocale.value).format(c.caution)}€` })
+    items.push({ key: 'caution', label: t('car.rental.caution'), value: formatPrice(c.caution) })
   if (c.prixKmSupplementaire?.prix && c.prixKmSupplementaire?.km) {
     const { prix, km } = c.prixKmSupplementaire
-    const price = new Intl.NumberFormat(numberLocale.value, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(prix)
+    // Tarif au km : 2 décimales (souvent < 1 €), contrairement aux montants ronds.
+    const price = formatPrice(prix, 2)
     items.push({
       key: 'km-supp',
       label: t('car.rental.kmSupplementaire'),
-      value: km > 1 ? `${price}€/${km} ${t('car.rental.units.km')}` : `${price}€/${t('car.rental.units.km')}`,
+      value: km > 1 ? `${price}/${km} ${t('car.rental.units.km')}` : `${price}/${t('car.rental.units.km')}`,
     })
   }
   return items

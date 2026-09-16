@@ -6,3 +6,8 @@ declare const process: {
     readonly [key: string]: string | undefined
   }
 }
+
+// TypeScript 6 vérifie désormais les imports d'effet de bord vers des modules
+// sans déclaration (TS2882) — ex. `import 'react-grid-layout/css/styles.css'`,
+// résolu par le bundler Vite du Studio, pas par tsc.
+declare module '*.css'

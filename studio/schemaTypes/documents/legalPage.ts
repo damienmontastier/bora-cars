@@ -1,4 +1,4 @@
-import { DocumentTextIcon } from '@sanity/icons'
+import { DocumentTextIcon } from '@sanity/icons/DocumentText'
 import { defineField, defineType } from 'sanity'
 import { pickLocalized } from '../../lib/preview'
 import { requireAllLanguages } from '../../lib/i18nValidation'

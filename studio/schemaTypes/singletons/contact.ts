@@ -1,4 +1,4 @@
-import { EnvelopeIcon } from '@sanity/icons'
+import { EnvelopeIcon } from '@sanity/icons/Envelope'
 import { defineArrayMember, defineField, defineType } from 'sanity'
 import { pickLocalized } from '../../lib/preview'
 import { requireAllLanguages } from '../../lib/i18nValidation'

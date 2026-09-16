@@ -24,9 +24,12 @@ function localizedLoc(routeName: string, locale: LocaleCode, params: Record<stri
   // L'accueil n'a pas d'entrée I18N_PAGES (chemin racine) → /{locale} (ex. /fr, /en).
   if (routeName === 'index')
     return `/${locale}`
-  let path = I18N_PAGES[routeName]?.[locale]
-  if (typeof path !== 'string')
+  const template = I18N_PAGES[routeName]?.[locale]
+  if (typeof template !== 'string')
     return null
+  // `template` est typé `/${string}` (contrainte des types @nuxtjs/i18n) : on
+  // repasse en `string` avant les substitutions de params.
+  let path: string = template
   for (const [key, value] of Object.entries(params))
     path = path.replace(`[${key}]`, value)
   return `/${locale}${path}`

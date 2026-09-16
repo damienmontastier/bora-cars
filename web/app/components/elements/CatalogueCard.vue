@@ -8,7 +8,12 @@ interface Props {
 
 const { car, position } = defineProps<Props>()
 
-const { t, locale } = useI18n()
+const { t } = useI18n()
+
+// La carte suit le sélecteur de devise de la fiche voiture (état partagé, cf.
+// useCurrency) : un visiteur passé en CHF ne doit pas retomber sur des euros en
+// revenant au catalogue.
+const { formatPrice } = useCurrency()
 
 // Le schéma Sanity garantit qu'un seul des deux prix est renseigné.
 // On privilégie le mensuel s'il existe, sinon le journalier.
@@ -16,8 +21,7 @@ const priceLabel = computed(() => {
   const value = car.prixMensuel ?? car.prixJournalier ?? null
   if (value == null)
     return null
-  const numberLocale = locale.value === 'fr' ? 'fr-FR' : 'en-GB'
-  const price = new Intl.NumberFormat(numberLocale).format(value)
+  const price = formatPrice(value)
   return car.prixMensuel != null
     ? t('catalogue.card.startingFromMonthly', { price })
     : t('catalogue.card.startingFrom', { price })

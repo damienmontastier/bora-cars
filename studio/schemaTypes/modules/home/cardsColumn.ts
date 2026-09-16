@@ -1,4 +1,4 @@
-import { StackCompactIcon } from '@sanity/icons'
+import { StackCompactIcon } from '@sanity/icons/StackCompact'
 import { defineArrayMember, defineField, defineType } from 'sanity'
 import { ModuleThumbnailPreview } from '../../../components/ModuleThumbnailPreview'
 import { pickLocalized } from '../../../lib/preview'

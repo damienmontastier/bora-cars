@@ -87,17 +87,27 @@ useHead({
   titleTemplate: chunk => chunk ? `${chunk} ${separator ?? '—'} ${siteName ?? 'BORA CARS'}` : (siteName ?? 'BORA CARS'),
 })
 
+// Image OG globale (repli quand une page n'en fournit pas) + ses dimensions.
+const globalOgImage = computed(() => settings.value?.seo?.image || `${siteUrl}/og-bora-cars.jpg`)
+
 useSeoMeta({
   title: () => settings.value?.fallbackTitle ?? 'BORA CARS',
   description: () => (settings.value?.seo?.description || t('seo.description')).trim(),
-  ogImage: () => settings.value?.seo?.image || `${siteUrl}/og-bora-cars.jpg`,
-  twitterTitle: () => settings.value?.fallbackTitle ?? 'BORA CARS',
-  twitterDescription: () => (settings.value?.seo?.description || t('seo.description')).trim(),
-  twitterImage: () => settings.value?.seo?.image || `${siteUrl}/og-bora-cars.jpg`,
-  twitterCard: 'summary_large_image',
+  ogImage: () => globalOgImage.value,
+  // `og:image` seul ne suffit pas : sans dimensions, WhatsApp/LinkedIn/Facebook
+  // doivent d'abord télécharger l'image et l'aperçu part souvent sans visuel au
+  // premier partage. Déduites de l'URL, sans champ en plus côté Sanity (cf. ogImageSize).
+  ogImageWidth: () => ogImageSize(globalOgImage.value)?.width,
+  ogImageHeight: () => ogImageSize(globalOgImage.value)?.height,
 })
 // og:site_name → auto via site.name (nuxt-seo-utils automaticDefaults)
-// og:description, twitter:* → auto-inférés depuis description (automaticOgAndTwitterTags)
+// og:title / og:description → auto-inférés depuis title/description (automaticOgAndTwitterTags)
+//
+// PAS de `twitter:*` ici. Ce sont des doublons stricts de l'Open Graph (X lit l'OG en
+// repli), et unhead les signale désormais comme dépréciés. `twitter:card` — le seul
+// sans équivalent OG — est coupé via `seo.automaticTwitterTags: false` dans
+// nuxt.config : la marque n'a pas de compte X (cf. socials dans Paramètres), donc
+// aucune plateforme réellement utilisée ne lit ces balises.
 
 // Identité schema.org = la MARQUE (Organization) + un node AutoRental PAR AGENCE.
 // Modèle multi-établissements : chaque agence est un LocalBusiness/AutoRental distinct
@@ -150,11 +160,14 @@ const businessSchema = computed(() => {
 
   // Une agence = un document `location` (Lieu) → un node AutoRental rattaché à la marque.
   const agencies = (locationsData.value ?? []).map((loc, i) => {
+    // AutoRental = sous-type schema.org de AutomotiveBusiness (2e niveau), reconnu par
+    // Google mais absent de l'union TS de @unhead (qui s'arrête au 1er niveau).
+    // La directive doit porter sur l'APPEL : tsc rapporte l'erreur sur l'argument de
+    // `defineLocalBusiness`, pas sur la ligne `'@type'` (où elle ne supprimait rien
+    // et ressortait en « unused '@ts-expect-error' directive »).
+    // @ts-expect-error — sous-type valide non listé dans ValidLocalBusinessSubTypes
     return defineLocalBusiness({
       '@id': `${siteUrl}/#agency-${i}`,
-      // AutoRental = sous-type schema.org de AutomotiveBusiness (2e niveau), reconnu par
-      // Google mais absent de l'union TS de @unhead (qui s'arrête au 1er niveau).
-      // @ts-expect-error — sous-type valide non listé dans ValidLocalBusinessSubTypes
       '@type': 'AutoRental',
       'name': [siteName, loc.city].filter(Boolean).join(' — '),
       'url': siteUrl,

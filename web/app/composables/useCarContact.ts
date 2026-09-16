@@ -40,7 +40,7 @@ interface CarContactOptions {
  */
 export function useCarContact(car: MaybeRefOrGetter<CarDetailData>, options: CarContactOptions) {
   const settings = useSettings()
-  const { t, locale } = useI18n()
+  const { t } = useI18n()
   const requestUrl = useRequestURL()
   const analytics = useAnalytics()
 
@@ -54,12 +54,14 @@ export function useCarContact(car: MaybeRefOrGetter<CarDetailData>, options: Car
   const isMonthly = computed(() => carRef.value.prixMensuel != null)
   const priceValue = computed(() => carRef.value.prixMensuel ?? carRef.value.prixJournalier ?? null)
 
+  // Devise d'affichage choisie par le visiteur (EUR par défaut, CHF via le sélecteur) :
+  // le montant remonte donc déjà formaté ET symbolisé — y compris dans le {prix} du
+  // message WhatsApp, qui doit citer la devise que le visiteur avait sous les yeux.
+  const { formatPrice } = useCurrency()
+
   const formattedPrix = computed(() => {
     const p = priceValue.value
-    if (p == null)
-      return null
-    const numberLocale = locale.value === 'fr' ? 'fr-FR' : 'en-GB'
-    return new Intl.NumberFormat(numberLocale).format(p)
+    return p == null ? null : formatPrice(p)
   })
 
   const periodLabel = computed(() => isMonthly.value ? t('car.pricing.perMonth') : t('car.pricing.perDay'))

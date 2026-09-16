@@ -220,9 +220,9 @@ export function WhatsappTemplatesInput(props: ObjectInputProps) {
 
   return (
     <div ref={containerRef} onFocusCapture={handleFocusCapture}>
-      <Stack space={3}>
+      <Stack gap={3}>
         <Card padding={3} radius={2} tone="primary" border>
-          <Stack space={3}>
+          <Stack gap={3}>
             <Text size={1} weight="semibold" muted>
               Variables — clique pour insérer dans le champ actif, ou glisse-dépose dans le texte
             </Text>
@@ -259,7 +259,7 @@ export function WhatsappTemplatesInput(props: ObjectInputProps) {
         {renderDefault(props)}
 
         <Card padding={3} radius={2} tone="transparent" border>
-          <Stack space={3}>
+          <Stack gap={3}>
             <Text size={1} weight="semibold" muted>
               Aperçu des 4 messages
             </Text>
@@ -294,10 +294,10 @@ export function WhatsappTemplatesInput(props: ObjectInputProps) {
 
             {selectedCar
               ? (
-                  <Stack space={2}>
+                  <Stack gap={2}>
                     {templates.map(f => (
                       <Card key={f.name} padding={3} radius={2} tone={f.tpl.trim() ? 'positive' : 'caution'} border>
-                        <Stack space={2}>
+                        <Stack gap={2}>
                           <Text size={0} weight="semibold" muted>{f.label}</Text>
                           {f.tpl.trim()
                             ? <Text size={1} style={{ whiteSpace: 'pre-wrap' }}>{renderPreview(f.tpl, selectedCar, lang, f.noDate)}</Text>

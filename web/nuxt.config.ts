@@ -5,6 +5,12 @@ import { I18N_PAGES } from './app/config/I18N_CONFIG'
 
 const LOCALE_IETF: Record<string, string> = { fr: 'fr-FR', en: 'en-GB' }
 
+// Chemins localisés de la page « link in bio », dérivés de I18N_PAGES (jamais en
+// dur) : ils pilotent à la fois la 301 de l'URL nue `/bio` et les routes à prérendre.
+const BIO_PATHS = Object.entries(I18N_PAGES.bio ?? {})
+  .flatMap(([locale, path]) => (typeof path === 'string' ? [`/${locale}${path}`] : []))
+const BIO_DEFAULT_PATH = `/${DEFAULT_LANGUAGE}${I18N_PAGES.bio?.[DEFAULT_LANGUAGE] ?? '/bio'}`
+
 const locales = LANGUAGES.map(({ id }) => ({
   code: id,
   language: LOCALE_IETF[id] ?? id,
@@ -18,8 +24,9 @@ export default defineNuxtConfig({
 
   app: {
     head: {
-      charset: 'utf-8',
-      viewport: 'width=device-width, initial-scale=1',
+      // Pas de `charset`/`viewport` ici : Nuxt pose déjà `utf-8` et
+      // `width=device-width, initial-scale=1` par défaut. Les redéclarer déclenche
+      // l'avertissement « repeats a default » de nuxt-seo-utils (validateAppHead).
       link: [
         { rel: 'icon', type: 'image/png', href: '/favicon-96x96.png', sizes: '96x96' },
         { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' },
@@ -139,6 +146,23 @@ export default defineNuxtConfig({
   // SEO i18n). Query string préservée automatiquement par Netlify.
   routeRules: {
     '/': { redirect: { to: '/fr', statusCode: 301 } },
+    // `boracars.com/bio` = l'URL réellement collée dans la bio Instagram, donc SANS
+    // préfixe de locale — or `strategy: 'prefix'` ne crée aucune route pour elle. Même
+    // remède que l'apex : une 301 serveur (compilée dans `_redirects` par le preset
+    // Netlify) vers la locale par défaut, AVANT tout JS. Voir aussi `nitro.prerender`
+    // plus bas, qui empêche le stub HTML de « shadower » cette règle.
+    '/bio': { redirect: { to: BIO_DEFAULT_PATH, statusCode: 301 } },
+    // La page « link in bio » est en `noindex, follow` : son contenu est un
+    // sous-ensemble du catalogue (quasi-duplicate) et tourne au rythme des posts, donc
+    // rien à gagner à l'indexer — alors que le budget de crawl du domaine est déjà
+    // saturé. `follow` garde les liens vers les fiches voiture suivis, et le noindex
+    // n'a AUCUN effet sur les visiteurs venus d'Instagram. C'est @nuxtjs/robots qui lit
+    // cette clé : elle pose le <meta name="robots"> ET exclut la page du sitemap
+    // (`getPathRobotConfig` est la source commune des deux modules) — une seule
+    // déclaration pour les deux. NB : `definePageMeta({ robots })` ne marcherait PAS
+    // ici, Nuxt 4 scanne les métas de page (`scanPageMeta: 'after-resolve'`) APRÈS le
+    // hook `pages:resolved` où @nuxtjs/robots construit sa table → table vide.
+    ...Object.fromEntries(BIO_PATHS.map(path => [path, { robots: 'noindex, follow' }])),
     // `/en/catalogue` = ancien chemin FR sous le préfixe EN (avant la traduction du
     // chemin en `/catalog`). Migration STRUCTURELLE unique et bornée (le template
     // d'URL ne rechangera pas), ≠ churn de contenu → OK en dur. 404 confirmée GSC.
@@ -156,6 +180,17 @@ export default defineNuxtConfig({
     // slash). Explicite pour figer l'intention (et garder cohérent avec le serveur,
     // cf. nitro.prerender.autoSubfolderIndex ci-dessous).
     trailingSlash: false,
+  },
+
+  seo: {
+    // Coupe le `twitter:card` ajouté d'office par nuxt-seo-utils (InferSeoMetaPlugin).
+    // Les balises `twitter:*` sont des doublons de l'Open Graph — X lit l'OG en repli —
+    // et unhead les signale comme dépréciées. `twitter:card` est le seul sans équivalent
+    // OG (il déclare le FORMAT de la carte), mais la marque n'a pas de compte X : les
+    // plateformes réellement utilisées (WhatsApp, Instagram, LinkedIn, Facebook) lisent
+    // toutes l'Open Graph. L'inférence `og:*` depuis title/description, elle, RESTE
+    // active — ne pas confondre avec `automaticOgAndTwitterTags`, qui la couperait aussi.
+    automaticTwitterTags: false,
   },
 
   schemaOrg: {
@@ -288,7 +323,10 @@ export default defineNuxtConfig({
       // s'applique proprement. Matcher EXACT (jamais `'/'` en string : Nitro le
       // matche en `startsWith` → ignorerait TOUTES les routes). `_redirects` est
       // généré depuis routeRules (finalisation du preset), indépendant du prerender.
-      ignore: [route => route === '/'],
+      // `/bio` y est joint pour la même raison : c'est une routeRule de redirection,
+      // que la passe de prerender matérialiserait en stub HTML servi AVANT la règle
+      // `_redirects` → 200 + meta-refresh au lieu de la 301.
+      ignore: [route => route === '/' || route === '/bio'],
       // Écrit `fr.html` au lieu de `fr/index.html` → Netlify sert `/fr` en 200 DIRECT
       // (et redirige `/fr/` → `/fr`), au lieu de l'inverse. Aligne le serveur sur la
       // canonical/sitemap déjà déclarées sans slash (site.trailingSlash: false). Sinon :
@@ -301,8 +339,13 @@ export default defineNuxtConfig({
       // `/_i18n/.../messages.json` (via prerenderRoutes() dans le plugin i18n).
       // Develop : SSR pur (pages rendues à la volée par la fonction), build plus
       // rapide et contenu Sanity toujours frais.
+      // `/fr/bio` et `/en/bio` sont listés EXPLICITEMENT : aucun lien du site ne
+      // pointe vers la page « link in bio » (sa seule porte d'entrée est Instagram),
+      // donc `crawlLinks` ne la découvrirait jamais et elle retomberait sur la
+      // fonction SSR à chaque visite — le pire cas pour un lien massivement cliqué
+      // depuis mobile. Chemins dérivés de I18N_PAGES (cf. BIO_PATHS en haut).
       routes: process.env.NUXT_PUBLIC_IS_PROD === 'true'
-        ? ['/fr', '/en', '/sitemap.xml', '/robots.txt']
+        ? ['/fr', '/en', ...BIO_PATHS, '/sitemap.xml', '/robots.txt']
         : ['/sitemap.xml', '/robots.txt'],
     },
   },

@@ -95,12 +95,12 @@ export function CatalogueCarsPreview(_props: StringInputProps) {
   }
 
   return (
-    <Stack space={3}>
+    <Stack gap={3}>
       <Text size={1} muted>
         {cars.length} véhicule{cars.length > 1 ? 's' : ''} — lecture seule. Pour ajouter ou retirer une
         voiture, modifiez le champ « Type de client » de la voiture concernée.
       </Text>
-      <Grid columns={[1, 2, 3]} gap={3}>
+      <Grid gridTemplateColumns={[1, 2, 3]} gap={3}>
         {cars.map((car) => {
           const title = [car.marque, car.modele].filter(Boolean).join(' ') || 'Sans titre'
           const price = priceLabel(car)
@@ -123,17 +123,17 @@ export function CatalogueCarsPreview(_props: StringInputProps) {
                   }}
                 />
                 <Box padding={3}>
-                  <Stack space={2}>
+                  <Stack gap={2}>
                     <Text size={1} weight="semibold">{title}</Text>
                     {car.city ? <Text size={1} muted>{car.city}</Text> : null}
-                    <Inline space={2}>
+                    <Inline gap={2}>
                       {price ? (
-                        <Badge tone="primary" mode="outline" radius={2} padding={1} fontSize={0}>
+                        <Badge tone="primary" radius={2} padding={1} fontSize={0}>
                           {price}
                         </Badge>
                       ) : null}
                       {(car.rentalTypes ?? []).map((rt) => (
-                        <Badge key={rt} tone="default" mode="outline" radius={2} padding={1} fontSize={0}>
+                        <Badge key={rt} tone="default" radius={2} padding={1} fontSize={0}>
                           {RENTAL_LABELS[rt] ?? rt}
                         </Badge>
                       ))}

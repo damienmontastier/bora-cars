@@ -1,4 +1,4 @@
-import { UserIcon } from '@sanity/icons'
+import { UserIcon } from '@sanity/icons/User'
 import { defineArrayMember, defineField, defineType } from 'sanity'
 import { HeroArrayItem } from '../../components/HeroArrayItem'
 import { ModuleThumbnailPreview } from '../../components/ModuleThumbnailPreview'
@@ -19,7 +19,7 @@ export const proprietaireType = defineType({
       title: 'Modules',
       type: 'array',
       group: 'editorial',
-      validation: Rule => Rule.custom((modules: any[]) => {
+      validation: Rule => Rule.custom((modules: any[] | undefined) => {
         if (!modules?.length) return true
         const heroIndex = modules.findIndex(m => m._type === 'hero')
         if (heroIndex > 0) return 'Le module Hero doit toujours être en première position'

@@ -1,4 +1,4 @@
-import { TranslateIcon } from '@sanity/icons'
+import { TranslateIcon } from '@sanity/icons/Translate'
 import { defineArrayMember, defineField, defineType } from 'sanity'
 
 const TITLE = 'Glossaire'

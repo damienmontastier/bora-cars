@@ -1,6 +1,11 @@
 {
-  "name": "MyWebSite",
-  "short_name": "MySite",
+  "id": "/",
+  "name": "BORA CARS",
+  "short_name": "BORA CARS",
+  "description": "Location et gestion de véhicules haut de gamme. BORA CARS, votre partenaire mobilité premium. Paris et Genève.",
+  "lang": "fr",
+  "start_url": "/",
+  "scope": "/",
   "icons": [
     {
       "src": "/web-app-manifest-192x192.png",
@@ -15,7 +20,7 @@
       "purpose": "maskable"
     }
   ],
-  "theme_color": "#ffffff",
-  "background_color": "#ffffff",
+  "theme_color": "#E6E7DF",
+  "background_color": "#E6E7DF",
   "display": "standalone"
 }

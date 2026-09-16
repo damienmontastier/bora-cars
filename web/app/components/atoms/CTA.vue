@@ -42,8 +42,8 @@ const textRef = useTemplateRef('textRef')
 
 let tl = null
 let initialized = false
-// Vue's managed text node for the slot. Captured once, before init() overwrites
-// innerHTML with word spans. After that the node is detached from the DOM but Vue
+// Vue's managed text node for the slot. Captured once, before init() replaces
+// the children with word spans. After that the node is detached from the DOM but Vue
 // keeps patching it on locale change (the persistent menu CTA never remounts) —
 // observing it lets us re-split with the new translation when `settings` updates.
 let sourceNode = null
@@ -110,13 +110,23 @@ function init() {
   if (wordsList.length <= 1)
     return
 
-  el.innerHTML = wordsList.map((word, i) => {
-    const span = `<span class="app-atoms-cta__word">${word}</span>`
+  // Build nodes, never an HTML string: the words come from CMS text (Sanity /
+  // glossaire) and must not be parsed as markup.
+  const fragment = document.createDocumentFragment()
+  wordsList.forEach((word, i) => {
+    if (i > 0)
+      fragment.append(' ')
+    const span = document.createElement('span')
+    span.className = 'app-atoms-cta__word'
+    span.textContent = word
+    fragment.append(span)
     if (i === props.tiretAfter) {
-      return `${span}<span class="app-atoms-cta__tiret"></span>`
+      const tiret = document.createElement('span')
+      tiret.className = 'app-atoms-cta__tiret'
+      fragment.append(tiret)
     }
-    return span
-  }).join(' ')
+  })
+  el.replaceChildren(fragment)
 
   const words = Array.from(el.querySelectorAll('.app-atoms-cta__word'))
   const tiretEl = el.querySelector('.app-atoms-cta__tiret')

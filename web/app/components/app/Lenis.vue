@@ -26,9 +26,11 @@ watchEffect((onInvalidate) => {
   // Bloqué par défaut. AppPreloader.finalize() appelle lenis.start() à la fin du fade.
   lenis.stop()
 
-  const unsubscribe = Tempus.add((time) => {
+  // Tempus v1 : le callback reçoit { time, deltaTime, frame, budget } ; `order` remplace `priority`.
+  // Lenis passe en premier (order le plus bas) pour que GSAP/ScrollTrigger lise un scroll à jour.
+  const unsubscribe = Tempus.add(({ time }) => {
     lenis.raf(time)
-  }, { priority: -2 })
+  }, { order: -2, label: 'lenis' })
 
   onInvalidate(() => {
     unsubscribe?.()

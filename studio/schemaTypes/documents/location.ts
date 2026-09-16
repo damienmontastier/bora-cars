@@ -1,4 +1,4 @@
-import { PinIcon } from '@sanity/icons'
+import { PinIcon } from '@sanity/icons/Pin'
 import { defineArrayMember, defineField, defineType } from 'sanity'
 import { requireAllLanguages } from '../../lib/i18nValidation'
 

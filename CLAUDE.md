@@ -6,19 +6,23 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ```bash
 # Development (binds to 0.0.0.0, requires .env)
-npm run dev
+npm run dev               # web (:3000) + studio (:3334) en parallèle
 
 # Build / Generate
 npm run build
 npm run generate          # uses .env
 npm run generate:ftp      # uses .env.ftp
 
-# Lint
+# Lint / Types
 npm run lint
 npm run lint:fix
+npm --prefix web run typecheck      # nuxt typecheck (vue-tsc)
+npm --prefix studio run typecheck   # tsc --noEmit
 ```
 
 Copy `.blank.env` to `.env`
+
+**Port du Studio : 3334**, pas le 3333 par défaut de Sanity (`server.port` dans `studio/sanity.cli.ts`) — 3333 est partagé par tous les Studios de la machine, donc occupé dès qu'un autre projet Sanity tourne. Surchargeable par `SANITY_STUDIO_PORT` (lu depuis `studio/.env`, vérifié) ou en one-shot : `npm --prefix studio run dev -- --port 3335`.
 
 ## Architecture
 
@@ -40,6 +44,13 @@ Copy `.blank.env` to `.env`
 4. `04.directives.client.ts` — registers `v-menu-theme` directive
 
 **All animations must go through Tempus, never GSAP's own ticker.**
+
+**API Tempus v1** (depuis `tempus@1.0.0`, ex-`1.0.0-dev.x`) — deux changements *breaking* :
+- le callback reçoit **un objet d'état unique** `({ time, deltaTime, frame, budget })`, plus des arguments positionnels `(time, deltaTime)` → écrire `Tempus.add(({ time }) => …)` ;
+- l'option `priority` s'appelle désormais **`order`** (même sémantique : le plus bas tourne en premier ; `priority` reste accepté comme alias déprécié).
+
+Ordre d'exécution du projet : `lenis` (`order: -2`) → `gsap.updateRoot` (`order: -1`) → le reste (`order: 0`, ex. la parallaxe FAQ).
+Chaque `Tempus.add()` passe aussi un `label` : il identifie le callback dans `Tempus.inspect()` et dans l'overlay `tempus/profiler` (`import { profiler } from 'tempus/profiler'`), qui affiche en direct comment chaque callback remplit le budget de frame. `state.budget()` (ms restantes dans la frame) permet de conditionner du travail optionnel.
 
 ### Global state — `app/stores/index.ts`
 
@@ -115,7 +126,7 @@ Grid system (CSS vars): `--layout-columns-count`, `--layout-columns-gap`, `--lay
 | `useSettings.ts` | Global settings via `useState`, fetched once in `app.vue` |
 | `useVideoReady.ts` | Waits for video element to reach ready state |
 | `useMenuCtaSync.js` | Shared rect sync object between `AppMenu` and `ElementsHero` CTA (GSAP Flip morph) |
-| `usePageSeo.ts` | Per-page SEO via `@nuxtjs/seo` — call with a `Ref<SeoData \| undefined>` from the Sanity query result. Sets `title`, `description`, `ogImage`, `twitterTitle`. Global fallback description/image is set in `app.vue`. |
+| `usePageSeo.ts` | Per-page SEO via `@nuxtjs/seo` — call with a `Ref<SeoData \| undefined>` from the Sanity query result. Sets `title`, `description`, `ogImage` + `ogImageWidth`/`ogImageHeight` (déduites de l'URL via `ogImageSize`, cf. `utils/index.ts` — sans elles WhatsApp/LinkedIn sortent l'aperçu sans visuel au 1er partage). **Aucune balise `twitter:*`** : doublons stricts de l'Open Graph, dépréciées par unhead ; le `twitter:card` auto de nuxt-seo-utils est coupé par `seo.automaticTwitterTags: false` (nuxt.config) — la marque n'a pas de compte X. Global fallback description/image is set in `app.vue`. |
 | `useSplitTextAnimation.ts` | GSAP SplitText scroll animation. Accepts a named preset from `TEXT_ANIMATION_CONFIG` plus override options for `split`, `from`, `to`, `scrollTrigger`. Initialises after `fontsLoaded` and on SPA mount. Exposes `{ init }` for manual re-runs. Dev-only Tweakpane pane when `debug: true`. |
 | `useIntersectionDebug.ts` | Dev-only IntersectionObserver visualiser — overlays a dashed border + badge on the target element, logs every intersection event. No-op in production. Options: `label`, `rootMargin`, `threshold`, `color`, `offColor`, `enabled`. |
 | `useWhatsappMessage.ts` | Per-page WhatsApp prefill. A page calls `provideWhatsappMessage(computed(() => page.value?.whatsappMessage))`; `BaseLink` (the single link chokepoint) injects `?text=` into any `wa.me`/`whatsapp.com` URL it resolves via `withWhatsappText()`. Pages that don't provide a message (homepage, menu) keep a blank WhatsApp message. Sanity field `whatsappMessage` (tab "WhatsApp", static text) lives on the `professionnel`, `proprietaire` and `catalogue` singletons. The car page (`carPage`) instead uses an **object `whatsapp` with 4 editable subfield templates** (`withPrice` / `withoutPrice` / `simpleWithPrice` / `simpleWithoutPrice`), each `internationalizedArrayText`, with `{marque}`/`{modele}`/`{prix}`/`{periode}`/`{duree}`/`{quand}`/`{url}` tokens. The sticky-bar cases (`simple*`) have NO duration/`{quand}` selector on the site → their descriptions warn against `{duree}`/`{quand}`. The custom Studio input `studio/components/WhatsappTemplatesInput.tsx` is set as `components.input` on the **object** (not per field): one shared chip bar + `renderDefault` (the 4 subfields) + ONE car/language selector driving all 4 live previews. The query projects `page.whatsapp { withPrice, … }` (`queries/car.ts`, `CarWhatsappTemplates`); `useCarContact` picks the case by `schedule × hasPrice` and fills via `fillTemplate`. An empty Sanity field → empty message → `withWhatsappText` returns a plain `wa.me` link (no i18n fallback). `Pricing.vue` + `StickyBar.vue` both pass `page.whatsapp`. |
@@ -272,6 +283,11 @@ Fullscreen 100vh section with two marquee rows that scroll vertically (rows tran
 
 - Project ID: `xyw8hnp3`, dataset: `production`, apiVersion: `2026-04-06`
 - Plugins: `linkField` (custom link type), `structureTool`, `visionTool`
+- **Studio v6** (Node ≥ 22.12, build Vite 8/Rolldown, React strict mode activé en dev). Conventions d'import imposées par les libs qui l'accompagnent :
+  - `@sanity/icons` v5 — **plus de barrel** : `import { HomeIcon } from '@sanity/icons/Home'` (sous-chemin = nom de l'icône sans le suffixe `Icon`), jamais `from '@sanity/icons'`.
+  - `@sanity/ui` v4 — `Tooltip` → `@sanity/ui/tooltip`, `useToast`/`ToastProvider` → `@sanity/ui/toast` ; props renommées : `Stack`/`Inline` `space` → **`gap`**, `Grid` `columns`/`rows` → **`gridTemplateColumns`/`gridTemplateRows`**, `Badge` `mode` supprimée. Les anciennes ne sont plus lues au runtime (l'espacement disparaît silencieusement) — le typecheck les signale.
+  - `@sanity/icons`, `@sanity/ui` et `@sanity/image-url` sont déclarés en dépendances directes (ils sont importés directement par le code du Studio).
+- `npx tsc --noEmit` dans `/studio` doit rester vert (aucun script `typecheck` en CI, mais c'est le filet pour ces migrations de types).
 
 ---
 
@@ -303,10 +319,17 @@ ctx?.revert()
 
 ## Nuxt config highlights (`web/nuxt.config.ts`)
 
-- Modules: `@nuxt/eslint`, `@nuxt/image`, `@nuxt/fonts`, `@vueuse/nuxt`, `@pinia/nuxt`, `@nuxtjs/seo`, `@nuxtjs/i18n`, `@nuxtjs/sanity`, `lenis/nuxt`
+- Modules: `@nuxt/eslint`, `@nuxt/image`, `@nuxt/fonts`, `@vueuse/nuxt`, `@pinia/nuxt`, `@nuxtjs/seo`, `@nuxtjs/i18n`, `@nuxtjs/sanity`, `lenis/nuxt`, `@nuxt/ui`, `@nuxt/scripts`
 - Fonts: Lora (400), HaasGrotDispMedium (600), HaasGrotDispRegular (400)
 - Image: avif/webp, Sanity provider + Netlify/ipxStatic/ipx based on env, breakpoints: 800, 1280, 1440, 1920
 - SEO (`@nuxtjs/seo`): `site.name = 'BORA CARS'`, `site.separator = '—'`, `site.indexable` gated on `NUXT_PUBLIC_IS_PROD`. `ogImage` disabled. Per-page SEO via `usePageSeo()`. Global fallback description/image in `app.vue` via `useSeoMeta`.
 - **schema.org** (`nuxt-schema-org`, part of `@nuxtjs/seo`): `WebSite` + `WebPage` nodes are **auto-generated** by the module — including the full i18n graph (per-locale `WebSite` with `inLanguage` + `translationOfWork`/`workTranslation`, `WebPage` `isPartOf`). So **do NOT** add manual `defineWebSite`/`defineWebPage` (they duplicate the auto nodes; `WebPage` infers `name`/`description` from the `<title>`/`<meta description>` set by `usePageSeo`). The only thing declared by hand is the **identity**, built dynamically from Sanity in `app.vue` (`useSchemaOrg(computed(...))`): one `Organization` (the brand, explicit `@id` `…/#identity` — preserved verbatim because it starts with `http`, and recognised as the identity since `resolveAsGraphKey` → `#identity`) **+ one `AutoRental` node per agency**. **Agencies are the `location` (Lieu) documents** — the single source already shared by menu/footer/cars — queried via `LOCATIONS_QUERY` (`queries/locations.ts`, all `*[_type=="location"]`). Each `AutoRental` has the Lieu's address/geo/telephone/openingHours, `parentOrganization` → the brand, and `sameAs` = the Lieu's `link` (its Google Business/kgmid URL — **per agency**, not brand-level: each Google listing = one establishment). `location` docs carry SEO fields (`country`, `geo`, `openingHours`, group "SEO local") added on top of the display fields. Brand-level fields (`email`/`priceRange`/`areaServed`/`socialLinks` = brand socials only) live in the `settings` singleton (group "Établissement"). `schemaOrg: { reactive: false }` is deliberate: with `reactive: true` the JSON-LD is rendered at SSR **and** re-injected client-side, so unhead merges the two same-`@id` `#identity` nodes and **concatenates** their array props (`sameAs`/`areaServed` show up doubled). JSON-LD is crawler-only (crawlers read the SSR/prerendered HTML, never SPA nav), so client resync adds nothing — keep it off. The auto `WebSite` description is fed per-locale via the i18n `nuxtSiteConfig.name`/`nuxtSiteConfig.description` keys (`i18n/locales/*.json`). **Car pages** (`pages/car/[uid].vue`) add a `Product` node (NOT `Car`/`Vehicle` — Google's "Vehicle listing" rich result is sale-only, "Product snippet" is purchasable-only; rentals fit neither, so a plain `Product` avoids both the vehicle-listing-for-sale evaluation and "unknown property" warnings). Vehicle specs go in `additionalProperty` (localized via the `car.specs.*` i18n keys); the `Offer` uses `businessFunction: LeaseOut` + `UnitPriceSpecification` (rental rate per day/month, not a sale). **+ a `BreadcrumbList`** (Accueil → Catalogue → car, labels via the `breadcrumb.*` i18n keys). The sitemap source (`server/api/__sitemap__/urls.ts`) emits per-car `lastmod` from Sanity `_updatedAt`.
 - SCSS `additionalData`: auto-injects `_variables`, `_mixins`, `_functions`, `_layout`
-- Vue version: 3.5.17, Nuxt: 4.4.2
+- Vue 3.5, Nuxt 4.5, Vite 8, ESLint 10 (`@antfu/eslint-config` v9 + `@nuxt/eslint`), Pinia 4
+
+### Pièges de dépendances (à relire avant tout `npm update`)
+
+- **`@vue/devtools-api` est une dépendance obligatoire**, pas un reliquat : depuis Pinia 4 c'est un *peer* non optionnel que l'app doit installer elle-même (Pinia ne l'embarque plus). Ne pas la supprimer sous prétexte qu'aucun fichier ne l'importe.
+- **`vue-router` doit rester aligné sur la version embarquée par Nuxt** (Nuxt 4.5 → `vue-router@^5`). Une plage divergente dans `package.json` fait cohabiter **deux copies** : Nuxt utilise la sienne, et tout `import { onBeforeRouteLeave } from 'vue-router'` dans l'app tape dans l'autre → clés d'injection différentes, le guard ne s'enregistre jamais (échec **silencieux**). Vérifier après chaque bump de Nuxt : `find node_modules -maxdepth 4 -path "*vue-router/package.json"` ne doit renvoyer qu'une ligne.
+- **TypeScript reste en 6.x** : `typescript-eslint` (tiré par `@antfu/eslint-config` et `@nuxt/eslint`) déclare `typescript >=4.8.4 <6.1.0`, et TS 7 n'expose pas encore d'API programmatique (attendue en 7.1) — donc ni typescript-eslint ni les outils Vue ne peuvent tourner dessus. `npm i typescript@7` échoue en ERESOLVE.
+- `npm install <pkg>` peut échouer en ERESOLVE sur les *peers optionnels* de `@antfu/eslint-config` (chaîne `eslint-plugin-astro` → `@typescript-eslint/parser`) alors qu'ils ne sont pas installés. Résolution : réinstallation propre (`rm -rf node_modules package-lock.json && npm install`), jamais `--force`/`--legacy-peer-deps`.

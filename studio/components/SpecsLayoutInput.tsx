@@ -20,8 +20,9 @@ import {
 import { CSS } from '@dnd-kit/utilities'
 import { set, useFormValue } from 'sanity'
 import type { ObjectInputProps } from 'sanity'
-import { Badge, Box, Card, Flex, Stack, Text, Tooltip } from '@sanity/ui'
-import { WarningOutlineIcon } from '@sanity/icons'
+import { Badge, Box, Card, Flex, Stack, Text } from '@sanity/ui'
+import { Tooltip } from '@sanity/ui/tooltip'
+import { WarningOutlineIcon } from '@sanity/icons/WarningOutline'
 
 const SPECS: { key: string, label: string }[] = [
   { key: 'teinteExterieure', label: 'Teinte extérieure' },
@@ -122,7 +123,7 @@ function SortableItem({ id, label, missing }: { id: string, label: string, missi
                   placement="top"
                   portal
                 >
-                  <Badge tone="caution" mode="outline" radius={2} padding={1}>
+                  <Badge tone="caution" radius={2} padding={1}>
                     <Flex align="center" gap={1}>
                       <WarningOutlineIcon />
                       <Text size={0} weight="semibold">vide</Text>
@@ -152,7 +153,7 @@ function Zone({
 }) {
   const { setNodeRef, isOver } = useDroppable({ id })
   return (
-    <Stack space={2}>
+    <Stack gap={2}>
       <Text size={1} weight="semibold" muted>{title}</Text>
       <div
         ref={setNodeRef}
@@ -166,7 +167,7 @@ function Zone({
         }}
       >
         <SortableContext id={id} items={items} strategy={verticalListSortingStrategy}>
-          <Stack space={2}>
+          <Stack gap={2}>
             {items.length === 0
               ? <Text size={1} muted style={{ fontStyle: 'italic', padding: 4 }}>{emptyHint}</Text>
               : items.map(key => (
@@ -260,7 +261,7 @@ export function SpecsLayoutInput(props: ObjectInputProps<SpecsLayoutValue>) {
       onDragEnd={handleDragEnd}
       onDragCancel={() => setActiveId(null)}
     >
-      <Stack space={4}>
+      <Stack gap={4}>
         <Zone id="fixed" title="ROW FIXE (en haut)" items={state.fixed} missingByKey={missingByKey} emptyHint="Glisse une spec ici" />
         <Zone id="list" title="LISTE (en dessous)" items={state.list} missingByKey={missingByKey} emptyHint="Glisse une spec ici" />
       </Stack>

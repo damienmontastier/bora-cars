@@ -41,7 +41,9 @@ export interface CarDetailData {
   ageMinimum?: number
   anciennetePermis?: number
   dureeMinimum?: number
+  dureeMinimumUnite?: 'jours' | 'mois'
   kmJourInclus?: number
+  kmMoisInclus?: number
   prixJournalier?: number
   prixMensuel?: number
   caution?: number
@@ -96,7 +98,9 @@ export const CAR_QUERY = `{
     ageMinimum,
     anciennetePermis,
     dureeMinimum,
+    dureeMinimumUnite,
     kmJourInclus,
+    kmMoisInclus,
     prixJournalier,
     prixMensuel,
     caution,

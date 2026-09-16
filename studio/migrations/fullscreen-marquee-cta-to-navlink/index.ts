@@ -29,7 +29,7 @@ export default defineMigration({
       const modules = doc.modules as any[]
       if (!Array.isArray(modules)) return []
 
-      const patches = []
+      const patches: any[] = []
 
       modules.forEach((mod, i) => {
         if (mod._type !== 'fullscreenMarquee') return

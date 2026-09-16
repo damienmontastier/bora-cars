@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { Card, Flex, Box, Text } from '@sanity/ui'
-import { EyeOpenIcon } from '@sanity/icons'
+import { EyeOpenIcon } from '@sanity/icons/EyeOpen'
 import { useSchema } from 'sanity'
 
 interface HoverInfo {

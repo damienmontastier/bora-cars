@@ -1,4 +1,4 @@
-import { TagIcon } from '@sanity/icons'
+import { TagIcon } from '@sanity/icons/Tag'
 import { defineArrayMember, defineField, defineType } from 'sanity'
 
 export const carType = defineType({
@@ -197,14 +197,39 @@ export const carType = defineType({
     }),
     defineField({
       name: 'dureeMinimum',
-      title: 'Durée minimum de location (jours)',
+      title: 'Durée minimum de location',
       type: 'number',
+      description: 'Choisissez l\'unité (jours ou mois) dans le champ juste en dessous.',
       validation: (Rule) => Rule.min(1).integer(),
+    }),
+    defineField({
+      name: 'dureeMinimumUnite',
+      title: 'Durée minimum — unité',
+      type: 'string',
+      initialValue: 'jours',
+      options: {
+        list: [
+          { title: 'Jours', value: 'jours' },
+          { title: 'Mois', value: 'mois' },
+        ],
+        layout: 'radio',
+      },
+      hidden: ({ document }) => (document as any)?.dureeMinimum == null,
+      description: 'Sans choix, la durée est exprimée en jours.',
     }),
     defineField({
       name: 'kmJourInclus',
       title: 'Km par jour inclus',
       type: 'number',
+      description: 'Forfait kilométrique des locations à la journée (courte durée).',
+      validation: (Rule) => Rule.min(0).integer(),
+    }),
+    defineField({
+      name: 'kmMoisInclus',
+      title: 'Km par mois inclus',
+      type: 'number',
+      description: 'Forfait kilométrique des locations au mois (longue durée). Peut coexister avec le forfait journalier si la voiture est proposée dans les deux formules.',
+      validation: (Rule) => Rule.min(0).integer(),
     }),
     defineField({
       name: 'prixJournalier',

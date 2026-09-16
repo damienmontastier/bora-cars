@@ -5,21 +5,20 @@ import { visionTool } from '@sanity/vision'
 import { linkField } from 'sanity-plugin-link-field'
 import { internationalizedArray } from 'sanity-plugin-internationalized-array'
 import { assist } from '@sanity/assist'
-import {
-  HomeIcon,
-  UserIcon,
-  CaseIcon,
-  MenuIcon,
-  StackCompactIcon,
-  PinIcon,
-  DocumentsIcon,
-  CogIcon,
-  EnvelopeIcon,
-  ArchiveIcon,
-  DocumentTextIcon,
-  RocketIcon,
-  TranslateIcon,
-} from '@sanity/icons'
+import { HomeIcon } from '@sanity/icons/Home'
+import { UserIcon } from '@sanity/icons/User'
+import { CaseIcon } from '@sanity/icons/Case'
+import { MenuIcon } from '@sanity/icons/Menu'
+import { StackCompactIcon } from '@sanity/icons/StackCompact'
+import { PinIcon } from '@sanity/icons/Pin'
+import { DocumentsIcon } from '@sanity/icons/Documents'
+import { CogIcon } from '@sanity/icons/Cog'
+import { EnvelopeIcon } from '@sanity/icons/Envelope'
+import { ArchiveIcon } from '@sanity/icons/Archive'
+import { DocumentTextIcon } from '@sanity/icons/DocumentText'
+import { RocketIcon } from '@sanity/icons/Rocket'
+import { TranslateIcon } from '@sanity/icons/Translate'
+import { LinkIcon } from '@sanity/icons/Link'
 import { schemaTypes } from './schemaTypes'
 import { SUPPORTED_LANGUAGES, LOCALIZED_DOCUMENT_TYPES } from './schemaTypes/constants'
 import { StudioLayout } from './components/StudioLayout'
@@ -27,7 +26,7 @@ import { DeployTool } from './components/DeployTool'
 
 const CarIcon = () => createElement('span', null, '🚗')
 
-const SINGLETONS = new Set(['homepage', 'footer', 'menu', 'proprietaire', 'professionnel', 'contact', 'settings', 'catalogue', 'catalogueProfessionnel', 'carPage', 'glossaire'])
+const SINGLETONS = new Set(['homepage', 'footer', 'menu', 'proprietaire', 'professionnel', 'contact', 'settings', 'catalogue', 'catalogueProfessionnel', 'carPage', 'glossaire', 'bio'])
 
 const structure = (S: any) =>
   S.list()
@@ -57,6 +56,11 @@ const structure = (S: any) =>
               S.listItem().title('Page Voiture').id('carPage').icon(CarIcon)
                 .child(S.document().schemaType('carPage').documentId('carPage')),
               S.documentTypeListItem('legalPage').title('Pages légales').icon(DocumentTextIcon),
+              S.divider(),
+              // Page « link in bio » (boracars.com/bio) — non listée dans le menu du
+              // site : sa seule porte d'entrée est le lien en bio Instagram.
+              S.listItem().title('Bio (réseaux sociaux)').id('bio').icon(LinkIcon)
+                .child(S.document().schemaType('bio').documentId('bio')),
             ]),
         ),
       S.divider(),

@@ -34,9 +34,14 @@ const locationAddress = computed(() => {
 <template>
   <aside class="car-pricing">
     <div v-if="formattedPrix" class="car-pricing__price">
-      <TextsH4 tag="p" class="car-pricing__price-amount">
-        {{ t('car.pricing.priceFrom', { price: formattedPrix }) }}
-      </TextsH4>
+      <div class="car-pricing__price-head">
+        <TextsH4 tag="p" class="car-pricing__price-amount">
+          {{ t('car.pricing.priceFrom', { price: formattedPrix }) }}
+        </TextsH4>
+        <!-- Le bloc est sticky en desktop : le sélecteur reste atteignable pendant la
+             lecture des infos de location (caution, km supp.) qu'il reformate aussi. -->
+        <AtomsCurrencyToggle class="car-pricing__currency" />
+      </div>
       <TextsP2 class="car-pricing__price-period">
         {{ periodLabel }}
       </TextsP2>
@@ -102,6 +107,21 @@ const locationAddress = computed(() => {
     display: flex;
     flex-direction: column;
     color: var(--c-black-100);
+  }
+
+  &__price-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: desktop-vw(16px);
+
+    @include mobile {
+      gap: mobile-vw(12px);
+    }
+  }
+
+  &__currency {
+    flex: 0 0 auto;
   }
 
   &__price-period {

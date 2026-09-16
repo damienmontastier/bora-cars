@@ -198,7 +198,7 @@ onMounted(() => {
   // Run every frame via Tempus — independent of Lenis scroll events, so the
   // parallax never gets stuck on a stale value if Lenis stops emitting before
   // reaching its scrollTo target.
-  unsubTempus = Tempus.add(updateParallax)
+  unsubTempus = Tempus.add(updateParallax, { label: 'faq-parallax' })
 })
 
 onUnmounted(() => {

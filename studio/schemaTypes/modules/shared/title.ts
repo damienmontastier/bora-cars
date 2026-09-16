@@ -1,4 +1,4 @@
-import { TextIcon } from '@sanity/icons'
+import { TextIcon } from '@sanity/icons/Text'
 import { defineField, defineType } from 'sanity'
 import { ModuleThumbnailPreview } from '../../../components/ModuleThumbnailPreview'
 import { pickLocalized } from '../../../lib/preview'

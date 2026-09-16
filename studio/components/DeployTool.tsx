@@ -12,9 +12,10 @@ import {
   Spinner,
   Stack,
   Text,
-  useToast,
 } from '@sanity/ui'
-import { RocketIcon, WarningOutlineIcon } from '@sanity/icons'
+import { useToast } from '@sanity/ui/toast'
+import { RocketIcon } from '@sanity/icons/Rocket'
+import { WarningOutlineIcon } from '@sanity/icons/WarningOutline'
 
 // Outil « Publier » : POST sur le build hook Netlify (production / branche main)
 // pour redéclencher un build + redéploiement à la demande, sans attendre un push.
@@ -82,14 +83,14 @@ export function DeployTool() {
   return (
     <Container width={1} paddingX={4} paddingY={6}>
       <Card padding={4} radius={3} shadow={1} border>
-        <Stack space={4}>
+        <Stack gap={4}>
           <Flex align="center" gap={3}>
             <Box>
               <Text size={4}>
                 <RocketIcon />
               </Text>
             </Box>
-            <Stack space={2}>
+            <Stack gap={2}>
               <Heading size={2}>Publier le site</Heading>
               <Text size={1} muted>
                 Reconstruit et met en ligne la production (branche <code>main</code>) avec le contenu
@@ -104,7 +105,7 @@ export function DeployTool() {
                 <Text size={2}>
                   <WarningOutlineIcon />
                 </Text>
-                <Stack space={2}>
+                <Stack gap={2}>
                   <Text size={1} weight="semibold">
                     Build hook non configuré
                   </Text>
@@ -116,13 +117,13 @@ export function DeployTool() {
               </Flex>
             </Card>
           ) : (
-            <Stack space={4}>
+            <Stack gap={4}>
               <Text size={1} muted>
                 À utiliser après avoir modifié du contenu : la production étant prérendue, les
                 changements n'apparaissent en ligne qu'après un nouveau build.
               </Text>
 
-              <Inline space={3}>
+              <Inline gap={3}>
                 <Button
                   icon={RocketIcon}
                   text="Lancer le build"
@@ -138,7 +139,7 @@ export function DeployTool() {
                   Dernière publication :
                 </Text>
                 {lastTriggeredLabel ? (
-                  <Badge tone="positive" mode="outline" fontSize={0}>
+                  <Badge tone="positive" fontSize={0}>
                     {lastTriggeredLabel}
                   </Badge>
                 ) : (
@@ -160,7 +161,7 @@ export function DeployTool() {
           onClose={loading ? undefined : () => setConfirmOpen(false)}
         >
           <Box padding={4}>
-            <Stack space={4}>
+            <Stack gap={4}>
               <Text size={1}>
                 Un nouveau build de production va être déclenché sur Netlify. Le site sera mis à jour
                 avec le contenu actuel dans ~1–3 min.

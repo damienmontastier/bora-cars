@@ -1,4 +1,4 @@
-import { CogIcon } from '@sanity/icons'
+import { CogIcon } from '@sanity/icons/Cog'
 import { defineArrayMember, defineField, defineType } from 'sanity'
 import { seoType } from '../objects/seo'
 
@@ -12,6 +12,7 @@ export const settingsType = defineType({
   groups: [
     { name: 'global', title: 'Global', default: true },
     { name: 'business', title: 'Établissement (SEO local)' },
+    { name: 'devise', title: 'Devise' },
     { name: 'partners', title: 'Partenaires' },
     { name: 'seo', title: 'SEO' },
   ],
@@ -68,6 +69,20 @@ export const settingsType = defineType({
       group: 'business',
       description: 'URLs des profils sociaux officiels de la MARQUE (Instagram, LinkedIn…) → schema.org sameAs de l’Organization. Les fiches Google de chaque agence se mettent dans le champ « Lien » du Lieu correspondant, pas ici.',
       of: [defineArrayMember({ type: 'url' })],
+    }),
+    // ─── Devise ───
+    // Toutes les voitures sont tarifées en EUR dans Sanity ; le sélecteur EUR / CHF
+    // de la fiche voiture reconvertit à l'affichage (tarif, caution, prix au km).
+    // Taux saisi à la main plutôt qu'appelé sur une API de change : le site est
+    // prérendu, un taux « live » serait figé au build et impossible à corriger sans
+    // redéploiement. Champ vide = pas de sélecteur affiché (mieux que des prix faux).
+    defineField({
+      name: 'tauxChf',
+      title: 'Taux de conversion CHF',
+      type: 'number',
+      group: 'devise',
+      description: 'Combien vaut 1 € en francs suisses (ex. 0.94). Laisser vide pour masquer le sélecteur EUR / CHF sur les fiches voiture et les cartes du catalogue.',
+      validation: (Rule) => Rule.positive(),
     }),
     defineField({
       name: 'partners',

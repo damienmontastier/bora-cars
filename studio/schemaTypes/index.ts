@@ -12,6 +12,7 @@ import { catalogueType } from './singletons/catalogue'
 import { catalogueProfessionnelType } from './singletons/catalogueProfessionnel'
 import { carPageType } from './singletons/carPage'
 import { glossaireType } from './singletons/glossaire'
+import { bioType } from './singletons/bio'
 
 // Documents
 import { locationType } from './documents/location'
@@ -54,6 +55,7 @@ export const schemaTypes: SchemaTypeDefinition[] = [
   catalogueProfessionnelType,
   carPageType,
   glossaireType,
+  bioType,
 
   // Documents
   locationType,

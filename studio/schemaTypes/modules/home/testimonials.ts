@@ -1,4 +1,4 @@
-import { CommentIcon } from '@sanity/icons'
+import { CommentIcon } from '@sanity/icons/Comment'
 import { defineArrayMember, defineField, defineType } from 'sanity'
 import { ModuleThumbnailPreview } from '../../../components/ModuleThumbnailPreview'
 import { pickLocalized } from '../../../lib/preview'

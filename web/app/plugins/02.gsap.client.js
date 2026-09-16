@@ -18,7 +18,9 @@ export default defineNuxtPlugin(() => {
 
   gsap.ticker.remove(gsap.updateRoot)
 
-  Tempus.add((time) => {
+  // Tempus v1 : le callback reçoit un objet d'état ({ time, deltaTime, frame, budget }),
+  // et `priority` s'appelle désormais `order` (même sémantique : le plus bas tourne en premier).
+  Tempus.add(({ time }) => {
     gsap.updateRoot(time / 1000)
-  }, { priority: -1 })
+  }, { order: -1, label: 'gsap' })
 })

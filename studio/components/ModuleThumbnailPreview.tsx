@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react'
 import type { PreviewProps } from 'sanity'
-import { Tooltip, Box, Flex, Text, Card } from '@sanity/ui'
-import { EyeOpenIcon } from '@sanity/icons'
+import { Box, Flex, Text, Card } from '@sanity/ui'
+import { Tooltip } from '@sanity/ui/tooltip'
+import { EyeOpenIcon } from '@sanity/icons/EyeOpen'
 
 const HOVER_WIDTH = 360
 

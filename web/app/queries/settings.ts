@@ -20,6 +20,8 @@ export interface BusinessInfo {
 export interface SettingsData {
   contactLink?: SanityLink
   business?: BusinessInfo
+  /** Combien vaut 1 € en CHF. Absent/0 → pas de sélecteur de devise (cf. useCurrency). */
+  tauxChf?: number
   fallbackTitle?: string
   partners?: Partner[]
   seo?: SeoData
@@ -43,6 +45,7 @@ export const SETTINGS_QUERY = `*[_type == "settings"][0]{
     "areaServed": areaServed,
     "socialLinks": socialLinks
   },
+  tauxChf,
   ${i18n('fallbackTitle')},
   "partners": partners[]{
     "imageUrl": asset._ref,

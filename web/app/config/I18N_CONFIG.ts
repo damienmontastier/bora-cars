@@ -16,6 +16,7 @@
  *   pages/contact.vue                 → 'contact'
  *   pages/car/[uid].vue               → 'car-uid'
  *   pages/legal/[slug].vue            → 'legal-slug'
+ *   pages/bio.vue                     → 'bio'
  */
 
 export type LocaleCode = 'fr' | 'en'
@@ -27,7 +28,7 @@ export type LocaleCode = 'fr' | 'en'
  * - Les segments dynamiques `[uid]` / `[slug]` DOIVENT être conservés.
  * - Pour traduire une URL : éditer une seule ligne ici.
  */
-export const I18N_PAGES: Record<string, Partial<Record<LocaleCode, string | false>>> = {
+export const I18N_PAGES: Record<string, Partial<Record<LocaleCode, `/${string}` | false>>> = {
   'proprietaire': { fr: '/proprietaire', en: '/owner' },
   'professionnel': { fr: '/professionnel', en: '/business' },
   'contact': { fr: '/contact', en: '/contact' },
@@ -35,6 +36,10 @@ export const I18N_PAGES: Record<string, Partial<Record<LocaleCode, string | fals
   'catalogue-professionnel': { fr: '/catalogue-professionnel', en: '/business-catalog' },
   'car-uid': { fr: '/voiture/[uid]', en: '/car/[uid]' },
   'legal-slug': { fr: '/legal/[slug]', en: '/legal/[slug]' },
+  // Page « link in bio » Instagram. Le chemin est IDENTIQUE dans les deux locales :
+  // il est tapé/collé tel quel dans la bio du profil, donc il ne se traduit pas.
+  // `nuxt.config.ts` en dérive la 301 `/bio` → `/fr/bio` et les routes à prérendre.
+  'bio': { fr: '/bio', en: '/bio' },
 }
 
 /**

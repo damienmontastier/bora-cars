@@ -143,7 +143,10 @@ function carFilter(audience: CatalogueAudience) {
   return `${audienceFilter(audience)}${FILTER_CLAUSE}`
 }
 
-const CAR_PROJECTION = `{
+// Projection d'une carte voiture — partagée par le catalogue ET la page /bio
+// (`~/queries/bio`), qui réutilisent le même `ElementsCatalogueCard`. Le contrat
+// de la carte (`CatalogueCar`) reste ainsi défini à un seul endroit.
+export const CAR_PROJECTION = `{
   _id,
   "slug": slug.current,
   marque,

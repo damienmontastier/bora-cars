@@ -28,7 +28,7 @@ export default defineNuxtPlugin((nuxtApp) => {
     fpsGraph.end()
   }
 
-  const unsubscribe = nuxtApp.$tempus.add(animate)
+  const unsubscribe = nuxtApp.$tempus.add(animate, { label: 'fps-graph' })
 
   nuxtApp.hook('app:unmounted', () => {
     unsubscribe()

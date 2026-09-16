@@ -143,6 +143,43 @@ export function sanityUrlToAssetId(url: string): string | null {
   return `image-${match[1].replace(/\.(\w+)$/, '-$1')}`
 }
 
+/**
+ * Dimensions déclarées de l'image Open Graph, pour `og:image:width`/`og:image:height`.
+ *
+ * Sans ces deux balises, WhatsApp / LinkedIn / Facebook doivent TÉLÉCHARGER l'image
+ * avant de savoir s'ils peuvent l'afficher : au premier partage d'un lien, l'aperçu
+ * sort fréquemment sans visuel. Vu que tout le tunnel de contact du site passe par
+ * WhatsApp, l'aperçu du lien partagé n'est pas cosmétique.
+ *
+ * Deux sources d'images OG, deux façons de connaître la taille SANS requête réseau :
+ * - Sanity : le nom de fichier de l'asset PORTE ses dimensions (`…-1200x630.jpg`),
+ *   c'est une garantie du CDN Sanity — on les lit dans l'URL.
+ * - le fichier statique de repli (`/og-bora-cars.jpg`) : dimensions constantes,
+ *   déclarées ici. À retoucher si le visuel est remplacé par un autre format.
+ *
+ * Renvoie `null` si la taille est inconnue — l'appelant n'émet alors AUCUNE balise,
+ * ce qui vaut mieux que des dimensions fausses (l'aperçu serait recadré de travers).
+ */
+// ⚠ NE PAS exporter cette constante. Le scanner d'auto-imports de Nuxt (mlly
+// `findExports`) n'arrive pas à borner un `export const` initialisé par un OBJET
+// littéral quand la ligne n'a pas de point-virgule — or le projet est en style
+// sans `;` (@antfu/eslint-config). Il avale alors l'export SUIVANT : `ogImageSize`
+// disparaissait des auto-imports et le rendu partait en 500 « ogImageSize is not
+// defined ». Gardée privée, le problème ne se pose pas.
+const OG_FALLBACK_IMAGE_SIZE = { width: 1200, height: 630 }
+
+export function ogImageSize(url: string | undefined | null): { width: number, height: number } | null {
+  if (!url)
+    return null
+  if (url.includes('/og-bora-cars.jpg'))
+    return { ...OG_FALLBACK_IMAGE_SIZE }
+  // `…/<assetId>-<largeur>x<hauteur>.<ext>` (+ query params éventuels)
+  const match = url.match(/-(\d+)x(\d+)\.\w+(?:\?.*)?$/)
+  if (!match)
+    return null
+  return { width: Number(match[1]), height: Number(match[2]) }
+}
+
 export function objectToUID(obj) {
   function generateHash(str) {
     let hash = 0

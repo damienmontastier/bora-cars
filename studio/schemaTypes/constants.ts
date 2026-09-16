@@ -1,7 +1,7 @@
-import type { GroupDefinition } from 'sanity'
+import type { FieldGroupDefinition } from 'sanity'
 import { LANGUAGES, DEFAULT_LANGUAGE } from '../../shared/languages'
 
-export const GROUPS: GroupDefinition[] = [
+export const GROUPS: FieldGroupDefinition[] = [
   { name: 'editorial', title: 'Editorial', default: true },
   { name: 'seo', title: 'SEO' },
 ]
@@ -24,4 +24,5 @@ export const LOCALIZED_DOCUMENT_TYPES = [
   'location',
   'legalPage',
   'glossaire',
+  'bio',
 ]

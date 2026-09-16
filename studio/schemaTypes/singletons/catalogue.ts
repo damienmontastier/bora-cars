@@ -1,4 +1,4 @@
-import { ArchiveIcon } from '@sanity/icons'
+import { ArchiveIcon } from '@sanity/icons/Archive'
 import { defineField, defineType } from 'sanity'
 import { seoType } from '../objects/seo'
 import { CatalogueCarsPreview } from '../../components/CatalogueCarsPreview'
