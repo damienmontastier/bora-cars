@@ -13,7 +13,8 @@ const {
   acceptAll,
   refuseAll,
   saveSelection,
-  init,
+  restoreConsent,
+  promptIfNeeded,
 } = useCookies()
 
 const { t } = useI18n()
@@ -54,19 +55,21 @@ onKeyStroke('Escape', () => {
     showBanner()
 }, { dedupe: true })
 
-// Wait for the preloader to finish before showing the cookies banner.
-// Otherwise the banner pops up "behind" the preloader and the user only sees it
-// once everything else has settled — feels abrupt. Gating on preloaderDone makes
-// the banner animate in cleanly after the site is fully revealed.
+// A stored choice is forwarded to GTM right away (no UI involved), so the first hits of
+// a returning visitor already carry their consent.
+// The banner itself waits for the preloader to finish. Otherwise it pops up "behind" the
+// preloader and the user only sees it once everything else has settled — feels abrupt.
+// Gating on preloaderDone makes the banner animate in cleanly after the site is revealed.
 const appStore = useAppStore()
 onMounted(() => {
+  restoreConsent()
   if (appStore.preloaderDone) {
-    init()
+    promptIfNeeded()
     return
   }
   const stop = watch(() => appStore.preloaderDone, (done) => {
     if (done) {
-      init()
+      promptIfNeeded()
       stop()
     }
   })
@@ -234,24 +237,18 @@ onUnmounted(() => {
 
 <style lang="scss">
 // No opacity fade on the root: an ancestor with opacity < 1 breaks the overlay's backdrop-filter.
+// The overlay fades its OWN opacity (fine for its backdrop-filter) instead of animating the
+// blur radius: a radius tween re-blurs the whole screen every frame, an opacity fade is
+// composited once.
 .app-cookies-root-enter-active,
 .app-cookies-root-leave-active {
-  > .app-cookies__overlay {
-    transition:
-      background-color 0.4s var(--ease-out-cubic),
-      backdrop-filter 0.4s var(--ease-out-cubic);
-  }
-  > :not(.app-cookies__overlay) {
+  > * {
     transition: opacity 0.4s var(--ease-out-cubic);
   }
 }
 .app-cookies-root-enter-from,
 .app-cookies-root-leave-to {
-  > .app-cookies__overlay {
-    background-color: transparent;
-    backdrop-filter: blur(0px);
-  }
-  > :not(.app-cookies__overlay) {
+  > * {
     opacity: 0;
   }
 }

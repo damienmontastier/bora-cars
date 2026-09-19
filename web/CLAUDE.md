@@ -19,7 +19,6 @@ npm run typecheck    # nuxt typecheck (vue-tsc)
 ```
 app/                  # tout le code de l'app (layout Nuxt 4)
   app.vue             # shell : menu, preloader, cookies, idle screen, transition de page, schema.org identité
-  assets/css/main.css # tailwindcss + @nuxt/ui
   assets/scss/        # main.scss + partials (cf. SCSS system)
   components/  composables/  config/  directives/  pages/  plugins/  queries/  stores/  types/  utils/
 i18n/                 # i18n.config.ts + locales/{fr,en}.json (nuxtSiteConfig UNIQUEMENT)
@@ -70,6 +69,8 @@ Single Pinia store `useAppStore()`:
 ```
 `app.vue` watches `useFontsReady()` and sets `fontsLoaded` when fonts are ready.
 
+**Preloader (`AppPreloader`)** — rendu dans le HTML prérendu : le logo apparaît au premier rendu (fondu CSS `preloader-logo-in`), avant l'hydratation. La pause de 0,8 s avant le remplissage est comptée depuis ce premier rendu (temps d'hydratation déduit) ; les polices ne conditionnent que la sortie (`finalize`). Une fois `preloaderDone` et le fondu final terminés, il émet `gone` et `app.vue` le retire du DOM (`v-if`) — jamais avant : le démontage fait `ctx.revert()`, qui ré-afficherait le fond orange. Sans JS, un `<noscript>` (nuxt.config `app.head`) le masque. Le rideau `AppTransition` est replié en CSS (`scaleY(0)`) dès le HTML.
+
 `menuThemePending` is the value set by `v-menu-theme` during scroll; it is only flushed to `menuTheme` when `menuTransitioning` is false (i.e. outside page transitions). During a page transition `app.vue` sets `menuTransitioning = true` on leave and restores + commits the pending theme on before-enter.
 
 ## Routing & i18n
@@ -104,6 +105,8 @@ Components are auto-imported with their folder path as namespace prefix (nested 
 **`AtomsCTA`** — animated button with GSAP Flip + word-split effect. Themes: `white`, `black`, `orange`.
 
 ## SCSS system
+
+`_reset.scss` = « the new CSS reset » (`all: unset` sur tout sauf `html` et les médias) + une `@layer base` qui reproduit ce que le preflight de Tailwind appliquait aux éléments qu'il épargne (`line-height: 1.5` hérité de `html`, `vertical-align: middle` et `display: block` des médias, `-webkit-tap-highlight-color: transparent`…). Couche `base` = tout le CSS du site, hors couche, l'emporte toujours sur elle.
 
 Four SCSS partials are auto-injected into every component via Vite's `additionalData` (no explicit imports needed): `_variables`, `_mixins`, `_functions`, `_layout`.
 
@@ -144,7 +147,7 @@ Grid system (CSS vars): `--layout-columns-count`, `--layout-columns-gap`, `--lay
 | `useCarContact.ts` | Contact depuis la fiche voiture : choix du template WhatsApp (`schedule × hasPrice`), remplissage, étiquette `source` pour le tracking du clic |
 | `useCurrency.ts` | Devise d'**affichage** EUR/CHF de la fiche voiture. Sanity reste tarifé en EUR : le CHF est une conversion à l'affichage, le prix du JSON-LD `Offer` ne bouge pas. Sélecteur dormant tant que le taux CHF est vide dans Sanity |
 | `useAnalytics.ts` | Helpers typés d'événements dataLayer (GA4, snake_case) via le proxy GTM de `@nuxt/scripts` ; no-op sans GTM (mock en dev) |
-| `useCookies.ts` | Consentement cookies → `consent.update()` Google Consent Mode v2. Les *defaults* (tout `denied`, `wait_for_update: 500`) sont dans `nuxt.config.ts > scripts.registry` pour partir AVANT gtm.js |
+| `useCookies.ts` | Consentement cookies → `consent.update()` Google Consent Mode v2. Les *defaults* (tout `denied`, `wait_for_update: 500`) sont dans `nuxt.config.ts > scripts.registry` pour partir AVANT gtm.js. `AppCookies` renvoie un choix déjà enregistré dès le montage (`restoreConsent`, avant le chargement de gtm.js et donc avant le premier `page_view`) ; seul le bandeau attend la fin du préchargeur (`promptIfNeeded`) |
 | `useUtm.ts` | Capture des UTM en first-touch sur la session (appelé par `05.utm.client.ts`) |
 | `useBouncingLogo.ts` | Logo rebondissant de `AppIdleScreen` |
 | `useContactForm.ts` | Page Contact : état partagé des deux onglets (honeypot, état d'envoi, statut par parcours, `send()` vers `/api/contact` + événements analytics avec `profile`). Créé par `ElementsContactForm` (`provideContactForm`), lu par les parcours (`useContactForm`) |
@@ -231,7 +234,7 @@ Use `usePaneFolder(pane, options)` composable to add a folder to the debug pane.
 
 ### ElementsMedia (`app/components/elements/Media.vue`)
 
-Wrapper around `NuxtPicture` with loading overlay support.
+Wrapper around `NuxtImg` (Sanity) with loading overlay support. **No format is forced**: the Sanity provider then adds `auto=format` and the CDN serves AVIF (~45 % lighter at q90) or WebP per browser — never pass `format: 'avif'` (Sanity rejects `fm=avif`, and AVIF is encoded asynchronously: the first requests of a new variant get WebP). **`fit: 'outside'` (Sanity `fit=max`) by default**: the CDN never upscales past the source (a 2752 px photo requested at 3840 comes back at 2752 — lighter, same detail). `fit` must go through the NuxtImg `fit` prop: `@nuxt/image` overwrites `modifiers.fit`/`modifiers.quality` with the props / global config.
 
 **Props:**
 
@@ -241,12 +244,12 @@ Wrapper around `NuxtPicture` with loading overlay support.
 | `alt` | String | `''` | Alt text |
 | `lazy` | Boolean | `true` | `loading="lazy"` vs `eager` |
 | `preload` | Boolean\|Object | `false` | Preload hint (`{ fetchPriority }`) |
-| `sizes` | String | `'sm:100vw xl:100vw'` | Responsive sizes string. **Always set this to match the real rendered width (read the CSS).** With the default, NuxtPicture over-fetches the full-width candidate — only correct for genuinely full-bleed media (heroes, full-screen backgrounds) |
+| `sizes` | String | `'sm:100vw xl:100vw'` | Responsive sizes string. **Always set this to match the real rendered width (read the CSS).** With the default, it over-fetches the full-width candidate — only correct for genuinely full-bleed media (heroes, full-screen backgrounds) |
 | `provider` | `'sanity'`\|`'ipx'`\|undefined | — | Nuxt Image provider |
 | `hotspot` | Object | — | Sanity hotspot `{ x, y, width, height }` |
 | `crop` | Object | — | Sanity crop `{ top, bottom, left, right }` |
 | `modifiers` | Object | — | Extra Nuxt Image modifiers |
-| `ratio` | Number | — | Frame width/height. Renders a hand-built webp `<picture>` **cropped by the CDN** (`fit=crop`, hotspot/crop respected, global quality) instead of an uncropped image trimmed by CSS. Use it whenever the frame ratio differs from the photo (portrait car shots in a landscape hero) |
+| `ratio` | Number | — | Frame width/height. Renders a hand-built `<picture>` **cropped by the CDN** (`fit=crop`, hotspot/crop respected, global quality, `auto=format`) instead of an uncropped image trimmed by CSS. `fit=crop` would upscale a small source, so candidates wider than the native crop (source size read from the asset ref `image-<hash>-WxH-jpg`, minus `crop`) are replaced by one candidate at the native crop width. Use it whenever the frame ratio differs from the photo (portrait car shots in a landscape hero) |
 | `mobileRatio` | Number | — | Frame ratio under 800px when it differs from desktop (art direction: `<source media="(max-width: 799px)">` + one `preload` link per media). Car hero: `:ratio="1920 / 950" :mobile-ratio="414 / 680"` |
 | `mobileSizes` | String | `'400:100vw 600:100vw sm:100vw'` | `sizes` of the mobile source (only with `mobileRatio`) |
 | `overlay` | Boolean\|Object | `true` | Mount the `ElementsMediaOverlay` loading reveal. Object form = `ElementsMediaOverlay` props (`variant`, `color`, `duration`, `blur`, `threshold`, `borderRadius`). **Two variants:** `blur` (default — `backdrop-filter` veil, heavy: pass `false` **or** use `panel` whenever the media sits under a `transform` — parallax heroes, `ServiceCard`, `FullscreenMarquee`, ×N cards) and `panel` (opaque colour `scaleY` wipe, transform-only — safe under a parallax/Embla `transform`, e.g. the car gallery hero `:overlay="{ variant: 'panel', color: 'orange-100' }"`) |
@@ -337,11 +340,12 @@ ctx?.revert()
 
 ## Nuxt config highlights (`nuxt.config.ts`)
 
-- Modules: `@nuxt/eslint`, `@nuxt/image`, `@nuxt/fonts`, `@vueuse/nuxt`, `@pinia/nuxt`, `@nuxtjs/seo`, `@nuxtjs/i18n`, `@nuxtjs/sanity`, `lenis/nuxt`, `@nuxt/ui`, `@nuxt/scripts`
-- Sanity : `perspective: 'published'`, `useCdn: true`, pas de `globalHelper` (`useSanity()`/`useSanityQuery()` sont auto-importés) ; visual editing commenté
+- Modules: `@nuxt/eslint`, `@nuxt/image`, `@nuxt/fonts`, `@vueuse/nuxt`, `@pinia/nuxt`, `@nuxtjs/seo`, `@nuxtjs/i18n`, `@nuxtjs/sanity`, `lenis/nuxt`, `@nuxt/scripts`. **Ni `@nuxt/ui` ni Tailwind** (retirés : ils n'habillaient qu'un `<UApp>` et chargeaient ~170 Ko de CSS bloquant) — tout le style est en SCSS/BEM, formulaires compris (champs natifs maison dans `components/atoms/Field*.vue`)
+- Sanity : `perspective: 'published'`, `useCdn: true`, `minimal: true` (micro-client de requêtes au lieu de `@sanity/client` complet ≈ 30 Ko brotli par page — incompatible avec visual editing / Live Content API), pas de `globalHelper` (`useSanity()`/`useSanityQuery()` sont auto-importés) ; visual editing commenté
+- `experimental.payloadExtraction: 'client'` : payload des pages prérendues inclus dans le HTML au premier chargement (pas de requête `_payload.json` avant l'hydratation), `_payload.json` gardé pour la navigation client
 - i18n : locales construites depuis `../shared/languages` (+ `LOCALE_IETF` fr-FR/en-GB), `customRoutes: 'config'` + `pages: I18N_PAGES`, `skipSettingLocaleOnNavigate: true`
-- Fonts (locales, `public/fonts/`, `src` explicite pour court-circuiter l'heuristique du provider local) : Lora (400), HaasGrotDispMedium (600), HaasGrotDispRegular (400), HaasGrotDispBold (700)
-- Image: avif/webp, quality 90, Sanity provider + Netlify/ipxStatic/ipx based on env, screens: 800, 1280, 1440, 1920, `xxl` 2560
+- Fonts (locales, `public/fonts/`, `src` explicite pour court-circuiter l'heuristique du provider local) : HaasGrotDispMedium (600), HaasGrotDispRegular (400), HaasGrotDispBold (700). Medium et Regular sont préchargées (`app.head.link`, le préchargeur attend `document.fonts.ready`) ; `/fonts/*` en cache 1 an `immutable` (`netlify.toml`) → **renommer le fichier si une police change**
+- Image: quality 90, pas de `format` (Sanity → `auto=format`, cf. ElementsMedia), Sanity provider + Netlify/ipxStatic/ipx based on env, screens: 800, 1280, 1440, 1920, `xxl` 2560
 - GTM (`@nuxt/scripts`) : ID injecté au **runtime** (`NUXT_PUBLIC_SCRIPTS_GOOGLE_TAG_MANAGER_ID`, gtm.js non bundlé), `trigger: 'onNuxtReady'` obligatoire en v1 (`trigger: false` désactiverait GTM entièrement), Consent Mode v2 `denied` par défaut, **mock en dev** (`$development`)
 - `runtimeConfig` : `airtableToken` / `airtableBaseId` / `airtableTableId` (serveur), `public.IS_PROD`, `public.scripts.googleTagManager.id`
 - SEO (`@nuxtjs/seo`): `site.name = 'BORA CARS'`, `site.separator = '—'`, `site.trailingSlash: false`, `site.indexable` gated on `NUXT_PUBLIC_IS_PROD`. `ogImage` disabled. Per-page SEO via `usePageSeo()`. Global fallback description/image in `app.vue` via `useSeoMeta`.

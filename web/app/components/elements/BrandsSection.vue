@@ -13,6 +13,19 @@ const rootRef = ref<HTMLElement | null>(null)
 const hoveredBrand = ref<string | null>(null)
 let ctx: gsap.Context | null = null
 
+// Les visuels de survol sont invisibles au chargement (fondu au survol en desktop, au
+// scroll en mobile) et, en desktop, en `position: fixed` dans le viewport : un
+// `loading="lazy"` les chargerait quand même tout de suite. On ne monte donc les
+// images qu'à l'approche de la section, au lieu de télécharger ~2 Mo en même temps
+// que le hero. Le conteneur `.brand-item__cursor` reste monté pour les animations.
+const cursorsReady = ref(false)
+const { stop: stopCursorsObserver } = useIntersectionObserver(rootRef, ([entry]) => {
+  if (!entry?.isIntersecting)
+    return
+  cursorsReady.value = true
+  stopCursorsObserver()
+}, { rootMargin: '100% 0px' })
+
 onMounted(async () => {
   await nextTick()
 
@@ -142,8 +155,9 @@ onUnmounted(() => {
           :data-brand="`left-${i}`"
           :class="{ 'is-hovered': hoveredBrand === `left-${i}` }"
         >
-          <NuxtImg v-if="car.imageUrl" class="brand-item__cursor" :src="car.imageUrl" :alt="`${car.marque} ${car.modele}`" provider="sanity" sizes="56vw sm:35vw xl:35vw" loading="eager" />
-          <div v-else class="brand-item__cursor" />
+          <div class="brand-item__cursor">
+            <NuxtImg v-if="car.imageUrl && cursorsReady" :src="car.imageUrl" :alt="`${car.marque} ${car.modele}`" provider="sanity" fit="outside" sizes="56vw sm:20vw xl:20vw xxl:20vw" />
+          </div>
           <UtilsBaseLink :to="{ name: 'car-uid', params: { uid: car.slug } }">
             <TextsH3 :selectable="false" :color="hoveredBrand === `left-${i}` ? 'orange' : 'beige-100'">
               {{ car.marque }} {{ car.modele }}
@@ -162,8 +176,9 @@ onUnmounted(() => {
           :data-brand="`right-${i}`"
           :class="{ 'is-hovered': hoveredBrand === `right-${i}` }"
         >
-          <NuxtImg v-if="car.imageUrl" class="brand-item__cursor" :src="car.imageUrl" :alt="`${car.marque} ${car.modele}`" provider="sanity" sizes="56vw sm:20vw xl:20vw" loading="eager" />
-          <div v-else class="brand-item__cursor" />
+          <div class="brand-item__cursor">
+            <NuxtImg v-if="car.imageUrl && cursorsReady" :src="car.imageUrl" :alt="`${car.marque} ${car.modele}`" provider="sanity" fit="outside" sizes="56vw sm:20vw xl:20vw xxl:20vw" />
+          </div>
           <UtilsBaseLink :to="{ name: 'car-uid', params: { uid: car.slug } }">
             <TextsH3 :selectable="false" :color="hoveredBrand === `right-${i}` ? 'orange' : 'beige-100'">
               {{ car.marque }} {{ car.modele }}
@@ -333,7 +348,12 @@ onUnmounted(() => {
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
-    object-fit: cover;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
 
     @include mobile {
       position: absolute;

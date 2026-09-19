@@ -8,6 +8,12 @@ interface Props {
 
 const { car, position } = defineProps<Props>()
 
+// Première rangée de la grille (3 colonnes en desktop) : visible au chargement, elle
+// porte le LCP du catalogue → chargée d'emblée, la 1re carte préchargée en priorité
+// haute. Les suivantes restent en lazy. `sizes` : une colonne ≈ 32,6vw en desktop
+// (3 colonnes, marges et gouttières déduites), toute la largeur en mobile.
+const aboveFold = computed(() => position != null && position < 3)
+
 const { t } = useI18n()
 
 // La carte suit le sélecteur de devise de la fiche voiture (état partagé, cf.
@@ -55,8 +61,10 @@ function onClick() {
         :hotspot="car.imageHotspot"
         :crop="car.imageCrop"
         :modifiers="{ quality: 95 }"
+        :lazy="!aboveFold"
+        :preload="position === 0 ? { fetchPriority: 'high' } : false"
         :overlay="{ variant: 'panel', color: 'orange-100' }"
-        sizes="96vw sm:50vw md:50vw lg:50vw xl:50vw xxl:50vw"
+        sizes="96vw sm:34vw md:34vw lg:34vw xl:34vw xxl:34vw"
       />
       <div v-else class="app-elements-catalogue-card__placeholder" />
     </div>

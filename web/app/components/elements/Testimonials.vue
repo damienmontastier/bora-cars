@@ -191,7 +191,6 @@ usePointerSwipe(sectionRef, {
           provider="sanity"
           :hotspot="item.backgroundImage.imageHotspot"
           :crop="item.backgroundImage.imageCrop"
-          :lazy="false"
           :overlay="i === 0 ? { variant: 'panel', color: 'orange-100', duration: 0.5 } : false"
           sizes="sm:100vw xl:100vw"
         />

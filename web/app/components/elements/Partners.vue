@@ -38,6 +38,7 @@ function partnerStyle(partner: Partner) {
             :src="partner.imageUrl"
             :alt="partner.imageAlt ?? ''"
             provider="sanity"
+            fit="outside"
             class="app-elements-partners__logo"
             sizes="sm:20vw md:15vw"
             loading="lazy"

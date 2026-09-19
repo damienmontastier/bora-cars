@@ -134,17 +134,18 @@ export function useCookies() {
     save(pending.value)
   }
 
-  // Call once on client mount.
-  // - First-time visitor: show banner (GTM stays on 'denied' defaults).
-  // - Returning visitor: skip the UI but re-push their stored choices so GTM
-  //   upgrades from the denied defaults set by `onBeforeGtmStart`.
-  function init() {
-    if (!hasConsent.value) {
-      showBanner()
-      return
-    }
-    if (consent.value)
+  // Returning visitor: re-push their stored choices so GTM upgrades from the denied
+  // defaults. Call on client mount, as early as possible: gtm.js loads on `onNuxtReady`,
+  // so the update lands in the dataLayer BEFORE the first tags (page_view) fire.
+  function restoreConsent() {
+    if (hasConsent.value && consent.value)
       pushConsentUpdate(consent.value.categories)
+  }
+
+  // First-time visitor: show the banner (GTM stays on 'denied' defaults meanwhile).
+  function promptIfNeeded() {
+    if (!hasConsent.value)
+      showBanner()
   }
 
   return {
@@ -161,6 +162,7 @@ export function useCookies() {
     acceptAll,
     refuseAll,
     saveSelection,
-    init,
+    restoreConsent,
+    promptIfNeeded,
   }
 }

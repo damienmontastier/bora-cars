@@ -117,3 +117,64 @@ meter {
 ::-webkit-details-marker {
   display: none;
 }
+
+/*
+    Base héritée de Tailwind (preflight) et de Nuxt UI, retirés du projet.
+    Le reset ci-dessus ne touche ni `html` ni les médias (img, svg, video, canvas,
+    iframe…) ni les pseudo-éléments : sur eux, c'était le preflight qui s'appliquait.
+    Ces règles en reproduisent le rendu à l'identique (styles calculés comparés avant /
+    après sur toutes les pages, desktop et mobile). Même couche `base` qu'à l'origine :
+    tout le CSS du site, hors couche, l'emporte sur elles, comme avant.
+*/
+@layer base {
+  *,
+  ::before,
+  ::after,
+  ::backdrop {
+    margin: 0;
+    padding: 0;
+    border: 0 solid;
+  }
+
+  html {
+    // Hérité par tout le texte qui ne fixe pas son interligne (liens, boutons, champs…).
+    line-height: 1.5;
+    tab-size: 4;
+    font-family:
+      -apple-system, 'system-ui', 'Segoe UI', Roboto, 'Helvetica Neue', 'Noto Sans', Arial, sans-serif,
+      'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+    // Pas de rectangle gris au tap sur mobile.
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  img,
+  svg,
+  video,
+  canvas,
+  audio,
+  iframe,
+  embed,
+  object {
+    display: block;
+    vertical-align: middle;
+  }
+
+  video {
+    max-width: 100%;
+    height: auto;
+  }
+
+  // Firefox atténue les placeholders par défaut (opacité 0.54).
+  ::placeholder {
+    opacity: 1;
+  }
+
+  [hidden]:where(:not([hidden='until-found'])) {
+    display: none !important;
+  }
+}
+
+/* NB : Nuxt UI posait aussi la classe `isolate` sur `#__nuxt`, mais sa règle (couche
+   `utilities`) n'a jamais pris effet — le reset `all: unset`, hors couche, l'emporte.
+   La racine n'est donc PAS isolée, et ne doit pas le devenir : le rideau de transition
+   (z-index 99999) passe au-dessus du bandeau cookies téléporté dans <body>. */

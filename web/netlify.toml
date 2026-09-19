@@ -39,6 +39,15 @@
 # build en ligne (`{ id, timestamp }`), pour signaler les contenus publiés pas encore
 # en ligne et détecter la fin d'une mise à jour — cf. studio/lib/netlifyDeploy.ts.
 # Données publiques, lecture seule : `*` suffit.
+# Polices locales (web/public/fonts/) : servies par défaut en `max-age=0`, donc
+# revalidées à chaque chargement complet, sur le chemin critique du préchargeur (il
+# attend les polices pour se lever). Cache long : les noms de fichiers ne sont pas
+# hachés, il faut donc RENOMMER un fichier si la police change.
+[[headers]]
+  for = "/fonts/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
 [[headers]]
   for = "/_nuxt/builds/latest.json"
   [headers.values]

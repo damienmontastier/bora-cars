@@ -33,6 +33,12 @@ interface MenuThemeEl extends HTMLElement {
   _menuThemeST?: ReturnType<typeof ScrollTrigger.create>
 }
 
+function sameBinding(a: MenuTheme | MenuThemeBinding | null | undefined, b: MenuTheme | MenuThemeBinding | null | undefined) {
+  if (!a || !b || typeof a !== 'object' || typeof b !== 'object')
+    return a === b
+  return a.theme === b.theme && a.start === b.start && a.end === b.end
+}
+
 function createTrigger(el: MenuThemeEl, binding: DirectiveBinding<MenuTheme | MenuThemeBinding>) {
   const appStore = useAppStore()
 
@@ -66,8 +72,11 @@ export default {
     createTrigger(el, binding)
   },
 
+  // `updated` tourne à CHAQUE re-render du composant parent (frappe dans la recherche
+  // du catalogue, survol d'une marque…). Recréer le ScrollTrigger force une mesure du
+  // layout à chaque fois : on ne le fait que si la valeur de la directive a changé.
   updated(el: MenuThemeEl, binding: DirectiveBinding<MenuTheme | MenuThemeBinding>) {
-    if (!import.meta.client)
+    if (!import.meta.client || sameBinding(binding.value, binding.oldValue))
       return
     el._menuThemeST?.kill()
     createTrigger(el, binding)

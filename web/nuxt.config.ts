@@ -22,12 +22,26 @@ export default defineNuxtConfig({
   compatibilityDate: '2025-05-15',
   devtools: { enabled: true },
 
+  experimental: {
+    // Pages prérendues : le payload est inclus dans le HTML au premier chargement (plus
+    // de requête `_payload.json` entre le JS d'entrée et l'hydratation), et reste extrait
+    // en `_payload.json` pour les navigations côté client. Défaut de Nuxt 5.
+    payloadExtraction: 'client',
+  },
+
   app: {
     head: {
       // Pas de `charset`/`viewport` ici : Nuxt pose déjà `utf-8` et
       // `width=device-width, initial-scale=1` par défaut. Les redéclarer déclenche
       // l'avertissement « repeats a default » de nuxt-seo-utils (validateAppHead).
       link: [
+        // Polices du premier écran : sans preload, elles ne sont découvertes qu'après
+        // le parsing de entry.css, et le préchargeur attend `document.fonts.ready` pour
+        // se lever. Medium = `body` et la plupart des textes, Regular = `.regular-text`.
+        // Bold (bandeau cookies, pages légales) n'est pas sur le chemin critique.
+        // `crossorigin` obligatoire : les polices se chargent toujours en mode CORS.
+        { rel: 'preload', as: 'font', type: 'font/woff2', href: '/fonts/HaasGrotDispMedium.woff2', crossorigin: 'anonymous' },
+        { rel: 'preload', as: 'font', type: 'font/woff2', href: '/fonts/HaasGrotDispRegular.woff2', crossorigin: 'anonymous' },
         { rel: 'icon', type: 'image/png', href: '/favicon-96x96.png', sizes: '96x96' },
         { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' },
         { rel: 'shortcut icon', href: '/favicon.ico' },
@@ -38,6 +52,11 @@ export default defineNuxtConfig({
         { name: 'theme-color', content: '#E6E7DF' },
         { name: 'color-scheme', content: 'light' },
         { name: 'format-detection', content: 'telephone=no' },
+      ],
+      // Sans JS, le préchargeur (plein écran, retiré par le JS) masquerait la page pour
+      // toujours : on le cache pour que le HTML prérendu reste lisible.
+      noscript: [
+        { innerHTML: '<style>.app-preloader{display:none!important}</style>' },
       ],
     },
   },
@@ -52,7 +71,6 @@ export default defineNuxtConfig({
     '@nuxtjs/i18n',
     '@nuxtjs/sanity',
     'lenis/nuxt',
-    '@nuxt/ui',
     '@nuxt/scripts',
   ],
 
@@ -110,13 +128,18 @@ export default defineNuxtConfig({
     apiVersion: '2026-04-06',
     perspective: 'published',
     useCdn: true,
+    // Micro-client de requêtes (≈ un `$fetch` vers l'API CDN) au lieu de @sanity/client
+    // complet (stega, listen, EventSource… ≈ 30 Ko brotli sur chaque page). Le site ne
+    // fait que des requêtes GROQ publiées : incompatible avec le visual editing et le
+    // Live Content API, à réactiver avec eux si on les branche un jour.
+    minimal: true,
     // visualEditing: {
     //   token: process.env.NUXT_SANITY_VISUAL_EDITING_TOKEN,
     //   studioUrl: process.env.NUXT_SANITY_VISUAL_EDITING_STUDIO_URL,
     // },
   },
 
-  css: ['~/assets/css/main.css', '~/assets/scss/main.scss'],
+  css: ['~/assets/scss/main.scss'],
 
   i18n: {
     baseUrl: process.env.NUXT_SITE_URL ?? 'https://boracars.com',
@@ -214,7 +237,9 @@ export default defineNuxtConfig({
   ogImage: { enabled: false },
 
   image: {
-    format: ['avif', 'webp'],
+    // Pas de `format` : avec le provider Sanity, aucun format = `auto=format`, le CDN
+    // sert l'AVIF (ou le WebP) selon le navigateur. Un `format: ['avif', …]` ferait
+    // générer des `fm=avif`, que Sanity refuse (HTTP 400).
     provider: process.env.NETLIFY ? 'netlify' : (process.env.npm_lifecycle_event === 'generate' ? 'ipxStatic' : 'ipx'),
 
     quality: 90,
@@ -252,14 +277,6 @@ export default defineNuxtConfig({
     // « Could not produce font face declaration from local »). Avec un `src`,
     // @nuxt/fonts émet la @font-face directement et court-circuite l'heuristique.
     families: [
-      {
-        name: 'Lora',
-        src: '/fonts/Lora-Regular.woff2',
-        weight: 400,
-        style: 'normal',
-        display: 'swap',
-        global: true,
-      },
       {
         name: 'HaasGrotDispMedium',
         src: '/fonts/HaasGrotDispMedium.woff2',

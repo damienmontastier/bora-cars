@@ -99,5 +99,9 @@ defineExpose({ onLeave, onBeforeEnter, onEnter })
   z-index: 99999;
   background-color: var(--c-orange-100);
   pointer-events: none;
+  // Replié dès le HTML (même état que le `gsap.set` du montage) : sinon le rideau
+  // couvre la page jusqu'à l'hydratation, et pour toujours si le JS ne charge pas.
+  transform: scaleY(0);
+  transform-origin: bottom;
 }
 </style>

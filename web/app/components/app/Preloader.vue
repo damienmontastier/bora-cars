@@ -3,11 +3,17 @@ import { gsap } from 'gsap'
 import { useLenis } from 'lenis/vue'
 import { storeToRefs } from 'pinia'
 
+const emit = defineEmits<{ gone: [] }>()
+
+// Pause entre l'apparition du logo et le début du remplissage.
+const LOGO_HOLD = 0.8
 const HOLD_AFTER_COMPLETE = 0.5
 const OUT_DURATION = 0.55
 const OUT_OVERLAP = 0.2
 const OUT_EASE = 'power3.inOut'
 const PRELOADER_DONE_DELAY = 0.15
+// Filet de sécurité si le `transitionend` du fondu final ne vient jamais.
+const GONE_FALLBACK_MS = 1000
 
 const logoColor = 'beige'
 const bgColor = 'orange'
@@ -49,11 +55,23 @@ function measurePath() {
 }
 
 const timelineComplete = ref(false)
-const logoVisible = ref(false)
 const progressStarted = ref(false)
 const outStarted = ref(false)
 
 let ctx: gsap.Context | null = null
+let goneTimer: ReturnType<typeof setTimeout> | null = null
+
+// Le logo est visible dès le premier rendu (fondu CSS, cf. `preloader-logo-in`), donc
+// bien avant l'hydratation. La pause LOGO_HOLD court depuis ce moment-là : le temps
+// d'hydratation déjà écoulé est déduit, la séquence vue à l'écran reste la même.
+// Le premier rendu du document, c'est ce préchargeur (il couvre tout l'écran).
+function remainingLogoHold() {
+  const firstPaint = performance.getEntriesByName('first-contentful-paint')[0]?.startTime
+  if (firstPaint == null)
+    return LOGO_HOLD
+  const elapsed = (performance.now() - firstPaint) / 1000
+  return Math.max(0, LOGO_HOLD - elapsed)
+}
 
 function startProgressTimeline() {
   if (progressStarted.value || !ctx)
@@ -68,7 +86,7 @@ function startProgressTimeline() {
         finalize()
       },
     })
-      .to(progress, { value: 0.35, duration: 0.6, ease: 'power2.out' }, '+=0.8')
+      .to(progress, { value: 0.35, duration: 0.6, ease: 'power2.out' }, `+=${remainingLogoHold()}`)
       .to(progress, { value: gsap.utils.random(0.5, 0.75, 0.01), duration: 0.55 }, '+=0.25')
       .to(progress, { value: 1, duration: 0.4, ease: 'power1.in' }, '+=0.2')
   })
@@ -95,12 +113,32 @@ function finalize() {
   })
 }
 
+// Les polices ne conditionnent que la sortie (`finalize`) : le remplissage démarre au
+// montage, la page ne se dévoile qu'une fois le texte dans sa vraie police.
 watch(fontsLoaded, (loaded) => {
-  if (!loaded)
-    return
-  logoVisible.value = true
-  startProgressTimeline()
-  finalize()
+  if (loaded)
+    finalize()
+})
+
+// Une fois le fondu final terminé, le préchargeur est retiré du DOM (plus de calque
+// plein écran ni de battement en boucle). Retrait APRÈS le fondu : le démontage
+// annule les tweens (`ctx.revert()`), ce qui ré-afficherait le fond orange.
+function markGone() {
+  if (goneTimer) {
+    clearTimeout(goneTimer)
+    goneTimer = null
+  }
+  emit('gone')
+}
+
+function onTransitionEnd(event: TransitionEvent) {
+  if (preloaderDone.value && event.target === event.currentTarget && event.propertyName === 'opacity')
+    markGone()
+}
+
+watch(preloaderDone, (done) => {
+  if (done && !goneTimer)
+    goneTimer = setTimeout(markGone, GONE_FALLBACK_MS)
 })
 
 onMounted(async () => {
@@ -109,13 +147,12 @@ onMounted(async () => {
 
   ctx = gsap.context(() => {}, logoRef.value!)
 
-  if (fontsLoaded.value) {
-    logoVisible.value = true
-    startProgressTimeline()
-  }
+  startProgressTimeline()
 })
 
 onBeforeUnmount(() => {
+  if (goneTimer)
+    clearTimeout(goneTimer)
   ctx?.revert()
   ctx = null
   lenis.value?.start()
@@ -126,6 +163,7 @@ onBeforeUnmount(() => {
   <div
     class="app-preloader"
     :class="{ 'app-preloader--done': preloaderDone }"
+    @transitionend="onTransitionEnd"
   >
     <div
       class="app-preloader__background"
@@ -135,7 +173,6 @@ onBeforeUnmount(() => {
       <div
         ref="logoRef"
         class="app-preloader__logo"
-        :class="{ 'app-preloader__logo--visible': logoVisible }"
       >
         <SvgLogoMinimal
           class="app-preloader__logo-track"
@@ -188,16 +225,17 @@ onBeforeUnmount(() => {
     transform: translate(-50%, -50%);
     transform-origin: center center;
     will-change: transform, opacity;
-    opacity: 0;
-    transition: opacity 0.4s var(--ease-out-cubic);
-    animation: preloader-heartbeat 2.2s ease-in-out infinite both;
-
-    &--visible {
-      opacity: 1;
-    }
+    // Fondu d'apparition en CSS : il part au premier rendu du HTML, sans attendre le JS.
+    animation:
+      preloader-logo-in 0.4s var(--ease-out-cubic) both,
+      preloader-heartbeat 2.2s ease-in-out infinite both;
 
     @include mobile {
       width: mobile-vw(160px);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      animation: preloader-logo-in 0.4s var(--ease-out-cubic) both;
     }
   }
 
@@ -209,6 +247,16 @@ onBeforeUnmount(() => {
 
   &__logo-track {
     opacity: 0.5;
+  }
+}
+
+@keyframes preloader-logo-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
   }
 }
 

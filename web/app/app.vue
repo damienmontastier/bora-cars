@@ -275,41 +275,42 @@ onMounted(() => {
   if (!window.location.hash)
     window.scrollTo(0, 0)
 })
+
+// Le préchargeur ne joue qu'au chargement complet : retiré du DOM après son fondu final.
+const preloaderMounted = ref(true)
 </script>
 
 <template>
-  <UApp>
-    <div id="app" class="app">
-      <!-- <AppUnderConstruction v-if="IS_PROD" /> -->
+  <div id="app" class="app">
+    <!-- <AppUnderConstruction v-if="IS_PROD" /> -->
 
-      <!-- <template v-else> -->
-      <AppLenis />
+    <!-- <template v-else> -->
+    <AppLenis />
 
-      <AppPreloader />
-      <AppMenu :data="menu" />
+    <AppPreloader v-if="preloaderMounted" @gone="preloaderMounted = false" />
+    <AppMenu :data="menu" />
 
-      <AppOverlay />
+    <AppOverlay />
 
-      <AppCookies />
+    <AppCookies />
 
-      <AppIdleScreen />
+    <AppIdleScreen />
 
-      <AppTransition ref="transitionRef" />
+    <AppTransition ref="transitionRef" />
 
-      <!-- <DevOnly>
-        <AppMenuDev />
-      </DevOnly> -->
+    <!-- <DevOnly>
+      <AppMenuDev />
+    </DevOnly> -->
 
-      <div id="app-page" class="app-page">
-        <NuxtPage :transition="pageTransition" />
-      </div>
-
-      <DevOnly>
-        <DebugPatrol />
-      </DevOnly>
-      <!-- </template> -->
+    <div id="app-page" class="app-page">
+      <NuxtPage :transition="pageTransition" />
     </div>
-  </UApp>
+
+    <DevOnly>
+      <DebugPatrol />
+    </DevOnly>
+    <!-- </template> -->
+  </div>
 </template>
 
 <style lang="scss">
