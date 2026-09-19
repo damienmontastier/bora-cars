@@ -319,6 +319,7 @@ onUnmounted(() => {
     justify-content: center;
     gap: desktop-vw(8px);
     position: relative;
+    pointer-events: none;
 
     @include mobile {
       width: calc(100vw - (mobile-vw(8px) * 2));
@@ -329,6 +330,7 @@ onUnmounted(() => {
   &__clip-wrap {
     position: relative;
     display: inline-flex;
+    pointer-events: all;
   }
 
   &__main {
@@ -371,6 +373,7 @@ onUnmounted(() => {
     display: flex;
     align-items: center;
     flex-shrink: 0;
+    pointer-events: all;
   }
 
   &__logo {
