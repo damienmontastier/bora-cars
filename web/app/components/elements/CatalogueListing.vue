@@ -13,8 +13,6 @@ interface Props {
   facets: CatalogueFacets
   filters: CatalogueFilters
   hasActiveFilters?: boolean
-  // Catalogue professionnel : bouton « Transmettre ma recherche » vers l'onglet
-  // Leasing professionnel de la page Contact (lien direct ?profil=pro)
   proContactLink?: boolean
 }
 
@@ -27,11 +25,8 @@ const emit = defineEmits<{
 
 const { t } = useI18n()
 
-// Selects rendus dynamiquement depuis le registre (cf. ~/queries/catalogue).
 const selectFilters = ENABLED_FILTERS
 
-// Options d'un filtre : 1ʳᵉ entrée « Tous » (value vide = réinitialise), puis
-// les valeurs Sanity (facet) ou les tranches statiques (range).
 function optionsFor(def: CatalogueFilterDef): FilterOption[] {
   const all: FilterOption = { value: '', label: t(`catalogue.filters.all.${def.key}`) }
   if (def.type === 'range') {
@@ -43,7 +38,6 @@ function optionsFor(def: CatalogueFilterDef): FilterOption[] {
   return [all, ...(props.facets[def.key] ?? [])]
 }
 
-// Recherche texte : input local synchronisé à l'URL, émis avec un léger debounce.
 const searchInput = ref(props.filters.q)
 watch(() => props.filters.q, (v) => {
   if (v !== searchInput.value)
@@ -282,7 +276,6 @@ function onSearchEnter() {
       outline: none;
     }
 
-    // Masque la croix native du type=search.
     &::-webkit-search-cancel-button {
       -webkit-appearance: none;
       appearance: none;
@@ -298,9 +291,6 @@ function onSearchEnter() {
     align-items: center;
     gap: desktop-vw(8px);
 
-    // Mobile : on laisse les pilules passer à la ligne plutôt que de scroller
-    // horizontalement. Un `overflow-x: auto` ferait passer `overflow-y` à `auto`
-    // (règle CSS) et clipperait le menu déroulant des selects → invisible.
     @include mobile {
       flex-wrap: wrap;
       gap: mobile-vw(8px);

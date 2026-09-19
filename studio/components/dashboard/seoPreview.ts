@@ -3,15 +3,6 @@ import { SEO_PAGE_TYPES, TYPE_LABELS, clean, docLabel } from './checks'
 import type { Snapshot } from './checks'
 import type { CarDoc, GlossaryEntry, LegalDoc, Localized, SingletonDoc } from './data'
 
-// Aperçu Google : reconstitue le <title> et la meta description EXACTEMENT comme le site
-// les calcule, pour chaque page publiée et chaque langue. À garder aligné avec :
-// - web/app/app.vue (titleTemplate `{texte} — BORA CARS`, titre de repli `fallbackTitle`)
-// - web/app/pages/index.vue (accueil : `BORA CARS — {texte}`)
-// - web/app/composables/usePageSeo.ts (description de repli = Glossaire `seo.description`)
-// - web/app/pages/car/[uid].vue (titre = Glossaire `car.seo.title`, description = 160
-//   premiers caractères de la description de la voiture)
-// - web/app/config/I18N_CONFIG.ts (URLs traduites, cf. ROUTES)
-
 export type Lang = 'fr' | 'en'
 
 export type Section = 'pages' | 'cars' | 'legal'
@@ -28,10 +19,8 @@ export interface SerpEntry {
   docType: string
   label: string
   url: string
-  /** Titre complet tel qu'envoyé à Google. */
   title: string
   description: string
-  /** Versions affichées dans le résultat (coupées comme Google le ferait). */
   shownTitle: string
   shownDescription: string
   flags: SerpFlag[]
@@ -50,8 +39,6 @@ const ROUTES: Record<string, Record<Lang, string>> = {
   contact: { fr: '/contact', en: '/contact' },
 }
 
-// Largeurs d'affichage d'un résultat Google sur ordinateur (police Arial) : ~600 px pour
-// le titre, ~990 px pour la description (≈ 155–160 caractères, 2 lignes).
 const TITLE_FONT = '20px Arial, sans-serif'
 const TITLE_MAX_WIDTH = 600
 const DESCRIPTION_FONT = '14px Arial, sans-serif'
@@ -67,7 +54,6 @@ function textWidth(text: string, font: string): number {
   return canvas.measureText(text).width
 }
 
-/** Coupe au dernier mot qui tient, comme Google (« … »). */
 export function fitText(text: string, font: string, maxWidth: number): { text: string, truncated: boolean } {
   if (textWidth(text, font) <= maxWidth) return { text, truncated: false }
   let fitted = ''
@@ -79,7 +65,6 @@ export function fitText(text: string, font: string, maxWidth: number): { text: s
   return { text: `${fitted} …`, truncated: true }
 }
 
-/** Valeur localisée avec le même repli que le site (`coalesce(langue, fr)`). */
 function pick(value: Localized<unknown>, lang: Lang): { text: string, fallback: boolean } {
   const read = (l: string) => {
     const v = (value ?? []).find(item => item.language === l)?.value
@@ -104,7 +89,6 @@ export function glossaryEntryPath(snapshot: Snapshot, section: string, key: stri
   return entry ? `${section}[_key=="${entry._key}"]` : undefined
 }
 
-/** Texte brut d'une description portable text (comme `descriptionText` côté site). */
 function plainText(value: Localized<unknown>, lang: Lang): { text: string, fallback: boolean } {
   const read = (l: string) => {
     const blocks = (value ?? []).find(item => item.language === l)?.value
@@ -128,8 +112,6 @@ function finalize(
   base: Omit<SerpEntry, 'shownTitle' | 'shownDescription' | 'flags'>,
   flags: SerpFlag[],
 ): SerpEntry {
-  // Fiches voitures : le site coupe déjà la description à 160 caractères, la coupure
-  // n'est donc pas une action pour l'éditeur (seule la 1re phrase compte).
   const flagCutDescription = base.section !== 'cars'
   const title = fitText(base.title, TITLE_FONT, TITLE_MAX_WIDTH)
   const description = fitText(base.description, DESCRIPTION_FONT, DESCRIPTION_MAX_WIDTH)
@@ -208,7 +190,6 @@ export function buildSerpEntries(snapshot: Snapshot, lang: Lang): SerpEntry[] {
     pageEntry(doc, 'legal', `/legal/${lang === 'en' ? (doc.slugEn ?? doc.slug) : doc.slug}`, docLabel(doc))
   }
 
-  // Même description sur plusieurs résultats : signal de contenu dupliqué pour Google.
   const byDescription = new Map<string, SerpEntry[]>()
   for (const entry of entries) {
     if (entry.description) byDescription.set(entry.description, [...(byDescription.get(entry.description) ?? []), entry])

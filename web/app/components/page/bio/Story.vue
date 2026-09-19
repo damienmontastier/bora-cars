@@ -3,10 +3,8 @@ import type { CatalogueCar } from '~/queries/catalogue'
 
 interface Props {
   car: CatalogueCar
-  // Position dans la liste Sanity (0 = voiture du dernier post).
   index: number
   total: number
-  // Gabarit WhatsApp du singleton `bio` (jetons {marque} {modele} {prix} {periode} {url}).
   whatsappTemplate?: string
 }
 
@@ -18,7 +16,6 @@ const localePath = useLocalePath()
 const { url: siteUrl } = useSiteConfig()
 const analytics = useAnalytics()
 
-// La story suit le sélecteur de devise de la fiche voiture (état partagé, cf. useCurrency).
 const { formatPrice } = useCurrency()
 
 const marque = computed(() => car.marque?.trim() ?? '')
@@ -27,15 +24,12 @@ const isLatest = computed(() => index === 0)
 const pad = (n: number) => String(n).padStart(2, '0')
 const counter = computed(() => `${pad(index + 1)} / ${pad(total)}`)
 
-// Le schéma Sanity garantit qu'un seul des deux prix est renseigné.
-// On privilégie le mensuel s'il existe, sinon le journalier.
 const isMonthly = computed(() => car.prixMensuel != null)
 const formattedPrice = computed(() => {
   const value = car.prixMensuel ?? car.prixJournalier ?? null
   return value == null ? null : formatPrice(value)
 })
 
-// « Marque · dès 1 200 € / jour » — la marque seule si la voiture n'a pas de prix.
 const eyebrow = computed(() => {
   const price = formattedPrice.value
   if (!price)
@@ -48,9 +42,6 @@ const eyebrow = computed(() => {
 
 const carRoute = computed(() => car.slug ? { name: 'car-uid', params: { uid: car.slug } } : undefined)
 
-// Message WhatsApp propre à la voiture : c'est ce qui permet de savoir, à la
-// réception, d'où vient le contact et pour quelle voiture. Gabarit vide → lien
-// WhatsApp sans texte (même règle que la fiche voiture).
 const whatsappText = computed(() => {
   const template = whatsappTemplate?.trim()
   if (!template)
@@ -74,7 +65,6 @@ const vehicleParams = computed(() => ({
   position: index,
 }))
 
-// Extra params fusionnés dans l'événement `whatsapp_click` auto-tracké par BaseLink.
 const whatsappTrackingExtra = computed(() => ({
   source: 'bio_story',
   ...vehicleParams.value,
@@ -169,8 +159,6 @@ function onCarClick() {
     padding: mobile-vw(16px);
   }
 
-  // Photo plein cadre + voile : assombrit le haut (compteur) et surtout le bas,
-  // où se lisent le nom et les CTA.
   &__media {
     position: absolute;
     inset: 0;
@@ -233,7 +221,6 @@ function onCarClick() {
     }
   }
 
-  // Heading 2 en desktop (72/76), Heading 1 en mobile (64/64).
   &__model {
     @include mobile {
       font-size: mobile-vw(64px);

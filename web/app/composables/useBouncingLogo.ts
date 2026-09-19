@@ -24,8 +24,6 @@ export function useBouncingLogo(
   const bgColor = ref<BouncingBgColor>(COLOR_PAIRS[0].bg)
   const pos = { x: 0, y: 0 }
   const vel = { x: 0, y: 0 }
-  // `content` = bounding rect of the visible path inside the wrapper.
-  // `offset` = path's top-left relative to wrapper's top-left (in untransformed local coords).
   const content = { w: 0, h: 0 }
   const offset = { x: 0, y: 0 }
   let colorIndex = 0

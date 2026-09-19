@@ -60,8 +60,6 @@ const structure = (S: any) =>
                 .child(S.document().schemaType('carPage').documentId('carPage')),
               S.documentTypeListItem('legalPage').title('Pages légales').icon(DocumentTextIcon),
               S.divider(),
-              // Page « link in bio » (boracars.com/bio) — non listée dans le menu du
-              // site : sa seule porte d'entrée est le lien en bio Instagram.
               S.listItem().title('Bio (réseaux sociaux)').id('bio').icon(LinkIcon)
                 .child(S.document().schemaType('bio').documentId('bio')),
             ]),
@@ -87,8 +85,6 @@ export default defineConfig({
   projectId: 'xyw8hnp3',
   dataset: 'production',
   plugins: [
-    // Interface du Studio en français (« Publier », « Brouillon »…) : le client n'est pas
-    // anglophone et confondait brouillon / publié.
     frFRLocale(),
     linkField({ linkableSchemaTypes: ['homepage', 'proprietaire', 'professionnel', 'car', 'contact', 'catalogue', 'catalogueProfessionnel', 'legalPage'] }),
     internationalizedArray({
@@ -130,8 +126,6 @@ export default defineConfig({
                 { title: 'Gras', value: 'strong' },
                 { title: 'Souligné', value: 'underline' },
               ],
-              // Lien riche (plugin link-field) : interne (réf. doc, localisé via
-              // BaseLink), externe, email ou téléphone. markDef `_type == "link"`.
               annotations: [
                 { name: 'link', title: 'Lien', type: 'link' },
               ],
@@ -153,7 +147,6 @@ export default defineConfig({
     structureTool({ structure }),
     visionTool(),
   ],
-  // Dashboard en premier : c'est l'onglet ouvert par défaut à l'arrivée dans le Studio.
   tools: (prev) => [
     {
       name: 'dashboard',
@@ -164,7 +157,6 @@ export default defineConfig({
     ...prev,
     {
       name: 'deploy',
-      // Pas « Publier » : c'est déjà le bouton des documents (publier ≠ mettre en ligne).
       title: 'Mise en ligne',
       icon: RocketIcon,
       component: DeployTool,

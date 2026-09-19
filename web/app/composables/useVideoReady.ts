@@ -7,7 +7,6 @@ export async function ensureVideoReady(video?: HTMLVideoElement): Promise<void> 
 
   const { isMobile } = useBreakpoint()
 
-  // 3 = HAVE_FUTURE_DATA, 2 = HAVE_CURRENT_DATA
   const MIN_READY_STATE = isMobile.value ? 3 : 2
 
   if (video.readyState >= MIN_READY_STATE)
@@ -16,7 +15,6 @@ export async function ensureVideoReady(video?: HTMLVideoElement): Promise<void> 
   await new Promise<void>((resolve) => {
     let timeout: ReturnType<typeof setTimeout>
 
-    // Use 'function' so these are hoisted and can reference each other
     function cleanup() {
       clearTimeout(timeout)
       if (!video)
@@ -35,7 +33,7 @@ export async function ensureVideoReady(video?: HTMLVideoElement): Promise<void> 
       cleanup()
       console.warn('[ensureVideoReady] Timeout waiting for video to be ready.')
       resolve()
-    }, 8000) // sécurité : 8s max
+    }, 8000)
 
     video.addEventListener('loadeddata', onReady)
     video.addEventListener('canplay', onReady)
@@ -44,7 +42,6 @@ export async function ensureVideoReady(video?: HTMLVideoElement): Promise<void> 
     if (video.readyState >= MIN_READY_STATE)
       onReady()
 
-    // Note: See warning below regarding onUnmounted inside a Promise
     onUnmounted(cleanup)
   })
 }

@@ -2,9 +2,6 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { useClient } from 'sanity'
 import { SINGLETON_TYPES } from '../../schemaTypes/constants'
 
-// Données du Dashboard : UNE requête en perspective `raw` (versions publiées ET
-// brouillons `drafts.*`, pour comparer les deux), rejouée à chaque mutation.
-
 export const API_VERSION = '2026-04-06'
 
 export const CONTENT_TYPES = [...SINGLETON_TYPES, 'car', 'location', 'legalPage']
@@ -99,7 +96,6 @@ export interface SingletonDoc extends BaseDoc {
   legalLinksCount?: number | null
   locationRefs?: string[] | null
   linksCount?: number | null
-  /** Glossaire : sections (tableaux d'entrées `{ _key, key, value }`). */
   [section: string]: unknown
 }
 
@@ -224,7 +220,6 @@ export function useDashboardData() {
   useEffect(() => {
     refresh()
     let timer: ReturnType<typeof setTimeout> | undefined
-    // Rafraîchit le tableau dès qu'un contenu change (ici ou dans un autre onglet).
     const subscription = client
       .listen('*[_type in $types]', { types: CONTENT_TYPES }, {
         includeResult: false,
@@ -237,7 +232,6 @@ export function useDashboardData() {
           timer = setTimeout(refresh, REFRESH_DEBOUNCE_MS)
         },
         error: () => {
-          // Écoute interrompue (réseau) : le bouton « Actualiser » reste disponible.
         },
       })
     return () => {

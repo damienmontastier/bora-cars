@@ -15,10 +15,6 @@ import { Overview } from './Overview'
 import { timeAgo, useHiddenFindings, useNow } from './shared'
 import { SiteStatus } from './SiteStatus'
 
-// Outil « Dashboard » : page d'accueil du Studio pour l'équipe Bora Cars.
-// Ce qui est en ligne, ce qui attend d'être publié, et ce qui mérite d'être corrigé
-// (règles dans ./checks.ts), avec un lien direct vers le champ concerné.
-
 type View = 'overview' | 'cars' | 'google'
 
 const VIEWS: { id: View, title: string }[] = [

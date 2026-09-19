@@ -1,9 +1,6 @@
 <script setup lang="ts">
 import type { CurrencyCode } from '~/composables/useCurrency'
 
-// Sélecteur de devise d'affichage (cf. useCurrency) : segmented control à deux
-// options plutôt qu'un `AtomsSwitch`, parce qu'un interrupteur binaire n'exprime
-// pas laquelle des deux devises est active — ici les deux libellés sont visibles.
 const OPTIONS: readonly CurrencyCode[] = ['EUR', 'CHF']
 
 const { t } = useI18n()

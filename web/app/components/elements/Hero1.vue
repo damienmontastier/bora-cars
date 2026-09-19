@@ -32,10 +32,6 @@ const ctaInView = ref(false)
 const mainRef = useTemplateRef('mainRef')
 const bottomRef = useTemplateRef('bottomRef')
 
-// When the menu opens before the hero CTA flip has fired (top of hero), reveal
-// the menu CTA via clip-path — same behaviour as Hero2/Hero3. Once the flip has
-// already brought the CTA into the menu (ctaInView=true), do nothing: the CTA
-// is already visible and the scroll-driven animation owns its state.
 watch(menuOpen, (open) => {
   if (!menuCtaEl || ctaInView.value)
     return

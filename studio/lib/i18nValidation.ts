@@ -10,7 +10,6 @@ const isEmpty = (value: unknown): boolean => {
   if (typeof value === 'string') return value.trim().length === 0
   if (Array.isArray(value)) {
     if (value.length === 0) return true
-    // Portable text: check that at least one block has content
     const hasContent = value.some((block) => {
       if (!block || typeof block !== 'object') return true
       const children = (block as { children?: unknown[] }).children
@@ -26,11 +25,6 @@ const isEmpty = (value: unknown): boolean => {
   return false
 }
 
-/**
- * Languages (uppercased, e.g. `['EN']`) with no usable value in an
- * internationalizedArray* field. Every language is missing when the field is empty.
- * Shared by `requireAllLanguages` and the Dashboard checks.
- */
 export const missingLanguages = (value: unknown): string[] => {
   const items = Array.isArray(value) ? (value as LocalizedItem[]) : []
   return REQUIRED_LANG_IDS
@@ -41,17 +35,6 @@ export const missingLanguages = (value: unknown): string[] => {
     .map((lang) => lang.toUpperCase())
 }
 
-/**
- * Validation for required internationalizedArray* fields.
- * Ensures every supported language has a non-empty value.
- *
- * Usage:
- *   validation: (Rule) => requireAllLanguages(Rule)
- *
- * For fields that can be hidden by an ancestor (e.g. inside a conditional
- * `hidden` block), prefer the Sanity-idiomatic skip at the call site:
- *   validation: (Rule, ctx) => ctx?.hidden ? Rule.skip() : requireAllLanguages(Rule)
- */
 export const requireAllLanguages = (rule: any) =>
   rule.custom((value: unknown) => {
     if (!Array.isArray(value) || value.length === 0) {

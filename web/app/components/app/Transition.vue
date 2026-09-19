@@ -31,8 +31,7 @@ function onLeave(_el: Element, done: () => void) {
   const run = () => {
     gsap.timeline({
       onComplete: () => {
-        transitionBus.emit('covered') // overlay fully covers screen — safe to reset menu
-        // Overlay opaque → on remet toujours en haut, masqué (y compris au back navigateur).
+        transitionBus.emit('covered')
         lenis()?.scrollTo(0, { immediate: true, force: true })
         window.scrollTo(0, 0)
         gsap.delayedCall(0.25, done)
@@ -53,9 +52,6 @@ function onLeave(_el: Element, done: () => void) {
 function onBeforeEnter() {}
 
 function onEnter(_el: Element, done: () => void) {
-  // Nouvelle page montée + overlay encore opaque (scaleY:1) → moment idéal pour que
-  // router.options restaure / snap le scroll (back-forward, ancre cross-page) avant que
-  // l'overlay se lève, donc sans saut visible. cf. branches `onceHidden` du router.
   transitionBus.emit('entering')
 
   if (!overlayRef.value) {
@@ -99,8 +95,6 @@ defineExpose({ onLeave, onBeforeEnter, onEnter })
   z-index: 99999;
   background-color: var(--c-orange-100);
   pointer-events: none;
-  // Replié dès le HTML (même état que le `gsap.set` du montage) : sinon le rideau
-  // couvre la page jusqu'à l'hydratation, et pour toujours si le JS ne charge pas.
   transform: scaleY(0);
   transform-origin: bottom;
 }

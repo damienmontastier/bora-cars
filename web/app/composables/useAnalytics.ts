@@ -1,11 +1,3 @@
-// Typed analytics helpers — push dataLayer events through @nuxt/scripts' GTM proxy.
-// Each helper is a safe no-op when GTM is not registered (e.g. local dev where
-// `$development: { scripts.registry.googleTagManager: 'mock' }` swaps in a mock).
-//
-// Naming: events use snake_case (GA4 convention). Params are snake_case for the same reason.
-// All events are gated by GTM's consent state — they queue in dataLayer regardless and fire only
-// once the relevant consent signal is granted (handled via consent.update from useCookies).
-
 import type { ContactProfile } from '~/config/CONTACT_PRO_CONFIG'
 
 export interface VehicleEventParams {
@@ -64,7 +56,6 @@ export function useAnalytics() {
       track('whatsapp_click', params)
     },
 
-    // `profile` = parcours de la page Contact : 'general' (Demande générale) | 'pro' (Leasing professionnel)
     trackContactFormSubmit(params: { subject?: string, locale?: string, profile?: ContactProfile }) {
       track('contact_form_submit', params)
     },

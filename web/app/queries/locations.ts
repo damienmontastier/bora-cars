@@ -1,11 +1,5 @@
 import { i18n } from './i18n'
 
-/**
- * Un document `location` (Lieu) = une agence physique.
- * Source unique partagée par le menu, le footer, les voitures — et le schema.org
- * (1 node AutoRental par Lieu, cf. app.vue). `city`/`address` sont localisés ($lang) ;
- * `country`/`geo`/`openingHours` sont neutres. `mapsUrl` (champ « Lien ») = sameAs Google.
- */
 export interface LocationData {
   city?: string
   description?: string

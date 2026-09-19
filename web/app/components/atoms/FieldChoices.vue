@@ -1,12 +1,7 @@
 <script setup lang="ts">
-// Groupe de choix en cartes (DS « Form / ChoiceCard ») : radios (choix unique,
-// v-model = string) ou cases (choix multiple, v-model = string[]). Toujours dans un
-// `fieldset` / `legend`. `layout` : `row` = cartes côte à côte (2–3 options),
-// `column` = cartes empilées.
 interface Option {
   value: string
   label: string
-  // 2e ligne plus discrète sous le libellé
   description?: string
 }
 
@@ -69,7 +64,6 @@ defineExpose({
       `app-atoms-field-choices--${type}`,
       {
         'app-atoms-field-choices--error': invalid,
-        // Plus de 2 cartes côte à côte ne tiennent pas en largeur mobile : on empile
         'app-atoms-field-choices--stack-mobile': layout === 'row' && options.length > 2,
       },
     ]"
@@ -144,8 +138,6 @@ defineExpose({
   }
 
   &__legend {
-    // Un `legend` flottant n'est plus rendu dans la bordure du fieldset : il devient
-    // un enfant flex ordinaire et suit le `gap`.
     float: left;
     width: 100%;
     padding: 0;
@@ -257,7 +249,6 @@ defineExpose({
       height: mobile-vw(20px);
     }
 
-    // Pastille du radio sélectionné
     &::after {
       content: '';
       width: 42%;

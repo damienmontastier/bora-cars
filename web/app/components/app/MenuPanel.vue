@@ -22,7 +22,7 @@ const langUnmasked = ref(false)
 
 let anim = null
 let unmaskTimeout: ReturnType<typeof setTimeout> | null = null
-const LANG_CLOSE_DURATION = 450 // must match clip-path transition in MenuLangSwitcher
+const LANG_CLOSE_DURATION = 450
 
 watch(langOpen, (open) => {
   if (unmaskTimeout) {
@@ -216,8 +216,6 @@ onUnmounted(() => {
     }
   }
 
-  // Underline pseudo-element rendered on every menu link (invisible by default)
-  // so swaps animate on both sides instead of vanishing instantly.
   &__nav-inner .CTA-TEXT-XL {
     position: relative;
     display: inline-block;
@@ -238,7 +236,7 @@ onUnmounted(() => {
 
   &.is-open &__nav-inner:has(.router-link-exact-active) .CTA-TEXT-XL::after {
     transform: scaleX(1);
-    transition-delay: 0.55s; // wait for stagger reveal on initial open; also sequences after old underline collapses on page swap
+    transition-delay: 0.55s;
   }
 }
 </style>

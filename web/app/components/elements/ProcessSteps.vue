@@ -26,7 +26,6 @@ const items = computed(() =>
   })),
 )
 
-// 'click' = snap au click uniquement | 'scroll' = snap au scroll + click
 const SNAP_MODE: 'click' | 'scroll' = 'click'
 
 const rootRef = ref<HTMLElement | null>(null)

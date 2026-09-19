@@ -14,13 +14,10 @@ function tEnum(group: 'type' | 'payment', value: string): string {
   return te(key) ? t(key) : value
 }
 
-// Les forfaits mensuels atteignent des milliers de km → séparateur de milliers localisé.
 function formatKm(value: number): string {
   return new Intl.NumberFormat(numberLocale.value).format(value)
 }
 
-// Caution et prix au km suivent le sélecteur de devise de la fiche (cf. useCurrency) :
-// les montants sont stockés en euros dans Sanity et convertis à l'affichage.
 const { formatPrice } = useCurrency()
 
 const rentalTypes = computed<string[]>(() =>
@@ -31,7 +28,6 @@ const paiements = computed<string[]>(() =>
   (props.car.paiementsAcceptes ?? []).map(p => tEnum('payment', p)),
 )
 
-// Assurance — natif sur toutes les voitures : valeur Sanity sinon fallback i18n
 const assuranceTitle = computed(() => props.car.assuranceTitre || t('car.rental.insuranceLabel'))
 const assuranceValue = computed(() => props.car.assuranceSousTitre || t('car.rental.insuranceValue'))
 
@@ -47,7 +43,6 @@ const conditionsCells = computed<Cell[]>(() => {
   if (c.anciennetePermis != null)
     items.push({ key: 'anciennete', label: t('car.rental.anciennetePermis'), value: `${c.anciennetePermis} ${t('car.rental.units.years')}` })
   if (c.dureeMinimum) {
-    // Unité optionnelle côté Sanity : les fiches existantes (sans valeur) restent en jours.
     const scale = c.dureeMinimumUnite === 'mois' ? 'month' : 'day'
     const unit = t(`car.rental.units.${scale}${c.dureeMinimum > 1 ? 's' : ''}`)
     items.push({ key: 'duree', label: t('car.rental.dureeMinimum'), value: `${c.dureeMinimum} ${unit}` })
@@ -66,7 +61,6 @@ const fraisCells = computed<Cell[]>(() => {
     items.push({ key: 'caution', label: t('car.rental.caution'), value: formatPrice(c.caution) })
   if (c.prixKmSupplementaire?.prix && c.prixKmSupplementaire?.km) {
     const { prix, km } = c.prixKmSupplementaire
-    // Tarif au km : 2 décimales (souvent < 1 €), contrairement aux montants ronds.
     const price = formatPrice(prix, 2)
     items.push({
       key: 'km-supp',

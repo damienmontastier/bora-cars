@@ -1,14 +1,3 @@
-<!--
-  UtilsParallax — wrapper parallax GSAP ScrollTrigger, overflow:hidden intégré.
-
-  speed           : intensité du déplacement y (défaut: 1). 0.3 subtil, 0.5 standard.
-  scale           : scale de destination (défaut: 1). L'image zoom de 1 → scale pendant le scroll.
-  position        : 'top' pour les éléments visibles au 1er écran (hero), 'default' sinon.
-  reversed        : inverse la direction du parallax (défaut: false).
-  id              : identifiant ScrollTrigger pour debug / ScrollTrigger.getById().
-  trigger         : élément externe à utiliser comme trigger ScrollTrigger.
-  disableOnMobile : désactive l'effet sous le breakpoint mobile (défaut: true).
--->
 <script setup lang="ts">
 import gsap from 'gsap'
 

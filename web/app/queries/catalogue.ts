@@ -33,19 +33,15 @@ export interface CatalogueData {
 
 export type CatalogueAudience = 'particulier' | 'professionnel'
 
-// Option d'un select de filtre : `value` = clé stable (URL + GROQ), `label` = affiché.
 export interface FilterOption {
   value: string
   label: string
 }
 
-// Facettes : map { clé de filtre → options disponibles }, alimentée par Sanity.
 export type CatalogueFacets = Record<string, FilterOption[]>
 
-// État des filtres tel que stocké dans l'URL (query string), clés dynamiques.
 export type CatalogueFilters = Record<string, string>
 
-// Tranches de prix (sur le prix JOURNALIER). `max: null` = pas de borne haute.
 export interface PriceBucket {
   value: string
   min: number
@@ -59,25 +55,6 @@ export const PRICE_BUCKETS: PriceBucket[] = [
   { value: '2000+', min: 2000, max: null },
 ]
 
-/**
- * Registre déclaratif des filtres du catalogue — source unique de vérité.
- *
- * Chaque entrée pilote, sans duplication : la clause GROQ du filtre, la requête
- * de facettes (valeurs distinctes lues dans Sanity), les paramètres + clés
- * d'URL côté composable, et le rendu des `<AtomsSelect>` côté UI.
- *
- * Activer / désactiver un filtre = basculer `enabled`. Les libellés sont des
- * clés i18n `catalogue.filters.<key>` (+ `.all.<key>`, et pour un range
- * `.<key>Options.<bucket>`).
- *
- * Types :
- * - `facet` : valeurs distinctes issues de Sanity (100% dynamique). `clause`
- *   compare `$<key>` ; `facet` est la projection GROQ qui liste les options
- *   (string[] → value=label, ou {value,label}[]). `@AUDIENCE@` y est remplacé
- *   par le filtre d'audience.
- * - `range` : tranches numériques statiques (`buckets`). `clause` compare
- *   `$<key>Min`/`$<key>Max`.
- */
 export interface CatalogueFilterDef {
   key: string
   enabled: boolean
@@ -99,11 +76,6 @@ export const CATALOGUE_FILTERS: CatalogueFilterDef[] = [
     key: 'ville',
     enabled: true,
     type: 'facet',
-    // On filtre sur l'appartenance de la référence du lieu à l'ensemble des lieux
-    // dont la ville (valeur FR canonique) correspond — best practice Sanity
-    // (`ref._ref in *[…]._id`) : on résout les ids une fois plutôt que de
-    // déréférencer `location->…` par voiture. La clé FR groupe toutes les
-    // agences d'une même ville, indépendamment de la locale.
     clause: `($ville == "" || location._ref in *[_type == "location" && city[language == "fr"][0].value == $ville]._id)`,
     facet: `"ville": *[_type == "location" && _id in array::unique(*[@AUDIENCE@ && defined(location)].location._ref)]{
       "value": city[language == "fr"][0].value,
@@ -121,19 +93,12 @@ export const CATALOGUE_FILTERS: CatalogueFilterDef[] = [
 
 export const ENABLED_FILTERS = CATALOGUE_FILTERS.filter(f => f.enabled)
 
-// Filtre GROQ selon le champ `clientType` de la voiture :
-// - particulier (standard) : clientType non défini OU contient "particulier" → catalogue par défaut
-// - professionnel : clientType contient "professionnel"
 function audienceFilter(audience: CatalogueAudience) {
   return audience === 'professionnel'
     ? `_type == "car" && "professionnel" in clientType`
     : `_type == "car" && (!defined(clientType) || "particulier" in clientType)`
 }
 
-// Clause de filtres générée depuis le registre. Recherche texte (`q`) toujours
-// active ; chaque condition se neutralise quand son paramètre est « vide »
-// (`""` pour les chaînes, `null` pour les bornes de prix), ce qui garde une
-// requête à chaîne constante (params seuls variables).
 const FILTER_CLAUSE = [
   `($q == "" || marque match $q || modele match $q)`,
   ...ENABLED_FILTERS.map(f => f.clause),
@@ -143,9 +108,6 @@ function carFilter(audience: CatalogueAudience) {
   return `${audienceFilter(audience)}${FILTER_CLAUSE}`
 }
 
-// Projection d'une carte voiture — partagée par le catalogue ET la page /bio
-// (`~/queries/bio`), qui réutilisent le même `ElementsCatalogueCard`. Le contrat
-// de la carte (`CatalogueCar`) reste ainsi défini à un seul endroit.
 export const CAR_PROJECTION = `{
   _id,
   "slug": slug.current,
@@ -179,20 +141,16 @@ function catalogueCarsQuery(audience: CatalogueAudience) {
   return `*[${carFilter(audience)}] | order(_createdAt desc) [$from..$to] ${CAR_PROJECTION}`
 }
 
-// Valeurs distinctes par filtre `facet` activé, pour l'audience donnée.
-// Indépendant de la sélection courante : on propose toujours toutes les options.
 function catalogueFacetsQuery(audience: CatalogueAudience) {
   const f = audienceFilter(audience)
   const projections = ENABLED_FILTERS
     .filter(d => d.type === 'facet' && d.facet)
     .map(d => d.facet!.replace(/@AUDIENCE@/g, f))
-  // Garde-fou : projection non vide même si aucun filtre facet n'est activé.
   if (!projections.length)
     return `{ "_": null }`
   return `{\n  ${projections.join(',\n  ')}\n}`
 }
 
-// Catalogue standard (particuliers + voitures sans `clientType`)
 export const CATALOGUE_QUERY = catalogueQuery('catalogue', 'particulier')
 export const CATALOGUE_CARS_QUERY = catalogueCarsQuery('particulier')
 export const CATALOGUE_FACETS_QUERY = catalogueFacetsQuery('particulier')

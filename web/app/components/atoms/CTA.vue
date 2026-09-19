@@ -43,10 +43,6 @@ const textRef = useTemplateRef('textRef')
 
 let tl = null
 let initialized = false
-// Vue's managed text node for the slot. Captured once, before init() replaces
-// the children with word spans. After that the node is detached from the DOM but Vue
-// keeps patching it on locale change (the persistent menu CTA never remounts) —
-// observing it lets us re-split with the new translation when `settings` updates.
 let sourceNode = null
 let mo = null
 
@@ -63,8 +59,6 @@ function reset() {
   initialized = false
   const el = textRef.value?.root
   const text = readSourceText()
-  // Never blank the element: when the source is transiently empty (e.g. settings
-  // null mid-refetch) keep what's there rather than wiping the CTA text.
   if (el && text)
     el.textContent = text
   if (rootRef.value?.$el) {
@@ -72,8 +66,6 @@ function reset() {
   }
 }
 
-// Vue patched the (now-detached) source text node — a locale switch landed the
-// new translation. Rebuild the word-split so the CTA follows the language.
 function onSourceTextChange() {
   if (!props.animated)
     return
@@ -93,10 +85,6 @@ function init() {
 
   const el = textRef.value.root
 
-  // Capture Vue's text node once and observe it (never re-capture — Vue's vnode
-  // keeps referencing this exact node even after we detach it below). Pick the
-  // node that actually holds text: slot forwarding can leave empty boundary text
-  // nodes first, and that empty one is NOT what Vue patches on a locale change.
   if (!sourceNode) {
     const textNodes = Array.from(el.childNodes).filter(n => n.nodeType === Node.TEXT_NODE)
     sourceNode = textNodes.find(n => n.nodeValue?.trim()) ?? textNodes[0] ?? null
@@ -111,8 +99,6 @@ function init() {
   if (wordsList.length <= 1)
     return
 
-  // Build nodes, never an HTML string: the words come from CMS text (Sanity /
-  // glossaire) and must not be parsed as markup.
   const fragment = document.createDocumentFragment()
   wordsList.forEach((word, i) => {
     if (i > 0)
@@ -132,10 +118,6 @@ function init() {
   const words = Array.from(el.querySelectorAll('.app-atoms-cta__word'))
   const tiretEl = el.querySelector('.app-atoms-cta__tiret')
 
-  // The hover morph (tiret collapse + words flipping together) is desktop-only.
-  // On mobile the tiret stays statically visible as a decorative separator —
-  // no timeline, no minWidth lock, no Flip. The split above already ran so the
-  // tiret is in the DOM; CSS keeps it shown (no `display: none` on mobile).
   if (!isAnimated.value)
     return
 
@@ -175,8 +157,6 @@ onMounted(() => {
 const onResize = useDebounceFn(() => {
   if (!props.animated)
     return
-  // Full rebuild on resize handles both breakpoint sides and any crossing:
-  // desktop rebuilds the timeline, mobile re-splits the static tiret.
   if (!initialized) {
     init()
     return

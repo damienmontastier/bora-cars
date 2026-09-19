@@ -1,6 +1,5 @@
 import type { SchemaTypeDefinition } from 'sanity'
 
-// Singletons
 import { homepageType } from './singletons/homepage'
 import { footerType } from './singletons/footer'
 import { menuType } from './singletons/menu'
@@ -14,12 +13,10 @@ import { carPageType } from './singletons/carPage'
 import { glossaireType } from './singletons/glossaire'
 import { bioType } from './singletons/bio'
 
-// Documents
 import { locationType } from './documents/location'
 import { carType } from './documents/car'
 import { legalPageType } from './documents/legalPage'
 
-// Modules — Home
 import { heroType } from './modules/home/hero'
 import { serviceCardsType } from './modules/home/serviceCards'
 import { pitchType } from './modules/home/pitch'
@@ -32,7 +29,6 @@ import { titleType } from './modules/shared/title'
 import { textType } from './modules/shared/text'
 import { faqType } from './modules/shared/faq'
 
-// Objects
 import { customImage } from './objects/customImage'
 import { customVideo } from './objects/customVideo'
 import { customMedia } from './objects/customMedia'
@@ -43,7 +39,6 @@ import { specsLayoutType } from './objects/specsLayout'
 import { glossaryEntry } from './objects/glossaryEntry'
 
 export const schemaTypes: SchemaTypeDefinition[] = [
-  // Singletons
   homepageType,
   footerType,
   menuType,
@@ -57,12 +52,10 @@ export const schemaTypes: SchemaTypeDefinition[] = [
   glossaireType,
   bioType,
 
-  // Documents
   locationType,
   carType,
   legalPageType,
 
-  // Modules — Home
   heroType,
   serviceCardsType,
   pitchType,
@@ -75,7 +68,6 @@ export const schemaTypes: SchemaTypeDefinition[] = [
   textType,
   faqType,
 
-  // Objects
   customImage,
   customVideo,
   customMedia,

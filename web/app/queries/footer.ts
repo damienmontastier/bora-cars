@@ -35,7 +35,6 @@ export interface FooterLegalData {
   legalLinks?: SanityLink[]
 }
 
-// Footer réduit (`AppFooterMini`) : seuls les liens légaux sont nécessaires.
 export const FOOTER_LEGAL_QUERY = `*[_type == "footer"][0]{
   "legalLinks": legalLinks[]${linkProjection}
 }`

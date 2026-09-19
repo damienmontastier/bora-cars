@@ -8,13 +8,8 @@ const props = defineProps({
 const { t } = useI18n()
 const localePath = useLocalePath()
 
-// Code d'erreur affiché en eyebrow ("Erreur 404"). Défaut 404, l'usage premier
-// de cette page.
 const code = computed(() => String(props.error?.statusCode ?? 404))
 
-// Page d'erreur Nuxt : rendue hors d'`app.vue`, donc un simple <NuxtLink> ne
-// purge pas forcément l'état d'erreur. `clearError({ redirect })` est le chemin
-// recommandé — il vide l'erreur ET navigue vers l'accueil (route i18n).
 function goHome() {
   clearError({ redirect: localePath('index') })
 }

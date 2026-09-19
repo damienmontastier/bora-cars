@@ -3,7 +3,6 @@ import type { CatalogueCar } from '~/queries/catalogue'
 
 interface Props {
   cars: CatalogueCar[]
-  // Gabarit WhatsApp du singleton `bio`, transmis à chaque story.
   whatsappTemplate?: string
 }
 
@@ -11,8 +10,6 @@ const props = defineProps<Props>()
 
 const { t } = useI18n()
 
-// « 06 voitures » — pluriel vue-i18n (« {count} voiture | {count} voitures »),
-// nombre affiché sur deux chiffres comme le compteur des stories.
 const countLabel = computed(() => {
   const n = props.cars.length
   return t('bio.header.count', { count: String(n).padStart(2, '0') }, n)
@@ -36,7 +33,6 @@ const countLabel = computed(() => {
       </TextsLabel>
     </header>
 
-    <!-- Une voiture = une story. L'ordre est celui du Studio : la 1ʳᵉ porte le badge « Dernier post ». -->
     <div v-if="cars.length" class="page-bio-listing__stories">
       <PageBioStory
         v-for="(car, index) in cars"
@@ -74,7 +70,6 @@ const countLabel = computed(() => {
   display: flex;
   flex-direction: column;
 
-  // Le menu est fixe : le haut du header réserve sa hauteur (92px desktop, 64px mobile).
   &__header {
     display: flex;
     align-items: flex-end;
@@ -106,7 +101,6 @@ const countLabel = computed(() => {
     }
   }
 
-  // Heading 2 en desktop (72/76), Heading 1 en mobile (64/64).
   &__title {
     @include mobile {
       font-size: mobile-vw(64px);
@@ -123,7 +117,6 @@ const countLabel = computed(() => {
     }
   }
 
-  // Grille de stories 3 colonnes en desktop, pile verticale en mobile.
   &__stories {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -164,7 +157,6 @@ const countLabel = computed(() => {
     }
   }
 
-  // Heading 3 en desktop (48/52), Body L regular en mobile (20/26).
   &__end-text {
     @include mobile {
       font-family: var(--font-haas-grot-disp-regular);

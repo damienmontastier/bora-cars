@@ -15,8 +15,6 @@ const SECTIONS: { id: Section, title: string }[] = [
   { id: 'legal', title: 'Pages légales' },
 ]
 
-// Couleurs d'un résultat Google (thème clair), volontairement fixes : l'aperçu doit
-// ressembler à Google quel que soit le thème du Studio.
 const GOOGLE = {
   background: '#ffffff',
   border: '#dadce0',

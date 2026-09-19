@@ -3,14 +3,6 @@ import { defineArrayMember, defineField, defineType } from 'sanity'
 
 const TITLE = 'Glossaire'
 
-/**
- * Sections du glossaire = onglets (field groups). Une par namespace i18n
- * top-level des fichiers `web/i18n/locales/*.json`. L'ordre/les noms doivent
- * rester alignés avec ces JSON (le sync au build reconstruit les clés `<name>.…`).
- */
-// NB : `nuxtSiteConfig` (nom/description du site) n'est PAS ici — il est lu au
-// build par nuxt-site-config (avant le runtime), donc l'éditer dans Sanity n'aurait
-// aucun effet. Sa valeur reste le fallback dans i18n/locales/*.json.
 export const GLOSSAIRE_SECTIONS: { name: string, title: string, description: string }[] = [
   {
     name: 'seo',

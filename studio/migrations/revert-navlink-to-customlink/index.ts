@@ -35,7 +35,6 @@ export default defineMigration({
         patches.push(at(field, set(flattenNavLink(item, false))))
       }
 
-      // fullscreenMarquee cta inside modules[]
       const modules = doc.modules as any[]
       if (Array.isArray(modules)) {
         modules.forEach((mod, i) => {

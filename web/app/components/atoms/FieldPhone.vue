@@ -2,7 +2,6 @@
 interface Props {
   label: string
   required?: boolean
-  // Visible seulement une fois le libellé remonté (champ actif et vide)
   placeholder?: string
   invalid?: boolean
   errorMessage?: string

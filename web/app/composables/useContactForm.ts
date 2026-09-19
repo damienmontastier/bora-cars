@@ -1,20 +1,11 @@
 import type { ContactProfile } from '~/config/CONTACT_PRO_CONFIG'
 import { createInjectionState } from '@vueuse/core'
 
-// Logique partagée par les deux parcours de la page Contact (Demande générale /
-// Leasing professionnel). `ElementsContactForm` (le conteneur) la crée avec
-// `provideContactForm()` ; chaque parcours la récupère avec `useContactForm()`.
-//
-// Le conteneur garde : le honeypot, l'état d'envoi et le message de statut (un par
-// parcours, pour qu'un onglet ne montre pas l'erreur de l'autre). Les parcours
-// gardent leurs champs et leur validation.
-
 export type ContactSubmitState = 'idle' | 'submitting' | 'success' | 'error'
 
 interface ContactStatus {
   state: ContactSubmitState
   message: string
-  // `true` quand le message vient de la validation (il disparaît dès que tout est corrigé)
   validation: boolean
 }
 
@@ -23,11 +14,8 @@ interface ContactFormOptions {
 }
 
 interface SendOptions {
-  // Objet (Demande générale) transmis aux événements analytics
   subject?: string
-  // Message affiché en cas d'échec de l'envoi
   errorMessage: string
-  // Message affiché pendant l'envoi / après succès (vide = aucun message)
   submittingMessage?: string
   successMessage?: string
 }
@@ -36,10 +24,8 @@ const [provideState, injectState] = createInjectionState((options: ContactFormOp
   const { locale } = useI18n()
   const analytics = useAnalytics()
   const utm = useUtm()
-  // Figée au setup : au prérendu c'est l'URL de la page, au runtime celle du visiteur.
   const pageUrl = useRequestURL().href
 
-  // Honeypot — champ caché, doit rester vide. Les bots le remplissent, pas les humains.
   const website = ref('')
 
   const status = reactive<Record<ContactProfile, ContactStatus>>({
@@ -51,13 +37,11 @@ const [provideState, injectState] = createInjectionState((options: ContactFormOp
     return status[profile].state === 'submitting'
   }
 
-  // Validation refusée : message récapitulatif + événement analytics
   function fail(profile: ContactProfile, fields: string[], summary: string) {
     Object.assign(status[profile], { state: 'error', message: summary, validation: true })
     analytics.trackContactFormError({ kind: 'validation', fields, summary, profile })
   }
 
-  // Tous les champs sont corrigés : on retire le récapitulatif de validation
   function clearValidation(profile: ContactProfile) {
     if (status[profile].validation)
       Object.assign(status[profile], { state: 'idle', message: '', validation: false })

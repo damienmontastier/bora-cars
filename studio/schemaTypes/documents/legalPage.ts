@@ -39,7 +39,6 @@ export const legalPageType = defineType({
       group: 'editorial',
       description: 'URL anglaise : /en/legal/{slug} (ex. « legal-notice », « privacy-policy »). Optionnel — si vide, l’anglais réutilise le slug FR ci-dessus.',
       options: {
-        // Pré-rempli depuis le titre EN (les items i18n portent une clé `language`).
         source: (doc: any) => {
           const arr = doc.title
           const en = Array.isArray(arr) ? arr.find((x: any) => x?.language === 'en')?.value : ''

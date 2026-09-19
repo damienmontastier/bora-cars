@@ -8,10 +8,6 @@ export default withNuxt(
     stylistic: true,
     vue: {
       overrides: {
-        // 'vue/attribute-hyphenation': 'off',
-        // 'vue/block-order': ['error', {
-        //   order: ['template', 'script', 'style'],
-        // }],
       },
     },
   }),

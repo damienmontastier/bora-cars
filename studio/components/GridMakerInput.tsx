@@ -52,7 +52,6 @@ function getSizeFromType(cardType?: CardType): { w: number, h: number } {
   return CARD_TYPE_SIZE[cardType ?? 'xl']
 }
 
-// Trouve le premier slot libre dans la grille sans overlap
 function findFreeSlot(occupied: boolean[][], w: number, h: number): { x: number, y: number } {
   let y = 0
   while (true) {
@@ -114,7 +113,6 @@ function GridCard({
         cursor: 'grab',
       }}
     >
-      {/* Image area */}
       <div style={{ flex: 1, position: 'relative', overflow: 'hidden' }}>
         {imageUrl && (
           <img
@@ -130,7 +128,6 @@ function GridCard({
             }}
           />
         )}
-        {/* Short key badge */}
         <div
           style={{
             position: 'absolute',
@@ -157,7 +154,6 @@ function GridCard({
           </div>
         </div>
 
-        {/* Size toolbar (hover) */}
         <div
           style={{
             position: 'absolute',
@@ -211,7 +207,6 @@ function GridCard({
         </div>
       </div>
 
-      {/* Label area */}
       <div
         style={{
           background: '#e6e7df',
@@ -273,10 +268,6 @@ function GridMakerInner({
 }) {
   const { width, containerRef, mounted } = useContainerWidth()
 
-  // localLayout drives the visual grid. We never sync from onLayoutChange to avoid
-  // the feedback loop (append → onLayoutChange → setLocalLayout → re-render → …)
-  // that causes the trembling on newly added items.
-  // currentRef tracks the latest committed positions so "add at bottom" is accurate.
   const [localLayout, setLocalLayout] = useState<Layout>(layout)
   const currentRef = useRef<Layout>(layout)
 
@@ -285,7 +276,6 @@ function GridMakerInner({
     const currentKeys = new Set(current.map((l) => l.i))
     const nextKeys = new Set(layout.map((l) => l.i))
 
-    // Sync w/h for existing items whose type changed
     const kept = current
       .filter((l) => nextKeys.has(l.i))
       .map((currentItem) => {
@@ -304,7 +294,6 @@ function GridMakerInner({
 
     if (newItems.length === 0 && !sizeChanged && kept.length === current.length) return
 
-    // Place new items at the bottom without overlapping
     let nextY = kept.reduce((max, l) => Math.max(max, l.y + l.h), 0)
     const appended = newItems.map((item) => {
       const placed = { ...item, x: 0, y: nextY }
@@ -342,7 +331,6 @@ function GridMakerInner({
         border: '1px solid rgba(255,255,255,0.07)',
       }}
     >
-      {/* Header */}
       <div
         style={{
           display: 'flex',
@@ -372,9 +360,7 @@ function GridMakerInner({
         </span>
       </div>
 
-      {/* Grid container */}
       <div ref={containerRef as React.RefObject<HTMLDivElement>} style={{ position: 'relative' }}>
-        {/* Column guides */}
         <div
           style={{
             position: 'absolute',
@@ -400,7 +386,6 @@ function GridMakerInner({
           ))}
         </div>
 
-        {/* Grid layout */}
         <div style={{ position: 'relative', zIndex: 1 }}>
           {mounted && (
             <GridLayout
@@ -430,7 +415,6 @@ function GridMakerInner({
         </div>
       </div>
 
-      {/* Footer */}
       <div
         style={{
           display: 'flex',

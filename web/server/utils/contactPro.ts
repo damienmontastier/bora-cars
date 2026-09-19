@@ -16,23 +16,14 @@ import {
   PRO_YES_NO,
 } from '~/config/CONTACT_PRO_CONFIG'
 
-// Parcours « Leasing professionnel » : validation du payload et conversion vers les
-// champs de la table Airtable Leads. Chaque valeur de liste est comparée à la liste
-// blanche de CONTACT_PRO_CONFIG puis convertie en libellé EXACT d'option Airtable :
-// une valeur inconnue n'est jamais envoyée (typecast créerait une option fantôme).
-
-// No `.` in domain labels: avoids catastrophic backtracking.
 const EMAIL_RX = /^[^\s@]+@[^\s@.]+(?:\.[^\s@.]+)+$/
 
-// Champ texte long qui reçoit le récapitulatif lisible du dossier (email de notification).
 export const PRO_RECAP_FIELD = 'Récap dossier PRO'
 
-// Le body est non fiable : le type dit string, le réseau peut envoyer n'importe quoi.
 function str(value: unknown) {
   return typeof value === 'string' ? value.trim() : ''
 }
 
-// Valeur de liste : '' si absente, `undefined` si hors liste (→ invalide).
 function pick<O extends { value: string }>(list: readonly O[], value: unknown): O | '' | undefined {
   const raw = str(value)
   if (!raw)
@@ -40,9 +31,6 @@ function pick<O extends { value: string }>(list: readonly O[], value: unknown): 
   return list.find(o => o.value === raw)
 }
 
-// Premier nombre d'une saisie libre (« 20 000 km », « 20,000 km », « 900 € / mois », « 20k »).
-// Espaces, points, virgules et apostrophes = séparateurs de milliers (km et budgets sont
-// des entiers). Le « k » ne multiplie que s'il est isolé (pas celui de « km »).
 export function extractNumber(text: string): number | undefined {
   const match = text.match(/(\d[\d\s.,']*)(k(?![a-z]))?/i)
   if (!match)
@@ -84,12 +72,6 @@ export interface ProLead {
   consent: true
 }
 
-/**
- * Valide un payload pro. Renvoie le dossier normalisé, ou la liste des champs invalides.
- * Champs conditionnels : une valeur dont la condition n'est pas remplie (type de revenus
- * sans « Oui », km / durée sans LOA/LLD, date avec « en cours de création ») est ignorée,
- * jamais écrite dans le CRM.
- */
 export function parseProLead(body: Record<string, unknown> | undefined): { lead: ProLead, ignored: string[] } | { invalid: string[] } {
   const invalid: string[] = []
   const ignored: string[] = []
@@ -117,7 +99,6 @@ export function parseProLead(body: Record<string, unknown> | undefined): { lead:
   const models = text('models', MAX.models, false)
   const message = text('message', MAX.message, false)
 
-  // Listes : `required` → absente = invalide ; toujours invalide si hors liste.
   const list = <O extends { value: string }>(field: string, options: readonly O[], required: boolean) => {
     const option = pick(options, body?.[field])
     if (option === undefined || (required && !option))
@@ -137,7 +118,6 @@ export function parseProLead(body: Record<string, unknown> | undefined): { lead:
   let duration: typeof PRO_DURATIONS[number] | '' = list('duration', PRO_DURATIONS, false)
   const timeline = list('timeline', PRO_TIMELINES, false)
 
-  // Documents : tableau de valeurs connues, sans doublon
   const rawDocuments = body?.documents ?? []
   const documents: ProOption[] = []
   if (!Array.isArray(rawDocuments) || rawDocuments.length > PRO_DOCUMENTS.length) {
@@ -155,7 +135,6 @@ export function parseProLead(body: Record<string, unknown> | undefined): { lead:
     }
   }
 
-  // Date de création : MM/AAAA, ou « En cours de création »
   const creationPending = body?.creationPending === true
   const month = str(body?.creationMonth)
   const year = str(body?.creationYear)
@@ -176,7 +155,6 @@ export function parseProLead(body: Record<string, unknown> | undefined): { lead:
       creation = `${month}/${year}`
   }
 
-  // Nombre de véhicules : entier 1–99, 1 par défaut (comme le prototype)
   const rawCount = str(String(body?.vehicleCount ?? ''))
   let vehicleCount = 1
   if (rawCount) {
@@ -192,7 +170,6 @@ export function parseProLead(body: Record<string, unknown> | undefined): { lead:
   if (body?.consent !== true)
     invalid.push('consent')
 
-  // Conditionnels vérifiés côté serveur aussi
   if (incomeType && (!hasIncome || hasIncome.value !== 'yes')) {
     ignored.push('incomeType')
     incomeType = ''
@@ -241,7 +218,6 @@ export function parseProLead(body: Record<string, unknown> | undefined): { lead:
   }
 }
 
-// Récapitulatif lisible de tout le dossier (repris dans l'email de notification du commercial).
 export function proRecap(lead: ProLead): string {
   const none = '—'
   const yesNo = (value: boolean) => (value ? 'Oui' : 'Non')
@@ -291,8 +267,6 @@ export function proRecap(lead: ProLead): string {
   ].join('\n')
 }
 
-// Champs Airtable propres au parcours pro (les champs communs — langue, canal, UTM… —
-// sont posés par l'API).
 export function proAirtableFields(lead: ProLead): Record<string, unknown> {
   const fields: Record<string, unknown> = {
     'Nom complet': `${lead.firstName} ${lead.lastName}`,
@@ -337,6 +311,5 @@ export function proAirtableFields(lead: ProLead): Record<string, unknown> {
   if (lead.message)
     fields.Message = lead.message
 
-  // Pas d'`undefined` dans le body Airtable (ex. revenus « Oui » sans type précisé)
   return Object.fromEntries(Object.entries(fields).filter(([, v]) => v !== undefined))
 }

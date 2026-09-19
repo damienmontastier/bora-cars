@@ -3,12 +3,7 @@ import type { FooterLegalData } from '~/queries/footer'
 import { useLenis } from 'lenis/vue'
 import { FOOTER_LEGAL_QUERY } from '~/queries/footer'
 
-// Footer réduit des pages d'atterrissage (ex. /bio) : © + liens légaux + retour en
-// haut. Remplace `AppFooter` là où le menu couvre déjà la navigation — les liens
-// légaux restent obligatoires (souvent la 1ʳᵉ page d'un visiteur Instagram, celle
-// où le bandeau cookies demande son consentement). Composant Figma « FooterMini ».
 interface Props {
-  // Couleur du fond de la page qui accueille le footer.
   theme?: 'beige' | 'black' | 'orange'
 }
 
@@ -29,7 +24,6 @@ const { openSettings: openCookieSettings } = useCookies()
 const lenis = useLenis()
 const currentYear = new Date().getFullYear()
 
-// Fond clair (beige) → contenus noirs ; fonds foncés (noir, orange) → contenus beige.
 const isLight = computed(() => props.theme === 'beige')
 const contentColor = computed(() => isLight.value ? 'black-100' : 'beige-100')
 const copyrightColor = computed(() => isLight.value ? 'black-70' : 'beige-70')
@@ -180,8 +174,6 @@ function scrollToTop() {
     }
   }
 
-  // Boîte 20px (16px mobile) comme l'icône Figma ; le chevron du projet pointe vers
-  // le bas → retourné.
   &__top-icon {
     display: flex;
     align-items: center;

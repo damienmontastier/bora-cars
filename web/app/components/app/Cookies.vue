@@ -38,8 +38,6 @@ function onPendingUpdate(key: CookieCategoryKey, value: boolean) {
   pending.value = { ...pending.value, [key]: value }
 }
 
-// Lock scroll whenever the cookies layer is visible (banner or settings),
-// mirroring the preloader: the user must make a choice before scrolling.
 watch(
   isOpen,
   (open) => {
@@ -55,11 +53,6 @@ onKeyStroke('Escape', () => {
     showBanner()
 }, { dedupe: true })
 
-// A stored choice is forwarded to GTM right away (no UI involved), so the first hits of
-// a returning visitor already carry their consent.
-// The banner itself waits for the preloader to finish. Otherwise it pops up "behind" the
-// preloader and the user only sees it once everything else has settled — feels abrupt.
-// Gating on preloaderDone makes the banner animate in cleanly after the site is revealed.
 const appStore = useAppStore()
 onMounted(() => {
   restoreConsent()
@@ -91,7 +84,6 @@ onUnmounted(() => {
         aria-modal="true"
         :aria-label="t('cookies.title')"
       >
-        <!-- Dedicated overlay (above menu z-index, below banner/modal) -->
         <div class="app-cookies__overlay" />
 
         <Transition name="app-cookies-view" mode="out-in">
@@ -236,10 +228,6 @@ onUnmounted(() => {
 </template>
 
 <style lang="scss">
-// No opacity fade on the root: an ancestor with opacity < 1 breaks the overlay's backdrop-filter.
-// The overlay fades its OWN opacity (fine for its backdrop-filter) instead of animating the
-// blur radius: a radius tween re-blurs the whole screen every frame, an opacity fade is
-// composited once.
 .app-cookies-root-enter-active,
 .app-cookies-root-leave-active {
   > * {
@@ -278,7 +266,6 @@ onUnmounted(() => {
     pointer-events: auto;
   }
 
-  // ---------------- Overlay (above the menu, below the banner/modal) ----------------
   &__overlay {
     position: absolute;
     inset: 0;
@@ -356,7 +343,7 @@ onUnmounted(() => {
     border: 0;
     padding: 0;
     cursor: pointer;
-    color: var(--c-beige-100); // currentColor used by text-decoration
+    color: var(--c-beige-100);
     text-decoration: underline;
     text-underline-offset: desktop-vw(4px);
     transition: opacity 0.3s var(--ease-out-cubic);

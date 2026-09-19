@@ -6,7 +6,6 @@ interface Props {
   errorMessage?: string
   id?: string
   rows?: number
-  // Visible seulement une fois le libellé remonté (champ actif et vide)
   placeholder?: string
   maxlength?: number
 }

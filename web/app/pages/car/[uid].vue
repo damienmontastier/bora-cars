@@ -27,10 +27,6 @@ if (!car.value) {
 
 const hasDescription = computed(() => Array.isArray(car.value?.description) && car.value!.description.length > 0)
 
-// Texte brut de la description (portable text aplati). Réutilisé pour la meta
-// description ET le schema.org Product. Sans ça, usePageSeo retombe sur le
-// fallback global t('seo.description') → la MÊME meta description sur les 36 fiches
-// (signal de contenu dupliqué côté Google).
 const descriptionText = computed(() =>
   (car.value?.description ?? [])
     .map(block => (block.children ?? []).map((child: { text?: string }) => child.text ?? '').join(''))
@@ -39,7 +35,6 @@ const descriptionText = computed(() =>
     .trim(),
 )
 
-// Meta description ≈ 160 caractères, coupée sur une frontière de mot.
 const metaDescription = computed(() => {
   const text = descriptionText.value
   if (text.length <= 160)
@@ -65,14 +60,6 @@ usePageSeo(computed(() => car.value
     }
   : undefined))
 
-// ─── schema.org fiche voiture : Product (location) + fil d'Ariane ───
-// PAS de type `Car`/`Vehicle` : le rich result Google « Vehicle listing » est réservé aux
-// véhicules À VENDRE (VIN/kilométrage requis) ; le « Product snippet » aux produits
-// ACHETABLES. Pour de la LOCATION, aucun des deux ne s'applique → on décrit l'entité en
-// `Product` (warning-free), specs en `additionalProperty` (valides sur Product, pas de
-// « unknown property »), et l'`Offer` en `businessFunction: LeaseOut` + `UnitPriceSpecification`
-// = tarif PAR jour/mois (location, pas vente). Le WebPage auto reçoit `breadcrumb` +
-// `mainEntity`. reactive:false → rendu SSR/prérendu.
 const localePath = useLocalePath()
 const { url: siteUrl } = useSiteConfig()
 const abs = (p: string) => `${siteUrl}${p}`
@@ -83,10 +70,8 @@ useSchemaOrg(computed(() => {
     return []
 
   const images = [c.ogImageUrl].filter((u): u is string => !!u)
-  // Description complète (non tronquée) — partagée avec la meta description.
   const plainDescription = descriptionText.value
 
-  // Caractéristiques → additionalProperty, libellés/valeurs localisés (clés i18n existantes).
   const specs: { '@type': 'PropertyValue', 'name': string, 'value': string | number, 'unitText'?: string }[] = []
   if (c.carburant)
     specs.push({ '@type': 'PropertyValue', 'name': t('car.specs.labels.carburant'), 'value': t(`car.specs.carburant.${c.carburant}`) })
@@ -101,16 +86,10 @@ useSchemaOrg(computed(() => {
   if (c.puissance)
     specs.push({ '@type': 'PropertyValue', 'name': 'Puissance', 'value': c.puissance, 'unitText': t('car.highlights.powerUnit') })
 
-  // Le schéma Sanity garantit qu'un seul des deux prix est renseigné.
-  // Prix TOUJOURS en EUR ici, quelle que soit la devise choisie par le visiteur : le
-  // sélecteur EUR / CHF (cf. useCurrency) ne convertit qu'à l'affichage, et le JSON-LD
-  // doit porter le tarif canonique — il est de toute façon lu dans le HTML prérendu,
-  // qui ne connaît aucune préférence visiteur.
   const price = c.prixJournalier ?? c.prixMensuel ?? null
   const unitCode = c.prixJournalier != null ? 'DAY' : 'MON'
   const carPath = localePath({ name: 'car-uid', params: { uid: c.slug } })
 
-  // `businessFunction`/`unitCode` ne sont pas dans le type Offer de @unhead → cast unique.
   const product = defineProduct({
     'name': `${c.marque} ${c.modele}`,
     'sku': c.slug,
@@ -152,8 +131,6 @@ useSchemaOrg(computed(() => {
 
 useMenuCtaSnap()
 
-// Sections observées par la barre sticky mobile : cachée sur le hero, visible
-// pendant les détails, cachée dès que le footer entre à l'écran.
 const heroRef = useTemplateRef<{ $el: HTMLElement }>('heroRef')
 const footerRef = useTemplateRef<{ $el: HTMLElement }>('footerRef')
 const heroEl = computed(() => heroRef.value?.$el ?? null)

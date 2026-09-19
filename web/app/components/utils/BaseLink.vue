@@ -1,19 +1,14 @@
 <script setup>
-// Pont CMS → routeur : type de doc Sanity → route Nuxt (cf. I18N_CONFIG).
-// On résout vers `{ name, params }`, jamais un chemin en dur : c'est
-// `NuxtLinkLocale` qui produit ensuite le chemin localisé/traduit.
 import { SANITY_ROUTES } from '~/config/I18N_CONFIG'
 
 const props = defineProps({
   to: {
     type: [String, Object],
   },
-  // Extra params merged into the auto-tracked event (e.g. car_id, source, duration…)
   trackingExtra: {
     type: Object,
     default: undefined,
   },
-  // Opt out of auto-tracking entirely
   trackingDisabled: {
     type: Boolean,
     default: false,
@@ -27,7 +22,6 @@ const { to } = toRefs(props)
 const analytics = useAnalytics()
 const whatsappMessage = useWhatsappMessage()
 
-// Si `to` est un objet lien Sanity, on le résout en string/route vue-router
 function resolveLink(val) {
   if (!val || typeof val === 'string')
     return val
@@ -39,9 +33,6 @@ function resolveLink(val) {
   if (val.type === 'external') {
     if (!val.url)
       return undefined
-    // URL externe saisie sans schéma (ex. « www.exemple.com ») → on préfixe
-    // https://, sinon `isValidURL` (new URL()) échoue, le lien est considéré
-    // interne et `NuxtLinkLocale` le résout en chemin relatif cassé.
     return /^(?:https?:)?\/\//i.test(val.url) || /^(?:mailto|tel):/i.test(val.url)
       ? val.url
       : `https://${val.url}`
@@ -51,18 +42,14 @@ function resolveLink(val) {
     const route = link && SANITY_ROUTES[link._type]
     if (!route)
       return undefined
-    // Route dynamique (doc à slug) → on injecte le param ; sinon route nommée simple.
     if (route.param)
       return link.slug ? { name: route.name, params: { [route.param]: link.slug } } : undefined
     return { name: route.name }
   }
 
-  return val // vue-router object (ex. { name, params })
+  return val
 }
 
-// Résout le lien, puis injecte le message WhatsApp de la page courante dans les
-// URL wa.me (no-op pour les autres liens). Le menu / la homepage ne fournissent
-// pas de message → lien nu.
 const resolvedTo = computed(() => {
   const resolved = resolveLink(to.value)
   return typeof resolved === 'string'
@@ -89,10 +76,6 @@ const componentProps = computed(() => {
     return { type: 'button' }
 
   if (isExternal.value) {
-    // Lien web externe (http/https) → TOUJOURS nouvel onglet, peu importe le
-    // réglage `blank` côté Sanity (le plugin link-field le met à false par
-    // défaut, d'où des liens externes qui restaient dans l'onglet courant).
-    // mailto:/tel: ne déclenchent pas d'onglet → on n'ajoute pas `target`.
     return {
       href: resolvedTo.value,
       ...(isValidURL(resolvedTo.value) && { target: '_blank', rel: 'noopener noreferrer' }),
@@ -127,7 +110,6 @@ function onTrackedClick() {
       analytics.track('external_link_click', extra)
   }
   catch {
-    // Not a parseable URL (relative path, etc.) — no auto event.
   }
 }
 </script>

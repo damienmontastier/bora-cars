@@ -29,7 +29,6 @@ const portableTextComponents = computed(() => getPortableTextComponents({
       </div>
 
       <div class="app-elements-text__actions">
-        <!-- CTA propres à la page, avant le « Contacter un conseiller » global -->
         <slot name="actions" />
         <AtomsCTA
           v-if="settings?.contactLink?.text"

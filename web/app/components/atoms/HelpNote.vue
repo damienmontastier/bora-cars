@@ -1,7 +1,4 @@
 <script setup lang="ts">
-// Encart d'aide du formulaire (DS « Form / HelpNote ») : `info` (fond Orange/10,
-// filet Orange/40) ou `error` (filet rouge, texte rouge). Le repère « (i) » / « (!) »
-// est décoratif.
 interface Props {
   tone?: 'info' | 'error'
 }

@@ -15,7 +15,6 @@ import type { Snapshot } from './checks'
 import { ExternalButton, Panel, longDate, plural, timeAgo } from './shared'
 
 const POLL_INTERVAL_MS = 20_000
-/** Au-delà, on arrête d'attendre le nouveau build (échec ou build très long). */
 const POLL_TIMEOUT_MS = 10 * 60_000
 const RECHECK_INTERVAL_MS = 5 * 60_000
 const PENDING_PREVIEW = 5
@@ -25,11 +24,6 @@ interface Deploy {
   previousId: string | null
 }
 
-/**
- * Le site de production est prérendu : un contenu publié dans Sanity n'est en ligne
- * qu'après un nouveau build. On compare la date du build en ligne (manifest Nuxt) aux
- * dates de publication des documents.
- */
 export function SiteStatus({ snapshot, now }: { snapshot: Snapshot, now: number }) {
   const toast = useToast()
   const [build, setBuild] = useState<LiveBuild | null>(null)
@@ -55,7 +49,6 @@ export function SiteStatus({ snapshot, now }: { snapshot: Snapshot, now: number 
     }
   }, [check])
 
-  // Pendant une mise en ligne : on guette l'arrivée du nouveau build.
   useEffect(() => {
     if (!deploy) return
     const controller = new AbortController()

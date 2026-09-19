@@ -33,7 +33,6 @@ export function longDate(value: string | number): string {
   })
 }
 
-/** Horloge qui se rafraîchit toutes les `intervalMs` (libellés « il y a X min »). */
 export function useNow(intervalMs = 30_000): number {
   const [now, setNow] = useState(() => Date.now())
   useEffect(() => {
@@ -153,10 +152,6 @@ function readHidden(): Set<string> {
   }
 }
 
-/**
- * Points que l'éditeur a choisi de masquer (ex. une mention voulue). Stockés sur cet
- * appareil uniquement : c'est un confort d'affichage, pas une donnée du site.
- */
 export function useHiddenFindings() {
   const [hidden, setHidden] = useState<Set<string>>(readHidden)
 
@@ -169,7 +164,6 @@ export function useHiddenFindings() {
         localStorage.setItem(HIDDEN_KEY, JSON.stringify([...next]))
       }
       catch {
-        // localStorage indisponible (mode privé) — le masquage dure la session.
       }
       return next
     })

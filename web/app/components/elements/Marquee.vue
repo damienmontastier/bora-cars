@@ -41,22 +41,37 @@ const props = defineProps({
 let ctx: gsap.Context | null = null
 let tween: gsap.core.Tween | null = null
 let quickTimeScale: gsap.QuickToFunc | null = null
+let setupWidth = 0
 
 const { fontsLoaded } = toRefs(useAppStore())
-
-const lenis = useLenis()
-
-function velocityTick() {
-  if (!quickTimeScale || !lenis.value)
-    return
-  quickTimeScale(1 + Math.abs(lenis.value.velocity) * props.scrollVelocitySpeed)
-}
 
 const mainRef = useTemplateRef<HTMLElement>('mainRef')
 const wrapperRef = useTemplateRef<HTMLElement>('wrapperRef')
 const elementsRef = ref<HTMLElement[]>([])
 
-// Only set up mouse tracking when actually needed
+const isVisible = useElementVisibility(() => props.trigger ?? mainRef.value)
+
+watch(isVisible, (visible) => {
+  if (!tween)
+    return
+  if (visible) {
+    tween.resume()
+  }
+  else {
+    tween.pause()
+    if (quickTimeScale)
+      tween.timeScale(1)
+  }
+})
+
+if (props.scrollVelocity) {
+  useLenis((lenis) => {
+    if (!quickTimeScale || !isVisible.value)
+      return
+    quickTimeScale(1 + Math.abs(lenis.velocity) * props.scrollVelocitySpeed)
+  })
+}
+
 const { isOutside } = props.pauseOnHover
   ? useMouseInElement(mainRef)
   : { isOutside: readonly(ref(true)) }
@@ -76,6 +91,9 @@ const activeRepeat = computed(() => {
 })
 
 function setupAnimation() {
+  teardownAnimation()
+  setupWidth = mainRef.value?.offsetWidth ?? 0
+
   ctx = gsap.context(() => {
     const singleWidth = Math.round(elementsRef.value[0]?.getBoundingClientRect().width ?? 0)
 
@@ -87,12 +105,7 @@ function setupAnimation() {
         ease: 'none',
         duration: props.duration,
         repeat: -1,
-        scrollTrigger: {
-          trigger: props.trigger ?? mainRef.value,
-          start: 'top bottom',
-          end: 'bottom top',
-          toggleActions: 'play pause resume pause',
-        },
+        paused: !isVisible.value,
       },
     )
 
@@ -101,24 +114,20 @@ function setupAnimation() {
         duration: 0.3,
         ease: 'power2.out',
       })
-      gsap.ticker.add(velocityTick)
     }
   }, mainRef.value!)
 }
 
 function teardownAnimation() {
-  gsap.ticker.remove(velocityTick)
   ctx?.revert()
   ctx = null
   tween = null
   quickTimeScale = null
 }
 
-// Re-measure singleWidth on resize (stale after window resize)
 useResizeObserver(mainRef, useDebounceFn(async () => {
-  if (!shouldAnimate.value)
+  if (!shouldAnimate.value || !fontsLoaded.value || !tween || mainRef.value?.offsetWidth === setupWidth)
     return
-  teardownAnimation()
   await nextTick()
   setupAnimation()
 }, 200))

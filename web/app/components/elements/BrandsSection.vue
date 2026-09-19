@@ -13,11 +13,6 @@ const rootRef = ref<HTMLElement | null>(null)
 const hoveredBrand = ref<string | null>(null)
 let ctx: gsap.Context | null = null
 
-// Les visuels de survol sont invisibles au chargement (fondu au survol en desktop, au
-// scroll en mobile) et, en desktop, en `position: fixed` dans le viewport : un
-// `loading="lazy"` les chargerait quand même tout de suite. On ne monte donc les
-// images qu'à l'approche de la section, au lieu de télécharger ~2 Mo en même temps
-// que le hero. Le conteneur `.brand-item__cursor` reste monté pour les animations.
 const cursorsReady = ref(false)
 const { stop: stopCursorsObserver } = useIntersectionObserver(rootRef, ([entry]) => {
   if (!entry?.isIntersecting)

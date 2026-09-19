@@ -1,13 +1,6 @@
 <script setup lang="ts">
 import { gsap } from 'gsap'
 
-// Branded full-screen ambient backdrop: animated orange/beige radial orbs over
-// black, with a subtle film grain. Shared by the under-construction and error
-// screens. Driven by gsap.ticker (still RAF-backed — only gsap.updateRoot is
-// re-routed to Tempus in 02.gsap.client.js).
-//
-// Respects `prefers-reduced-motion`: when reduce is set we paint a single static
-// frame and never start the ticker (no perpetual RAF for a decorative effect).
 const canvasRef = ref<HTMLCanvasElement | null>(null)
 let ctx: CanvasRenderingContext2D | null = null
 let ro: ResizeObserver | null = null
@@ -27,8 +20,6 @@ function resizeCanvas() {
   canvas.style.height = `${rect.height}px`
   ctx = canvas.getContext('2d')
   ctx?.scale(dpr, dpr)
-  // Resizing clears the canvas — repaint now so a paused (reduced-motion) frame
-  // never goes blank on resize.
   render()
 }
 
@@ -44,7 +35,6 @@ function render() {
   ctx.fillStyle = 'rgb(12,12,10)'
   ctx.fillRect(0, 0, W, H)
 
-  // Orbe 1 — orange principale, grande
   const x1 = W * (0.3 + 0.22 * Math.sin(elapsed * 0.32))
   const y1 = H * (0.4 + 0.18 * Math.cos(elapsed * 0.26))
   const g1 = ctx.createRadialGradient(x1, y1, 0, x1, y1, R * 0.65)
@@ -53,7 +43,6 @@ function render() {
   ctx.fillStyle = g1
   ctx.fillRect(0, 0, W, H)
 
-  // Orbe 2 — orange secondaire
   const x2 = W * (0.72 + 0.16 * Math.cos(elapsed * 0.29))
   const y2 = H * (0.55 + 0.2 * Math.sin(elapsed * 0.38))
   const g2 = ctx.createRadialGradient(x2, y2, 0, x2, y2, R * 0.42)
@@ -62,7 +51,6 @@ function render() {
   ctx.fillStyle = g2
   ctx.fillRect(0, 0, W, H)
 
-  // Orbe 3 — beige douce
   const x3 = W * (0.55 + 0.14 * Math.sin(elapsed * 0.21))
   const y3 = H * (0.3 + 0.16 * Math.cos(elapsed * 0.17))
   const g3 = ctx.createRadialGradient(x3, y3, 0, x3, y3, R * 0.52)
@@ -77,14 +65,13 @@ function tick(_time: number, deltaTime: number) {
   render()
 }
 
-// Start/stop the RAF loop based on the live `prefers-reduced-motion` value.
 function applyMotionPreference() {
   if (mq?.matches) {
     if (running) {
       gsap.ticker.remove(tick)
       running = false
     }
-    render() // single static frame
+    render()
   }
   else if (!running) {
     running = true

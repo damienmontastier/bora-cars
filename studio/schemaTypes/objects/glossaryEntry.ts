@@ -2,14 +2,6 @@ import { defineField, defineType } from 'sanity'
 
 type LocalizedItem = { language?: string, value?: string }
 
-/**
- * Entrée du Glossaire : une chaîne d'interface (`$t(...)` côté Nuxt).
- *
- * `key` est le chemin pointé À L'INTÉRIEUR de l'onglet (= namespace i18n).
- * Ex. dans l'onglet « Voiture » : `specs.labels.gamme` → `car.specs.labels.gamme`.
- * Cette clé est le pont avec le code : `web/scripts/sync-i18n.mjs` reconstruit
- * l'arbre JSON à partir d'elle. NE PAS la modifier sur une entrée existante.
- */
 export const glossaryEntry = defineType({
   name: 'glossaryEntry',
   title: 'Entrée',

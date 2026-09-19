@@ -50,9 +50,6 @@ interface State {
   list: string[]
 }
 
-// Les 8 specs sont TOUJOURS placées : celles non rangées explicitement tombent
-// dans la « liste ». Rien n'est masquable au niveau global — c'est le front qui
-// masque une spec uniquement quand la voiture n'a pas la valeur renseignée.
 function computeState(value?: SpecsLayoutValue): State {
   const fixed = (value?.fixed ?? []).filter(k => ALL_KEYS.includes(k))
   const list = (value?.list ?? []).filter(k => ALL_KEYS.includes(k))
@@ -190,8 +187,6 @@ export function SpecsLayoutInput(props: ObjectInputProps<SpecsLayoutValue>) {
 
   const missingByKey = useMemo(() => {
     const map: Record<string, boolean> = {}
-    // Avertissement « vide » uniquement sur une voiture — la config globale (carPage)
-    // n'a pas les champs de specs, donc rien à signaler là-bas.
     if (doc?._type !== 'car') return map
     for (const { key } of SPECS) map[key] = !isSpecFilled(key, doc)
     return map

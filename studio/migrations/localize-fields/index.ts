@@ -66,7 +66,6 @@ function transform(node: unknown, parentKey?: string): unknown {
           out[k] = wrap(v, 'block')
         }
         else if (isLegacyString(v)) {
-          // Heuristic : multi-line ou champs nommés "tagline/body/answer/quote/address/description/subtext" → text
           const isText = /\n/.test(v)
             || ['tagline', 'body', 'answer', 'quote', 'address', 'description', 'subtext'].includes(k)
           out[k] = wrap(v, isText ? 'text' : 'string')

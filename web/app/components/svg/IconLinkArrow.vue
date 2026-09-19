@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-// Flèche des cartes-liens (DS « Form / LinkCard »), tracé exporté de Figma.
 const props = defineProps({
   color: {
     type: String,

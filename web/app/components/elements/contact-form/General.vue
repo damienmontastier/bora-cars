@@ -1,7 +1,4 @@
 <script setup lang="ts">
-// Parcours « Demande générale » de la page Contact : le formulaire historique, inchangé
-// (Prénom, Nom*, Adresse mail*, Téléphone*, Objet*, Message*, newsletter).
-// L'envoi, le statut et le honeypot vivent dans useContactForm (conteneur ElementsContactForm).
 import type { ContactSubjectOption } from '~/queries/contact'
 import { CONTACT_MAX_LENGTH } from '~/config/CONTACT_PRO_CONFIG'
 
@@ -156,7 +153,6 @@ async function submit() {
     resetForm()
 }
 
-// Re-validate as the user fixes fields, but only AFTER the first submit attempt
 watch(
   () => ({ ...form }),
   () => {

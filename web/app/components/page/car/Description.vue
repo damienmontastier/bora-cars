@@ -117,7 +117,6 @@ $desc-stagger: 0.06s;
     clip-path: inset(0 0 0% 0);
   }
 
-  // Stagger uniquement à l'ouverture : opacity démarre après le y
   @for $i from 1 through 10 {
     $delay: ($i - 1) * $desc-stagger;
     &__more--open &__more-inner > p:nth-child(#{$i}) {

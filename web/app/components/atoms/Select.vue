@@ -11,12 +11,7 @@ const props = withDefaults(defineProps<{
   options: Option[]
   label?: string
   placeholder?: string
-  // `stacked` (défaut) : libellé empilé sur fond beige (formulaires, ex. Pricing).
-  // `inline` : pilule bordée qui « hug » son contenu (barre de filtres catalogue).
   variant?: 'stacked' | 'inline'
-  // Ancrage du menu sur MOBILE en variante inline : `left` (déborde vers la
-  // droite, défaut — pour le 1ᵉʳ select) / `right` (déborde vers la gauche — pour
-  // le dernier select de la barre). Sans effet sur desktop (toujours à droite).
   align?: 'left' | 'right'
 }>(), {
   label: undefined,
@@ -47,14 +42,12 @@ const selectedIndex = computed(() =>
 )
 
 const displayValue = computed(() => {
-  // Valeur vide (filtre non sélectionné) → on affiche le placeholder = nom du champ.
   if (props.modelValue === '' && props.placeholder)
     return props.placeholder
   const found = props.options.find(o => o.value === props.modelValue)
   return found?.label ?? props.placeholder ?? ''
 })
 
-// État « actif » (uniquement en variante inline) : un filtre est sélectionné.
 const isActive = computed(() => props.variant === 'inline' && props.modelValue !== '')
 
 function open() {
@@ -352,7 +345,6 @@ function onKeydown(e: KeyboardEvent) {
       transform 0.4s cubic-bezier(0.16, 1, 0.3, 1) calc(0.05s + var(--i, 0) * 0.035s);
   }
 
-  // Variante « pilule » bordée pour la barre de filtres (Figma catalogue).
   &--inline {
     width: auto;
 
@@ -377,7 +369,6 @@ function onKeydown(e: KeyboardEvent) {
       }
     }
 
-    // Filtre sélectionné : bordure pleine pour le distinguer.
     .atoms-select__trigger--active {
       border-color: var(--c-black-100);
     }
@@ -387,8 +378,6 @@ function onKeydown(e: KeyboardEvent) {
       white-space: nowrap;
     }
 
-    // Desktop : le groupe de filtres est aligné à droite → on ancre le menu sur
-    // le bord DROIT de la pilule (déborde vers la gauche, jamais hors écran).
     .atoms-select__listbox {
       left: auto;
       right: 0;
@@ -397,16 +386,12 @@ function onKeydown(e: KeyboardEvent) {
       max-width: desktop-vw(360px);
 
       @include mobile {
-        // Mobile : le groupe part de la GAUCHE → ancrage à gauche par défaut
-        // (déborde vers la droite) pour que le 1ᵉʳ select reste dans le viewport.
         left: 0;
         right: auto;
         max-width: mobile-vw(280px);
       }
     }
 
-    // Dernier select de la barre : ancré à droite aussi sur mobile, sinon il
-    // déborderait à droite du viewport.
     &.atoms-select--align-right .atoms-select__listbox {
       @include mobile {
         left: auto;

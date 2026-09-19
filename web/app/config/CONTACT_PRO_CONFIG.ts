@@ -1,19 +1,3 @@
-/**
- * Parcours « Leasing professionnel » de la page Contact : valeurs des listes.
- *
- * Source unique, lue par le formulaire (`ElementsContactFormPro`) ET par l'API
- * (`server/api/contact.post.ts`, via l'alias `~/config`).
- *
- * - `value` : identifiant stable envoyé dans le payload. Il sert aussi de clé au
- *   libellé affiché : `contact.pro.options.<liste>.<value>` dans le glossaire
- *   Sanity (FR/EN, modifiable par le client).
- * - `airtable` : libellé EXACT de l'option dans la table Leads. L'API écrit avec
- *   `typecast: true` : une valeur inconnue créerait une option fantôme dans le CRM,
- *   d'où la liste blanche. Ces valeurs ne sont JAMAIS modifiables depuis le Studio.
- *
- * Renommer une option côté CRM ⇒ renommer son `airtable` ici (et inversement).
- */
-
 export interface ProOption<V extends string = string> {
   value: V
   airtable: string
@@ -46,13 +30,11 @@ export const PRO_BALANCE_SHEETS = [
   { value: 'threePlus', airtable: '3 et +' },
 ] as const satisfies readonly ProOption[]
 
-// Oui / Non des questions « revenus personnels » et « refus de leasing ».
 export const PRO_YES_NO = [
   { value: 'yes', airtable: 'Oui' },
   { value: 'no', airtable: 'Non' },
 ] as const satisfies readonly ProOption[]
 
-// Champ Airtable « Revenus personnels » : « Non », ou le type quand la réponse est Oui.
 export const PRO_INCOME_NONE = 'Non'
 
 export const PRO_INCOME_TYPES = [
@@ -74,16 +56,13 @@ export const PRO_USAGES = [
   { value: 'both', airtable: 'Les deux' },
 ] as const satisfies readonly ProOption[]
 
-// Usages pour lesquels l'encart d'aide de l'étape (E) s'affiche (comme le prototype).
 export const PRO_USAGES_WITH_DOCS_HINT: readonly string[] = ['personal', 'both']
 
-// `airtable` = option du champ « Type de financement » (existantes : LOA / LLD).
 export const PRO_FINANCINGS = [
   { value: 'loa', airtable: 'LOA' },
   { value: 'lld', airtable: 'LLD' },
 ] as const satisfies readonly ProOption[]
 
-// Champ Airtable « Durée (mois) » : nombre, pas un select.
 export const PRO_DURATIONS = [
   { value: 'y3', months: 36 },
   { value: 'y4', months: 48 },
@@ -106,14 +85,10 @@ export const PRO_DOCUMENTS = [
   { value: 'socialProof', airtable: 'Preuve sociale ou supports digitaux (site internet, réseaux sociaux…)' },
 ] as const satisfies readonly ProOption[]
 
-// Options qui portent une 2e ligne (« indice ») sous leur libellé, comme dans le
-// prototype : clé glossaire `contact.pro.options.documents.<value>Hint`.
 export const PRO_DOCUMENTS_WITH_HINT: readonly string[] = ['socialProof']
 
-// Première année proposée pour la date de création (le prototype remonte à 1980).
 export const PRO_CREATION_FIRST_YEAR = 1980
 
-// Les 5 étapes, dans l'ordre. `letter` = repère affiché dans l'indicateur « (A) ».
 export const PRO_STEPS = [
   { id: 'a', letter: 'A' },
   { id: 'b', letter: 'B' },
@@ -135,17 +110,11 @@ export type ProDuration = typeof PRO_DURATIONS[number]['value']
 export type ProTimeline = typeof PRO_TIMELINES[number]['value']
 export type ProDocument = typeof PRO_DOCUMENTS[number]['value']
 
-// Parcours de la page Contact (sélecteur « Demande générale » / « Leasing professionnel »).
-// `general` = le formulaire historique ; valeur par défaut quand le payload n'en porte pas.
 export const CONTACT_PROFILES = ['general', 'pro'] as const
 export type ContactProfile = typeof CONTACT_PROFILES[number]
 
-// Paramètre du lien direct `/{fr|en}/contact?profil=pro`.
 export const CONTACT_PROFILE_QUERY = 'profil'
 
-// Longueurs maximales des champs texte des deux parcours : `maxlength` des champs du
-// formulaire ET contrôle de l'API. Le navigateur bloque la saisie à la même limite que le
-// serveur : une saisie trop longue ne finit jamais en refus incompréhensible.
 export const CONTACT_MAX_LENGTH = {
   name: 100,
   email: 254,
@@ -153,13 +122,11 @@ export const CONTACT_MAX_LENGTH = {
   city: 100,
   company: 200,
   activity: 200,
-  // Km / an, budget mensuel (saisie libre dont l'API extrait le 1er nombre)
   short: 100,
   models: 300,
   message: 10000,
 } as const
 
-/** Payload envoyé par le parcours Leasing pro à `POST /api/contact`. */
 export interface ProLeadPayload {
   firstName: string
   lastName: string

@@ -1,5 +1,4 @@
 <script setup lang="ts">
-// Étape (D) « Projet » du parcours Leasing pro.
 import { CONTACT_MAX_LENGTH, PRO_DURATIONS, PRO_FINANCINGS, PRO_TIMELINES, PRO_USAGES } from '~/config/CONTACT_PRO_CONFIG'
 
 const { t } = useI18n()
@@ -23,7 +22,6 @@ const { form, errors, options, placeholder } = useContactProForm()
         :legend="t('contact.pro.fields.financing')"
         :options="options('financing', PRO_FINANCINGS)"
       />
-      <!-- LOA ou LLD → kilomètres / an + durée de financement -->
       <div v-if="form.financing" class="app-elements-contact-form-pro__conditional">
         <div class="app-elements-contact-form-pro__row">
           <AtomsFieldText

@@ -4,7 +4,6 @@ interface Props {
   type?: 'text' | 'email'
   required?: boolean
   autocomplete?: string
-  // Visible seulement une fois le libellé remonté (champ actif et vide)
   placeholder?: string
   inputmode?: 'text' | 'email' | 'numeric' | 'decimal' | 'tel'
   maxlength?: number

@@ -21,7 +21,6 @@ export function useFontsReady() {
       return
     }
 
-    // Fallback de sécurité : quoi qu'il arrive, on débloque après le timeout
     fallbackTimer = setTimeout(() => {
       console.warn('[Fonts] Timeout: Fonts took too long, showing content anyway.')
       unlock()
@@ -35,7 +34,7 @@ export function useFontsReady() {
     }
     catch (e) {
       console.warn('[Fonts] Error while loading fonts.', e)
-      unlock() // Important : Toujours débloquer en cas d'erreur
+      unlock()
     }
   }
 

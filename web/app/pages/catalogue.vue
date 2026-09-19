@@ -9,7 +9,6 @@ const { page, cars, isLoading, facets, filters, setFilter, resetFilters, hasActi
 
 usePageSeo(computed(() => page.value?.seo))
 
-// Message pré-rempli pour tous les CTA WhatsApp de cette page (injecté par BaseLink)
 provideWhatsappMessage(computed(() => page.value?.whatsappMessage))
 
 useMenuCtaSnap()

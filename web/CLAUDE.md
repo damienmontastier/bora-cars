@@ -275,7 +275,7 @@ Reveal duration scales with element height (clamped `0.65s`–`1.2s`, `--ease-in
 
 ### ElementsMarquee (`app/components/elements/Marquee.vue`)
 
-Infinite scrolling marquee driven by GSAP `fromTo` with `repeat: -1` + ScrollTrigger.
+Infinite scrolling marquee driven by GSAP `fromTo` with `repeat: -1`, **fully stopped off-screen**: `useElementVisibility` (VueUse, IntersectionObserver) pauses/resumes the tween — no ScrollTrigger, so the marquees stay out of `ScrollTrigger.refresh()`.
 
 **Props:**
 
@@ -288,15 +288,15 @@ Infinite scrolling marquee driven by GSAP `fromTo` with `repeat: -1` + ScrollTri
 | `animatedOnMobile` | Boolean | false | Enable animation on mobile |
 | `scrollVelocity` | Boolean | false | Speed up on scroll |
 | `scrollVelocitySpeed` | Number | 0.5 | Velocity multiplier |
-| `trigger` | HTMLElement\|null | null | External ScrollTrigger trigger element (use parent section when marquee is inside a parallax/animated container) |
+| `trigger` | HTMLElement\|null | null | Element observed for visibility instead of the marquee itself (use the parent section when the marquee is inside a parallax/animated container) |
 
 **Key patterns:**
 - Waits for `fontsLoaded` (Pinia store) before measuring `singleWidth` — critical to avoid seam misalignment
 - `singleWidth = Math.round(elementsRef[0].getBoundingClientRect().width)` — rounded to avoid sub-pixel seam
 - `useMouseInElement` only set up when `pauseOnHover: true` (avoids unnecessary event listeners)
-- `useResizeObserver` with 200ms debounce → teardown + re-setup on resize
-- Scroll velocity uses `useLenis(callback)` pattern (idiomatic lenis/vue API) with snappy ramp-up (`duration: 0.15`) and smooth return to 1 (`duration: 1`, triggered 100ms after scroll stops)
-- `trigger` prop: use parent section ref when the marquee is inside an element animated by another ScrollTrigger (prevents play/pause firing at wrong scroll positions)
+- `useResizeObserver` with 200ms debounce → re-setup only if the marquee's `offsetWidth` really changed (the observer also fires once when it starts watching) and once fonts are in. `setupAnimation()` always tears down first: a second setup without cleanup would leak an infinite tween
+- Scroll velocity: `useLenis(callback)` (Lenis `scroll` event, only when `scrollVelocity`) → `quickTo(tween, 'timeScale', { duration: 0.3 })`, ignored off-screen. Lenis emits a last event at velocity 0 when the scroll settles, so the marquee returns to 1. **Never `gsap.ticker.add`**: it would run every frame forever, outside Tempus
+- `trigger` prop: use parent section ref when the marquee is inside an element animated by another ScrollTrigger (FullscreenMarquee)
 
 **Do NOT:**
 - Use `modifiers: { x: ... }` on the tween — breaks seamless loop for reversed direction
@@ -341,7 +341,7 @@ ctx?.revert()
 ## Nuxt config highlights (`nuxt.config.ts`)
 
 - Modules: `@nuxt/eslint`, `@nuxt/image`, `@nuxt/fonts`, `@vueuse/nuxt`, `@pinia/nuxt`, `@nuxtjs/seo`, `@nuxtjs/i18n`, `@nuxtjs/sanity`, `lenis/nuxt`, `@nuxt/scripts`. **Ni `@nuxt/ui` ni Tailwind** (retirés : ils n'habillaient qu'un `<UApp>` et chargeaient ~170 Ko de CSS bloquant) — tout le style est en SCSS/BEM, formulaires compris (champs natifs maison dans `components/atoms/Field*.vue`)
-- Sanity : `perspective: 'published'`, `useCdn: true`, `minimal: true` (micro-client de requêtes au lieu de `@sanity/client` complet ≈ 30 Ko brotli par page — incompatible avec visual editing / Live Content API), pas de `globalHelper` (`useSanity()`/`useSanityQuery()` sont auto-importés) ; visual editing commenté
+- Sanity : `perspective: 'published'`, `useCdn: true`, `minimal: true` (micro-client de requêtes au lieu de `@sanity/client` complet ≈ 30 Ko brotli par page — incompatible avec visual editing / Live Content API), pas de `globalHelper` (`useSanity()`/`useSanityQuery()` sont auto-importés), pas de visual editing
 - `experimental.payloadExtraction: 'client'` : payload des pages prérendues inclus dans le HTML au premier chargement (pas de requête `_payload.json` avant l'hydratation), `_payload.json` gardé pour la navigation client
 - i18n : locales construites depuis `../shared/languages` (+ `LOCALE_IETF` fr-FR/en-GB), `customRoutes: 'config'` + `pages: I18N_PAGES`, `skipSettingLocaleOnNavigate: true`
 - Fonts (locales, `public/fonts/`, `src` explicite pour court-circuiter l'heuristique du provider local) : HaasGrotDispMedium (600), HaasGrotDispRegular (400), HaasGrotDispBold (700). Medium et Regular sont préchargées (`app.head.link`, le préchargeur attend `document.fonts.ready`) ; `/fonts/*` en cache 1 an `immutable` (`netlify.toml`) → **renommer le fichier si une police change**

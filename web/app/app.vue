@@ -29,20 +29,9 @@ const { finalizePendingLocaleChange, t } = useI18n()
 const settings = useSettings()
 const lang = useSanityLang()
 
-// Locale-dependent Sanity data — menu burger label + panel (`menu`), and every
-// `settings.contactLink` consumer (hero/menu/brands CTA text) + SEO (`settings`) —
-// must NOT swap before the page-transition overlay covers the screen, otherwise the
-// still-visible leaving page flips language mid-switch (and widths jump, e.g. the
-// burger's "Fermer"/"Close" sizer). So both queries refetch EARLY (params follow
-// `lang`, data ready in time) but their data is committed to the live refs only when
-// idle / on 'covered'. `navigating` is raised in this same tick — before a cache hit
-// could resolve synchronously — and cleared on 'covered' (Transition.vue emits it in
-// onLeave's onComplete = overlay fully covers the screen).
 const navigating = ref(false)
 const menuParams = reactive({ lang: lang.value })
 const settingsParams = reactive({ lang: lang.value })
-// Lieux (= agences) : n'alimentent que le JSON-LD (invisible) → pas de double-buffer
-// nécessaire, on laisse leurs params suivre la langue directement.
 const locationsParams = reactive({ lang: lang.value })
 watch(lang, (v) => {
   navigating.value = true
@@ -62,13 +51,11 @@ function commitLocaleData() {
   menu.value = menuData.value ?? null
   settings.value = settingsData.value ?? null
 }
-// Initial load, plus any refetch that only resolves once we're idle again.
 watch([menuData, settingsData], () => {
   if (!navigating.value)
     commitLocaleData()
 }, { immediate: true })
 
-// During a navigation, swap exactly when the overlay covers the screen, then re-open commits.
 const transitionBus = useEventBus('page-transition')
 transitionBus.on((event) => {
   if (event === 'covered') {
@@ -80,14 +67,10 @@ transitionBus.on((event) => {
 const { url: siteUrl, name: siteName, separator } = useSiteConfig()
 const { IS_PROD } = useRuntimeConfig().public
 
-// Title GLOBAL : `{texte} — BORA CARS` (mot-clé descriptif devant → poids SEO + résiste
-// mieux à la troncature). L'accueil surcharge ce template pour mener par la marque
-// (`BORA CARS — {texte}`) directement dans `pages/index.vue` via useHead().
 useHead({
   titleTemplate: chunk => chunk ? `${chunk} ${separator ?? '—'} ${siteName ?? 'BORA CARS'}` : (siteName ?? 'BORA CARS'),
 })
 
-// Image OG globale (repli quand une page n'en fournit pas) + ses dimensions.
 const ogImageUrl = useOgImageUrl()
 const globalOgImage = computed(() => ogImageUrl(settings.value?.seo))
 
@@ -95,50 +78,21 @@ useSeoMeta({
   title: () => settings.value?.fallbackTitle ?? 'BORA CARS',
   description: () => (settings.value?.seo?.description || t('seo.description')).trim(),
   ogImage: () => globalOgImage.value,
-  // `og:image` seul ne suffit pas : sans dimensions, WhatsApp/LinkedIn/Facebook
-  // doivent d'abord télécharger l'image et l'aperçu part souvent sans visuel au
-  // premier partage. Déduites de l'URL, sans champ en plus côté Sanity (cf. ogImageSize).
   ogImageWidth: () => ogImageSize(globalOgImage.value)?.width,
   ogImageHeight: () => ogImageSize(globalOgImage.value)?.height,
 })
-// og:site_name → auto via site.name (nuxt-seo-utils automaticDefaults)
-// og:title / og:description → auto-inférés depuis title/description (automaticOgAndTwitterTags)
-//
-// PAS de `twitter:*` ici. Ce sont des doublons stricts de l'Open Graph (X lit l'OG en
-// repli), et unhead les signale désormais comme dépréciés. `twitter:card` — le seul
-// sans équivalent OG — est coupé via `seo.automaticTwitterTags: false` dans
-// nuxt.config : la marque n'a pas de compte X (cf. socials dans Paramètres), donc
-// aucune plateforme réellement utilisée ne lit ces balises.
 
-// Identité schema.org = la MARQUE (Organization) + un node AutoRental PAR AGENCE.
-// Modèle multi-établissements : chaque agence est un LocalBusiness/AutoRental distinct
-// (adresse / géo / téléphone / horaires propres), relié à la marque par `parentOrganization`.
-// Les nodes WebSite / WebPage — et leur volet i18n (inLanguage + translationOfWork /
-// workTranslation par locale) — sont générés AUTOMATIQUEMENT par nuxt-schema-org et se
-// rattachent à la marque par @id (#identity). Données éditables dans Sanity (settings) ;
-// `schemaOrg.reactive` resync le JSON-LD au changement de langue côté client. À l'SSR,
-// `settings` est déjà résolu → JSON-LD correct dans le HTML prérendu. `useSchemaOrg`
-// accepte un computed (resolve par @id au rendu).
-// @unhead n'exporte pas DayOfWeek/Time (types internes) → on les redéclare pour typer
-// proprement les horaires venant de Sanity (jours en anglais + "HH:MM" validés au Studio).
 type DayOfWeek = 'Monday' | 'Tuesday' | 'Wednesday' | 'Thursday' | 'Friday' | 'Saturday' | 'Sunday'
 type Time = `${number}${number}:${number}${number}`
 
 const businessSchema = computed(() => {
   const b = settings.value?.business
   const description = (settings.value?.seo?.description || t('seo.description')).trim()
-  // @id explicite et partagé : garantit que `parentOrganization` des agences pointe
-  // exactement sur l'identité (resolveAsGraphKey('#identity') la reconnaît comme identity).
   const identityId = `${siteUrl}/#identity`
 
-  // La marque (parent de toutes les agences). `sameAs` = réseaux sociaux de marque
-  // uniquement — les liens Google (kgmid) sont par-AGENCE (sur le `sameAs` du node AutoRental,
-  // car chaque fiche Google correspond à un établissement, pas à la marque).
   const organization = defineOrganization({
     '@id': identityId,
     'name': siteName,
-    // Variante de casse usuelle ("Bora Cars") : aide Google à rattacher les
-    // requêtes de marque à l'entité plutôt qu'au modèle VW/Maserati « Bora ».
     'alternateName': 'Bora Cars',
     'slogan': t('seo.slogan'),
     'url': siteUrl,
@@ -159,13 +113,7 @@ const businessSchema = computed(() => {
     ...(b?.areaServed?.length ? { areaServed: b.areaServed } : {}),
   })
 
-  // Une agence = un document `location` (Lieu) → un node AutoRental rattaché à la marque.
   const agencies = (locationsData.value ?? []).map((loc, i) => {
-    // AutoRental = sous-type schema.org de AutomotiveBusiness (2e niveau), reconnu par
-    // Google mais absent de l'union TS de @unhead (qui s'arrête au 1er niveau).
-    // La directive doit porter sur l'APPEL : tsc rapporte l'erreur sur l'argument de
-    // `defineLocalBusiness`, pas sur la ligne `'@type'` (où elle ne supprimait rien
-    // et ressortait en « unused '@ts-expect-error' directive »).
     // @ts-expect-error — sous-type valide non listé dans ValidLocalBusinessSubTypes
     return defineLocalBusiness({
       '@id': `${siteUrl}/#agency-${i}`,
@@ -190,7 +138,6 @@ const businessSchema = computed(() => {
             },
           }
         : {}),
-      // Adresse postale RÉELLE (≠ le libellé `city`, ex. label « Paris » / ville « Neuilly »).
       ...(loc.address || loc.addressLocality || loc.postalCode
         ? {
             address: {
@@ -208,7 +155,6 @@ const businessSchema = computed(() => {
       ...(loc.mapsUrl ? { sameAs: [loc.mapsUrl] } : {}),
       ...(loc.openingHours?.length
         ? {
-            // 24h/24 → 00:00–23:59 (convention schema.org pour une ouverture continue).
             openingHoursSpecification: loc.openingHours
               .filter(o => o.days?.length && (o.open24h || (o.opens && o.closes)))
               .map(o => ({
@@ -254,8 +200,6 @@ const pageTransition = {
   },
   onBeforeEnter: async () => {
     await finalizePendingLocaleChange()
-    // Safety net: commit (and re-open commits) before the new page mounts, in case
-    // 'covered' didn't fire. Idempotent with the bus.
     commitLocaleData()
     navigating.value = false
     appStore.menuTheme = appStore.menuThemePending
@@ -271,20 +215,15 @@ const pageTransition = {
 }
 
 onMounted(() => {
-  // Preserve the browser's native hash scroll on refresh; otherwise start at top.
   if (!window.location.hash)
     window.scrollTo(0, 0)
 })
 
-// Le préchargeur ne joue qu'au chargement complet : retiré du DOM après son fondu final.
 const preloaderMounted = ref(true)
 </script>
 
 <template>
   <div id="app" class="app">
-    <!-- <AppUnderConstruction v-if="IS_PROD" /> -->
-
-    <!-- <template v-else> -->
     <AppLenis />
 
     <AppPreloader v-if="preloaderMounted" @gone="preloaderMounted = false" />
@@ -298,10 +237,6 @@ const preloaderMounted = ref(true)
 
     <AppTransition ref="transitionRef" />
 
-    <!-- <DevOnly>
-      <AppMenuDev />
-    </DevOnly> -->
-
     <div id="app-page" class="app-page">
       <NuxtPage :transition="pageTransition" />
     </div>
@@ -309,7 +244,6 @@ const preloaderMounted = ref(true)
     <DevOnly>
       <DebugPatrol />
     </DevOnly>
-    <!-- </template> -->
   </div>
 </template>
 

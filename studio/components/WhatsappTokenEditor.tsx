@@ -19,7 +19,6 @@ import {
 } from './whatsappTokenDom'
 
 export interface WhatsappVariable {
-  /** Jeton sans accolades : `marque` ↔ `{marque}` dans le texte stocké. */
   name: string
   label: string
   description: string
@@ -30,7 +29,6 @@ const MODELE: WhatsappVariable = { name: 'modele', label: 'Modèle', description
 const PRIX: WhatsappVariable = { name: 'prix', label: 'Prix', description: 'Montant AVEC la devise (« 900 € »), vide si pas de prix : n’ajoute pas de €.' }
 const PERIODE: WhatsappVariable = { name: 'periode', label: 'Période', description: '« par jour » ou « par mois ».' }
 
-// Remplies côté front par useCarContact — à garder synchronisées avec `whatsappParams`.
 export const CAR_VARIABLES: WhatsappVariable[] = [
   MARQUE,
   MODELE,
@@ -41,7 +39,6 @@ export const CAR_VARIABLES: WhatsappVariable[] = [
   { name: 'url', label: 'Lien fiche', description: 'Lien complet de la fiche voiture.' },
 ]
 
-// Remplies par chaque story de /bio (web/app/components/page/bio/Story.vue).
 export const BIO_VARIABLES: WhatsappVariable[] = [
   MARQUE,
   MODELE,
@@ -50,12 +47,10 @@ export const BIO_VARIABLES: WhatsappVariable[] = [
   { name: 'url', label: 'Lien fiche', description: 'Lien complet de la fiche de la voiture de la story.' },
 ]
 
-// Remplies par provideWhatsappMessage (web/app/composables/useWhatsappMessage.ts).
 export const PAGE_VARIABLES: WhatsappVariable[] = [
   { name: 'url', label: 'Lien de la page', description: 'Lien complet de la page d’où part le message : tu sais d’où vient le contact.' },
 ]
 
-/** Jeton → raison d'avertissement (tag orange), pour un champ donné. */
 export type TokenWarnings = Record<string, string>
 
 const CSS = `
@@ -130,7 +125,6 @@ html.wa-dragging, html.wa-dragging * { cursor: grabbing !important; user-select:
 interface EditorHandle {
   root: HTMLElement
   insertToken: (name: string) => void
-  /** Dépose un tag sous le pointeur. `moving` = tag de CE message qu'on déplace. */
   dropToken: (name: string, x: number, y: number, moving?: HTMLElement) => void
   showDropCaret: (x: number, y: number) => void
   hideDropCaret: () => void
@@ -143,7 +137,6 @@ interface ScopeValue {
   setActive: (handle: EditorHandle) => void
   insert: (name: string) => void
   startDrag: (e: React.PointerEvent, name: string, label: string, moving?: HTMLElement) => void
-  /** Vrai juste après un glisser : le `click` qui suit ne doit pas insérer une 2ᵉ fois. */
   consumeDragClick: () => boolean
 }
 
@@ -185,7 +178,6 @@ function WhatsappTokenScope({ variables, warningsFor, children }: {
       setActive(handle) {
         active.current = handle
       },
-      // Clic sur un tag de la palette : dans le dernier champ utilisé, sinon le 1er affiché.
       insert(name) {
         const target = active.current?.root.isConnected ? active.current : connected()[0]
         target?.insertToken(name)
@@ -195,16 +187,9 @@ function WhatsappTokenScope({ variables, warningsFor, children }: {
         justDragged.current = false
         return dragged
       },
-      /**
-       * Glisser « maison » aux événements pointeur (et non le drag & drop HTML5 natif,
-       * capricieux dans un contentEditable : boutons non glissables sous Firefox,
-       * Safari, glisser de sélection…). Un fantôme suit la souris ; au relâcher, le tag
-       * est déposé à la position du curseur texte sous le pointeur.
-       */
       startDrag(e, name, label, moving) {
         if (e.button !== 0)
           return
-        // Ni sélection de texte, ni perte du curseur dans le champ en cours.
         e.preventDefault()
         const source = e.currentTarget as HTMLElement
         const startX = e.clientX
@@ -251,7 +236,6 @@ function WhatsappTokenScope({ variables, warningsFor, children }: {
           justDragged.current = true
           setTimeout(() => { justDragged.current = false }, 0)
           const target = editorAt(ev.clientX, ev.clientY)
-          // Même message → déplacement ; autre langue / palette → copie.
           target?.dropToken(name, ev.clientX, ev.clientY, moving && target.root.contains(moving) ? moving : undefined)
         }
 
@@ -328,15 +312,10 @@ function WhatsappTokenTextInput(props: StringInputProps) {
   const savedRange = useRef<Range | null>(null)
   const [empty, setEmpty] = useState(!value)
 
-  // Refs « dernière valeur » pour les callbacks appelés hors rendu (palette, glisser).
   const latest = useRef({ value, onChange, describe, readOnly })
   useLayoutEffect(() => {
     latest.current = { value, onChange, describe, readOnly }
   })
-  // Valeurs envoyées à Sanity à l'instant : si l'une d'elles revient en props après
-  // une frappe plus récente (props en retard), ce n'est pas un changement externe →
-  // on ne ré-affiche pas (sinon le curseur saute). Borné à 1 s : au-delà, une ancienne
-  // valeur qui revient (restauration d'historique…) est bien ré-affichée.
   const emitted = useRef<{ value: string, at: number }[]>([])
 
   const setRootRef = useCallback((el: HTMLDivElement | null) => {
@@ -370,8 +349,6 @@ function WhatsappTokenTextInput(props: StringInputProps) {
     savedRange.current = range.cloneRange()
   }, [])
 
-  // Valeur Sanity → DOM, uniquement si elle diffère de ce qui est affiché
-  // (sinon on casserait le curseur et l'annulation native à chaque frappe).
   useLayoutEffect(() => {
     const root = rootRef.current
     if (!root)
@@ -460,7 +437,6 @@ function WhatsappTokenTextInput(props: StringInputProps) {
     const root = rootRef.current
     if (e.key !== 'Enter' || e.nativeEvent.isComposing || !root)
       return
-    // Saut de ligne en « \n » texte (le comportement natif insère des <div>).
     e.preventDefault()
     const selection = root.ownerDocument.getSelection()
     if (!selection?.rangeCount)
@@ -484,7 +460,6 @@ function WhatsappTokenTextInput(props: StringInputProps) {
 
   const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
     const target = e.target as HTMLElement
-    // × d'un tag : ne pas déplacer le curseur (le clic qui suit retire le tag).
     if (target.closest('[data-remove]')) {
       e.preventDefault()
       return
@@ -504,7 +479,6 @@ function WhatsappTokenTextInput(props: StringInputProps) {
     emit()
   }
 
-  // Glisser-déposer natif (texte venu d'ailleurs) : inséré en texte brut, jamais en HTML.
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
     const root = rootRef.current
     e.preventDefault()
@@ -516,7 +490,6 @@ function WhatsappTokenTextInput(props: StringInputProps) {
   }
 
   const handleBlur = (e: React.FocusEvent<HTMLDivElement>) => {
-    // `{jeton}` tapé à la main → transformé en tag en quittant le champ.
     const root = rootRef.current
     if (root && hasRawTokens(root))
       renderTemplate(root, serializeEditor(root), describe)
@@ -539,7 +512,6 @@ function WhatsappTokenTextInput(props: StringInputProps) {
         onPaste={handlePaste}
         onPointerDown={handlePointerDown}
         onClick={handleClick}
-        // Pas de glisser natif d'une sélection (déplacerait du HTML dans le champ).
         onDragStart={e => e.preventDefault()}
         onDragOver={e => e.preventDefault()}
         onDrop={handleDrop}
@@ -558,11 +530,6 @@ function WhatsappTokenTextInput(props: StringInputProps) {
 
 type ComplexInputProps = ArrayOfObjectsInputProps | ObjectInputProps
 
-/**
- * Remplace, sous le champ courant, chaque texte par langue (`internationalizedArrayText`
- * → `{ language, value }`) par l'éditeur à tags. Le reste du rendu (boutons + FR/+ EN,
- * libellés de langue…) reste celui du plugin : seul le textarea change.
- */
 function useTokenRenderInput(props: ComplexInputProps): RenderInputCallback {
   const { renderInput } = props
   return useCallback((inputProps) => {
@@ -580,10 +547,6 @@ function ScopedDefault({ props, children }: { props: ComplexInputProps, children
   return <>{children ? children(defaultInput) : defaultInput}</>
 }
 
-/**
- * Input d'un champ `internationalizedArrayText` de message WhatsApp : palette de tags
- * + éditeur à tags pour chaque langue. Stockage inchangé (texte avec `{jetons}`).
- */
 export function createWhatsappMessageInput(variables: WhatsappVariable[], hint?: React.ReactNode) {
   return function WhatsappMessageInput(props: ArrayOfObjectsInputProps) {
     return (
@@ -597,7 +560,6 @@ export function createWhatsappMessageInput(variables: WhatsappVariable[], hint?:
   }
 }
 
-/** Variante pour un objet regroupant plusieurs messages (carPage.whatsapp). */
 export function WhatsappTokenObjectScope({ props, variables, warningsFor, children }: {
   props: ObjectInputProps
   variables: WhatsappVariable[]

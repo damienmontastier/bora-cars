@@ -3,8 +3,6 @@ import { InsertMenuHoverPreview } from './InsertMenuHoverPreview'
 
 export function StudioLayout(props: LayoutProps) {
   const styles = `
-    /* Internationalized array — turn the per-language label (FR / EN above each input)
-       into a small pill-style badge so it reads as a language indicator, not a field title. */
     [data-ui="Card"] > [data-ui="Flex"] [data-ui="Stack"] > [data-ui="Box"]:first-child [data-ui="Label"],
     [data-ui="Card"] [data-ui="Stack"] > div:first-child > [data-ui="Label"] {
       display: inline-block;

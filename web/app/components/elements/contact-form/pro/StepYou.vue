@@ -1,5 +1,4 @@
 <script setup lang="ts">
-// Étape (A) « Vous » du parcours Leasing pro.
 import { CONTACT_MAX_LENGTH } from '~/config/CONTACT_PRO_CONFIG'
 
 const { t } = useI18n()

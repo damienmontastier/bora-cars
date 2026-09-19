@@ -7,33 +7,16 @@ const WHEN_KEYS = ['today', 'tomorrow', 'weekend', 'nextweek', 'later'] as const
 type DurationKey = typeof DURATION_KEYS[number]
 type WhenKey = typeof WHEN_KEYS[number]
 
-// 1ʳᵉ lettre en minuscule : les libellés « Quand » sont capitalisés pour le menu
-// déroulant, mais doivent s'intégrer en milieu de phrase dans le message.
 function lowerFirst(s: string) {
   return s ? s.charAt(0).toLowerCase() + s.slice(1) : s
 }
 
 interface CarContactOptions {
-  // Les 4 templates WhatsApp éditables depuis Sanity (carPage.whatsapp). useCarContact
-  // choisit le bon selon `schedule` × présence d'un prix ; fallback i18n si vide.
   whatsappTemplates?: MaybeRefOrGetter<CarWhatsappTemplates | undefined>
-  // Étiquette `source` injectée dans l'événement de clic auto-tracké par BaseLink
-  // (distingue le bloc Pricing de la barre sticky).
   source: string
-  // Le contexte possède-t-il des sélecteurs durée/quand ? Le bloc Pricing : oui.
-  // La barre sticky : non → templates « simple* » (sans dates) et on ne remonte pas
-  // durée/quand au tracking.
   schedule?: boolean
 }
 
-/**
- * Logique partagée de tarif + contact WhatsApp d'une fiche voiture.
- * Mutualisée entre le bloc `Pricing` (avec sélecteurs durée/quand) et la barre
- * sticky mobile `StickyBar` (raccourci de contact sans sélecteurs — elle réutilise
- * simplement les valeurs par défaut). Chaque appelant possède sa propre instance :
- * les watchers analytics « rental_config_change » ne se déclenchent donc que pour
- * le bloc Pricing, là où l'utilisateur peut réellement changer durée/quand.
- */
 export function useCarContact(car: MaybeRefOrGetter<CarDetailData>, options: CarContactOptions) {
   const settings = useSettings()
   const { t } = useI18n()
@@ -41,19 +24,13 @@ export function useCarContact(car: MaybeRefOrGetter<CarDetailData>, options: Car
   const route = useRoute()
   const analytics = useAnalytics()
 
-  // Contexte avec sélecteurs de dates (bloc Pricing) ou non (barre sticky).
   const schedule = options.schedule ?? true
 
   const carRef = computed(() => toValue(car))
 
-  // Le schéma Sanity garantit qu'un seul des deux prix est renseigné.
-  // On privilégie le mensuel s'il existe, sinon le journalier.
   const isMonthly = computed(() => carRef.value.prixMensuel != null)
   const priceValue = computed(() => carRef.value.prixMensuel ?? carRef.value.prixJournalier ?? null)
 
-  // Devise d'affichage choisie par le visiteur (EUR par défaut, CHF via le sélecteur) :
-  // le montant remonte donc déjà formaté ET symbolisé — y compris dans le {prix} du
-  // message WhatsApp, qui doit citer la devise que le visiteur avait sous les yeux.
   const { formatPrice } = useCurrency()
 
   const formattedPrix = computed(() => {
@@ -101,8 +78,6 @@ export function useCarContact(car: MaybeRefOrGetter<CarDetailData>, options: Car
     })
   })
 
-  // Variables disponibles dans le template Sanity et dans l'i18n de secours.
-  // marque / modele : laissés tels quels (valeurs Sanity).
   const whatsappParams = computed(() => ({
     marque: carRef.value.marque,
     modele: carRef.value.modele,
@@ -110,15 +85,9 @@ export function useCarContact(car: MaybeRefOrGetter<CarDetailData>, options: Car
     periode: periodLabel.value,
     duree: durationLabel.value,
     quand: lowerFirst(whenLabel.value),
-    // Pas `useRequestURL()` : au prerender il vaut `http://localhost`, figé dans le href.
     url: `${siteUrl}${route.path}`,
   }))
 
-  // Message WhatsApp — 1 cas sur 4, depuis les templates éditables carPage.whatsapp.
-  // Champ Sanity vide → chaîne vide → lien WhatsApp sans texte pré-rempli
-  // (withWhatsappText renvoie l'URL nue quand le message est vide).
-  // - bloc tarif (schedule) : withPrice / withoutPrice (peuvent inclure {quand}) ;
-  // - barre sticky (sans sélecteurs) : simpleWithPrice / simpleWithoutPrice (sans dates).
   const whatsappText = computed(() => {
     const hasPrice = !!formattedPrix.value
     const caseKey = schedule
@@ -132,8 +101,6 @@ export function useCarContact(car: MaybeRefOrGetter<CarDetailData>, options: Car
 
   const hasContact = computed(() => !!settings.value?.contactLink)
 
-  // Extra params fusionnés dans l'événement de clic auto-tracké par BaseLink.
-  // Durée/quand uniquement là où l'utilisateur les choisit réellement (Pricing).
   const ctaTrackingExtra = computed(() => ({
     source: options.source,
     ...vehicleParams.value,

@@ -8,7 +8,6 @@ defineProps({
 </script>
 
 <template>
-  <!-- Tracé exporté de Figma (icon/whatsapp, fichier [PROD] BORA). -->
   <svg
     class="svg-icon-whatsapp"
     xmlns="http://www.w3.org/2000/svg"

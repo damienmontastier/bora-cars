@@ -1,8 +1,5 @@
 import { CONTACT_MAX_LENGTH, CONTACT_PROFILES } from '~/config/CONTACT_PRO_CONFIG'
 
-// Deux parcours sur la page Contact, un seul endpoint : `profile` = 'general'
-// (Demande générale, formulaire historique — valeur par défaut si absente) ou 'pro'
-// (Leasing professionnel, cf. server/utils/contactPro.ts).
 interface ContactPayload {
   profile?: string
   lastName?: string
@@ -13,7 +10,6 @@ interface ContactPayload {
   subject?: string
   message?: string
   newsletter?: boolean
-  // Honeypot — must stay empty. A non-empty value means a bot filled the hidden field.
   website?: string
   locale?: string
   pageUrl?: string
@@ -24,29 +20,20 @@ interface ContactPayload {
   }
 }
 
-// No `.` in domain labels: avoids catastrophic backtracking.
 const EMAIL_RX = /^[^\s@]+@[^\s@.]+(?:\.[^\s@.]+)+$/
 
-// Champs saisis : mêmes limites que les `maxlength` du formulaire ; objet et méta : serveur seul
 const MAX_LENGTH = { ...CONTACT_MAX_LENGTH, subject: 200, meta: 2000 }
 
-// Existing Airtable « Type de demande » choice, used when the subject can't be
-// matched against Sanity (see resolveSubject).
 const FALLBACK_SUBJECT = 'Autre'
 
-// Owner option left out on purpose: FLOW or FLEX is decided with the owner.
-// Pro leads are typed by `profile: 'pro'` (PRO_LEAD_TYPE), not by a subject.
 const LEAD_TYPE_BY_SUBJECT_KEY: Record<string, string> = {
   ea34c6eaf461: 'LLD PRO — Leasing société',
   ee37b0534b50: 'Autre',
 }
 
-// Existing Airtable options for leads sent by the « Leasing professionnel » tab.
 const PRO_LEAD_TYPE = 'LLD PRO — Leasing société'
 const PRO_REQUEST_TYPE = 'Leasing professionnel'
 
-// The body is untrusted: the TS interface says string, the wire can send anything.
-// Non-strings become '' so they fail validation instead of crashing on .trim().
 function str(value: unknown) {
   return typeof value === 'string' ? value.trim() : ''
 }
@@ -57,8 +44,6 @@ interface SubjectOption {
   labels: (string | null)[] | null
 }
 
-// `typecast: true` creates an Airtable option for ANY string: always send the FR label
-// of a known Sanity option (by `_key`, else by any localized label), « Autre » otherwise.
 async function resolveSubject(key: string, label: string): Promise<{ label: string, key?: string }> {
   try {
     const options = await useSanity().fetch<SubjectOption[] | null>(
@@ -90,14 +75,11 @@ export default defineEventHandler(async (event) => {
 
   const body = await readBody<ContactPayload>(event)
 
-  // Honeypot trap — return success silently so the bot thinks it worked
-  // and stops retrying with variations. Never insert into Airtable.
   if (str(body?.website)) {
     console.warn('[api/contact] Honeypot triggered, discarding submission')
     return { ok: true }
   }
 
-  // Parcours absent = Demande générale (payload historique) ; inconnu = refusé.
   const rawProfile = str(body?.profile) || 'general'
   if (!(CONTACT_PROFILES as readonly string[]).includes(rawProfile))
     invalidPayload(['profile'])
@@ -115,10 +97,6 @@ export default defineEventHandler(async (event) => {
         'Authorization': `Bearer ${airtableToken}`,
         'Content-Type': 'application/json',
       },
-      // typecast: true → Airtable accepts new singleSelect values dynamically
-      // (creates the option on the fly instead of erroring). Every client-driven select
-      // is whitelisted first: subject → resolveSubject() (Sanity), pro lists →
-      // CONTACT_PRO_CONFIG (server/utils/contactPro.ts).
       body: { fields: recordFields, typecast: true },
     }), fields)
     if (dropped.length)
@@ -129,8 +107,6 @@ export default defineEventHandler(async (event) => {
   catch (err: any) {
     const status = err?.response?.status ?? err?.statusCode
     const airtablePayload = err?.response?._data ?? err?.data
-    // Field names only, never the values: name/email/phone/message are personal
-    // data and must not end up in the function logs.
     console.error('[api/contact] Airtable error', {
       status,
       airtable: airtablePayload,
@@ -152,7 +128,6 @@ function invalidPayload(fields: string[]): never {
   })
 }
 
-// Leasing professionnel : liste blanche + conversion vers les libellés Airtable exacts.
 function proFields(body: Record<string, unknown> | undefined): Record<string, unknown> {
   const parsed = parseProLead(body)
   if ('invalid' in parsed)
@@ -168,13 +143,11 @@ function proFields(body: Record<string, unknown> | undefined): Record<string, un
   }
 }
 
-// Champs posés pour tout lead du site, quel que soit le parcours.
 function commonFields(body: ContactPayload | undefined): Record<string, unknown> {
   const fields: Record<string, unknown> = {
     Langue: str(body?.locale).toUpperCase() === 'EN' ? 'EN' : 'FR',
     Canal: 'Site web',
     Étape: 'Nouveau',
-    // Legacy fields still read by CRM views/automations.
     Source: 'Site web',
     Statut: 'Nouveau',
   }
@@ -196,7 +169,6 @@ function commonFields(body: ContactPayload | undefined): Record<string, unknown>
   return fields
 }
 
-// Demande générale : le formulaire historique (email obligatoire, objet issu de Sanity).
 async function generalFields(body: ContactPayload | undefined): Promise<Record<string, unknown>> {
   const lastName = str(body?.lastName)
   const firstName = str(body?.firstName)
@@ -234,8 +206,6 @@ async function generalFields(body: ContactPayload | undefined): Promise<Record<s
     'Message': message,
     'Type de demande': resolvedSubject.label,
     ...(leadType && { 'Type de lead': leadType }),
-    // Consent: the form displays a visible GDPR mention above submission.
-    // Submitting after seeing the mention = consent (CNIL-compliant for contact use).
     'Consentement RGPD': true,
     'Opt-in newsletter': body?.newsletter === true,
   }

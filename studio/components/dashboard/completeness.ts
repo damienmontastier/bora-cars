@@ -1,17 +1,11 @@
 import { missingLanguages } from '../../lib/i18nValidation'
 import type { CarDoc, ImageInfo, Localized } from './data'
 
-// Score de complétude d'une fiche voiture : ce que la fiche AFFICHE réellement
-// (web/app/components/page/car/*). Un critère « essentiel » pèse plus lourd : sans
-// lui la carte ou la fiche est cassée, pas seulement moins riche.
-
 export interface Criterion {
   id: string
   label: string
   ok: boolean
-  /** Ce qui manque, en clair (quand `ok` est faux). */
   detail?: string
-  /** Champ ouvert par « Ouvrir ». */
   path: string
   weight: number
 }
@@ -23,7 +17,6 @@ export interface CriteriaGroup {
 }
 
 export interface CarScore {
-  /** 0–100. */
   score: number
   groups: CriteriaGroup[]
   missing: Criterion[]

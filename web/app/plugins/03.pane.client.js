@@ -6,7 +6,6 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   if (config.public.IS_PROD)
     return
 
-  // Imports dynamiques : sinon Tweakpane (~300 Ko) part dans le bundle de prod.
   const [{ Pane }, EssentialsPlugin] = await Promise.all([
     import('tweakpane'),
     import('@tweakpane/plugin-essentials'),

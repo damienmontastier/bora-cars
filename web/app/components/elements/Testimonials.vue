@@ -38,9 +38,6 @@ const progressFillRef = ref<HTMLElement | null>(null)
 
 const currentItem = computed(() => props.items[selectedIndex.value] ?? null)
 
-// Label shown next to the author (desktop) / above the quote (mobile): either the
-// linked car's "marque modèle", or a free subtitle when the item is not tied to a
-// car. `useCar` defaults to true (undefined → legacy car-linked items).
 function itemLabel(item: TestimonialItem | null): string {
   if (!item)
     return ''
@@ -80,10 +77,7 @@ function onSelect() {
   const newProgress = (newIndex + 1) / total
 
   if (newProgress < progress.value) {
-    // Loop wrap: fill to 1 (if not there), wipe out from left (origin: right),
-    // then refill from left (origin: left). No invisible reset frame.
     const refill = () => {
-      // We're at scaleX 0 (invisible). Switch origin back to left and animate to new.
       progressOrigin.value = 'left center'
       requestAnimationFrame(() => {
         progress.value = newProgress
@@ -91,7 +85,6 @@ function onSelect() {
     }
 
     const wipeOut = () => {
-      // Switch origin to right while scaleX is 1 (visually identical, full bar).
       progressOrigin.value = 'right center'
       const el = progressFillRef.value
       if (!el) {
@@ -103,7 +96,6 @@ function onSelect() {
         refill()
       }
       el.addEventListener('transitionend', onEnd, { once: true })
-      // Animate to 0: bar shrinks from the left edge inward
       requestAnimationFrame(() => {
         progress.value = 0
       })
@@ -140,8 +132,6 @@ watch(emblaApi, (api) => {
   onSelect()
 })
 
-// Tracked by buttons AND swipe (both routes go through scrollPrev/scrollNext).
-// Reports the destination index; no-op for a single-item carousel.
 function trackNav(direction: 'prev' | 'next') {
   const total = props.items.length
   if (total <= 1)
@@ -221,7 +211,6 @@ usePointerSwipe(sectionRef, {
         </div>
       </div>
 
-      <!-- Right: Embla quotes (mobile: car label sits above the quote) -->
       <div class="app-elements-testimonials__right">
         <TextsP1 :selectable="false" color="beige-100" class="app-elements-testimonials__car-label">
           {{ currentLabel }}
@@ -398,7 +387,6 @@ usePointerSwipe(sectionRef, {
     display: inline;
   }
 
-  // Car label above the quote — mobile only (on desktop the car lives in the role line).
   &__car-label {
     display: none;
   }
@@ -421,9 +409,6 @@ usePointerSwipe(sectionRef, {
     transition: transform 0.4s ease;
   }
 
-  // ── Mobile ──────────────────────────────────────────────────────────────
-  // Single column, space-between: car + quote on top, author + nav at the
-  // bottom (column-reverse keeps the quote first in the DOM for Embla).
   @include mobile {
     min-height: mobile-vw(664px);
     padding: mobile-vw(40px) mobile-vw(24px);
@@ -439,7 +424,6 @@ usePointerSwipe(sectionRef, {
       background: linear-gradient(-31deg, rgba(12, 12, 10, 0) 0%, #0c0c0a 100%);
     }
 
-    // Bottom row: author on the left, nav on the right, both bottom-aligned.
     &__left {
       flex-direction: row;
       align-items: flex-end;
@@ -480,7 +464,6 @@ usePointerSwipe(sectionRef, {
       height: mobile-vw(18px);
     }
 
-    // Top block: car label + quote, full width, left-aligned.
     &__right {
       flex: 0 1 auto;
       width: 100%;

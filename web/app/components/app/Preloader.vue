@@ -5,14 +5,12 @@ import { storeToRefs } from 'pinia'
 
 const emit = defineEmits<{ gone: [] }>()
 
-// Pause entre l'apparition du logo et le début du remplissage.
 const LOGO_HOLD = 0.8
 const HOLD_AFTER_COMPLETE = 0.5
 const OUT_DURATION = 0.55
 const OUT_OVERLAP = 0.2
 const OUT_EASE = 'power3.inOut'
 const PRELOADER_DONE_DELAY = 0.15
-// Filet de sécurité si le `transitionend` du fondu final ne vient jamais.
 const GONE_FALLBACK_MS = 1000
 
 const logoColor = 'beige'
@@ -40,7 +38,6 @@ const trackClipPath = computed(() => {
   return `inset(0 0 ${bottom}% 0)`
 })
 
-// Background wipes away bottom → top, in sync with the logo fill/track disappearance
 const bgClipPath = computed(() => `inset(0 0 ${outProgressTrack.value * 100}% 0)`)
 
 function measurePath() {
@@ -61,10 +58,6 @@ const outStarted = ref(false)
 let ctx: gsap.Context | null = null
 let goneTimer: ReturnType<typeof setTimeout> | null = null
 
-// Le logo est visible dès le premier rendu (fondu CSS, cf. `preloader-logo-in`), donc
-// bien avant l'hydratation. La pause LOGO_HOLD court depuis ce moment-là : le temps
-// d'hydratation déjà écoulé est déduit, la séquence vue à l'écran reste la même.
-// Le premier rendu du document, c'est ce préchargeur (il couvre tout l'écran).
 function remainingLogoHold() {
   const firstPaint = performance.getEntriesByName('first-contentful-paint')[0]?.startTime
   if (firstPaint == null)
@@ -113,16 +106,11 @@ function finalize() {
   })
 }
 
-// Les polices ne conditionnent que la sortie (`finalize`) : le remplissage démarre au
-// montage, la page ne se dévoile qu'une fois le texte dans sa vraie police.
 watch(fontsLoaded, (loaded) => {
   if (loaded)
     finalize()
 })
 
-// Une fois le fondu final terminé, le préchargeur est retiré du DOM (plus de calque
-// plein écran ni de battement en boucle). Retrait APRÈS le fondu : le démontage
-// annule les tweens (`ctx.revert()`), ce qui ré-afficherait le fond orange.
 function markGone() {
   if (goneTimer) {
     clearTimeout(goneTimer)
@@ -225,7 +213,6 @@ onBeforeUnmount(() => {
     transform: translate(-50%, -50%);
     transform-origin: center center;
     will-change: transform, opacity;
-    // Fondu d'apparition en CSS : il part au premier rendu du HTML, sans attendre le JS.
     animation:
       preloader-logo-in 0.4s var(--ease-out-cubic) both,
       preloader-heartbeat 2.2s ease-in-out infinite both;
@@ -266,30 +253,25 @@ onBeforeUnmount(() => {
     animation-timing-function: cubic-bezier(0.45, 0, 0.55, 1);
   }
 
-  /* lub — franc, contraction nette */
   12% {
     transform: translate(-50%, -50%) scale(0.95);
     animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
   }
 
-  /* léger rebond élastique au relâchement */
   25% {
     transform: translate(-50%, -50%) scale(1.008);
     animation-timing-function: cubic-bezier(0.45, 0, 0.55, 1);
   }
 
-  /* dub — écho plus doux */
   36% {
     transform: translate(-50%, -50%) scale(0.972);
     animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
   }
 
-  /* retour au repos */
   50% {
     transform: translate(-50%, -50%) scale(1);
   }
 
-  /* temps de repos long avant le prochain battement */
   100% {
     transform: translate(-50%, -50%) scale(1);
   }

@@ -19,16 +19,6 @@ if (!page.value) {
   throw createError({ statusCode: 404, statusMessage: t('legal.notFound') })
 }
 
-// ─── Redirection 301 des combinaisons locale × slug incohérentes ───
-// `LEGAL_PAGE_QUERY` matche par slug FR **OU** slug EN (robustesse d'entrée), donc
-// une combinaison croisée — ex. `/fr/legal/legal-notice` (slug ANGLAIS sous le
-// préfixe FR) — renvoie 200 avec le MÊME contenu que `/fr/legal/mentions-legales`.
-// Deux URLs, contenu identique, chacune self-canonical → « Page en double : Google
-// n'a pas choisi la même URL canonique » (GSC). On renvoie donc 301 vers l'URL
-// canonique de la locale COURANTE. Les liens internes pointent déjà vers le bon
-// slug (cf. `internalLinkSlug`) : ceci ne rattrape que les URLs héritées / devinées
-// / issues du sitemap (les « jumelles naïves » du module, cf. server/plugins).
-// `lang` et non `locale` : en navigation client, `locale` vaut encore l'ancienne langue.
 const localePath = useLocalePath()
 const canonicalSlug = lang.value === 'en' ? page.value.slugEn : page.value.slugFr
 if (canonicalSlug && route.params.slug !== canonicalSlug) {
@@ -41,27 +31,11 @@ if (canonicalSlug && route.params.slug !== canonicalSlug) {
 usePageSeo(computed(() => page.value?.seo))
 useMenuCtaSnap()
 
-// Slugs traduits → le switcher de langue (`useSwitchLocalePath`) et les balises
-// `hreflang` génèrent la bonne URL localisée pour cette route dynamique. Sans
-// ça, i18n réutiliserait le slug courant pour l'autre langue (URL EN cassée).
-//
-// Appel DIRECT, sans watcher : `page.value` est déjà résolu (`await` + garde 404
-// ci-dessus) et les slugs ne changent pas pendant la vie du composant (le switch
-// de langue REMONTE la page → ce bloc est rejoué). Surtout PAS de `watchEffect` :
-// `setI18nParams` lit `router.currentRoute` ET mute le meta/head en interne ; un
-// watchEffect traquerait ces lectures et bouclerait à l'infini au switch de
-// langue (« Maximum recursive updates » dans AppMenuLangSwitcher).
 const setI18nParams = useSetI18nParams()
 setI18nParams({
   fr: { slug: page.value.slugFr ?? undefined },
   en: { slug: page.value.slugEn ?? undefined },
 })
-// i18n recopie ces params sur la route suivante (watch interne sur `fullPath`) ;
-// sans reset, le `slug` « fuit » vers les pages sans segment [slug] (home,
-// contact…) → le hreflang global (app.vue) + le switcher le repassent à
-// `router.resolve`, d'où « Discarded invalid param(s) slug ». On vide donc les
-// params AVANT de quitter (onBeforeRouteLeave, pas onUnmounted : ça doit
-// précéder la relecture du meta par le head global).
 onBeforeRouteLeave(() => setI18nParams({}))
 
 const portableTextComponents = computed(() => getPortableTextComponents({ color: 'black-100', animated: false }))

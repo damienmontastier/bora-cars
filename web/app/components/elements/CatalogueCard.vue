@@ -8,21 +8,12 @@ interface Props {
 
 const { car, position } = defineProps<Props>()
 
-// Première rangée de la grille (3 colonnes en desktop) : visible au chargement, elle
-// porte le LCP du catalogue → chargée d'emblée, la 1re carte préchargée en priorité
-// haute. Les suivantes restent en lazy. `sizes` : une colonne ≈ 32,6vw en desktop
-// (3 colonnes, marges et gouttières déduites), toute la largeur en mobile.
 const aboveFold = computed(() => position != null && position < 3)
 
 const { t } = useI18n()
 
-// La carte suit le sélecteur de devise de la fiche voiture (état partagé, cf.
-// useCurrency) : un visiteur passé en CHF ne doit pas retomber sur des euros en
-// revenant au catalogue.
 const { formatPrice } = useCurrency()
 
-// Le schéma Sanity garantit qu'un seul des deux prix est renseigné.
-// On privilégie le mensuel s'il existe, sinon le journalier.
 const priceLabel = computed(() => {
   const value = car.prixMensuel ?? car.prixJournalier ?? null
   if (value == null)

@@ -4,7 +4,7 @@ import { VueLenis } from 'lenis/vue'
 import Tempus from 'tempus'
 
 const lenisOptions = {
-  autoRaf: false, // driven manually via Tempus
+  autoRaf: false,
   lerp: 0.1,
 }
 
@@ -23,11 +23,8 @@ watchEffect((onInvalidate) => {
 
   lenis.on('scroll', ScrollTrigger.update)
 
-  // Bloqué par défaut. AppPreloader.finalize() appelle lenis.start() à la fin du fade.
   lenis.stop()
 
-  // Tempus v1 : le callback reçoit { time, deltaTime, frame, budget } ; `order` remplace `priority`.
-  // Lenis passe en premier (order le plus bas) pour que GSAP/ScrollTrigger lise un scroll à jour.
   const unsubscribe = Tempus.add(({ time }) => {
     lenis.raf(time)
   }, { order: -2, label: 'lenis' })

@@ -132,7 +132,6 @@ export function CarsTab({ snapshot, now }: { snapshot: Snapshot, now: number }) 
   const [status, setStatus] = useState<StatusFilter>('all')
   const [sort, setSort] = useState<Sort>('score-asc')
 
-  // Une ligne par voiture, sur sa version la plus récente (brouillon s'il est plus récent).
   const rows = useMemo<Row[]>(() => {
     const ids = new Set([
       ...snapshot.context.cars.map(car => car._id),

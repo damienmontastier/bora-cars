@@ -1,7 +1,4 @@
 <script setup lang="ts" generic="T extends string">
-// Sélecteur de parcours de la page Contact (DS « Form / ProfileSwitch »).
-// Même principe que `AtomsCurrencyToggle` : un groupe de boutons `aria-pressed`,
-// les deux options restent visibles avec leur sous-titre.
 defineProps<{
   options: { value: T, title: string, subtitle?: string }[]
   ariaLabel?: string

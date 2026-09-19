@@ -1,7 +1,4 @@
 <script setup lang="ts">
-// Parcours « Leasing professionnel » de la page Contact : 5 étapes (A)–(E), reprises
-// du prototype client (bora_test_form/). Les réponses vivent dans useContactProForm ;
-// l'envoi, le statut et le honeypot dans useContactForm (conteneur ElementsContactForm).
 import { useLenis } from 'lenis/vue'
 import { PRO_STEPS } from '~/config/CONTACT_PRO_CONFIG'
 
@@ -34,8 +31,6 @@ const nextLabel = computed(() => {
   return step.value === 0 ? t('contact.pro.actions.start') : t('contact.pro.actions.next')
 })
 
-// Remonte en haut du formulaire (sélecteur compris) s'il est sorti de l'écran par le haut.
-// Via Lenis, comme le reste du site ; `scroll-margin-top` du conteneur = marge sous le menu.
 function scrollToForm() {
   const target = rootRef.value?.closest<HTMLElement>('.app-elements-contact-form') ?? rootRef.value
   if (!target)
@@ -49,7 +44,6 @@ function scrollToForm() {
     target.scrollIntoView({ behavior: 'smooth' })
 }
 
-// Amène un champ à l'écran (au tiers de la hauteur) puis lui donne le focus.
 function focusField(el: HTMLElement | null | undefined) {
   if (!el)
     return
@@ -71,10 +65,8 @@ function firstInvalidField() {
   return stepElement()?.querySelector<HTMLElement>('[aria-invalid="true"]')
 }
 
-// Envoi refusé sur une autre étape : focus sur son 1er champ invalide une fois affichée
 let focusInvalidOnEnter = false
 
-// Fin de la transition d'étape : focus sur le 1er champ invalide (envoi refusé), sinon sur le 1er champ
 function focusFirstField() {
   if (focusInvalidOnEnter) {
     focusInvalidOnEnter = false
@@ -87,7 +79,6 @@ function focusFirstField() {
   first?.focus({ preventScroll: true })
 }
 
-// `keepErrors` : saut vers l'étape à corriger après un envoi refusé (le récapitulatif reste)
 function goTo(index: number, keepErrors = false) {
   if (index === step.value || index < 0 || index >= PRO_STEPS.length)
     return
@@ -101,9 +92,6 @@ function back() {
   goTo(step.value - 1)
 }
 
-// Navigation libre : « Continuer » passe à l'étape suivante sans rien bloquer. Seul
-// l'envoi (dernière étape) vérifie tout le dossier : s'il manque quelque chose, on affiche
-// la 1re étape incomplète, focus sur son 1er champ invalide, jusqu'à ce que tout soit rempli.
 async function submit() {
   if (submitting.value)
     return
@@ -113,8 +101,6 @@ async function submit() {
     return
   }
 
-  // Seule la 1re étape incomplète passe en rouge : les suivantes ne sont marquées qu'une
-  // fois affichées par un nouvel envoi (pas d'étape en erreur avant de l'avoir vue).
   const firstInvalidStep = PRO_STEPS.findIndex(s => !pro.isStepValid(s.id))
   if (firstInvalidStep >= 0) {
     const invalid = pro.validateStep(PRO_STEPS[firstInvalidStep]!.id)
@@ -136,8 +122,6 @@ async function submit() {
   })
 }
 
-// Entrée = « Continuer », sauf dans un textarea, sur un bouton ou une liste déroulante
-// (qui gèrent déjà Entrée). Comme le prototype.
 function onKeydown(event: KeyboardEvent) {
   if (event.key !== 'Enter' || event.isComposing)
     return
@@ -148,7 +132,6 @@ function onKeydown(event: KeyboardEvent) {
   submit()
 }
 
-// Les erreurs disparaissent dès que tout est corrigé (revalidation à la saisie)
 watch(() => pro.isStepValid(current.value.id), (valid) => {
   if (valid)
     contact.clearValidation('pro')
@@ -291,7 +274,6 @@ defineExpose({ submit })
     }
   }
 
-  // Champ révélé par une réponse : juste sous la question, en retrait, filet Orange/100 2 px
   &__conditional {
     display: flex;
     flex-direction: column;
@@ -385,7 +367,6 @@ defineExpose({ submit })
   }
 }
 
-// Changement d'étape : fondu court (désactivé si l'utilisateur réduit les animations)
 .app-contact-pro-step-enter-active,
 .app-contact-pro-step-leave-active {
   transition:

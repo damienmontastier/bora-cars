@@ -1,7 +1,4 @@
 <script setup lang="ts">
-// Mois + année (DS « Form / Motifs › Date de création ») : deux listes dans un
-// fieldset. Les noms de mois viennent d'Intl (langue courante), pas du code.
-// Le slot par défaut reçoit ce qui suit les listes (ex. case « en cours de création »).
 interface Props {
   legend: string
   monthLabel: string
@@ -78,7 +75,6 @@ const yearOptions = computed(() => {
   }
 
   &__legend {
-    // Cf. AtomsFieldChoices : legend flottant = enfant flex ordinaire (suit le gap)
     float: left;
     width: 100%;
     padding: 0;

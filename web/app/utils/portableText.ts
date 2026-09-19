@@ -5,8 +5,6 @@ interface PortableTextOptions {
   color?: string
   eyebrow?: string
   eyebrowClass?: string
-  // Désactive l'anim SplitText des titres (H1/H2/H3) pour cette instance — ex.
-  // page légale (texte long, pas d'anim au scroll). undefined = défaut composant.
   animated?: boolean
 }
 
@@ -15,7 +13,6 @@ export function getPortableTextComponents(colorOrOptions: string | PortableTextO
     ? { color: colorOrOptions }
     : colorOrOptions
 
-  // Props propres aux titres (seuls H1/H2/H3 acceptent `animated`).
   const headingProps = animated === undefined ? {} : { animated }
 
   const renderBlock = (Component: any, tag: string, props: any, slots: any, extra: any = {}) => {
@@ -45,8 +42,6 @@ export function getPortableTextComponents(colorOrOptions: string | PortableTextO
       strong: (_: any, { slots }: any) => h('strong', {}, slots.default?.()),
       em: (_: any, { slots }: any) => h('em', {}, slots.default?.()),
       underline: (_: any, { slots }: any) => h('u', {}, slots.default?.()),
-      // Annotation lien (plugin link-field) → BaseLink résout la bonne URL
-      // (interne localisé / externe / email / tél). `value` = le markDef.
       link: ({ value }: any, { slots }: any) => h(UtilsBaseLink, { to: value, class: 'portable-link' }, slots.default),
     },
     list: {

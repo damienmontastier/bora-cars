@@ -7,7 +7,6 @@ import { seoType } from '../objects/seo'
 
 const TITLE = 'Contact'
 
-// Carte-lien de l'écran de confirmation du parcours pro (titre, sous-titre, adresse).
 function linkCardField(name: string, title: string, description: string) {
   return defineField({
     name,
@@ -44,7 +43,6 @@ export const contactType = defineType({
   title: TITLE,
   type: 'document',
   icon: EnvelopeIcon,
-  // Onglet dédié au parcours « Leasing professionnel », entre Editorial et SEO
   groups: [GROUPS[0]!, { name: 'pro', title: 'Leasing professionnel' }, ...GROUPS.slice(1)],
   fieldsets: [
     {

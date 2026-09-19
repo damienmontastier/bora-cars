@@ -5,8 +5,6 @@ import { Box, Card, Flex, Select, Stack, Text } from '@sanity/ui'
 import type { TokenWarnings } from './WhatsappTokenEditor'
 import { CAR_VARIABLES, WhatsappTokenObjectScope, WhatsappTokenPalette } from './WhatsappTokenEditor'
 
-// Les 4 cas — même ordre/clé que l'objet `whatsapp` du schéma carPage.
-// `noDate` = barre sticky : pas de sélecteur durée/quand → {duree}/{quand} interdits.
 const FIELDS: { name: string, label: string, noDate: boolean }[] = [
   { name: 'withPrice', label: 'Bloc tarif — avec prix', noDate: false },
   { name: 'withoutPrice', label: 'Bloc tarif — sans prix', noDate: false },
@@ -15,7 +13,6 @@ const FIELDS: { name: string, label: string, noDate: boolean }[] = [
 ]
 const DATE_TOKENS = new Set(['duree', 'quand'])
 
-// Tags orange dans les templates de la barre sticky.
 const STICKY_WARNINGS: TokenWarnings = {
   duree: 'à éviter : la barre sticky n’a pas de sélecteur de durée, le client n’a rien choisi.',
   quand: 'à éviter : la barre sticky n’a pas de sélecteur « quand », le client n’a rien choisi.',
@@ -47,7 +44,6 @@ interface TemplateValueItem {
   value?: string
 }
 
-// Reflètent les libellés réels du front (car.pricing.*) — valeurs PAR DÉFAUT des sélecteurs.
 const SAMPLE = {
   fr: { duree: '24h', quand: 'Ce week-end', perDay: 'par jour', perMonth: 'par mois' },
   en: { duree: '24h', quand: 'This weekend', perDay: 'per day', perMonth: 'per month' },
@@ -112,7 +108,6 @@ function Marker({ color, title, children }: { color: string, title: string, chil
   )
 }
 
-// Aperçu d'un template en segments : valeurs absentes / variables interdites surlignées.
 function renderPreview(template: string, car: CarOption, lang: Lang, noDate: boolean): React.ReactNode {
   const params = buildParams(car, lang)
   const cleaned = template.replace(/€\s*(\{prix\})/g, '$1').replace(/(\{prix\})\s*€/g, '$1')
@@ -146,11 +141,6 @@ function renderPreview(template: string, car: CarOption, lang: Lang, noDate: boo
   })
 }
 
-/**
- * Input de l'objet `whatsapp` (carPage) : les 4 templates partagent UNE seule palette
- * de tags (glisser-déposer dans l'éditeur à tags de chaque champ/langue) et UN seul
- * aperçu (1 sélecteur voiture + 1 sélecteur langue) qui affiche les 4 messages finaux.
- */
 export function WhatsappTemplatesInput(props: ObjectInputProps) {
   const { value } = props
 
@@ -168,7 +158,7 @@ export function WhatsappTemplatesInput(props: ObjectInputProps) {
         }`,
       )
       .then((res) => { if (active) setCars(res ?? []) })
-      .catch(() => { /* silencieux : l'aperçu est optionnel */ })
+      .catch(() => {})
     return () => { active = false }
   }, [client])
 

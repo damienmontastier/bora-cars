@@ -21,20 +21,6 @@ export interface SanityImage {
   imageCrop?: { top: number, bottom: number, left: number, right: number }
 }
 
-/**
- * Full image fragment (asset ref + alt + hotspot + crop), injected flat on the parent object.
- *
- * @param field - Sanity image field name (default: 'image')
- *
- * @example
- * // Inside a projection:
- * media { mediaType, ${imageFields()} }
- * // → { mediaType, imageUrl, imageAlt, imageHotspot, imageCrop }
- *
- * // With a custom field name:
- * car { ${imageFields('thumbnail')} }
- * // → { imageUrl, imageAlt, imageHotspot, imageCrop }
- */
 export function imageFields(field = 'image') {
   return `
     "imageUrl": ${field}.asset._ref,
@@ -44,15 +30,6 @@ export function imageFields(field = 'image') {
   `
 }
 
-/**
- * Image fragment for when the current projection scope IS the image itself —
- * e.g. members of an `array of customImage`, where `asset`/`hotspot`/`crop`/`alt`
- * live directly on the item (no wrapping field).
- *
- * @example
- * "images": images[] { ${imageMemberFields()} }
- * // → [{ imageUrl, imageAlt, imageHotspot, imageCrop }]
- */
 export function imageMemberFields() {
   return `
     "imageUrl": asset._ref,
@@ -62,15 +39,6 @@ export function imageMemberFields() {
   `
 }
 
-/**
- * Minimal image fragment (asset ref only).
- *
- * @param field - Sanity image field name (default: 'image')
- *
- * @example
- * car { _id, marque, ${imageRef()} }
- * // → { _id, marque, imageUrl }
- */
 export function imageRef(field = 'image') {
   return `"imageUrl": ${field}.asset._ref`
 }

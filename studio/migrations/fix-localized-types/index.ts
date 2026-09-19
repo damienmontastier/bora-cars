@@ -1,8 +1,6 @@
 import { at, defineMigration, set } from 'sanity/migrate'
 
-// Pour chaque parentType (= _type de l'objet contenant), mappe field → type attendu
 const FIELDS: Record<string, Record<string, 'string' | 'text' | 'block'>> = {
-  // modules
   hero: { heading: 'string', tagline: 'text', subtext: 'string' },
   pitch: { eyebrow: 'string', heading: 'text', subtext: 'text' },
   brandsSection: { description: 'string', surtitle: 'string', heading: 'text' },
@@ -10,14 +8,11 @@ const FIELDS: Record<string, Record<string, 'string' | 'text' | 'block'>> = {
   title: { eyebrow: 'string', heading: 'text' },
   textBlock: { eyebrow: 'string', body: 'block' },
   processStep: { title: 'string', description: 'text' },
-  // objects
   customImage: { alt: 'string' },
   customVideo: { alt: 'string' },
-  // synthetic types pour les inline objects (sans _type)
   testimonialItem: { authorName: 'string', authorRole: 'string', quote: 'text' },
   faqItem: { question: 'string', answer: 'text' },
   serviceCard: { categoryLabel: 'string', subtitle: 'string' },
-  // singletons / documents
   contact: { heading: 'string' },
   menu: { menuLabel: 'string', closeLabel: 'string' },
   footer: { contactTitle: 'string', sitemapTitle: 'string', socialsTitle: 'string' },
@@ -25,7 +20,6 @@ const FIELDS: Record<string, Record<string, 'string' | 'text' | 'block'>> = {
   location: { city: 'string', address: 'text' },
 }
 
-// Quand on rentre dans `<parent>.<arrayField>`, les items inline prennent ce type synthétique
 const INLINE_ITEMS: Record<string, Record<string, string>> = {
   testimonials: { items: 'testimonialItem' },
   faq: { items: 'faqItem' },

@@ -1,9 +1,4 @@
 <script setup lang="ts">
-// Indicateur d'étape (DS « Tabs(step) » taille S) : étapes passées teintées,
-// étape en cours pleine (lettre + titre), étapes à venir au filet.
-// Toutes les autres étapes sont des boutons : navigation libre, dans les deux sens.
-// Sur mobile, l'étape en cours n'affiche que sa lettre ; `meta` (ex. « Étape 1 / 5 · Vous »)
-// est alors affiché sous l'indicateur.
 interface Step {
   letter: string
   label: string

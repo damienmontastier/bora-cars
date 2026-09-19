@@ -1,5 +1,4 @@
 <script setup lang="ts">
-// Étape (E) « Justificatifs » du parcours Leasing pro.
 import { CONTACT_MAX_LENGTH, PRO_DOCUMENTS, PRO_DOCUMENTS_WITH_HINT } from '~/config/CONTACT_PRO_CONFIG'
 
 const { t } = useI18n()
@@ -35,7 +34,6 @@ const { form, errors, options, placeholder, showDocumentsHint } = useContactProF
       required
     >
       {{ t('contact.pro.consent.before') }}
-      <!-- Nouvel onglet : quitter la page viderait le dossier en cours -->
       <UtilsBaseLink
         :to="{ name: 'legal-slug', params: { slug: t('legal.privacySlug') } }"
         target="_blank"

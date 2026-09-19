@@ -11,18 +11,12 @@ interface CatalogueQueryResult {
   total: number
 }
 
-// Clés d'état/URL : recherche texte + une par filtre activé (cf. registre ENABLED_FILTERS).
 const FILTER_STATE_KEYS = ['q', ...ENABLED_FILTERS.map(f => f.key)]
 
-// Normalise une valeur de query string (string | string[] | undefined) en string.
 function qStr(v: LocationQuery[string]): string {
   return typeof v === 'string' ? v : ''
 }
 
-// Convertit l'état des filtres en paramètres GROQ, piloté par le registre :
-// - q vide → "" (clause neutralisée) ; sinon suffixe `*` pour un match « commence par ».
-// - facet → `$<key>` = valeur sélectionnée (ou "").
-// - range → `$<key>Min`/`$<key>Max` = bornes de la tranche, ou null si aucune.
 function toGroqParams(filters: CatalogueFilters): Record<string, string | number | null> {
   const params: Record<string, string | number | null> = {
     q: filters.q?.trim() ? `${filters.q.trim()}*` : '',
@@ -40,23 +34,6 @@ function toGroqParams(filters: CatalogueFilters): Record<string, string | number
   return params
 }
 
-/**
- * Logique partagée des pages catalogue (standard et professionnel) :
- * fetch Sanity localisé + infinite scroll + filtres synchronisés à l'URL.
- *
- * Best practices @nuxtjs/sanity : `useSanityQuery` (bloquant, SSR) avec des
- * paramètres réactifs qui déclenchent un refetch automatique au changement
- * (langue ou filtre) ; `useSanity().fetch` pour la pagination manuelle.
- * Les filtres vivent dans la query string (`?ville=…&q=…`), donc une URL
- * partagée pré-sélectionne les filtres et reste localisable.
- *
- * Tous les filtres sont déclarés dans le registre `ENABLED_FILTERS`
- * (`~/queries/catalogue`) : l'état, les params et l'URL en dérivent.
- *
- * À appeler avec `await` dans le `setup` d'une page. Les enregistrements
- * sensibles au scope (watchers, infinite scroll) sont faits avant le `await`
- * pour conserver le bon contexte de composant.
- */
 export async function useCatalogueListing(query: string, carsQuery: string, facetsQuery: string) {
   const lang = useSanityLang()
   const sanity = useSanity()
@@ -64,7 +41,6 @@ export async function useCatalogueListing(query: string, carsQuery: string, face
   const router = useRouter()
   const analytics = useAnalytics()
 
-  // État des filtres initialisé depuis l'URL (rendu SSR + lien partagé déjà filtré).
   const initial: CatalogueFilters = {}
   for (const key of FILTER_STATE_KEYS)
     initial[key] = qStr(route.query[key])
@@ -72,9 +48,6 @@ export async function useCatalogueListing(query: string, carsQuery: string, face
 
   const hasActiveFilters = computed(() => FILTER_STATE_KEYS.some(k => filters[k] !== ''))
 
-  // Paramètres réactifs de la requête principale : leur mutation déclenche le
-  // refetch automatique de useSanityQuery (langue, filtres) — qui réinitialise
-  // la liste via le watch(data) ci-dessous.
   const params = reactive({
     lang: lang.value,
     from: 0,
@@ -82,22 +55,14 @@ export async function useCatalogueListing(query: string, carsQuery: string, face
     ...toGroqParams(filters),
   })
 
-  // Cache useAsyncData maîtrisé :
-  // - À l'HYDRATATION on réutilise le payload SSR → le 1ᵉʳ rendu client est
-  //   identique au serveur (aucun mismatch d'hydratation / décalage de useId).
-  // - En navigation CLIENT (isHydrating = false) on renvoie `undefined` pour
-  //   forcer un refetch et ne jamais resservir un bucket périmé (la clé est
-  //   dérivée des params au 1ᵉʳ montage), sinon les filtres sont ignorés en SPA.
   const result = useSanityQuery<CatalogueQueryResult>(query, params, {
     getCachedData: (key, nuxtApp) =>
       nuxtApp.isHydrating ? (nuxtApp.payload.data[key] ?? nuxtApp.static.data[key]) : undefined,
   })
   const { data, refresh } = result
 
-  // Facettes (valeurs distinctes par filtre), localisées → refetch au switch de langue.
   const { data: facetsData } = useSanityQuery<Record<string, (string | FilterOption)[]>>(facetsQuery, { lang })
 
-  // Normalise chaque facette en FilterOption[] triées, dédupliquées par valeur.
   const facets = computed<CatalogueFacets>(() => {
     const raw = facetsData.value ?? {}
     const out: CatalogueFacets = {}
@@ -117,47 +82,33 @@ export async function useCatalogueListing(query: string, carsQuery: string, face
   const page = computed(() => data.value?.page)
   const hasMore = computed(() => cars.value.length < total.value)
 
-  // Le changement de langue met à jour les params → refetch automatique.
   watch(lang, (v) => {
     params.lang = v
   })
 
-  // Reset de la liste à chaque refetch (switch de langue ou changement de filtre).
   watch(data, (val) => {
     cars.value = val?.cars ?? []
     total.value = val?.total ?? 0
     offset.value = CATALOGUE_LIMIT
   })
 
-  // SSG : la page est prérendue SANS query params, donc le payload (réutilisé à
-  // l'hydratation pour éviter le mismatch) n'est pas filtré. Une fois hydraté
-  // (client), si l'URL porte des filtres, on refetch pour charger les bons
-  // résultats. C'est une mise à jour post-hydratation, pas un mismatch.
   onMounted(() => {
     if (hasActiveFilters.value)
       refresh()
   })
 
-  // L'URL est la source de vérité. Tout changement de query string — back/forward
-  // navigateur ou notre propre setFilter — resync l'état des filtres + les params
-  // GROQ. La mutation de `params` (objet réactif surveillé par useSanityQuery)
-  // déclenche le refetch ; assigner une valeur identique est un no-op, donc
-  // setFilter ne provoque pas de double-fetch.
   watch(() => route.query, () => {
     for (const key of FILTER_STATE_KEYS)
       filters[key] = qStr(route.query[key])
     Object.assign(params, toGroqParams(filters))
   })
 
-  // Applique un filtre : met à jour l'état, les params GROQ (→ refetch) et l'URL.
   function setFilter(key: string, value: string) {
     if (filters[key] === value)
       return
     filters[key] = value
     Object.assign(params, toGroqParams(filters))
     syncUrl()
-    // Tracking analytics : on n'émet que sur une SÉLECTION réelle (valeur non vide),
-    // pas sur un reset (value === '') → data propre « quel filtre × quelle valeur ».
     if (value)
       analytics.trackCatalogueFilter({ filter_type: key, filter_value: value })
   }
@@ -171,8 +122,6 @@ export async function useCatalogueListing(query: string, carsQuery: string, face
     syncUrl()
   }
 
-  // Reflète les filtres actifs dans la query string (path/locale préservés).
-  // Client uniquement : les mutations viennent d'interactions utilisateur.
   function syncUrl() {
     if (!import.meta.client)
       return
@@ -214,7 +163,6 @@ export async function useCatalogueListing(query: string, carsQuery: string, face
 
   await result
 
-  // Initialisation depuis les données résolues (rendu SSR correct).
   cars.value = data.value?.cars ?? []
   total.value = data.value?.total ?? 0
 

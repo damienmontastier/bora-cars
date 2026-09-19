@@ -6,10 +6,6 @@ export interface Partner extends SanityImage {
   aspectRatio?: number
 }
 
-/**
- * Champs marque (schema.org Organization) — cf. app.vue.
- * Les agences vivent dans les documents `location` (cf. queries/locations.ts).
- */
 export interface BusinessInfo {
   email?: string
   priceRange?: string
@@ -20,7 +16,6 @@ export interface BusinessInfo {
 export interface SettingsData {
   contactLink?: SanityLink
   business?: BusinessInfo
-  /** Combien vaut 1 € en CHF. Absent/0 → pas de sélecteur de devise (cf. useCurrency). */
   tauxChf?: number
   fallbackTitle?: string
   partners?: Partner[]

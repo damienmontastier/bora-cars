@@ -1,23 +1,3 @@
-/**
- * v-menu-theme
- *
- * Change le `menuTheme` du store quand l'élément atteint le bas du menu fixe (.app-menu).
- *
- * --- Utilisation simple ---
- *
- *   <section v-menu-theme="'white'">...</section>
- *
- * --- Utilisation avec start/end custom ---
- *
- *   <section v-menu-theme="{ theme: 'white', start: 'top 80px' }">...</section>
- *
- *   Syntaxe ScrollTrigger standard :
- *     'top top'        → haut de l'élément atteint le haut du viewport
- *     'top 80px'       → haut de l'élément atteint 80px depuis le haut
- *     'top center'     → haut de l'élément atteint le centre du viewport
- *     'center center'  → centre de l'élément atteint le centre du viewport
- */
-
 import type { DirectiveBinding } from 'vue'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
@@ -72,9 +52,6 @@ export default {
     createTrigger(el, binding)
   },
 
-  // `updated` tourne à CHAQUE re-render du composant parent (frappe dans la recherche
-  // du catalogue, survol d'une marque…). Recréer le ScrollTrigger force une mesure du
-  // layout à chaque fois : on ne le fait que si la valeur de la directive a changé.
   updated(el: MenuThemeEl, binding: DirectiveBinding<MenuTheme | MenuThemeBinding>) {
     if (!import.meta.client || sameBinding(binding.value, binding.oldValue))
       return

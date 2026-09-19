@@ -5,7 +5,6 @@ const props = defineProps<{ car: CarDetailData, whatsappTemplates?: CarWhatsappT
 
 const { t } = useI18n()
 
-// Tarif + contact WhatsApp mutualisés avec la barre sticky mobile (cf. useCarContact).
 const {
   formattedPrix,
   periodLabel,
@@ -21,8 +20,6 @@ const {
   source: 'car_pricing',
 })
 
-// Adresse affichée = rue + (code postal + ville réelle). Le libellé `city` (ex. « Paris »)
-// est affiché séparément comme titre du lieu (cf. template).
 const locationAddress = computed(() => {
   const l = props.car.location
   if (!l)
@@ -38,8 +35,6 @@ const locationAddress = computed(() => {
         <TextsH4 tag="p" class="car-pricing__price-amount">
           {{ t('car.pricing.priceFrom', { price: formattedPrix }) }}
         </TextsH4>
-        <!-- Le bloc est sticky en desktop : le sélecteur reste atteignable pendant la
-             lecture des infos de location (caution, km supp.) qu'il reformate aussi. -->
         <AtomsCurrencyToggle class="car-pricing__currency" />
       </div>
       <TextsP2 class="car-pricing__price-period">

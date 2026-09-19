@@ -17,7 +17,6 @@ const { locale, locales } = useI18n()
 const switchLocalePath = useSwitchLocalePath()
 const router = useRouter()
 
-// useSetI18nParams sets the translated slug after this renders (non-reactive meta): remount the links.
 const linksKey = ref(0)
 const offPageFinish = useNuxtApp().hook('page:finish', () => {
   linksKey.value++
@@ -36,8 +35,6 @@ const themeTextColor = computed(() => ({
   orange: 'orange-100',
 }[props.theme]))
 
-// In footer variant, the dropdown background contrasts with the footer bg.
-// Open-state text color must contrast with that background.
 const dropdownBg = computed(() => ({
   white: 'orange',
   black: 'beige-100',
@@ -56,8 +53,6 @@ const triggerTextColor = computed(() =>
 
 const itemTextColor = computed(() => props.variant ? openTextColor.value : 'beige-100')
 
-// Non-variant (menu) dropdown background follows the active menu theme so the
-// open panel stays in the same colour family instead of always being orange.
 const menuDropdownBg = computed(() => ({
   white: 'black-100',
   black: 'black-100',
@@ -82,9 +77,7 @@ function close() {
 
 const analytics = useAnalytics()
 
-// Capture phase: cancels RouterLink's navigation and resolves the path once the page has set its slug.
 function selectLocale(code: string, e: MouseEvent) {
-  // let the browser handle modifier-key clicks (open in new tab, etc.)
   if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0)
     return
 
@@ -92,8 +85,6 @@ function selectLocale(code: string, e: MouseEvent) {
   analytics.trackLanguageSwitch({ from: locale.value, to: code })
   close()
   menuOpen.value = false
-  // Navigate in parallel with menu close — translation stability is handled
-  // in app.vue (menuParams.lang only flushes when menu is fully closed).
   router.push(switchLocalePath(code))
 }
 
@@ -265,7 +256,6 @@ onKeyStroke('Escape', () => {
     }
   }
 
-  // Variant footer: opens downward, --lang-bg is set inline based on footerTheme
   &.--variant-footer {
     --lang-bg: var(--c-black-100);
 

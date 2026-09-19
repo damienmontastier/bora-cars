@@ -3,9 +3,7 @@ import type { CarDetailData, CarWhatsappTemplates } from '~/queries/car'
 
 const props = defineProps<{
   car: CarDetailData
-  // Templates WhatsApp éditables (carPage.whatsapp) — la sticky utilise les « simple* ».
   whatsappTemplates?: CarWhatsappTemplates
-  // Sections de la page observées pour piloter l'affichage (cf. plus bas).
   heroEl?: HTMLElement | null
   footerEl?: HTMLElement | null
 }>()
@@ -15,9 +13,6 @@ const { isMobile } = useBreakpoint()
 const appStore = useAppStore()
 const { menuOpen } = toRefs(appStore)
 
-// Mêmes prix / lien WhatsApp que le bloc Pricing (source unique, cf. useCarContact).
-// `schedule: false` : pas de sélecteurs durée/quand ici → templates « simple* »
-// (sans dates inventées).
 const {
   formattedPrix,
   periodLabel,
@@ -30,16 +25,9 @@ const {
   schedule: false,
 })
 
-// Visibilité : cachée tant que la majorité du hero est à l'écran, visible pendant
-// les détails, cachée dès que le footer entre à l'écran.
-// `heroVisible` démarre à true pour ne pas flasher la barre en haut de page.
 const heroVisible = ref(true)
 const footerVisible = ref(false)
 
-// On suit le ratio de visibilité du hero : la barre apparaît dès que PLUS de la
-// moitié du hero a quitté l'écran (ratio < 0.5), sans attendre sa sortie totale.
-// Pas de granularité au seuil unique 0.5 (l'IO ne rappellerait plus en-dessous) :
-// d'où le tableau de seuils.
 useIntersectionObserver(
   () => props.heroEl,
   ([entry]) => {
@@ -94,8 +82,6 @@ const visible = computed(() =>
 
 <style lang="scss">
 .car-sticky-bar {
-  // Barre exclusivement mobile : montée seulement via le v-if (isMobile), mais on
-  // garde le garde-fou desktop au cas où.
   display: none;
 
   @include mobile {
@@ -151,7 +137,6 @@ const visible = computed(() =>
   }
 }
 
-// Entrée / sortie : glissement vers le haut + fondu.
 .car-sticky-bar-enter-active,
 .car-sticky-bar-leave-active {
   transition:

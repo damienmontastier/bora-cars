@@ -1,6 +1,4 @@
 <script setup lang="ts">
-// Custom switch matching the Figma design.
-// API mirrors Nuxt UI's USwitch (v-model, disabled) so it can be swapped in later.
 interface Props {
   modelValue: boolean
   disabled?: boolean

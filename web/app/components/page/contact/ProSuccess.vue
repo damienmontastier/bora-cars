@@ -1,7 +1,4 @@
 <script setup lang="ts">
-// Écran de succès du parcours « Leasing professionnel » (maquette « Succès ») :
-// confirmation à gauche, liens « restons en contact » à droite. Tous les textes et
-// liens viennent du singleton Sanity `contact` (champ `proSuccess`).
 import type { ContactProSuccessData } from '~/queries/contact'
 import { useLenis } from 'lenis/vue'
 
@@ -18,8 +15,6 @@ const props = withDefaults(defineProps<Props>(), {
 const lenis = useLenis()
 const titleRef = ref<HTMLElement | null>(null)
 
-// Jeton {prenom} saisi dans le Studio. Le prénom est obligatoire dans le formulaire ;
-// s'il manquait quand même, on retire le jeton plutôt que d'afficher « {prenom} ».
 const text = computed(() => {
   const raw = props.content?.text ?? ''
   return props.firstName
@@ -27,8 +22,6 @@ const text = computed(() => {
     : raw.replace(/\s*\{prenom\}/g, '')
 })
 
-// Instagram : sur mobile, tentative d'ouverture de l'appli puis repli sur le web
-// (même logique que le prototype client).
 function instagramUsername(url?: string | null) {
   if (!url)
     return null
@@ -51,7 +44,6 @@ function onInstagramClick(event: MouseEvent) {
   event.preventDefault()
   const start = Date.now()
   window.location.href = `instagram://user?username=${encodeURIComponent(user)}`
-  // L'appli n'a pas pris la main (~800 ms) → on ouvre le profil web
   window.setTimeout(() => {
     if (Date.now() - start < 1500)
       window.open(web, '_blank', 'noopener')
@@ -59,7 +51,6 @@ function onInstagramClick(event: MouseEvent) {
 }
 
 onMounted(() => {
-  // Le formulaire disparaît : on remonte en haut de page et on annonce la confirmation
   lenis.value?.scrollTo(0, { duration: 1.2 })
   titleRef.value?.focus({ preventScroll: true })
 })
@@ -142,7 +133,6 @@ onMounted(() => {
     }
   }
 
-  // Desktop/Body/M/Regular ; Mobile/Body/L/Regular (20/26)
   &__text {
     max-width: desktop-vw(656px);
 

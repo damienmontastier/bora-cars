@@ -5,21 +5,6 @@ import { BioWhatsappMessageInput } from '../../components/WhatsappTokenEditor'
 
 const TITLE = 'Bio (réseaux sociaux)'
 
-/**
- * Page « link in bio » — boracars.com/bio (maquette Figma « piste C · Stories »).
- *
- * Destination unique du lien en bio Instagram : quand un post/story parle d'une
- * voiture (« lien en bio »), on l'ajoute ici et le visiteur la retrouve en tête
- * de page, en plein écran, avec WhatsApp et la fiche. C'est une liste ORDONNÉE à
- * la main (glisser-déposer) et non un filtre automatique : l'ordre doit suivre la
- * chronologie des publications, pas celle du catalogue.
- *
- * Titre, surtitre et textes fixes (« Dernier post », boutons, fin de liste) sont
- * dans le Glossaire, onglet « Bio (Instagram) » : la page n'a que 3 champs.
- *
- * La page est volontairement en `noindex, follow` côté site (contenu qui
- * doublonne le catalogue + durée de vie courte) — cf. `web/app/pages/bio.vue`.
- */
 export const bioType = defineType({
   name: 'bio',
   title: TITLE,

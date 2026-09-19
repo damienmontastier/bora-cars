@@ -11,7 +11,6 @@ interface Props {
   options: Option[]
   required?: boolean
   disabled?: boolean
-  // Rappelle le libellé en petit au-dessus de la valeur choisie (DS « input dropdown label=on »)
   floatingLabel?: boolean
   invalid?: boolean
   errorMessage?: string
@@ -332,8 +331,6 @@ function onKeydown(e: KeyboardEvent) {
     color: var(--field-value-color);
   }
 
-  // Variante libellé flottant (DS « input dropdown label=on ») : filet clair une fois rempli,
-  // comme les champs texte ; noir seulement à l'ouverture
   &--floated:not(&--open):not(&--error) {
     --field-border: var(--c-black-20);
   }

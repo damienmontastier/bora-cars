@@ -1,5 +1,4 @@
 <script setup lang="ts">
-// Étape (C) « Situation » du parcours Leasing pro.
 import { PRO_DEPOSITS, PRO_INCOME_TYPES, PRO_YES_NO } from '~/config/CONTACT_PRO_CONFIG'
 
 const { t } = useI18n()
@@ -15,7 +14,6 @@ const { form, errors, options } = useContactProForm()
         :options="options('yesNo', PRO_YES_NO)"
         layout="row"
       />
-      <!-- Oui → Type de revenus ; Non → masqué et vidé (useContactProForm) -->
       <div v-if="form.hasIncome === 'yes'" class="app-elements-contact-form-pro__conditional">
         <AtomsFieldSelect
           v-model="form.incomeType"

@@ -1,13 +1,3 @@
-/**
- * Moteur DOM de l'éditeur de message WhatsApp à tags (sans React, testable).
- *
- * Le format STOCKÉ ne change pas : une chaîne de texte où chaque variable est un
- * jeton `{nom}` (ex. « Bonjour, la {marque} {modele} est-elle dispo ? »). L'éditeur
- * se contente de l'AFFICHER autrement — chaque jeton devient un tag non éditable,
- * déplaçable — puis re-sérialise le DOM vers exactement la même chaîne. Le contenu
- * déjà saisi dans Sanity est donc relu tel quel, sans migration.
- */
-
 const TOKEN_RE = /(\{\w+\})/g
 const TOKEN_EXACT_RE = /^\{(\w+)\}$/
 const ELEMENT_NODE = 1
@@ -75,9 +65,6 @@ export function buildFragment(doc: Document, template: string, describe: Describ
   return fragment
 }
 
-// Un <br> en DERNIER enfant n'est jamais un vrai saut de ligne : c'est le
-// placeholder que le navigateur (ou `normalizeEditor`) pose pour rendre
-// visible une ligne vide finale.
 export function serializeEditor(root: Node): string {
   let out = ''
   const children = Array.from(root.childNodes)
@@ -97,8 +84,6 @@ export function serializeEditor(root: Node): string {
         out += '\n'
       return
     }
-    // Bloc inséré par le navigateur (ne devrait pas arriver : Entrée/coller/déposer
-    // sont interceptés) → une ligne.
     if (node.tagName === 'DIV' || node.tagName === 'P') {
       if (out && !out.endsWith('\n'))
         out += '\n'
@@ -123,13 +108,6 @@ function isFiller(node: Node | null | undefined): boolean {
   return isElement(node) && node.tagName === 'BR' && node === node.parentNode?.lastChild
 }
 
-/**
- * Garde-fous de curseur, invisibles dans la valeur sérialisée :
- * - espace de largeur nulle (ZWSP) autour d'un tag en début/fin de texte ou collé à un
- *   autre tag — sinon Chrome ne sait pas placer le curseur après un élément non
- *   éditable (cas courant : message qui finit par {url}) ;
- * - <br> final quand le texte finit par « \n », sinon la ligne vide n'est pas visible.
- */
 export function normalizeEditor(root: HTMLElement) {
   const doc = root.ownerDocument
   for (const token of Array.from(root.childNodes).filter(isTokenNode)) {
@@ -145,7 +123,6 @@ export function normalizeEditor(root: HTMLElement) {
     root.append(doc.createElement('br'))
 }
 
-// Le texte contient-il un `{jeton}` saisi à la main (pas encore transformé en tag) ?
 export function hasRawTokens(root: HTMLElement): boolean {
   return Array.from(root.childNodes).some(n => n.nodeType === TEXT_NODE && /\{\w+\}/.test(n.nodeValue ?? ''))
 }
@@ -159,7 +136,7 @@ function edgeChar(node: Node | null, dir: 'before' | 'after'): string | null {
         return dir === 'before' ? t[t.length - 1]! : t[0]!
     }
     else if (isTokenNode(current)) {
-      return 'A' // un tag compte comme un mot
+      return 'A'
     }
     else if (isElement(current) && current.tagName === 'BR') {
       return '\n'
@@ -181,12 +158,9 @@ function charAround(range: Range, dir: 'before' | 'after'): string | null {
   return edgeChar(dir === 'before' ? c.childNodes[o - 1] ?? null : c.childNodes[o] ?? null, dir)
 }
 
-// Espace auto autour d'un tag déposé contre un mot : « la{marque} » → « la {marque} ».
-// Pas d'espace après « / », « ’ », « ( » ni avant « € », « / », ponctuation.
 const WORD_BEFORE_RE = /[\p{L}\p{N},.;:!?»)]/u
 const WORD_AFTER_RE = /[\p{L}\p{N}«(]/u
 
-/** Insère un tag à `range` (repliée), avec espacement auto. Renvoie la position juste après. */
 export function insertTokenAt(range: Range, name: string, describe: DescribeToken): Range {
   const doc = range.startContainer.ownerDocument ?? (range.startContainer as Document)
   range.deleteContents()
@@ -211,7 +185,6 @@ export function insertTokenAt(range: Range, name: string, describe: DescribeToke
   return next
 }
 
-/** Insère du texte brut (coller / déposer) : les `{jetons}` qu'il contient deviennent des tags. */
 export function insertTextAt(range: Range, text: string, describe: DescribeToken): Range {
   const doc = range.startContainer.ownerDocument ?? (range.startContainer as Document)
   range.deleteContents()
@@ -226,7 +199,6 @@ export function insertTextAt(range: Range, text: string, describe: DescribeToken
   return next
 }
 
-/** Retire un tag en évitant les doubles espaces qu'il laisserait. */
 export function removeTokenNode(token: HTMLElement) {
   const prev = token.previousSibling
   const next = token.nextSibling
@@ -239,12 +211,10 @@ export function removeTokenNode(token: HTMLElement) {
     return
   const nextVisible = visibleText(next)
   const atEnd = next == null || isFiller(next) || (nextVisible === '' && (next!.nextSibling == null || isFiller(next!.nextSibling)))
-  // « la {marque} {modele} » → retirer {marque} : « la {modele} » (pas « la  {modele} »).
   if (atEnd || (nextVisible != null && /^[\s,.;:!?)]/.test(nextVisible)))
-    text.deleteData(trailingSpace, 1) // deleteData (et non nodeValue=) : garde les Range vivantes cohérentes
+    text.deleteData(trailingSpace, 1)
 }
 
-/** La position `range` est-elle collée au tag `token` (déposer là = ne rien bouger) ? */
 export function isAdjacentTo(range: Range, token: HTMLElement): boolean {
   const { startContainer: c, startOffset: o } = range
   if (c === token.parentNode)
@@ -267,7 +237,6 @@ export function endRange(root: HTMLElement): Range {
   return range
 }
 
-/** Position de dépôt sous le pointeur, bornée à `root` (jamais À L'INTÉRIEUR d'un tag). */
 export function rangeFromPoint(root: HTMLElement, x: number, y: number): Range {
   const doc = root.ownerDocument as Document & {
     caretPositionFromPoint?: (x: number, y: number) => { offsetNode: Node, offset: number } | null
@@ -304,12 +273,10 @@ export function rangeFromPoint(root: HTMLElement, x: number, y: number): Range {
   return range
 }
 
-/** Rectangle du curseur pour une position repliée (indicateur de dépôt). */
 export function caretRect(range: Range): DOMRect | null {
   const rects = range.getClientRects()
   if (rects.length && rects[0]!.height)
     return rects[0]!
-  // Position entre deux éléments : pas de rect natif → marqueur temporaire.
   const doc = range.startContainer.ownerDocument
   if (!doc)
     return null

@@ -5,14 +5,6 @@ import { GLOSSAIRE_SECTIONS } from '../../schemaTypes/singletons/glossaire'
 import { BIO_VARIABLES, CAR_VARIABLES, PAGE_VARIABLES } from '../WhatsappTokenEditor'
 import type { CarDoc, DashboardData, GlossaryEntry, ImageInfo, LegalDoc, Localized, LocationDoc, SingletonDoc } from './data'
 
-// Vérifications du Dashboard. Chaque règle traduit une conséquence CONCRÈTE sur le
-// site (ce que voit le visiteur, Google ou le client WhatsApp) — pas une contrainte
-// de schéma : la validation Sanity bloque déjà la publication des champs requis.
-//
-// Les règles `test` tournent sur la version PUBLIÉE. Si un
-// brouillon plus récent ne présente plus le problème, le point est marqué « corrigé
-// dans le brouillon » : il ne reste qu'à publier.
-
 export type Severity = 'critical' | 'warning' | 'tip'
 
 export type Category = 'voitures' | 'lieux' | 'pages' | 'contact' | 'traductions' | 'general'
@@ -51,15 +43,12 @@ export const TYPE_LABELS: Record<string, string> = {
 }
 
 export interface Finding {
-  /** Identifiant stable (masquage). */
   key: string
   checkId: string
-  /** Id publié du document à ouvrir. */
   docId: string
   docType: string
   label: string
   details: string[]
-  /** Champ à ouvrir dans le document (chemin Sanity). */
   path?: string
   imageUrl?: string
   fixedInDraft: boolean
@@ -72,7 +61,6 @@ interface CheckMeta {
   title: string
   why: string
   fix: string
-  /** Libellé court pour la liste « manque avant publication » des brouillons. */
   short?: string
 }
 
@@ -83,7 +71,6 @@ export interface Issue extends CheckMeta {
 interface Hit {
   detail?: string
   path?: string
-  /** Sépare les hits d'un même document en lignes distinctes (ex. entrées du glossaire). */
   group?: string
   label?: string
 }
@@ -161,12 +148,8 @@ const SPEC_LABELS: Record<string, string> = {
 
 const MIN_PHOTO_WIDTH = 1600
 const MAX_VIDEO_BYTES = 15_000_000
-/** « — BORA CARS » ajouté automatiquement au titre (cf. champ SEO). */
 const TITLE_SUFFIX_LENGTH = ' — BORA CARS'.length
 
-// Pages dont le SEO vient de leur champ `seo`. PAS `carPage` : les fiches voitures
-// calculent titre (Glossaire `car.seo.title`) et description (celle de la voiture), cf.
-// web/app/pages/car/[uid].vue. PAS `bio` : page en noindex.
 export const SEO_PAGE_TYPES = ['homepage', 'proprietaire', 'professionnel', 'contact', 'catalogue', 'catalogueProfessionnel', 'legalPage']
 const MODULE_PAGE_TYPES = ['homepage', 'proprietaire', 'professionnel']
 const PAGE_WHATSAPP_TYPES = ['proprietaire', 'professionnel', 'catalogue', 'catalogueProfessionnel']
@@ -183,7 +166,6 @@ interface WhatsappTemplate {
   label: string
   path: string
   allowed: Set<string>
-  /** Barre sticky : pas de sélecteur durée / quand. */
   noDate?: boolean
   value: Localized<string>
 }
@@ -917,7 +899,6 @@ const hitIdentity = (hit: Hit) => `${hit.group ?? ''}|${hit.path ?? ''}`
 
 export interface Snapshot {
   published: AnyDoc[]
-  /** Brouillons, indexés par id publié. */
   drafts: Map<string, AnyDoc>
   context: Context
 }
@@ -967,8 +948,6 @@ export function runChecks(snapshot: Snapshot): Issue[] {
       for (const doc of published.filter(d => types.includes(d._type))) {
         const hits = toArray(test(doc, context))
         if (!hits.length) continue
-        // Un brouillon PLUS ANCIEN que la version publiée écraserait des changements
-        // récents s'il était publié : on ne le présente pas comme une correction.
         const draft = drafts.get(doc._id)
         const draftHits = draft && draft._updatedAt > doc._updatedAt
           ? new Set(toArray(test(draft, context)).map(hitIdentity))
@@ -991,10 +970,6 @@ export function runChecks(snapshot: Snapshot): Issue[] {
   return issues
 }
 
-/**
- * Points bloquants d'un brouillon jamais publié (ce qui manque avant de publier).
- * Libellés courts, ex. `['prix', 'lieu']`.
- */
 export function missingBeforePublish(draft: AnyDoc, snapshot: Snapshot): string[] {
   return RULES
     .filter((rule): rule is DocRule => 'test' in rule && rule.severity === 'critical' && rule.types.includes(draft._type))

@@ -35,7 +35,6 @@ function buildSpec(key: string, car: CarDetailData): Spec | null {
   }
 }
 
-// Ordre canonique des 8 specs (doit rester aligné avec le studio).
 const SPEC_KEYS = ['teinteExterieure', 'teinteInterieure', 'nombrePlaces', 'nombrePortes', 'gamme', 'annee', 'boiteVitesse', 'carburant']
 
 const fixedSpecs = computed<Spec[]>(() =>
@@ -44,9 +43,6 @@ const fixedSpecs = computed<Spec[]>(() =>
     .filter((s): s is Spec => s !== null),
 )
 
-// La liste affiche les specs rangées en « liste » PLUS toute spec non placée
-// dans la config globale — ainsi aucune valeur renseignée n'est jamais masquée.
-// Le filtre `buildSpec → null` retire celles dont la voiture n'a pas la valeur.
 const listSpecs = computed<Spec[]>(() => {
   const fixed = props.car.specsLayout?.fixed ?? []
   const list = props.car.specsLayout?.list ?? []
@@ -102,9 +98,6 @@ const listSpecs = computed<Spec[]>(() => {
     }
   }
 
-  // Toutes les specs partagent la même largeur d'item (grille 4 colonnes en
-  // desktop, 2 en mobile) pour que les rangées `--fixed` et `--list`
-  // s'alignent sur la même grille.
   &__item {
     flex: 0 0 calc((100% - #{desktop-vw(32px)} * 3) / 4);
     min-width: 0;

@@ -55,7 +55,6 @@ export interface CarDetailData {
   specsLayout?: { fixed?: string[], list?: string[] }
 }
 
-// Les 4 templates WhatsApp éditables (carPage), un par cas géré par useCarContact.
 export interface CarWhatsappTemplates {
   withPrice?: string
   withoutPrice?: string

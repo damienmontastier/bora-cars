@@ -7,7 +7,6 @@ export interface ContactSubjectOption {
   label: string
 }
 
-// Texte d'accueil du parcours « Leasing professionnel » (colonne de gauche)
 export interface ContactProIntroData {
   heading: string | null
   lead: string | null
@@ -20,7 +19,6 @@ export interface ContactLinkCardData {
   url: string | null
 }
 
-// Écran de succès du parcours pro. `text` peut contenir le jeton {prenom}.
 export interface ContactProSuccessData {
   kicker: string | null
   title: string | null

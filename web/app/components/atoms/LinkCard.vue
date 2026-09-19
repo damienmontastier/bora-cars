@@ -1,7 +1,4 @@
 <script setup lang="ts">
-// Carte-lien de l'écran de succès (DS « Form / LinkCard ») : `primary` (fond orange)
-// ou `secondary` (filet). Passe par `UtilsBaseLink` (nouvel onglet + tracking des
-// liens externes) ; l'événement `click` est relayé (ex. ouverture de l'appli Instagram).
 interface Props {
   to: string
   title: string
@@ -76,7 +73,6 @@ const emit = defineEmits<{
     }
   }
 
-  // Mobile/Body/M/Bold (la classe P1 descend à 14 px sur mobile)
   &__title {
     @include mobile {
       font-size: mobile-vw(18px);

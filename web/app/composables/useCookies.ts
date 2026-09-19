@@ -27,11 +27,6 @@ export const COOKIE_CATEGORY_KEYS: CookieCategoryKey[] = [
   'functional',
 ]
 
-// Forward the user's consent to Google Tag Manager via @nuxt/scripts.
-// `consent.update()` is typed against the canonical GCMv2 schema and validates input.
-// Consent *defaults* (all denied + wait_for_update: 500) live in `nuxt.config.ts > scripts.registry`
-// so they're pushed BEFORE gtm.js loads. This call upgrades them at runtime.
-// The `functional` category gates non-GTM scripts via `triggers.functional`, not GCMv2.
 function pushConsentUpdate(categories: CookieCategories) {
   if (!import.meta.client)
     return
@@ -41,7 +36,6 @@ function pushConsentUpdate(categories: CookieCategories) {
     gtm = useScriptGoogleTagManager()
   }
   catch {
-    // GTM not registered / mocked in dev — silent no-op.
     return
   }
   if (!gtm?.consent)
@@ -54,14 +48,11 @@ function pushConsentUpdate(categories: CookieCategories) {
     ad_personalization: categories.marketing ? 'granted' : 'denied',
   })
 
-  // Custom dataLayer event so GTM triggers can fire on the choice itself
-  // (e.g. a "wait for consent_granted" trigger gating GA4 page_view).
   const anyGranted = categories.analytics || categories.marketing || categories.functional
   gtm.proxy.dataLayer.push({ event: anyGranted ? 'consent_granted' : 'consent_denied' })
 }
 
 export function useCookies() {
-  // SSR-safe persistent storage. CNIL caps consent lifetime at 13 months; we use ~12 to stay safe.
   const consent = useCookie<CookieConsent | null>(COOKIE_STORAGE_KEY, {
     default: () => null,
     maxAge: 60 * 60 * 24 * 365,
@@ -78,9 +69,6 @@ export function useCookies() {
     () => !!consent.value && consent.value.version === COOKIE_VERSION,
   )
 
-  // Reactive booleans per category — designed to be passed to @nuxt/scripts
-  // `useScriptTriggerConsent({ consent: triggers.analytics })` so a script only
-  // loads once the user has granted consent for that category.
   const triggers = {
     analytics: computed(() => hasConsent.value && !!consent.value?.categories.analytics),
     marketing: computed(() => hasConsent.value && !!consent.value?.categories.marketing),
@@ -134,15 +122,11 @@ export function useCookies() {
     save(pending.value)
   }
 
-  // Returning visitor: re-push their stored choices so GTM upgrades from the denied
-  // defaults. Call on client mount, as early as possible: gtm.js loads on `onNuxtReady`,
-  // so the update lands in the dataLayer BEFORE the first tags (page_view) fire.
   function restoreConsent() {
     if (hasConsent.value && consent.value)
       pushConsentUpdate(consent.value.categories)
   }
 
-  // First-time visitor: show the banner (GTM stays on 'denied' defaults meanwhile).
   function promptIfNeeded() {
     if (!hasConsent.value)
       showBanner()

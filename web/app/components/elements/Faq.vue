@@ -23,18 +23,10 @@ const bgSetters: Array<(value: number) => void> = []
 const bgContentSetters: Array<(value: number) => void> = []
 const clamp01 = gsap.utils.clamp(0, 1)
 
-// Height is driven by a GSAP tween (replaces the CSS transition so it can't
-// desync against the scroll). Scroll uses Lenis's native scrollTo so user wheel/
-// touch input still interrupts it. The bg parallax reads the live rect every
-// frame via Tempus, so it stays coherent across both motions even though they
-// have different curves and durations.
 const HEIGHT_DURATION = 0.4
-const HEIGHT_EASE = 'cubic-bezier(0.215, 0.61, 0.355, 1)' // --ease-out-cubic
+const HEIGHT_EASE = 'cubic-bezier(0.215, 0.61, 0.355, 1)'
 const SCROLL_DURATION = 1
 
-// Live parallax: progress is recomputed every frame from getBoundingClientRect,
-// so the bg's yPercent always reflects the actual layout state, whatever the
-// height tween is doing.
 function updateParallax() {
   const vh = window.innerHeight
   for (let i = 0; i < itemRefs.value.length; i++) {
@@ -57,8 +49,6 @@ function getWrappers(itemEl: HTMLElement): HTMLElement[] {
 }
 
 function measureExpandedHeight(itemEl: HTMLElement): number {
-  // Snapshot the wrapper's auto height as if `.is-expanded` was applied, without
-  // ever painting that state — sync set, read, revert.
   const wrapper = itemEl.querySelector<HTMLElement>('.faq-item__answer-wrapper')
   if (!wrapper)
     return 0
@@ -75,9 +65,6 @@ function measureExpandedHeight(itemEl: HTMLElement): number {
 }
 
 function toggle(key: string, index: number) {
-  // Kill any in-progress tweens so the user can re-toggle instantly. All
-  // subsequent measurements (getBoundingClientRect, lenis.scroll) then read the
-  // live mid-animation state — the next tween picks up smoothly from there.
   for (const t of activeTweens) t.kill()
   activeTweens = []
 
@@ -105,10 +92,6 @@ function toggle(key: string, index: number) {
   const targetToH = wasOpen ? 0 : measureExpandedHeight(itemEl)
   const targetHeightDelta = targetToH - targetFromH
 
-  // Any item OTHER than the target that still has visible height — semantically
-  // expanded OR mid-close from a rapid previous toggle — must also be animated
-  // to 0. Tracking only `prevKey` (Vue state) misses items left stuck mid-close
-  // when the user spam-clicks between items.
   interface ClosingItem { wrappers: HTMLElement[], fromH: number, index: number }
   const closing: ClosingItem[] = []
   itemRefs.value.forEach((it, i) => {
@@ -120,8 +103,6 @@ function toggle(key: string, index: number) {
       closing.push({ wrappers: ws, fromH: h, index: i })
   })
 
-  // Re-centring scroll target: sum the heights of every closing item ABOVE the
-  // target (they'll shrink → target moves up in viewport).
   const topDelta = closing
     .filter(c => c.index < index)
     .reduce((sum, c) => sum - c.fromH, 0)
@@ -131,7 +112,6 @@ function toggle(key: string, index: number) {
   const currentCenter = currentScroll + rect.top + rect.height / 2 - window.innerHeight / 2
   const targetScroll = currentCenter + topDelta + targetHeightDelta * 0.5
 
-  // Freeze inline heights BEFORE Vue flushes the class change.
   for (const w of targetWrappers) w.style.height = `${targetFromH}px`
   for (const c of closing) {
     for (const w of c.wrappers) w.style.height = `${c.fromH}px`
@@ -147,7 +127,6 @@ function toggle(key: string, index: number) {
     return
   }
 
-  // Height — single tween drives target + every closing item in lockstep.
   const heightProxy = { p: 0 }
   const heightTween = gsap.to(heightProxy, {
     p: 1,
@@ -163,9 +142,6 @@ function toggle(key: string, index: number) {
       }
     },
     onComplete: () => {
-      // Hand control back to CSS — `.is-expanded` drives `height: auto` on the
-      // opened wrapper (window-resize resilient); closed wrappers fall back to
-      // the default `height: 0`.
       for (const w of targetWrappers) w.style.height = ''
       for (const c of closing) {
         for (const w of c.wrappers) w.style.height = ''
@@ -175,15 +151,12 @@ function toggle(key: string, index: number) {
 
   activeTweens = [heightTween]
 
-  // Scroll — Lenis native scrollTo, interruptible by user wheel/touch.
   lenis.value.scrollTo(targetScroll, { duration: SCROLL_DURATION })
 }
 
 let unsubTempus: (() => void) | undefined
 
 onMounted(() => {
-  // On mobile, open the first item by default. The CSS `.is-expanded` class
-  // drives `height: auto`, so setting `expanded` here is enough — no tween needed.
   if (isMobile.value && props.items.length)
     expanded.value = props.items[0]!._key
 
@@ -195,9 +168,6 @@ onMounted(() => {
     if (bgContent)
       bgContentSetters[i] = gsap.quickSetter(bgContent, 'yPercent') as (value: number) => void
   })
-  // Run every frame via Tempus — independent of Lenis scroll events, so the
-  // parallax never gets stuck on a stale value if Lenis stops emitting before
-  // reaching its scrollTo target.
   unsubTempus = Tempus.add(updateParallax, { label: 'faq-parallax' })
 })
 
@@ -235,7 +205,6 @@ onUnmounted(() => {
           </div>
         </div>
 
-        <!-- Black bg mask -->
         <div aria-hidden="true" class="faq-item__bg">
           <div class="faq-item__bg-content">
             <div class="faq-item__header">

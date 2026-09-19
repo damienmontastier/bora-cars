@@ -37,12 +37,6 @@ const [emblaRef, emblaApi] = useEmblaCarousel(emblaOptions)
 
 const activeSlide = ref(0)
 
-// On monte TOUTES les slides (pas de gating ±buffer) : en loop, démonter/remonter une
-// slide recrée l'overlay et rejoue le reveal sur une image déjà chargée. Le variant
-// `panel` (pas de backdrop-filter) + l'auto-unmount de l'overlay gardent ça peu coûteux,
-// donc chaque image ne se révèle qu'une seule fois. La slide 0 charge en priorité haute,
-// les autres en `low` (préchargées sans bloquer le LCP).
-
 const analytics = useAnalytics()
 function onSelect() {
   const api = emblaApi.value
@@ -68,7 +62,6 @@ watch(emblaApi, (api) => {
   api.on('reInit', onSelect)
 })
 
-// Re-measure Embla when the slide set changes (e.g. lang switch refetch).
 watch(slides, () => {
   activeSlide.value = 0
   nextTick(() => emblaApi.value?.reInit())

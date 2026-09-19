@@ -6,8 +6,6 @@ import { WhatsappTemplatesInput } from '../../components/WhatsappTemplatesInput'
 
 const TITLE = 'Page Voiture'
 
-// Les 4 cas de message WhatsApp (sous-champs de l'objet `whatsapp`), choisis côté
-// front par useCarContact selon le contexte (bloc tarif vs barre sticky) × prix.
 const WHATSAPP_TEMPLATES = [
   {
     name: 'withPrice',

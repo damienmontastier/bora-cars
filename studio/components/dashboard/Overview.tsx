@@ -15,7 +15,6 @@ function range(values: (number | null | undefined)[]): string | null {
   return min === max ? euros(min) : `${min.toLocaleString('fr-FR')} – ${euros(max)}`
 }
 
-// Mêmes règles d'audience que le front (web/app/queries/catalogue.ts).
 const inStandardCatalogue = (car: CarDoc) => car.clientType == null || car.clientType.includes('particulier')
 const inProCatalogue = (car: CarDoc) => (car.clientType ?? []).includes('professionnel')
 

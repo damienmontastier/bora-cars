@@ -1,10 +1,4 @@
 <script setup lang="ts">
-// Colonne de gauche de la page Contact : titre de la « Demande générale » ou texte
-// d'accueil du « Leasing professionnel ». Au changement d'onglet, le texte sortant
-// monte et s'efface ligne par ligne, puis le texte entrant apparaît ligne par ligne
-// depuis le bas, en même temps que le formulaire (useContactSwitchMotion). Pas de
-// masque : les lignes bougent peu et se fondent. La hauteur de la colonne suit, pour
-// que le formulaire ne saute pas sur mobile.
 import type { ContactProfile } from '~/config/CONTACT_PRO_CONFIG'
 import type { ContactProIntroData } from '~/queries/contact'
 import gsap from 'gsap'
@@ -23,14 +17,10 @@ const rootRef = ref<HTMLElement | null>(null)
 const { motionAllowed, canAnimate, track, motion } = useContactSwitchMotion()
 const leaveTotal = motion.leave.duration + motion.leave.stagger
 
-// Animation en cours par élément (un clic rapide peut interrompre une entrée)
 const running = new WeakMap<Element, { split?: SplitText, tween: gsap.core.Animation }>()
 let heightTween: gsap.core.Tween | null = null
-// Sortie sautée parce que la colonne était masquée
 let leaveSkipped = false
 
-// Blocs de texte à découper : les `.app-text` les plus externes, sans la copie
-// `.sr-only` que les Texts* gardent pour les lecteurs d'écran (cf. useSplitTextAnimation).
 function textTargets(el: Element) {
   return Array.from(el.querySelectorAll<HTMLElement>('.app-text')).filter((node) => {
     for (let parent = node.parentElement; parent && parent !== el; parent = parent.parentElement) {
@@ -50,15 +40,10 @@ function stop(el: Element) {
   running.delete(el)
 }
 
-// Découpe en lignes et lance l'animation dans `onSplit` (motif de la doc SplitText) :
-// avec `autoSplit`, un changement de police ou de largeur pendant l'animation
-// re-découpe le texte et resynchronise la tween retournée.
 function animateLines(el: Element, animate: (lines: Element[]) => gsap.core.Tween) {
   track(() => SplitText.create(textTargets(el), {
     type: 'lines',
     linesClass: 'line',
-    // Comme useSplitTextAnimation : les titres ont déjà leur copie `.sr-only`, et
-    // `auto` poserait un aria-label sur un <span> (signalé par Lighthouse)
     aria: 'none',
     autoSplit: true,
     onSplit: (self) => {
@@ -73,12 +58,9 @@ function onLeave(el: Element, done: () => void) {
   stop(el)
   leaveSkipped = !canAnimate(el)
   if (leaveSkipped) {
-    // Jamais de `done()` synchrone ici : en mode out-in, Vue re-rendrait la transition
-    // en plein patch (erreur « reading 'parentNode' »)
     nextTick(done)
     return
   }
-  // La colonne garde sa hauteur pendant l'échange (sinon elle s'effondre entre les deux textes)
   heightTween?.kill()
   if (rootRef.value)
     gsap.set(rootRef.value, { height: rootRef.value.offsetHeight })
@@ -96,8 +78,6 @@ function onLeave(el: Element, done: () => void) {
   }))
 }
 
-// Entrée ligne par ligne. La hauteur passe de celle du texte sortant à celle du
-// nouveau dès l'échange (avant que les lignes ne soient visibles), puis revient à `auto`.
 function reveal(el: HTMLElement, done: () => void, delay: number) {
   const root = rootRef.value
   if (root?.style.height) {
@@ -119,7 +99,6 @@ function reveal(el: HTMLElement, done: () => void, delay: number) {
     ease: motion.enter.ease,
     stagger: { amount: motion.enter.stagger },
     onComplete: () => {
-      // Texte rendu à son état naturel (doc SplitText : revert() une fois l'animation finie)
       running.get(el)?.split?.revert()
       running.delete(el)
       done()
@@ -137,9 +116,6 @@ function onEnter(el: Element, done: () => void) {
   if (rootRef.value)
     gsap.set(rootRef.value, { clearProps: 'height' })
 
-  // Colonne masquée qui réapparaît avec la « Demande générale » (mobile, depuis les
-  // étapes B–E) : la page ne l'affiche qu'une fois le formulaire sorti ; le texte
-  // attend jusque-là, invisible
   if (leaveSkipped && motionAllowed() && el instanceof HTMLElement) {
     gsap.set(el, { autoAlpha: 0 })
     running.set(el, {
@@ -197,7 +173,6 @@ function onEnter(el: Element, done: () => void) {
     }
   }
 
-  // Desktop/Body/M/Regular ; Mobile/Body/L/Regular (20/26)
   &__lead {
     @include mobile {
       font-size: mobile-vw(20px);

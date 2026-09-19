@@ -4,7 +4,6 @@ import type { StringInputProps } from 'sanity'
 import { IntentLink } from 'sanity/router'
 import { Badge, Box, Card, Flex, Grid, Inline, Spinner, Stack, Text } from '@sanity/ui'
 
-// Cast : les types React du Studio et de sanity/router peuvent diverger (TS2786).
 const CarLink = IntentLink as unknown as React.FC<any>
 
 interface CarRow {
@@ -18,9 +17,6 @@ interface CarRow {
   prixMensuel?: number
 }
 
-// Mêmes filtres que côté front (web/app/queries/catalogue.ts) :
-// - professionnel : clientType contient "professionnel"
-// - particulier (standard) : clientType non défini OU contient "particulier"
 const FILTERS: Record<string, string> = {
   professionnel: '_type == "car" && "professionnel" in clientType',
   particulier: '_type == "car" && (!defined(clientType) || "particulier" in clientType)',

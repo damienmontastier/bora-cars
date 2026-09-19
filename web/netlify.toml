@@ -1,53 +1,23 @@
-# Netlify config — app "web" du monorepo (Base directory = web/ dans Netlify).
-# Le Sanity Studio se déploie séparément (`npm run studio:deploy`), pas par Netlify.
-#
-# Modèle de rendu : un SEUL preset, `netlify` (SSR + Netlify Functions), dans les
-# deux contextes (voir web/nuxt.config.ts → nitro.preset = 'netlify'). On NE passe
-# JAMAIS par `nuxt generate` / `netlify_static` : la prod a besoin de fonctions
-# runtime pour /api/contact (Airtable, token serveur) ET /_i18n/.../messages.json
-# (traductions @nuxtjs/i18n). C'est `NUXT_PUBLIC_IS_PROD` (ci-dessous, par contexte)
-# qui bascule prod = hybride (pages prérendues + fonctions) vs develop = SSR pur.
-
 [build]
-  # = `nuxt build` (cf. web/package.json). Pas de `generate`.
   command = "npm run build"
-  # Sortie publique du preset Nitro `netlify` (relative au base directory web/).
   publish = "dist"
 
 [build.environment]
   NODE_VERSION = "22"
 
-# Production (branche main) → HYBRIDE : pages localisées prérendues en HTML statique
-# servi par le CDN + Netlify Functions pour /api/contact et /_i18n/*. IS_PROD=true
-# active le prerender des pages (nitro.prerender dans nuxt.config.ts) et l'indexabilité.
 [context.production.environment]
   NUXT_PUBLIC_IS_PROD = "true"
 
-# Develop (branche develop) → SSR pur : pages rendues à la volée par la fonction,
-# build plus rapide, contenu Sanity toujours frais, site non indexable.
 [context.develop.environment]
   NUXT_PUBLIC_IS_PROD = "false"
 
-# NB : la redirection apex `/` → `/fr` (301) est gérée par la routeRule dans
-# nuxt.config.ts (→ règle `_redirects` au bord du CDN). On NE met PAS de
-# `[[redirects]]` forcé ici : Netlify évalue `_redirects` AVANT `netlify.toml`,
-# donc une règle forcée ici n'est jamais atteinte (le `_redirects` gagne). Le fix
-# réel est de ne pas générer le stub `index.html` qui « shadow » la 301 — voir
-# `nitro.prerender.ignore` dans nuxt.config.ts.
-
-# Le Dashboard du Studio Sanity (autre origine) lit dans ce manifest Nuxt la date du
-# build en ligne (`{ id, timestamp }`), pour signaler les contenus publiés pas encore
-# en ligne et détecter la fin d'une mise à jour — cf. studio/lib/netlifyDeploy.ts.
-# Données publiques, lecture seule : `*` suffit.
-# Polices locales (web/public/fonts/) : servies par défaut en `max-age=0`, donc
-# revalidées à chaque chargement complet, sur le chemin critique du préchargeur (il
-# attend les polices pour se lever). Cache long : les noms de fichiers ne sont pas
-# hachés, il faut donc RENOMMER un fichier si la police change.
+# Cache immutable : renommer le fichier si une police change
 [[headers]]
   for = "/fonts/*"
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
 
+# Lu par le Dashboard du Studio (autre origine) : ne pas retirer
 [[headers]]
   for = "/_nuxt/builds/latest.json"
   [headers.values]

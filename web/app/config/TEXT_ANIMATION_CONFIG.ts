@@ -12,13 +12,10 @@ type AnimateFn = (
 
 export interface TextAnimationPreset {
   split: Pick<SplitText.Vars, 'type' | 'mask'>
-  /** Setup before tween — only used when animate is absent */
   prepare?: (targets: Element[]) => void
   from?: gsap.TweenVars
   to?: gsap.TweenVars
-  /** Preferred ScrollTrigger defaults — merged between composable defaults and user overrides */
   scrollTrigger?: Partial<ScrollTrigger.Vars>
-  /** Full custom animation — when present, from/to/prepare are ignored */
   animate?: AnimateFn
 }
 
@@ -32,7 +29,6 @@ function wordChars(word: Element) {
 
 export const TEXT_ANIMATION_CONFIG = {
 
-  /** fx11 — chars slide in from the right (clipped) */
   'slide-x': {
     split: { type: 'chars', mask: 'chars' },
     from: { transformOrigin: '0% 50%', xPercent: 105 },
@@ -40,7 +36,6 @@ export const TEXT_ANIMATION_CONFIG = {
     scrollTrigger: { start: 'top bottom', end: 'top top+=10%', scrub: true },
   },
 
-  /** Lines slide up from below (clipped) */
   'slide-y': {
     split: { type: 'lines', mask: 'lines' },
     from: { yPercent: 110 },
@@ -48,7 +43,6 @@ export const TEXT_ANIMATION_CONFIG = {
     scrollTrigger: { start: 'top bottom-=10%', scrub: false },
   },
 
-  /** fx1 — chars scatter in: scale up + random rotation */
   'scatter-in': {
     split: { type: 'chars', mask: undefined },
     from: { opacity: 0, scale: 0.6, rotation: () => gsapDefault.utils.random(-20, 20) },
@@ -56,7 +50,6 @@ export const TEXT_ANIMATION_CONFIG = {
     scrollTrigger: { start: 'center+=20% bottom', end: '+=50%', scrub: true },
   },
 
-  /** fx2 — chars squash and stretch upward (clipped) */
   'stretch-up': {
     split: { type: 'chars', mask: 'chars' },
     from: { opacity: 0, yPercent: 120, scaleY: 2.3, scaleX: 0.7, transformOrigin: '50% 0%' },
@@ -64,7 +57,6 @@ export const TEXT_ANIMATION_CONFIG = {
     scrollTrigger: { start: 'center bottom+=50%', end: 'bottom top+=40%', scrub: true },
   },
 
-  /** fx3 — chars scale up from their top edge (clipped) */
   'scale-y-top': {
     split: { type: 'chars', mask: 'chars' },
     from: { transformOrigin: '50% 0%', scaleY: 0 },
@@ -72,7 +64,6 @@ export const TEXT_ANIMATION_CONFIG = {
     scrollTrigger: { start: 'center bottom-=5%', end: 'top top-=20%', scrub: true },
   },
 
-  /** fx4 — chars converge from a spread toward the center of each word */
   'converge': {
     split: { type: 'chars', mask: undefined },
     from: { x: (i: number, _: unknown, arr: unknown[]) => 150 * (i - arr.length / 2) },
@@ -80,7 +71,6 @@ export const TEXT_ANIMATION_CONFIG = {
     scrollTrigger: { start: 'center bottom+=30%', end: 'top top+=15%', scrub: true },
   },
 
-  /** fx5 — chars fly in from random positions across the viewport */
   'explode': {
     split: { type: 'chars', mask: undefined },
     from: {
@@ -92,7 +82,6 @@ export const TEXT_ANIMATION_CONFIG = {
     scrollTrigger: { start: 'center bottom+=10%', end: 'bottom center', scrub: 0.9 },
   },
 
-  /** fx6 — chars flip in on X axis (3D) */
   'flip-x': {
     split: { type: 'chars', mask: undefined },
     prepare: targets => perspective(targets, 2000),
@@ -101,7 +90,6 @@ export const TEXT_ANIMATION_CONFIG = {
     scrollTrigger: { start: 'center bottom+=40%', end: 'bottom center-=30%', scrub: 0.9 },
   },
 
-  /** fx7 — chars flip in on Y axis from the right (3D) */
   'flip-side': {
     split: { type: 'chars', mask: undefined },
     prepare: targets => perspective(targets, 2000),
@@ -110,7 +98,6 @@ export const TEXT_ANIMATION_CONFIG = {
     scrollTrigger: { start: 'bottom bottom+=20%', end: 'bottom top', scrub: 1 },
   },
 
-  /** fx8 — chars scramble through random symbols before settling */
   'scramble': {
     split: { type: 'chars', mask: undefined },
     animate: (el, chars, _w, _l, st) => {
@@ -133,7 +120,6 @@ export const TEXT_ANIMATION_CONFIG = {
     scrollTrigger: { start: 'top bottom', end: 'bottom center', scrub: false, toggleActions: 'play resume resume reset' },
   },
 
-  /** fx9 — chars scale in from 0 and converge from the viewport center */
   'scale-center': {
     split: { type: 'chars', mask: undefined },
     from: {
@@ -145,7 +131,6 @@ export const TEXT_ANIMATION_CONFIG = {
     scrollTrigger: { start: 'top bottom', end: 'top top', scrub: true },
   },
 
-  /** fx10 — chars blur-fade in from random order */
   'blur-in': {
     split: { type: 'chars', mask: undefined },
     from: { opacity: 0, filter: 'blur(20px)' },
@@ -153,7 +138,6 @@ export const TEXT_ANIMATION_CONFIG = {
     scrollTrigger: { start: 'top bottom', end: 'center center', scrub: false, toggleActions: 'play resume resume reset' },
   },
 
-  /** fx12 — chars slide in from left with twist and horizontal scale (clipped) */
   'slide-left-twist': {
     split: { type: 'chars', mask: 'chars' },
     from: { xPercent: -250, rotationZ: 45, scaleX: 6, transformOrigin: '100% 50%' },
@@ -161,7 +145,6 @@ export const TEXT_ANIMATION_CONFIG = {
     scrollTrigger: { start: 'top bottom+=10%', end: 'bottom top+=10%', scrub: true },
   },
 
-  /** fx13 — chars full 3D flip — rotate Y + fall from below */
   'flip-3d': {
     split: { type: 'chars', mask: undefined },
     prepare: targets => perspective(targets, 2000),
@@ -170,7 +153,6 @@ export const TEXT_ANIMATION_CONFIG = {
     scrollTrigger: { start: 'center bottom', end: 'bottom center-=30%', scrub: 0.9 },
   },
 
-  /** fx16 — title rotates + words fade in sequentially */
   'word-fade': {
     split: { type: 'words', mask: undefined },
     animate: (el, _c, words, _l, st) => {
@@ -180,7 +162,6 @@ export const TEXT_ANIMATION_CONFIG = {
     scrollTrigger: { scrub: true },
   },
 
-  /** fx17 — chars tumble in with random 3D rotation + depth */
   'tumble-3d': {
     split: { type: 'chars', mask: undefined },
     prepare: targets => perspective(targets, 1000),
@@ -193,7 +174,6 @@ export const TEXT_ANIMATION_CONFIG = {
     scrollTrigger: { start: 'top bottom', end: 'bottom top', scrub: true },
   },
 
-  /** fx18 — chars rush in from deep Z space */
   'depth-in': {
     split: { type: 'chars', mask: undefined },
     prepare: targets => perspective(targets, 1000),
@@ -202,7 +182,6 @@ export const TEXT_ANIMATION_CONFIG = {
     scrollTrigger: { start: 'top bottom', end: 'bottom top', scrub: true },
   },
 
-  /** fx19 — chars pivot in from top edge in 3D */
   'pivot-top': {
     split: { type: 'chars', mask: undefined },
     prepare: targets => perspective(targets, 1000),
@@ -211,7 +190,6 @@ export const TEXT_ANIMATION_CONFIG = {
     scrollTrigger: { start: 'center bottom', end: 'bottom top+=20%', scrub: true },
   },
 
-  /** fx20 — chars pivot in from bottom edge, random stagger order */
   'pivot-bottom': {
     split: { type: 'chars', mask: undefined },
     prepare: targets => perspective(targets, 1000),
@@ -220,7 +198,6 @@ export const TEXT_ANIMATION_CONFIG = {
     scrollTrigger: { start: 'center bottom', end: 'bottom top+=20%', scrub: true },
   },
 
-  /** fx21 — per-word: chars dive in from 3D depth + wave Y offset */
   'dive-in': {
     split: { type: 'chars,words', mask: undefined },
     animate: (el, _c, words, _l, st) => {
@@ -246,7 +223,6 @@ export const TEXT_ANIMATION_CONFIG = {
     scrollTrigger: { scrub: true },
   },
 
-  /** fx22 — per-word: chars spiral in with wave X/Y/rotationZ + rotationY */
   'helix': {
     split: { type: 'chars,words', mask: undefined },
     animate: (el, _c, words, _l, st) => {
@@ -274,7 +250,6 @@ export const TEXT_ANIMATION_CONFIG = {
     scrollTrigger: { scrub: true },
   },
 
-  /** fx23 — per-word: chars fan out/in from alternating directions */
   'scale-fan': {
     split: { type: 'chars,words', mask: undefined },
     animate: (el, _c, words, _l, st) => {
@@ -294,7 +269,6 @@ export const TEXT_ANIMATION_CONFIG = {
     scrollTrigger: { scrub: true },
   },
 
-  /** fx24 — chars drop in with an elastic wave pattern */
   'wave-drop': {
     split: { type: 'chars', mask: undefined },
     from: {
@@ -308,7 +282,6 @@ export const TEXT_ANIMATION_CONFIG = {
     scrollTrigger: { start: 'top bottom', end: 'bottom top-=50%', scrub: true },
   },
 
-  /** fx25 — chars scale up from bottom edge while parent is pinned */
   'pin-scale-y': {
     split: { type: 'chars', mask: undefined },
     animate: (el, chars, _w, _l, st) => {
@@ -321,7 +294,6 @@ export const TEXT_ANIMATION_CONFIG = {
     },
   },
 
-  /** fx27 — words fly in from random 3D positions while parent is pinned */
   'word-zoom': {
     split: { type: 'words', mask: undefined },
     animate: (el, _c, words, _l, st) => {
@@ -346,7 +318,6 @@ export const TEXT_ANIMATION_CONFIG = {
     },
   },
 
-  /** fx28 — per-word: chars scale + blur + rotate based on distance from center */
   'blur-scale': {
     split: { type: 'chars,words', mask: undefined },
     animate: (el, _c, words, _l, st) => {
@@ -376,7 +347,6 @@ export const TEXT_ANIMATION_CONFIG = {
     scrollTrigger: { scrub: true },
   },
 
-  /** fx29 — per-word: chars scale in from alternating corner origins */
   'corner-scale': {
     split: { type: 'chars,words', mask: undefined },
     animate: (el, _c, words, _l, st) => {

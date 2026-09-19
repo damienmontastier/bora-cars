@@ -8,7 +8,6 @@ export function useUtm() {
   function captureFromUrl() {
     if (!import.meta.client)
       return
-    // First-touch attribution within the session — don't overwrite.
     if (sessionStorage.getItem(STORAGE_KEY))
       return
 
@@ -26,7 +25,7 @@ export function useUtm() {
       try {
         sessionStorage.setItem(STORAGE_KEY, JSON.stringify(data))
       }
-      catch { /* sessionStorage unavailable (private mode, etc.) */ }
+      catch {}
     }
   }
 

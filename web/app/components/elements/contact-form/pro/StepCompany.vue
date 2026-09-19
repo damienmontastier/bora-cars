@@ -1,12 +1,9 @@
 <script setup lang="ts">
-// Étape (B) « Société » du parcours Leasing pro.
 import { CONTACT_MAX_LENGTH, PRO_BALANCE_SHEETS, PRO_CREATION_FIRST_YEAR, PRO_LEGAL_FORMS, PRO_REVENUES } from '~/config/CONTACT_PRO_CONFIG'
 
 const { t } = useI18n()
 const { form, errors, options, placeholder } = useContactProForm()
 
-// Année courante figée dans le payload SSR : la liste des années est identique au
-// prérendu et à l'hydratation, même si la page a été construite l'année précédente.
 const currentYear = useState('contact-pro-current-year', () => new Date().getFullYear())
 </script>
 

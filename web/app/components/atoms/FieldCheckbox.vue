@@ -6,7 +6,6 @@ interface Props {
   required?: boolean
   invalid?: boolean
   errorMessage?: string
-  // `sm` : case du formulaire historique (texte 13 px) ; `md` : taille du DS « Form / Checkbox »
   size?: 'sm' | 'md'
 }
 
@@ -108,7 +107,6 @@ defineExpose({ focus: () => inputRef.value?.focus() })
     }
   }
 
-  // Texte long (ex. consentement) : la case reste alignée sur la 1re ligne
   &--md &__control {
     align-items: flex-start;
   }
@@ -195,7 +193,6 @@ defineExpose({ focus: () => inputRef.value?.focus() })
     }
   }
 
-  // Taille du DS « Form / Checkbox » : Desktop/Body/XS/Regular, Mobile/Body/S/Regular
   &--md &__label {
     font-size: desktop-vw(18px);
     line-height: desktop-vw(22px);

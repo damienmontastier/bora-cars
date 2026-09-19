@@ -31,7 +31,7 @@ watch(menuOpen, (open) => {
 
 const { setTargetRect } = useMenuCtaSync()
 
-const logoWrapRef = ref(null) // native div — reliable offsetWidth, no component chain
+const logoWrapRef = ref(null)
 const mainRef = ref(null)
 const mainClipRef = ref(null)
 const menuCtaRef = ref(null)
@@ -95,13 +95,10 @@ function expandMain() {
 
   const fromWidth = clipEl.offsetWidth
 
-  // __inner uses justify-content:center — pill shifts as the clip grows.
-  // Temporarily set clip to auto to measure CTA's natural width and final rect.
-  // All synchronous — browser batches DOM writes so no flash occurs.
   clipEl.style.width = 'auto'
   const toWidth = clipEl.offsetWidth
-  setTargetRect(menuCtaEl.getBoundingClientRect()) // correct final-layout position
-  clipEl.style.width = `${fromWidth}px` // restore before GSAP takes over
+  setTargetRect(menuCtaEl.getBoundingClientRect())
+  clipEl.style.width = `${fromWidth}px`
 
   expandAnim = gsap.timeline({
     onComplete: () => {
@@ -118,11 +115,9 @@ function collapseMain() {
   if (!clipEl || !menuCtaEl)
     return
 
-  // Clip already at 0 (e.g. resetMenu on page change) → nothing to do
   if (clipEl.offsetWidth === 0)
     return
 
-  // If menu is open, snap logo/main back instantly — clip collapses to 0 anyway
   if (menuOpen.value) {
     menuAnim?.kill()
     menuAnim = null
@@ -163,12 +158,10 @@ function openMenu() {
   menuAnim?.kill()
   menuAnimating.value = true
 
-  savedClipWidth = mainEl.offsetWidth // actual pill width — used by closeMenu to restore
+  savedClipWidth = mainEl.offsetWidth
   savedLogoWidth = logoEl.offsetWidth
   const gap = Number.parseFloat(getComputedStyle(innerEl).gap) || 0
 
-  // Measure full pill width (burger + CTA) for panel sizing, without showing the CTA.
-  // Temporarily show the clip to get the natural full width, then restore invisibly.
   const clipEl = mainClipRef.value
   const menuCtaEl = menuCtaRef.value?.$el
   let openWidth = savedClipWidth
@@ -180,12 +173,8 @@ function openMenu() {
     menuCtaEl.style.display = 'none'
   }
 
-  // 1. Capture pill state BEFORE changing layout —
-  //    Flip will animate from this position (right-of-center with logo beside it)
-  //    to the new centered position → natural leftward "catching up" movement
   const state = Flip.getState(mainEl)
 
-  // 2. Freeze logo at its current visual position, remove from flex flow
   const logoRect = logoEl.getBoundingClientRect()
   const innerRect = innerEl.getBoundingClientRect()
   gsap.set(logoEl, {
@@ -195,17 +184,11 @@ function openMenu() {
     width: savedLogoWidth,
   })
 
-  // 3. Set pill's final size:
-  //    - Desktop: openWidth + logo + gap (covers the area where logo sits naturally)
-  //    - Mobile:  span the full inner width (CSS sets __inner to 90vw on mobile)
-  //               so the pill doesn't overflow the viewport.
   const openPillWidth = isMobile.value
     ? innerEl.offsetWidth
     : openWidth + savedLogoWidth + gap
   gsap.set(mainEl, { width: openPillWidth })
 
-  // 4. Flip moves pill from old right-of-center position → new centered position
-  //    Logo fades out near the end once pill has passed over it
   menuAnim = gsap.timeline({
     onComplete: () => {
       menuAnim = null
@@ -227,23 +210,18 @@ function closeMenu() {
   menuAnimating.value = true
 
   const gap = Number.parseFloat(getComputedStyle(innerEl).gap) || 0
-  // Pill is centered alone → with logo in flex flow it sits (logoWidth + gap) / 2 to the right
-  // Animate that offset so the pill lands exactly at its natural flex position
   const xOffset = (savedLogoWidth + gap) / 2
 
   menuAnim = gsap.timeline({
     delay: 0.3,
     onComplete: () => {
-      // Restore logo to flex flow — pill is already at the correct position (no jump)
       gsap.set(logoEl, { clearProps: 'position,left,top,width' })
       gsap.set(mainEl, { clearProps: 'x,width' })
       menuAnim = null
       menuAnimating.value = false
     },
   })
-    // Pill shrinks and drifts right toward its natural position beside the logo
     .to(mainEl, { width: savedClipWidth, x: xOffset, duration: 0.5, ease: 'power3.inOut' }, 0)
-    // Logo fades in once pill has moved away enough to reveal it
     .to(logoEl, { opacity: 1, duration: 0.3, ease: 'power2.out' }, 0.25)
 }
 
@@ -267,11 +245,7 @@ function resetMenu() {
   const clipEl = mainClipRef.value
   const menuCtaEl = menuCtaRef.value?.$el
 
-  // 1. Hide CTA and collapse the CTA clip first —
-  //    logo returns to flex flow only after, without a visible jump
   if (menuCtaEl) {
-    // Clear leftover clipPath set by Hero2/Hero3's menuOpen watcher
-    // (otherwise the CTA stays masked when returning to a Hero1 page).
     gsap.set(menuCtaEl, { clearProps: 'clipPath' })
     menuCtaEl.style.display = 'none'
   }
@@ -292,7 +266,7 @@ onUnmounted(() => {
   offHeroCTABus()
   expandAnim?.kill()
   menuAnim?.kill()
-  lenis.value?.start() // ensure scroll is re-enabled if unmounted while menu was open
+  lenis.value?.start()
 })
 </script>
 
@@ -385,8 +359,8 @@ onUnmounted(() => {
   &__main-clip {
     overflow: hidden;
     display: inline-flex;
-    flex-shrink: 0; // prevent flex from overriding GSAP-controlled width
-    width: 0; // hidden until GSAP expands it
+    flex-shrink: 0;
+    width: 0;
   }
 
   &__btn {
@@ -412,7 +386,7 @@ onUnmounted(() => {
   &__cta {
     display: none;
     opacity: 0;
-    margin-left: desktop-vw(8px); // gap is inside the clip — invisible when clip width: 0
+    margin-left: desktop-vw(8px);
 
     @include mobile {
       margin-left: mobile-vw(6px);

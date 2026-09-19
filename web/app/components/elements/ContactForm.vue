@@ -1,8 +1,4 @@
 <script setup lang="ts">
-// Formulaire de la page Contact : sélecteur « Demande générale » / « Leasing
-// professionnel », honeypot, état d'envoi et statut (useContactForm). Chaque parcours
-// a son composant ; les deux restent montés (v-show) pour qu'un changement d'onglet
-// ne vide pas les réponses déjà saisies.
 import type { ContactProfile } from '~/config/CONTACT_PRO_CONFIG'
 import type { ContactSubjectOption } from '~/queries/contact'
 import gsap from 'gsap'
@@ -20,7 +16,6 @@ withDefaults(defineProps<Props>(), {
 })
 
 const emit = defineEmits<{
-  // Dossier pro envoyé : la page affiche l'écran de succès
   proSuccess: [firstName: string]
 }>()
 
@@ -45,11 +40,6 @@ const profileOptions = computed(() => CONTACT_PROFILES.map(value => ({
 const generalRef = ref<{ submit: () => void } | null>(null)
 const proRef = ref<{ submit: () => void } | null>(null)
 
-// Changement d'onglet (même chorégraphie que PageContactIntro, cf. useContactSwitchMotion) :
-// les blocs du parcours affiché sortent en cascade vers le haut, puis ceux de l'autre
-// entrent depuis le bas pendant que la hauteur passe de l'un à l'autre.
-// `shown` (le parcours visible) ne rejoint `profile` qu'une fois la sortie finie ; la page
-// s'en sert pour masquer son texte d'accueil sur mobile au bon moment.
 const shown = defineModel<ContactProfile>('shownProfile', { default: 'general' })
 const panelsRef = ref<HTMLElement | null>(null)
 
@@ -64,8 +54,6 @@ function panel(value: ContactProfile) {
   return panelsRef.value?.querySelector<HTMLElement>(`:scope > [data-contact-panel="${value}"]`) ?? null
 }
 
-// Blocs animés : enfants directs du parcours, et un à un les champs des listes
-// marquées `data-contact-cascade`
 function cascadeItems(el: HTMLElement | null) {
   return Array.from(el?.children ?? []).flatMap(child =>
     child.hasAttribute('data-contact-cascade') ? Array.from(child.children) : [child])
@@ -77,7 +65,6 @@ function clearCascade(el: HTMLElement | null) {
     gsap.set(items, { clearProps: CASCADE_PROPS })
 }
 
-// État de repos : plus aucun style inline, hauteur rendue à `auto`
 function settle() {
   clearCascade(panel('general'))
   clearCascade(panel('pro'))
@@ -85,8 +72,6 @@ function settle() {
     gsap.set(panelsRef.value, { clearProps: 'height' })
 }
 
-// `fresh` : parcours qui vient d'apparaître ; sinon il revient de l'état où l'a laissé
-// une sortie interrompue (clic sur l'onglet de départ pendant l'échange)
 function enter(root: HTMLElement, el: HTMLElement, fresh: boolean) {
   const tl = gsap.timeline({ onComplete: settle })
   if (root.style.height)
@@ -116,10 +101,6 @@ watch(profile, (next) => {
   const current = panel(shown.value)
   const animated = canAnimate(root) && canAnimate(current)
 
-  // Chaque changement d'onglet repart du haut de la page : sinon le texte d'accueil, qui
-  // change de hauteur au-dessus du formulaire, pousse le sélecteur hors de l'écran (mobile).
-  // Via Lenis, verrouillé le temps du trajet. Ignoré tant que Lenis est arrêté (preloader),
-  // et la page est alors déjà en haut.
   lenis.value?.scrollTo(0, animated
     ? { duration: motion.scroll.duration, easing: gsap.parseEase(motion.scroll.ease), lock: true }
     : { immediate: true })
@@ -135,7 +116,6 @@ watch(profile, (next) => {
     return
   }
 
-  // Hauteur figée pendant l'échange, puis ajustée au nouveau parcours
   gsap.set(root, { height: root.offsetHeight })
   switchTween = track(() => gsap.to(cascadeItems(current), {
     autoAlpha: 0,
@@ -148,7 +128,6 @@ watch(profile, (next) => {
       nextTick(() => {
         if (id !== switchId)
           return
-        // Parcours sorti désormais masqué (v-show) : il retrouve ses styles
         clearCascade(current)
         const incoming = panel(next)
         if (incoming)
@@ -160,7 +139,6 @@ watch(profile, (next) => {
   }))
 })
 
-// Un seul <form> (le honeypot doit en faire partie) : l'envoi est délégué au parcours affiché.
 function onSubmit() {
   if (shown.value === 'pro')
     proRef.value?.submit()
@@ -177,7 +155,6 @@ function onSubmit() {
       :aria-label="t('contact.profile.label')"
     />
 
-    <!-- Honeypot: bots fill it, humans never see it. Server discards filled submissions. -->
     <div class="app-elements-contact-form__honeypot" aria-hidden="true">
       <label for="contact-form-website">Website (do not fill)</label>
       <input
@@ -214,7 +191,6 @@ function onSubmit() {
   flex-direction: column;
   gap: desktop-vw(32px);
   width: 100%;
-  // Marge sous le menu fixe quand le parcours pro remonte en haut du formulaire (Lenis)
   scroll-margin-top: desktop-vw(120px);
 
   @include mobile {

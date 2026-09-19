@@ -92,22 +92,13 @@ const loading = computed(() => props.lazy ? 'lazy' : 'eager')
 const hasSrc = computed(() => !!props.src)
 const resolvedProvider = computed(() => props.provider ?? undefined)
 
-// NuxtImg only injects its `preload` <link> server-side, so on SPA
-// navigation the hero image is fetched as a normal, non-prioritised request —
-// the reveal blur lingers while it loads. Mirror the preload's fetchPriority
-// onto the real <img> (via imgAttrs) so eager media also loads at high
-// priority on client-side navigation.
 const imgAttrs = computed(() => {
-  // `fetchPriority` explicite l'emporte (ex. précharger les voisines d'un slider en
-  // `low` sans lien preload) ; sinon on le dérive de `preload`.
   const fetchpriority = props.fetchPriority
     ?? (typeof props.preload === 'object'
       ? props.preload.fetchPriority
       : props.preload
         ? 'high'
         : undefined)
-  // decoding async : laisse le navigateur décoder hors du thread principal, pour
-  // éviter qu'un gros décode (médias eager) ne fasse sauter une frame de scroll/drag.
   return { decoding: 'async' as const, ...(fetchpriority ? { fetchpriority } : {}) }
 })
 const localModifiers = computed(() => ({
@@ -116,14 +107,6 @@ const localModifiers = computed(() => ({
   ...(props.crop && { crop: props.crop }),
 }))
 
-// Format : aucun format imposé. Le provider Sanity ajoute alors `auto=format`, et le
-// CDN sert l'AVIF aux navigateurs qui l'acceptent (~45 % plus léger que le WebP à
-// qualité égale), le WebP aux autres. Ne pas passer `format: 'avif'` : Sanity refuse
-// `fm=avif` (HTTP 400).
-//
-// Taille : `fit: 'outside'` (→ `fit=max` chez Sanity) plafonne chaque candidat à la
-// taille de la source. Sans lui, le CDN agrandit la photo (source de 2752 px servie en
-// 3840) : un fichier plus lourd, sans aucun détail en plus.
 const fit = computed(() => props.modifiers?.fit ?? 'outside')
 
 const MOBILE_MEDIA = '(max-width: 799px)'
@@ -131,9 +114,6 @@ const DESKTOP_MEDIA = '(min-width: 800px)'
 
 const $img = useImage()
 
-// Largeur max d'un recadrage au format `ratio` sans agrandir la source : dimensions lues
-// dans la référence de l'asset Sanity (`image-<hash>-4000x6000-jpg`, ce que projettent
-// les requêtes) ou dans son URL (`…-4000x6000.jpg`), moins la zone `crop` du Studio.
 function maxCropWidth(ratio: number) {
   const match = props.src?.match(/-(\d+)x(\d+)[.-]\w+(?:\?|$)/)
   if (!match)
@@ -156,10 +136,6 @@ function croppedSizes(sizes: string, ratio: number) {
     modifiers: { ...modifiers, width: 1000, height: Math.round(1000 / ratio) },
   })
 
-  // `fit=crop` agrandit la source quand le cadre la dépasse (`fit=max` ne s'applique
-  // pas à un recadrage, et `fit=min` ignore le hotspot). Les candidats plus larges que
-  // la source sont donc remplacés par un seul, à la taille native du recadrage : le
-  // navigateur prend celui-là sur les grands écrans, avec exactement le même détail.
   const max = maxCropWidth(ratio)
   const candidates = result.srcset.split(', ').map((entry) => {
     const i = entry.lastIndexOf(' ')
@@ -168,8 +144,6 @@ function croppedSizes(sizes: string, ratio: number) {
   if (candidates.every(c => c.width <= max))
     return result
 
-  // Casts : les types de `$img` suivent le provider par défaut (IPX, où `crop` est une
-  // chaîne) ; ici le provider est Sanity, qui attend l'objet crop du Studio.
   type ImgArgs = Parameters<typeof $img>
   const nativeModifiers = { ...modifiers, width: max, height: Math.round(max / ratio) } as ImgArgs[1]
   const nativeUrl = $img(props.src!, nativeModifiers, { provider: resolvedProvider.value } as ImgArgs[2])
@@ -197,7 +171,6 @@ if (import.meta.server && props.preload && cropped.value) {
       const c = cropped.value
       if (!c)
         return []
-      // Pas de `type` : le CDN choisit le format (AVIF ou WebP) selon le navigateur.
       const link = (sources: { srcset: string, sizes?: string }, media?: string) => ({
         rel: 'preload',
         as: 'image',
@@ -222,22 +195,12 @@ const mainRef = useTemplateRef<HTMLElement>('mainRef')
 const pictureRef = ref<any>(null)
 
 onMounted(() => {
-  // NuxtImg → son `$el` EST l'<img> ; recadrage → un <picture> qui la contient.
   const el = pictureRef.value?.$el ?? pictureRef.value
   const img: HTMLImageElement | null = el instanceof HTMLImageElement ? el : (el?.querySelector?.('img') ?? null)
-  // `load` doesn't bubble, so relying solely on NuxtPicture's emit is fragile.
-  // Listen on the real <img>, and reveal on `error` / missing-img too: an opaque
-  // reveal panel must never stay stuck covering the slot.
   if (!img) {
     onLoad()
     return
   }
-  // `img.complete` is ALSO true for a not-yet-started lazy image (below the fold),
-  // not only a finished one — but then `naturalWidth` is 0. Without this guard a
-  // lazy card marks itself "loaded" at mount, so the reveal fires the instant it
-  // scrolls into view — BEFORE the image has even begun downloading — wiping the
-  // overlay off an empty slot, then the image pops in after. Only skip the reveal
-  // for a GENUINELY decoded (cached) image; otherwise wait for the real `load`.
   if (img.complete && img.naturalWidth > 0) {
     onLoad()
     return

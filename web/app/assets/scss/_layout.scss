@@ -3,14 +3,6 @@
 @use '@/assets/scss/_mixins.scss' as *;
 @use '@/assets/scss/_functions.scss' as *;
 
-// inspiration: https://material.io/design/layout/responsive-layout-grid.html#columns-gutters-and-margins
-
-// css variables exposed globally:
-// --layout-columns-count: columns count in the layout
-// --layout-columns-gap: gap size between columns
-// --layout-margin: layout margin size (left or right)
-
-// 'variables': (mobile, desktop)
 $layout: (
   'columns-count': (
     8,

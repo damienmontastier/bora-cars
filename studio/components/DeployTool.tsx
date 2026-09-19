@@ -18,10 +18,6 @@ import { RocketIcon } from '@sanity/icons/Rocket'
 import { WarningOutlineIcon } from '@sanity/icons/WarningOutline'
 import { BUILD_HOOK, formatDateTime, readLastTriggered, triggerBuild } from '../lib/netlifyDeploy'
 
-// Outil « Mise en ligne » : redéclenche un build + redéploiement de la production (branche
-// main) à la demande, sans attendre un push.
-
-/** Déclenchement du build avec toasts. `onTriggered` reçoit la date ISO du déclenchement. */
 export function useDeployTrigger(onTriggered?: (iso: string) => void) {
   const toast = useToast()
   const [loading, setLoading] = useState(false)
