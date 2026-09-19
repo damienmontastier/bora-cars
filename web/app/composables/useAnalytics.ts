@@ -6,6 +6,8 @@
 // All events are gated by GTM's consent state — they queue in dataLayer regardless and fire only
 // once the relevant consent signal is granted (handled via consent.update from useCookies).
 
+import type { ContactProfile } from '~/config/CONTACT_PRO_CONFIG'
+
 export interface VehicleEventParams {
   car_id: string
   car_slug?: string
@@ -62,15 +64,16 @@ export function useAnalytics() {
       track('whatsapp_click', params)
     },
 
-    trackContactFormSubmit(params: { subject?: string, locale?: string }) {
+    // `profile` = parcours de la page Contact : 'general' (Demande générale) | 'pro' (Leasing professionnel)
+    trackContactFormSubmit(params: { subject?: string, locale?: string, profile?: ContactProfile }) {
       track('contact_form_submit', params)
     },
 
-    trackContactFormSuccess(params: { subject?: string, locale?: string }) {
+    trackContactFormSuccess(params: { subject?: string, locale?: string, profile?: ContactProfile }) {
       track('contact_form_success', params)
     },
 
-    trackContactFormError(params: { fields?: string[], summary?: string, kind?: 'validation' | 'server' }) {
+    trackContactFormError(params: { fields?: string[], summary?: string, kind?: 'validation' | 'server', profile?: ContactProfile }) {
       track('contact_form_error', { kind: 'validation', ...params })
     },
 

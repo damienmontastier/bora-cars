@@ -1,4 +1,10 @@
+import { CONTACT_MAX_LENGTH, CONTACT_PROFILES } from '~/config/CONTACT_PRO_CONFIG'
+
+// Deux parcours sur la page Contact, un seul endpoint : `profile` = 'general'
+// (Demande générale, formulaire historique — valeur par défaut si absente) ou 'pro'
+// (Leasing professionnel, cf. server/utils/contactPro.ts).
 interface ContactPayload {
+  profile?: string
   lastName?: string
   firstName?: string
   email?: string
@@ -21,18 +27,23 @@ interface ContactPayload {
 // No `.` in domain labels: avoids catastrophic backtracking.
 const EMAIL_RX = /^[^\s@]+@[^\s@.]+(?:\.[^\s@.]+)+$/
 
-const MAX_LENGTH = { name: 100, email: 254, phone: 40, subject: 200, message: 10000, meta: 2000 }
+// Champs saisis : mêmes limites que les `maxlength` du formulaire ; objet et méta : serveur seul
+const MAX_LENGTH = { ...CONTACT_MAX_LENGTH, subject: 200, meta: 2000 }
 
 // Existing Airtable « Type de demande » choice, used when the subject can't be
 // matched against Sanity (see resolveSubject).
 const FALLBACK_SUBJECT = 'Autre'
 
 // Owner option left out on purpose: FLOW or FLEX is decided with the owner.
+// Pro leads are typed by `profile: 'pro'` (PRO_LEAD_TYPE), not by a subject.
 const LEAD_TYPE_BY_SUBJECT_KEY: Record<string, string> = {
-  '88b02953258b': 'LCD — Location courte durée',
-  'ea34c6eaf461': 'LLD PRO — Leasing société',
-  'ee37b0534b50': 'Autre',
+  ea34c6eaf461: 'LLD PRO — Leasing société',
+  ee37b0534b50: 'Autre',
 }
+
+// Existing Airtable options for leads sent by the « Leasing professionnel » tab.
+const PRO_LEAD_TYPE = 'LLD PRO — Leasing société'
+const PRO_REQUEST_TYPE = 'Leasing professionnel'
 
 // The body is untrusted: the TS interface says string, the wire can send anything.
 // Non-strings become '' so they fail validation instead of crashing on .trim().
@@ -86,73 +97,16 @@ export default defineEventHandler(async (event) => {
     return { ok: true }
   }
 
-  const lastName = str(body?.lastName)
-  const firstName = str(body?.firstName)
-  const email = str(body?.email)
-  const phone = str(body?.phone)
-  const subjectKey = str(body?.subjectKey)
-  const subject = str(body?.subject)
-  const message = str(body?.message)
+  // Parcours absent = Demande générale (payload historique) ; inconnu = refusé.
+  const rawProfile = str(body?.profile) || 'general'
+  if (!(CONTACT_PROFILES as readonly string[]).includes(rawProfile))
+    invalidPayload(['profile'])
 
-  const invalid: string[] = []
-  if (!lastName || lastName.length > MAX_LENGTH.name)
-    invalid.push('lastName')
-  if (firstName.length > MAX_LENGTH.name)
-    invalid.push('firstName')
-  if (!email || email.length > MAX_LENGTH.email || !EMAIL_RX.test(email))
-    invalid.push('email')
-  if (!phone || phone.length > MAX_LENGTH.phone || phone.replace(/\D/g, '').length < 8)
-    invalid.push('phone')
-  if ((!subjectKey && !subject) || subjectKey.length > MAX_LENGTH.subject || subject.length > MAX_LENGTH.subject)
-    invalid.push('subject')
-  if (!message || message.length > MAX_LENGTH.message)
-    invalid.push('message')
+  const fields = rawProfile === 'pro'
+    ? proFields(body as Record<string, unknown>)
+    : await generalFields(body)
 
-  if (invalid.length) {
-    throw createError({
-      statusCode: 422,
-      statusMessage: 'Invalid payload',
-      data: { fields: invalid },
-    })
-  }
-
-  const fullName = firstName ? `${firstName} ${lastName}` : lastName
-  const resolvedSubject = await resolveSubject(subjectKey, subject)
-  const leadType = resolvedSubject.key ? LEAD_TYPE_BY_SUBJECT_KEY[resolvedSubject.key] : undefined
-  const langue = str(body?.locale).toUpperCase() === 'EN' ? 'EN' : 'FR'
-
-  const fields: Record<string, unknown> = {
-    'Nom complet': fullName,
-    'Email': email,
-    'Téléphone': phone,
-    'Message': message,
-    'Type de demande': resolvedSubject.label,
-    ...(leadType && { 'Type de lead': leadType }),
-    'Langue': langue,
-    'Canal': 'Site web',
-    'Étape': 'Nouveau',
-    // Legacy fields still read by CRM views/automations.
-    'Source': 'Site web',
-    'Statut': 'Nouveau',
-    // Consent: the form displays a visible GDPR mention above submission.
-    // Submitting after seeing the mention = consent (CNIL-compliant for contact use).
-    'Consentement RGPD': true,
-    'Opt-in newsletter': body?.newsletter === true,
-  }
-
-  const pageUrl = str(body?.pageUrl).slice(0, MAX_LENGTH.meta)
-  if (pageUrl)
-    fields['Page d\'origine'] = pageUrl
-
-  const utmSource = str(body?.utm?.utm_source).slice(0, MAX_LENGTH.subject)
-  const utmMedium = str(body?.utm?.utm_medium).slice(0, MAX_LENGTH.subject)
-  const utmCampaign = str(body?.utm?.utm_campaign).slice(0, MAX_LENGTH.subject)
-  if (utmSource)
-    fields['UTM source'] = utmSource
-  if (utmMedium)
-    fields['UTM medium'] = utmMedium
-  if (utmCampaign)
-    fields['UTM campaign'] = utmCampaign
+  Object.assign(fields, commonFields(body))
 
   try {
     const { dropped } = await createAirtableRecord(recordFields => $fetch(`https://api.airtable.com/v0/${airtableBaseId}/${encodeURIComponent(airtableTableId)}`, {
@@ -162,8 +116,9 @@ export default defineEventHandler(async (event) => {
         'Content-Type': 'application/json',
       },
       // typecast: true → Airtable accepts new singleSelect values dynamically
-      // (creates the option on the fly instead of erroring). Source of truth = Sanity,
-      // enforced by resolveSubject() — the only client-driven select field.
+      // (creates the option on the fly instead of erroring). Every client-driven select
+      // is whitelisted first: subject → resolveSubject() (Sanity), pro lists →
+      // CONTACT_PRO_CONFIG (server/utils/contactPro.ts).
       body: { fields: recordFields, typecast: true },
     }), fields)
     if (dropped.length)
@@ -188,3 +143,100 @@ export default defineEventHandler(async (event) => {
     })
   }
 })
+
+function invalidPayload(fields: string[]): never {
+  throw createError({
+    statusCode: 422,
+    statusMessage: 'Invalid payload',
+    data: { fields },
+  })
+}
+
+// Leasing professionnel : liste blanche + conversion vers les libellés Airtable exacts.
+function proFields(body: Record<string, unknown> | undefined): Record<string, unknown> {
+  const parsed = parseProLead(body)
+  if ('invalid' in parsed)
+    invalidPayload(parsed.invalid)
+  if (parsed.ignored.length)
+    console.warn('[api/contact] Pro lead: conditional values ignored', parsed.ignored)
+
+  return {
+    ...proAirtableFields(parsed.lead),
+    'Type de demande': PRO_REQUEST_TYPE,
+    'Type de lead': PRO_LEAD_TYPE,
+    'Consentement RGPD': parsed.lead.consent,
+  }
+}
+
+// Champs posés pour tout lead du site, quel que soit le parcours.
+function commonFields(body: ContactPayload | undefined): Record<string, unknown> {
+  const fields: Record<string, unknown> = {
+    Langue: str(body?.locale).toUpperCase() === 'EN' ? 'EN' : 'FR',
+    Canal: 'Site web',
+    Étape: 'Nouveau',
+    // Legacy fields still read by CRM views/automations.
+    Source: 'Site web',
+    Statut: 'Nouveau',
+  }
+
+  const pageUrl = str(body?.pageUrl).slice(0, MAX_LENGTH.meta)
+  if (pageUrl)
+    fields['Page d\'origine'] = pageUrl
+
+  const utmSource = str(body?.utm?.utm_source).slice(0, MAX_LENGTH.subject)
+  const utmMedium = str(body?.utm?.utm_medium).slice(0, MAX_LENGTH.subject)
+  const utmCampaign = str(body?.utm?.utm_campaign).slice(0, MAX_LENGTH.subject)
+  if (utmSource)
+    fields['UTM source'] = utmSource
+  if (utmMedium)
+    fields['UTM medium'] = utmMedium
+  if (utmCampaign)
+    fields['UTM campaign'] = utmCampaign
+
+  return fields
+}
+
+// Demande générale : le formulaire historique (email obligatoire, objet issu de Sanity).
+async function generalFields(body: ContactPayload | undefined): Promise<Record<string, unknown>> {
+  const lastName = str(body?.lastName)
+  const firstName = str(body?.firstName)
+  const email = str(body?.email)
+  const phone = str(body?.phone)
+  const subjectKey = str(body?.subjectKey)
+  const subject = str(body?.subject)
+  const message = str(body?.message)
+
+  const invalid: string[] = []
+  if (!lastName || lastName.length > MAX_LENGTH.name)
+    invalid.push('lastName')
+  if (firstName.length > MAX_LENGTH.name)
+    invalid.push('firstName')
+  if (!email || email.length > MAX_LENGTH.email || !EMAIL_RX.test(email))
+    invalid.push('email')
+  if (!phone || phone.length > MAX_LENGTH.phone || phone.replace(/\D/g, '').length < 8)
+    invalid.push('phone')
+  if ((!subjectKey && !subject) || subjectKey.length > MAX_LENGTH.subject || subject.length > MAX_LENGTH.subject)
+    invalid.push('subject')
+  if (!message || message.length > MAX_LENGTH.message)
+    invalid.push('message')
+
+  if (invalid.length)
+    invalidPayload(invalid)
+
+  const fullName = firstName ? `${firstName} ${lastName}` : lastName
+  const resolvedSubject = await resolveSubject(subjectKey, subject)
+  const leadType = resolvedSubject.key ? LEAD_TYPE_BY_SUBJECT_KEY[resolvedSubject.key] : undefined
+
+  return {
+    'Nom complet': fullName,
+    'Email': email,
+    'Téléphone': phone,
+    'Message': message,
+    'Type de demande': resolvedSubject.label,
+    ...(leadType && { 'Type de lead': leadType }),
+    // Consent: the form displays a visible GDPR mention above submission.
+    // Submitting after seeing the mention = consent (CNIL-compliant for contact use).
+    'Consentement RGPD': true,
+    'Opt-in newsletter': body?.newsletter === true,
+  }
+}

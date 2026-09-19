@@ -11,8 +11,9 @@ Référence complète de la stack analytics (GTM + GA4 + Consent Mode v2) — é
 - ✅ 4 Custom Dimensions GA4 créées (Car Brand, Car Model, CTA Source, Page Path)
 - ⏳ **À faire dans 24-48h** : marquer `whatsapp_click` + `contact_form_submit` comme événements clés (cf. §7) — les events doivent d'abord apparaître dans "Événements récents", ce qui prend jusqu'à 24h après les premières réceptions
 - ⏳ **À faire (quand t'as 5-10 min)** : créer le **Funnel Exploration "Lead — Bora Cars"** dans GA4 Explorations (cf. §7ter) — vue entonnoir Site visit → Catalogue → Car → Config rental → Lead
-- ✅ **Events HIGH/MED instrumentés (code)** : Hero CTA `source`, `catalogue_car_click`, `faq_toggle`, `back_to_top_click`, **`service_card_click`**, **`testimonial_nav`**, **`catalogue_scroll_more`** (cf. §9bis). `contact_form_success` est câblé depuis le départ (`ContactForm.vue:172`).
+- ✅ **Events HIGH/MED instrumentés (code)** : Hero CTA `source`, `catalogue_car_click`, `faq_toggle`, `back_to_top_click`, **`service_card_click`**, **`testimonial_nav`**, **`catalogue_scroll_more`** (cf. §9bis). `contact_form_success` est câblé depuis le départ (aujourd'hui dans `composables/useContactForm.ts`, partagé par les deux onglets de la page Contact).
 - ✅ **GTM déjà publié** : `catalogue_car_click|faq_toggle|back_to_top_click` sont déjà dans la regex du trigger `Custom - Bora Events` (vérifié dans le conteneur publié `GTM-K23JSRNH` le 2026-06-25).
+- ⏳ **À faire dans GTM (MàJ 2026-09-18)** : les 3 événements `contact_form_*` portent un nouveau paramètre `profile` (`general` / `pro`, onglets de la page Contact). Créer la DLV `DLV - profile` (Data Layer Variable Name `profile`) et l'ajouter aux paramètres du tag `GA4 Event - Bora Generic`, puis la déclarer en dimension personnalisée (portée Événement) dans GA4 pour comparer les deux onglets.
 - ⏳ **À faire dans GTM (MàJ 2026-06-25)** : ajouter `contact_form_success`, `service_card_click`, `testimonial_nav`, `catalogue_scroll_more` à la regex + créer leurs DLVs (cf. §9bis « Action GTM requise — MàJ 2026-06-25 »).
 - ⏳ **Reste à instrumenter (code, optionnel)** : `car_detail_back_click`, `process_step_click` (cf. §9bis).
 - 🔜 **Plus tard** : ajouter Meta Pixel / Google Ads / LinkedIn Insight Tag (cf. §8)
@@ -67,7 +68,7 @@ Prop `:tracking-extra="{...}"` pour enrichir avec contexte (ex : `{ source: 'men
 - `components/page/car/Pricing.vue` — `rental_config_change` (duration/when watchers) + `:tracking-extra` sur la CTA WhatsApp
 - `components/app/Menu.vue` — `:tracking-extra="{ source: 'menu' }"` sur la CTA contact
 - `components/app/MenuLangSwitcher.vue` — `language_switch` dans `selectLocale`
-- `components/elements/ContactForm.vue` — `contact_form_submit` + `contact_form_error`
+- `composables/useContactForm.ts` (onglets « Demande générale » et « Leasing professionnel » de la page Contact) — `contact_form_submit` / `contact_form_success` / `contact_form_error`, avec le paramètre `profile` (`general` | `pro`)
 
 ---
 
@@ -258,7 +259,7 @@ Tags → New :
    - Page voiture → event `vehicle_view` avec params (`car_id`, `car_brand`, ...)
    - Clic WhatsApp sur Pricing → event `whatsapp_click` avec tous les params car + durée/when
    - Switch langue → event `language_switch` avec `from`/`to`
-   - Soumission contact → event `contact_form_submit` avec `subject`/`locale`
+   - Soumission contact → event `contact_form_submit` avec `profile`/`subject`/`locale`
 5. GA4 → **Reports → Realtime** → vérifie que tu vois ton trafic + les events listés dans "Event count by Event name"
 
 ---
@@ -560,9 +561,9 @@ Ces étapes s'enchainent pour TikTok Pixel, Bing UET, Snapchat Pixel, Reddit Pix
 | `email_click` | Clic lien `mailto:` (auto-detect BaseLink) | `url`, + tracking extra |
 | `phone_click` | Clic lien `tel:` (auto-detect BaseLink) | `url`, + tracking extra |
 | `external_link_click` | Clic lien externe non-whatsapp/email/phone (auto-detect BaseLink) | `url`, + tracking extra |
-| `contact_form_submit` | Submit form contact valide (avant POST) | `subject`, `locale` |
-| `contact_form_success` | Form contact confirmé (après POST 200) | `subject`, `locale` |
-| `contact_form_error` | Submit form contact invalide ou erreur serveur | `kind` (validation/server), `fields` (array), `summary` |
+| `contact_form_submit` | Submit form contact valide (avant POST) | `profile` (`general` = Demande générale / `pro` = Leasing professionnel), `subject` (Demande générale seulement), `locale` |
+| `contact_form_success` | Form contact confirmé (après POST 200) | `profile`, `subject` (Demande générale seulement), `locale` |
+| `contact_form_error` | Submit form contact invalide (à chaque étape pour le parcours pro) ou erreur serveur | `profile`, `kind` (validation/server), `fields` (array), `summary` |
 | `rental_config_change` | Change duration ou when dans Pricing widget | `car_id`, `car_brand`, `car_model`, `field`, `duration`, `when` |
 | `language_switch` | Toggle FR/EN | `from`, `to` |
 | `car_gallery_browse` | Clic dot dans gallery car detail | `car_id`, `car_brand`, `car_model`, `image_index`, `total` |

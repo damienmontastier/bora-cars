@@ -3,71 +3,117 @@ interface Props {
   label?: string
   id?: string
   disabled?: boolean
+  required?: boolean
+  invalid?: boolean
+  errorMessage?: string
+  // `sm` : case du formulaire historique (texte 13 px) ; `md` : taille du DS « Form / Checkbox »
+  size?: 'sm' | 'md'
 }
 
 const props = withDefaults(defineProps<Props>(), {
   label: '',
   id: undefined,
   disabled: false,
+  size: 'sm',
+  required: false,
+  invalid: false,
+  errorMessage: '',
 })
 
 const model = defineModel<boolean>({ default: false })
 
 const uid = useId()
 const inputId = computed(() => props.id ?? `${uid}-checkbox`)
+const errorId = computed(() => `${inputId.value}-error`)
+const showError = computed(() => props.invalid && !!props.errorMessage)
+
+const inputRef = ref<HTMLInputElement | null>(null)
+defineExpose({ focus: () => inputRef.value?.focus() })
 </script>
 
 <template>
-  <label
-    :for="inputId"
+  <div
     class="app-atoms-field-checkbox"
-    :class="{ 'is-checked': model, 'is-disabled': disabled }"
+    :class="[
+      `app-atoms-field-checkbox--${size}`,
+      { 'is-checked': model, 'is-disabled': disabled, 'is-error': invalid },
+    ]"
   >
-    <input
-      :id="inputId"
-      v-model="model"
-      type="checkbox"
-      :disabled="disabled"
-      class="app-atoms-field-checkbox__input"
-    >
-    <span class="app-atoms-field-checkbox__box" aria-hidden="true">
-      <svg viewBox="0 0 12 10" class="app-atoms-field-checkbox__check">
-        <path
-          d="M1 5 L4.5 8.5 L11 1.5"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        />
-      </svg>
-    </span>
-    <TextsP3
+    <label :for="inputId" class="app-atoms-field-checkbox__control">
+      <input
+        :id="inputId"
+        ref="inputRef"
+        v-model="model"
+        type="checkbox"
+        :disabled="disabled"
+        :required="required"
+        :aria-required="required || undefined"
+        :aria-invalid="invalid || undefined"
+        :aria-describedby="showError ? errorId : undefined"
+        class="app-atoms-field-checkbox__input"
+      >
+      <span class="app-atoms-field-checkbox__box" aria-hidden="true">
+        <svg viewBox="0 0 12 10" class="app-atoms-field-checkbox__check">
+          <path
+            d="M1 5 L4.5 8.5 L11 1.5"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg>
+      </span>
+      <TextsP3
+        tag="span"
+        color="black-70"
+        :selectable="false"
+        class="app-atoms-field-checkbox__label"
+      >
+        <slot>{{ label }}</slot>
+      </TextsP3>
+    </label>
+    <TextsP2
+      v-if="showError"
+      :id="errorId"
       tag="span"
-      color="black-70"
-      :selectable="false"
-      class="app-atoms-field-checkbox__label"
+      color="red"
+      class="app-atoms-field-checkbox__error"
     >
-      <slot>{{ label }}</slot>
-    </TextsP3>
-  </label>
+      {{ errorMessage }}
+    </TextsP2>
+  </div>
 </template>
 
 <style lang="scss">
 .app-atoms-field-checkbox {
   display: flex;
-  align-items: flex-start;
-  gap: desktop-vw(12px);
+  flex-direction: column;
+  gap: desktop-vw(8px);
   width: 100%;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
 
   @include mobile {
-    gap: mobile-vw(10px);
+    gap: mobile-vw(6px);
   }
 
-  &.is-disabled {
+  &__control {
+    display: flex;
+    align-items: center;
+    gap: desktop-vw(12px);
+    width: 100%;
+    cursor: pointer;
+
+    @include mobile {
+      gap: mobile-vw(10px);
+    }
+  }
+
+  // Texte long (ex. consentement) : la case reste alignée sur la 1re ligne
+  &--md &__control {
+    align-items: flex-start;
+  }
+
+  &.is-disabled &__control {
     cursor: not-allowed;
     opacity: 0.6;
   }
@@ -112,6 +158,12 @@ const inputId = computed(() => props.id ?? `${uid}-checkbox`)
       transform 0.2s var(--ease-out-cubic);
   }
 
+  @include hover {
+    &:not(.is-disabled) &__control:hover &__box {
+      border-color: var(--c-black-100);
+    }
+  }
+
   &.is-checked &__box {
     border-color: var(--c-black-100);
     background: var(--c-black-100);
@@ -120,6 +172,10 @@ const inputId = computed(() => props.id ?? `${uid}-checkbox`)
   &.is-checked &__check {
     opacity: 1;
     transform: scale(1);
+  }
+
+  &.is-error:not(.is-checked) &__box {
+    border-color: var(--c-red);
   }
 
   &__input:focus-visible + &__box {
@@ -136,6 +192,43 @@ const inputId = computed(() => props.id ?? `${uid}-checkbox`)
 
     @include mobile {
       font-size: mobile-vw(12px);
+    }
+  }
+
+  // Taille du DS « Form / Checkbox » : Desktop/Body/XS/Regular, Mobile/Body/S/Regular
+  &--md &__label {
+    font-size: desktop-vw(18px);
+    line-height: desktop-vw(22px);
+
+    @include mobile {
+      font-size: mobile-vw(14px);
+      line-height: mobile-vw(18px);
+    }
+  }
+
+  &__label a {
+    color: inherit;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    transition: opacity 0.2s var(--ease-out-cubic);
+
+    @include hover {
+      &:hover {
+        opacity: 0.7;
+      }
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--c-black-100);
+      outline-offset: 2px;
+    }
+  }
+
+  &__error {
+    padding-left: desktop-vw(4px);
+
+    @include mobile {
+      padding-left: mobile-vw(4px);
     }
   }
 }

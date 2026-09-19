@@ -4,6 +4,10 @@ interface Props {
   type?: 'text' | 'email'
   required?: boolean
   autocomplete?: string
+  // Visible seulement une fois le libellé remonté (champ actif et vide)
+  placeholder?: string
+  inputmode?: 'text' | 'email' | 'numeric' | 'decimal' | 'tel'
+  maxlength?: number
   invalid?: boolean
   errorMessage?: string
   id?: string
@@ -13,6 +17,9 @@ const props = withDefaults(defineProps<Props>(), {
   type: 'text',
   required: false,
   autocomplete: undefined,
+  placeholder: undefined,
+  inputmode: undefined,
+  maxlength: undefined,
   invalid: false,
   errorMessage: '',
   id: undefined,
@@ -59,6 +66,9 @@ const displayLabel = computed(() => props.required ? `${props.label}*` : props.l
       :required="required"
       :aria-required="required || undefined"
       :autocomplete="autocomplete"
+      :placeholder="placeholder"
+      :inputmode="inputmode"
+      :maxlength="maxlength"
       :aria-invalid="invalid"
       :aria-describedby="showError ? errorId : undefined"
       @focus="focused = true"
@@ -175,6 +185,11 @@ const displayLabel = computed(() => props.required ? `${props.label}*` : props.l
 
   &--error &__input {
     caret-color: var(--c-red);
+  }
+
+  &__input::placeholder {
+    color: var(--c-black-40);
+    opacity: 1;
   }
 
   &__error {

@@ -26,6 +26,7 @@ useMenuCtaSnap()
       :facets="facets"
       :filters="filters"
       :has-active-filters="hasActiveFilters"
+      pro-contact-link
       @update-filter="setFilter"
       @reset-filters="resetFilters"
     />

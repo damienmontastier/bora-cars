@@ -2,16 +2,21 @@
 interface Props {
   label: string
   required?: boolean
+  // Visible seulement une fois le libellé remonté (champ actif et vide)
+  placeholder?: string
   invalid?: boolean
   errorMessage?: string
   id?: string
+  maxlength?: number
 }
 
 const props = withDefaults(defineProps<Props>(), {
   required: false,
+  placeholder: undefined,
   invalid: false,
   errorMessage: '',
   id: undefined,
+  maxlength: undefined,
 })
 
 const model = defineModel<string>({ default: '' })
@@ -61,6 +66,8 @@ function onInput(e: Event) {
       type="tel"
       inputmode="tel"
       autocomplete="tel"
+      :maxlength="maxlength"
+      :placeholder="placeholder"
       :required="required"
       :aria-required="required || undefined"
       :aria-invalid="invalid"
@@ -180,6 +187,11 @@ function onInput(e: Event) {
 
   &--error &__input {
     caret-color: var(--c-red);
+  }
+
+  &__input::placeholder {
+    color: var(--c-black-40);
+    opacity: 1;
   }
 
   &__error {

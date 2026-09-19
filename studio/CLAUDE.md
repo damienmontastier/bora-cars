@@ -52,6 +52,7 @@ Les modules (`modules[]` des pages) sont rendus côté web par `PageModules` ; l
 
 - **Singleton** : l'ID du document = le nom du type. Le déclarer à **deux** endroits : `SINGLETON_TYPES` (`constants.ts` — source unique : le `Set` `SINGLETONS` de `sanity.config.ts`, qui retire create/delete/duplicate, en dérive, le Dashboard aussi) et la `structure` (`S.document().schemaType(x).documentId(x)`). Plus `LOCALIZED_DOCUMENT_TYPES` s'il est localisé, et `linkableSchemaTypes` s'il doit être cible de lien.
 - **Page liable** : côté web, ajouter aussi la route dans `SANITY_ROUTES` / `I18N_PAGES` (`web/app/config/I18N_CONFIG.ts`), sinon `BaseLink` ne sait pas la résoudre.
+- **Singleton `contact`** : onglet « Leasing professionnel » (group `pro`) avec `proIntro` (texte d'accueil) et `proSuccess` (écran de confirmation : `text` accepte le jeton `{prenom}`, 2 cartes-liens `whatsapp` / `instagram`). Les textes du formulaire pro eux-mêmes sont dans le Glossaire (clés `contact.pro.*`, `contact.profile.*`). Les **valeurs** des listes pro ne sont pas éditables (constantes web, liées aux options Airtable).
 - **Champ** : le web lit tout via des GROQ écrits à la main (`web/app/queries/`) — ajouter/renommer un champ ici impose de mettre à jour la projection et l'interface `*Data` côté web. Renommer un champ qui a des données ⇒ migration.
 
 ### Localisation des champs

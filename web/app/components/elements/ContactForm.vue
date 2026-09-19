@@ -1,210 +1,188 @@
 <script setup lang="ts">
+// Formulaire de la page Contact : sélecteur « Demande générale » / « Leasing
+// professionnel », honeypot, état d'envoi et statut (useContactForm). Chaque parcours
+// a son composant ; les deux restent montés (v-show) pour qu'un changement d'onglet
+// ne vide pas les réponses déjà saisies.
+import type { ContactProfile } from '~/config/CONTACT_PRO_CONFIG'
 import type { ContactSubjectOption } from '~/queries/contact'
+import gsap from 'gsap'
+import { useLenis } from 'lenis/vue'
+import { CONTACT_PROFILES } from '~/config/CONTACT_PRO_CONFIG'
 
 interface Props {
   subjectOptions?: ContactSubjectOption[] | null
   submitLabel?: string | null
 }
 
-const props = withDefaults(defineProps<Props>(), {
+withDefaults(defineProps<Props>(), {
   subjectOptions: () => [],
   submitLabel: null,
 })
 
-interface FormPayload {
-  lastName: string
-  firstName: string
-  email: string
-  phone: string
-  subject: string
-  message: string
-  newsletter: boolean
-  // Honeypot — hidden field, must stay empty. Bots fill it, humans don't see it.
-  website: string
-}
+const emit = defineEmits<{
+  // Dossier pro envoyé : la page affiche l'écran de succès
+  proSuccess: [firstName: string]
+}>()
 
-type FormField = keyof FormPayload
-type SubmitState = 'idle' | 'submitting' | 'success' | 'error'
+const profile = defineModel<ContactProfile>('profile', { default: 'general' })
+const proStep = defineModel<number>('proStep', { default: 0 })
 
-const { t, locale } = useI18n()
-const analytics = useAnalytics()
-const utm = useUtm()
-const pageUrl = useRequestURL().href
+const { t } = useI18n()
 
-function subjectLabel(value: string) {
-  return props.subjectOptions?.find(o => o._key === value)?.label ?? value
-}
-
-const form = reactive<FormPayload>({
-  lastName: '',
-  firstName: '',
-  email: '',
-  phone: '',
-  subject: '',
-  message: '',
-  newsletter: false,
-  website: '',
-})
-
-const errors = reactive<Record<Exclude<FormField, 'newsletter'>, string>>({
-  lastName: '',
-  firstName: '',
-  email: '',
-  phone: '',
-  subject: '',
-  message: '',
-})
-
-const submitted = ref(false)
-const submitState = ref<SubmitState>('idle')
-const statusMessage = ref('')
-
-const selectOptions = computed(() =>
-  (props.subjectOptions ?? []).map(o => ({ value: o._key, label: o.label })),
-)
-
-interface Focusable { focus: () => void }
-const fieldOrder = ['lastName', 'email', 'phone', 'subject', 'message'] as const
-type FocusableField = typeof fieldOrder[number]
-
-const lastNameRef = ref<Focusable | null>(null)
-const emailRef = ref<Focusable | null>(null)
-const phoneRef = ref<Focusable | null>(null)
-const subjectRef = ref<Focusable | null>(null)
-const messageRef = ref<Focusable | null>(null)
-
-const fieldRefs: Record<FocusableField, Ref<Focusable | null>> = {
-  lastName: lastNameRef,
-  email: emailRef,
-  phone: phoneRef,
-  subject: subjectRef,
-  message: messageRef,
-}
-
-function validate(): boolean {
-  errors.lastName = form.lastName.trim() ? '' : t('contact.form.errors.required')
-
-  if (!form.email.trim())
-    errors.email = t('contact.form.errors.required')
-  else if (!isValidEmail(form.email))
-    errors.email = t('contact.form.errors.email')
-  else
-    errors.email = ''
-
-  const digits = form.phone.replace(/\D/g, '')
-  if (!form.phone.trim())
-    errors.phone = t('contact.form.errors.required')
-  else if (digits.length < 8)
-    errors.phone = t('contact.form.errors.phone')
-  else
-    errors.phone = ''
-
-  errors.subject = form.subject ? '' : t('contact.form.errors.select')
-  errors.message = form.message.trim() ? '' : t('contact.form.errors.required')
-
-  return fieldOrder.every(f => !errors[f])
-}
-
-function focusFirstInvalid() {
-  const firstInvalid = fieldOrder.find(f => !!errors[f])
-  if (!firstInvalid)
-    return
-  nextTick(() => {
-    fieldRefs[firstInvalid].value?.focus()
-  })
-}
-
-function resetForm() {
-  form.lastName = ''
-  form.firstName = ''
-  form.email = ''
-  form.phone = ''
-  form.subject = ''
-  form.message = ''
-  form.newsletter = false
-  form.website = ''
-  submitted.value = false
-}
-
-async function onSubmit() {
-  if (submitState.value === 'submitting')
-    return
-
-  submitted.value = true
-  if (!validate()) {
-    submitState.value = 'error'
-    statusMessage.value = t('contact.form.errors.summary')
-    analytics.trackContactFormError({
-      kind: 'validation',
-      fields: fieldOrder.filter(f => !!errors[f]),
-      summary: statusMessage.value,
-    })
-    focusFirstInvalid()
-    return
-  }
-
-  submitState.value = 'submitting'
-  statusMessage.value = t('contact.form.status.submitting')
-
-  const resolvedSubject = subjectLabel(form.subject)
-  analytics.trackContactFormSubmit({ subject: resolvedSubject, locale: locale.value })
-
-  try {
-    await $fetch('/api/contact', {
-      method: 'POST',
-      body: {
-        lastName: form.lastName,
-        firstName: form.firstName,
-        email: form.email,
-        phone: form.phone,
-        subjectKey: form.subject,
-        subject: resolvedSubject,
-        message: form.message,
-        newsletter: form.newsletter,
-        website: form.website,
-        locale: locale.value,
-        pageUrl,
-        utm: utm.read(),
-      },
-    })
-
-    submitState.value = 'success'
-    statusMessage.value = t('contact.form.status.success')
-    analytics.trackContactFormSuccess({ subject: resolvedSubject, locale: locale.value })
-    resetForm()
-  }
-  catch (err) {
-    submitState.value = 'error'
-    statusMessage.value = t('contact.form.status.error')
-    analytics.trackContactFormError({
-      kind: 'server',
-      summary: err instanceof Error ? err.message : String(err),
-    })
-  }
-}
-
-// Re-validate as the user fixes fields, but only AFTER the first submit attempt
-watch(
-  () => ({ ...form }),
-  () => {
-    if (!submitted.value)
-      return
-    validate()
-    if (fieldOrder.every(f => !errors[f]) && submitState.value === 'error')
-      statusMessage.value = ''
+const { website } = provideContactForm({
+  onSuccess: (sent, body) => {
+    if (sent === 'pro')
+      emit('proSuccess', typeof body.firstName === 'string' ? body.firstName.trim() : '')
   },
-  { deep: true },
-)
+})
+
+const profileOptions = computed(() => CONTACT_PROFILES.map(value => ({
+  value,
+  title: t(`contact.profile.${value}.title`),
+  subtitle: t(`contact.profile.${value}.subtitle`),
+})))
+
+const generalRef = ref<{ submit: () => void } | null>(null)
+const proRef = ref<{ submit: () => void } | null>(null)
+
+// Changement d'onglet (même chorégraphie que PageContactIntro, cf. useContactSwitchMotion) :
+// les blocs du parcours affiché sortent en cascade vers le haut, puis ceux de l'autre
+// entrent depuis le bas pendant que la hauteur passe de l'un à l'autre.
+// `shown` (le parcours visible) ne rejoint `profile` qu'une fois la sortie finie ; la page
+// s'en sert pour masquer son texte d'accueil sur mobile au bon moment.
+const shown = defineModel<ContactProfile>('shownProfile', { default: 'general' })
+const panelsRef = ref<HTMLElement | null>(null)
+
+const { canAnimate, track, motion } = useContactSwitchMotion()
+const lenis = useLenis()
+let switchTween: gsap.core.Animation | null = null
+let switchId = 0
+
+const CASCADE_PROPS = 'opacity,visibility,transform'
+
+function panel(value: ContactProfile) {
+  return panelsRef.value?.querySelector<HTMLElement>(`:scope > [data-contact-panel="${value}"]`) ?? null
+}
+
+// Blocs animés : enfants directs du parcours, et un à un les champs des listes
+// marquées `data-contact-cascade`
+function cascadeItems(el: HTMLElement | null) {
+  return Array.from(el?.children ?? []).flatMap(child =>
+    child.hasAttribute('data-contact-cascade') ? Array.from(child.children) : [child])
+}
+
+function clearCascade(el: HTMLElement | null) {
+  const items = cascadeItems(el)
+  if (items.length)
+    gsap.set(items, { clearProps: CASCADE_PROPS })
+}
+
+// État de repos : plus aucun style inline, hauteur rendue à `auto`
+function settle() {
+  clearCascade(panel('general'))
+  clearCascade(panel('pro'))
+  if (panelsRef.value)
+    gsap.set(panelsRef.value, { clearProps: 'height' })
+}
+
+// `fresh` : parcours qui vient d'apparaître ; sinon il revient de l'état où l'a laissé
+// une sortie interrompue (clic sur l'onglet de départ pendant l'échange)
+function enter(root: HTMLElement, el: HTMLElement, fresh: boolean) {
+  const tl = gsap.timeline({ onComplete: settle })
+  if (root.style.height)
+    tl.to(root, { height: el.offsetHeight, ...motion.height }, 0)
+
+  const to = {
+    autoAlpha: 1,
+    y: 0,
+    duration: motion.enter.duration,
+    ease: motion.enter.ease,
+    stagger: { amount: motion.enter.stagger },
+  }
+  const items = cascadeItems(el)
+  if (fresh)
+    tl.fromTo(items, { autoAlpha: 0, y: motion.formEnterY }, to, motion.gap)
+  else
+    tl.to(items, to, 0)
+  return tl
+}
+
+watch(profile, (next) => {
+  const id = ++switchId
+  switchTween?.kill()
+  switchTween = null
+
+  const root = panelsRef.value
+  const current = panel(shown.value)
+  const animated = canAnimate(root) && canAnimate(current)
+
+  // Chaque changement d'onglet repart du haut de la page : sinon le texte d'accueil, qui
+  // change de hauteur au-dessus du formulaire, pousse le sélecteur hors de l'écran (mobile).
+  // Via Lenis, verrouillé le temps du trajet. Ignoré tant que Lenis est arrêté (preloader),
+  // et la page est alors déjà en haut.
+  lenis.value?.scrollTo(0, animated
+    ? { duration: motion.scroll.duration, easing: gsap.parseEase(motion.scroll.ease), lock: true }
+    : { immediate: true })
+
+  if (!animated) {
+    shown.value = next
+    settle()
+    return
+  }
+
+  if (shown.value === next) {
+    switchTween = track(() => enter(root, current, false))
+    return
+  }
+
+  // Hauteur figée pendant l'échange, puis ajustée au nouveau parcours
+  gsap.set(root, { height: root.offsetHeight })
+  switchTween = track(() => gsap.to(cascadeItems(current), {
+    autoAlpha: 0,
+    y: motion.formLeaveY,
+    duration: motion.leave.duration,
+    ease: motion.leave.ease,
+    stagger: { amount: motion.leave.stagger },
+    onComplete: () => {
+      shown.value = next
+      nextTick(() => {
+        if (id !== switchId)
+          return
+        // Parcours sorti désormais masqué (v-show) : il retrouve ses styles
+        clearCascade(current)
+        const incoming = panel(next)
+        if (incoming)
+          switchTween = track(() => enter(root, incoming, true))
+        else
+          settle()
+      })
+    },
+  }))
+})
+
+// Un seul <form> (le honeypot doit en faire partie) : l'envoi est délégué au parcours affiché.
+function onSubmit() {
+  if (shown.value === 'pro')
+    proRef.value?.submit()
+  else
+    generalRef.value?.submit()
+}
 </script>
 
 <template>
   <form class="app-elements-contact-form" novalidate @submit.prevent="onSubmit">
+    <AtomsProfileSwitch
+      v-model="profile"
+      :options="profileOptions"
+      :aria-label="t('contact.profile.label')"
+    />
+
     <!-- Honeypot: bots fill it, humans never see it. Server discards filled submissions. -->
     <div class="app-elements-contact-form__honeypot" aria-hidden="true">
       <label for="contact-form-website">Website (do not fill)</label>
       <input
         id="contact-form-website"
-        v-model="form.website"
+        v-model="website"
         type="text"
         name="website"
         tabindex="-1"
@@ -212,94 +190,21 @@ watch(
       >
     </div>
 
-    <div class="app-elements-contact-form__fields">
-      <div class="app-elements-contact-form__row">
-        <AtomsFieldText
-          v-model="form.firstName"
-          :label="t('contact.form.firstName')"
-          autocomplete="given-name"
-        />
-        <AtomsFieldText
-          ref="lastNameRef"
-          v-model="form.lastName"
-          :label="t('contact.form.lastName')"
-          autocomplete="family-name"
-          :invalid="!!errors.lastName"
-          :error-message="errors.lastName"
-          required
-        />
-      </div>
-
-      <AtomsFieldText
-        ref="emailRef"
-        v-model="form.email"
-        type="email"
-        :label="t('contact.form.email')"
-        autocomplete="email"
-        :invalid="!!errors.email"
-        :error-message="errors.email"
-        required
+    <div ref="panelsRef" class="app-elements-contact-form__panels">
+      <ElementsContactFormGeneral
+        v-show="shown === 'general'"
+        ref="generalRef"
+        data-contact-panel="general"
+        :subject-options="subjectOptions"
+        :submit-label="submitLabel"
       />
-
-      <AtomsFieldPhone
-        ref="phoneRef"
-        v-model="form.phone"
-        :label="t('contact.form.phone')"
-        :invalid="!!errors.phone"
-        :error-message="errors.phone"
-        required
-      />
-
-      <AtomsFieldSelect
-        ref="subjectRef"
-        v-model="form.subject"
-        :label="t('contact.form.subject')"
-        :options="selectOptions"
-        :invalid="!!errors.subject"
-        :error-message="errors.subject"
-        required
-      />
-
-      <AtomsFieldTextarea
-        ref="messageRef"
-        v-model="form.message"
-        :label="t('contact.form.message')"
-        :invalid="!!errors.message"
-        :error-message="errors.message"
-        required
-      />
-
-      <AtomsFieldCheckbox
-        v-model="form.newsletter"
-        :label="t('contact.form.newsletter')"
+      <ElementsContactFormPro
+        v-show="shown === 'pro'"
+        ref="proRef"
+        v-model:step="proStep"
+        data-contact-panel="pro"
       />
     </div>
-
-    <div
-      class="app-elements-contact-form__status"
-      :data-state="submitState"
-      role="alert"
-      aria-live="polite"
-    >
-      {{ statusMessage }}
-    </div>
-
-    <button
-      type="submit"
-      class="app-elements-contact-form__submit"
-      :disabled="submitState === 'submitting'"
-    >
-      <TextsCTA :selectable="false" color="beige-100">
-        {{ submitState === 'submitting' ? t('contact.form.status.submitting') : (submitLabel || t('contact.form.submit')) }}
-      </TextsCTA>
-    </button>
-
-    <p class="app-elements-contact-form__consent">
-      {{ t('contact.form.consent.before') }}
-      <UtilsBaseLink :to="{ name: 'legal-slug', params: { slug: t('legal.privacySlug') } }">
-        {{ t('contact.form.consent.linkLabel') }}
-      </UtilsBaseLink>{{ t('contact.form.consent.after') }}
-    </p>
   </form>
 </template>
 
@@ -307,12 +212,14 @@ watch(
 .app-elements-contact-form {
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
   gap: desktop-vw(32px);
   width: 100%;
+  // Marge sous le menu fixe quand le parcours pro remonte en haut du formulaire (Lenis)
+  scroll-margin-top: desktop-vw(120px);
 
   @include mobile {
     gap: mobile-vw(24px);
+    scroll-margin-top: mobile-vw(88px);
   }
 
   &__honeypot {
@@ -321,114 +228,6 @@ watch(
     width: 1px;
     height: 1px;
     overflow: hidden;
-  }
-
-  &__fields {
-    display: flex;
-    flex-direction: column;
-    gap: desktop-vw(12px);
-    width: 100%;
-
-    @include mobile {
-      gap: mobile-vw(12px);
-    }
-  }
-
-  &__row {
-    display: flex;
-    gap: desktop-vw(12px);
-    width: 100%;
-
-    @include mobile {
-      flex-direction: column;
-      gap: mobile-vw(12px);
-    }
-  }
-
-  &__status {
-    width: 100%;
-    min-height: desktop-vw(20px);
-    color: var(--c-red);
-    font-family: var(--font-haas-grot-disp-regular);
-    font-size: desktop-vw(14px);
-    line-height: desktop-vw(20px);
-
-    &[data-state='submitting'],
-    &[data-state='success'] {
-      color: var(--c-black);
-    }
-
-    &:empty {
-      min-height: 0;
-    }
-
-    @include mobile {
-      min-height: mobile-vw(18px);
-      font-size: mobile-vw(12px);
-      line-height: mobile-vw(16px);
-    }
-  }
-
-  &__submit {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: desktop-vw(18px) desktop-vw(30px);
-    border: 0;
-    border-radius: 4px;
-    background: var(--c-black-100);
-    cursor: pointer;
-    transition: opacity 0.35s var(--ease-out-cubic);
-
-    &:focus-visible {
-      outline: 2px solid var(--c-black-100);
-      outline-offset: 3px;
-    }
-
-    &:disabled {
-      cursor: not-allowed;
-      opacity: 0.6;
-    }
-
-    @include hover {
-      &:hover:not(:disabled) {
-        opacity: 0.8;
-      }
-    }
-
-    @include mobile {
-      width: 100%;
-      padding: mobile-vw(14px) mobile-vw(24px);
-    }
-  }
-
-  &__consent {
-    width: 100%;
-    margin-top: desktop-vw(4px);
-    color: var(--c-black-60);
-    font-family: var(--font-haas-grot-disp-regular);
-    font-size: desktop-vw(12px);
-    line-height: 1.5;
-    text-align: right;
-
-    a {
-      color: inherit;
-      text-decoration: underline;
-      text-underline-offset: 2px;
-      transition: opacity 0.2s var(--ease-out-cubic);
-
-      @include hover {
-        &:hover {
-          opacity: 0.7;
-        }
-      }
-    }
-
-    @include mobile {
-      margin-top: mobile-vw(4px);
-      font-size: mobile-vw(11px);
-      text-align: left;
-    }
   }
 }
 </style>

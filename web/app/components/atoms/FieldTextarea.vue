@@ -6,6 +6,9 @@ interface Props {
   errorMessage?: string
   id?: string
   rows?: number
+  // Visible seulement une fois le libellé remonté (champ actif et vide)
+  placeholder?: string
+  maxlength?: number
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -14,6 +17,8 @@ const props = withDefaults(defineProps<Props>(), {
   errorMessage: '',
   id: undefined,
   rows: 4,
+  placeholder: undefined,
+  maxlength: undefined,
 })
 
 const model = defineModel<string>({ default: '' })
@@ -53,6 +58,8 @@ const displayLabel = computed(() => props.required ? `${props.label}*` : props.l
       v-model="model"
       class="app-atoms-field-textarea__input P1 regular-text"
       :rows="rows"
+      :placeholder="placeholder"
+      :maxlength="maxlength"
       :required="required"
       :aria-required="required || undefined"
       :aria-invalid="invalid"
@@ -175,6 +182,11 @@ const displayLabel = computed(() => props.required ? `${props.label}*` : props.l
 
   &--error &__input {
     caret-color: var(--c-red);
+  }
+
+  &__input::placeholder {
+    color: var(--c-black-40);
+    opacity: 1;
   }
 
   &__error {

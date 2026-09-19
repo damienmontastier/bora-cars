@@ -28,15 +28,19 @@ const portableTextComponents = computed(() => getPortableTextComponents({
         </TextsP2>
       </div>
 
-      <AtomsCTA
-        v-if="settings?.contactLink?.text"
-        theme="black"
-        class="app-elements-text__cta"
-        :to="settings.contactLink"
-        :tracking-extra="{ source: 'text_block' }"
-      >
-        {{ settings.contactLink.text }}
-      </AtomsCTA>
+      <div class="app-elements-text__actions">
+        <!-- CTA propres à la page, avant le « Contacter un conseiller » global -->
+        <slot name="actions" />
+        <AtomsCTA
+          v-if="settings?.contactLink?.text"
+          theme="black"
+          class="app-elements-text__cta"
+          :to="settings.contactLink"
+          :tracking-extra="{ source: 'text_block' }"
+        >
+          {{ settings.contactLink.text }}
+        </AtomsCTA>
+      </div>
     </div>
   </section>
 </template>
@@ -60,6 +64,17 @@ const portableTextComponents = computed(() => getPortableTextComponents({
 
     @include mobile {
       gap: mobile-vw(40px);
+    }
+  }
+
+  &__actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: desktop-vw(12px);
+
+    @include mobile {
+      gap: mobile-vw(8px);
     }
   }
 

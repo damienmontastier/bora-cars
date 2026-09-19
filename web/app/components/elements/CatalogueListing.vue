@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import type { CatalogueCar, CatalogueFacets, CatalogueFilterDef, CatalogueFilters, CatalogueTextBlock, FilterOption } from '~/queries/catalogue'
 import { watchDebounced } from '@vueuse/core'
+import { CONTACT_PROFILE_QUERY } from '~/config/CONTACT_PRO_CONFIG'
 import { ENABLED_FILTERS } from '~/queries/catalogue'
 
 interface Props {
@@ -12,6 +13,9 @@ interface Props {
   facets: CatalogueFacets
   filters: CatalogueFilters
   hasActiveFilters?: boolean
+  // Catalogue professionnel : bouton « Transmettre ma recherche » vers l'onglet
+  // Leasing professionnel de la page Contact (lien direct ?profil=pro)
+  proContactLink?: boolean
 }
 
 const props = defineProps<Props>()
@@ -138,7 +142,17 @@ function onSearchEnter() {
       v-if="contentPreFooter"
       :eyebrow="contentPreFooter.eyebrow"
       :body="contentPreFooter.body"
-    />
+    >
+      <template v-if="proContactLink" #actions>
+        <AtomsCTA
+          theme="orange"
+          :to="{ name: 'contact', query: { [CONTACT_PROFILE_QUERY]: 'pro' } }"
+          :tracking-extra="{ source: 'catalogue_professionnel' }"
+        >
+          {{ t('catalogue.proContactCta') }}
+        </AtomsCTA>
+      </template>
+    </ElementsText>
 
     <AppFooter />
   </div>

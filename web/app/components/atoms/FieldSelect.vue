@@ -10,6 +10,9 @@ interface Props {
   label: string
   options: Option[]
   required?: boolean
+  disabled?: boolean
+  // Rappelle le libellé en petit au-dessus de la valeur choisie (DS « input dropdown label=on »)
+  floatingLabel?: boolean
   invalid?: boolean
   errorMessage?: string
   id?: string
@@ -17,6 +20,8 @@ interface Props {
 
 const props = withDefaults(defineProps<Props>(), {
   required: false,
+  disabled: false,
+  floatingLabel: false,
   invalid: false,
   errorMessage: '',
   id: undefined,
@@ -55,7 +60,7 @@ const displayLabel = computed(() => props.required ? `${props.label}*` : props.l
 defineExpose({ focus: () => triggerRef.value?.focus() })
 
 function open(withActive = false) {
-  if (isOpen.value)
+  if (isOpen.value || props.disabled)
     return
   isOpen.value = true
   activeIndex.value = withActive
@@ -81,6 +86,11 @@ function selectOption(value: string) {
   close()
   nextTick(() => triggerRef.value?.focus())
 }
+
+watch(() => props.disabled, (disabled) => {
+  if (disabled)
+    close()
+})
 
 onClickOutside(rootRef, () => {
   if (isOpen.value)
@@ -151,6 +161,8 @@ function onKeydown(e: KeyboardEvent) {
       'app-atoms-field-select--open': isOpen,
       'app-atoms-field-select--filled': hasValue,
       'app-atoms-field-select--error': invalid,
+      'app-atoms-field-select--disabled': disabled,
+      'app-atoms-field-select--floated': floatingLabel && hasValue,
     }"
   >
     <span :id="labelId" class="app-atoms-field-select__sr-label">{{ displayLabel }}</span>
@@ -169,12 +181,20 @@ function onKeydown(e: KeyboardEvent) {
       :aria-activedescendant="isOpen && activeIndex >= 0 ? getOptionId(activeIndex) : undefined"
       :aria-invalid="invalid"
       :aria-describedby="showError ? errorId : undefined"
+      :disabled="disabled"
       @click="toggle"
       @keydown="onKeydown"
     >
-      <span class="app-atoms-field-select__value P1 regular-text">{{ selectedOption?.label || displayLabel }}</span>
+      <span class="app-atoms-field-select__text">
+        <span
+          v-if="floatingLabel && hasValue"
+          class="app-atoms-field-select__floating LABEL-TEXT"
+          aria-hidden="true"
+        >{{ displayLabel }}</span>
+        <span class="app-atoms-field-select__value P1 regular-text">{{ selectedOption?.label || displayLabel }}</span>
+      </span>
       <span class="app-atoms-field-select__icon" aria-hidden="true">
-        <SvgIconArrow :color="invalid ? 'red' : 'black-100'" />
+        <SvgIconArrow :color="invalid ? 'red' : (disabled ? 'black-20' : 'black-100')" />
       </span>
     </button>
 
@@ -282,8 +302,24 @@ function onKeydown(e: KeyboardEvent) {
     }
   }
 
-  &__value {
+  &__text {
+    display: flex;
     flex: 1 0 0;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  &__floating {
+    color: var(--c-black-40);
+    text-transform: none;
+    letter-spacing: 0;
+  }
+
+  &--error &__floating {
+    color: var(--c-red);
+  }
+
+  &__value {
     min-width: 0;
     color: var(--field-placeholder-color);
     text-align: left;
@@ -294,6 +330,22 @@ function onKeydown(e: KeyboardEvent) {
 
   &--filled &__value {
     color: var(--field-value-color);
+  }
+
+  // Variante libellé flottant (DS « input dropdown label=on ») : filet clair une fois rempli,
+  // comme les champs texte ; noir seulement à l'ouverture
+  &--floated:not(&--open):not(&--error) {
+    --field-border: var(--c-black-20);
+  }
+
+  &--disabled {
+    --field-border: var(--c-black-10);
+    --field-placeholder-color: var(--c-black-20);
+  }
+
+  &--disabled &__trigger {
+    background: var(--c-black-10);
+    cursor: not-allowed;
   }
 
   &__icon {

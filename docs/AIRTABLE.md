@@ -4,16 +4,18 @@ Documentation de l'intégration Airtable du site `bora-cars.com` avec le CRM du 
 
 ---
 
-## 🔌 Setup actuel
+## 🔌 Setup actuel (MàJ 2026-09-18)
 
 ### Base & table cibles
 
 | Élément | Valeur |
 |---|---|
 | Base | `BORA CARS - CRM Parc Automobile` (`appzqdmWjxE1FkAer`) |
-| Table | `Demandes de contact` (`tblRVnNijTcEInX7L`) |
-| Endpoint | `POST /api/contact` (Nitro server route) |
-| Interface | `Demandes de contact` (Record review, avec bouton +1 contact) |
+| Table | **`Leads`** (`tblRVnNijTcEInX7L`). C'est l'ancienne « Demandes de contact », renommée par le client ; elle a gardé le même ID, celui lu par `NUXT_AIRTABLE_TABLE_ID`. |
+| Endpoint | `POST /api/contact` (Nitro, `web/server/api/contact.post.ts`) |
+| Interfaces qui lisent la table | « Demandes de contact » (`pbdiiPv19kfEeR7VA`, Record review), « BORA CRM 📱 » (`pbdpVWqnPmjibG6hj` : Pipeline, Aujourd'hui, Chiffres, 💼 Leads PRO…) |
+
+La table est la source de vérité de **tous** les leads (site, WhatsApp, Instagram, Google, apporteurs…). Le site n'en alimente qu'une partie.
 
 ### Authentification
 
@@ -22,133 +24,133 @@ Documentation de l'intégration Airtable du site `bora-cars.com` avec le CRM du 
 - Env vars : `NUXT_AIRTABLE_TOKEN`, `NUXT_AIRTABLE_BASE_ID`, `NUXT_AIRTABLE_TABLE_ID`
 - En prod (Netlify) : variables à set dans le dashboard Netlify avec **"Contains secret values"** activé pour le TOKEN
 
-### Mode de déploiement Nitro
+### Rendu
 
-```ts
-nitro.preset = NUXT_PUBLIC_IS_PROD === 'true'
-  ? 'netlify_static'  // main → SSG hybride (static + Netlify Functions pour /api/*)
-  : 'netlify'         // develop → SSR sur Netlify
-```
+Preset Nitro `netlify` sur les deux branches (jamais `netlify_static`) : `/api/contact` est une Netlify Function, en prod (pages prérendues) comme sur develop (SSR). Cf. `web/CLAUDE.md`.
 
-→ Même endpoint `/api/contact` fonctionne dans les deux cas.
+### Robustesse de l'écriture
 
----
-
-## 📋 Schéma de la table `Demandes de contact`
-
-### Champs alimentés par le formulaire
-
-| Field | Type | Source | Notes |
-|---|---|---|---|
-| `Nom complet` | singleLineText (primary) | `firstName + lastName` concaténés | |
-| `Email` | email | form | |
-| `Téléphone` | phoneNumber | form | |
-| `Type de demande` | singleSelect (typecast) | Label Sanity du subject | Source de vérité = Sanity, Airtable crée les options à la volée |
-| `Message` | multilineText | form | |
-| `Langue` | singleSelect | `useI18n().locale` | `FR` ou `EN` |
-| `Source` | singleSelect | auto = `Site web` | |
-| `Statut` | singleSelect | auto = `Nouveau` à la création | Voir workflow ci-dessous |
-| `Page d'origine` | url | `useRequestURL().href` | URL au moment de la soumission |
-| `Consentement RGPD` | checkbox | auto = `true` | Mention RGPD visible quand l'utilisateur a soumis (art. 12-14) |
-| `Opt-in newsletter` | checkbox | form (decoché par défaut) | Consentement explicite marketing (art. 7) |
-| `UTM source` | singleLineText | sessionStorage (1er touch) | Si présent dans l'URL au 1er visit |
-| `UTM medium` | singleLineText | idem | |
-| `UTM campaign` | singleLineText | idem | |
-| `Date de création` | createdTime | auto Airtable | |
-| `Dernière modif` | lastModifiedTime | auto Airtable | |
-
-### Champs de suivi commercial
-
-| Field | Type | Usage |
-|---|---|---|
-| `Date dernier contact` | date | Date du dernier contact effectif. Mise à jour auto par le bouton +1 contact ou par l'automation quand Statut→Contacté |
-| `Date prochaine relance` | **formula** | `IF({Date dernier contact}, DATEADD({Date dernier contact}, 3, 'days'))` — toujours = dernier contact +3j, recalcul auto |
-| `Nombre de relances` | **rating ⭐** (max 10) | Compteur de relances. Incrémenté par le bouton +1 contact via le helper `_NextCount` |
-| `Canal utilisé` | singleSelect | `Téléphone`, `Email`, `WhatsApp`, `Visio`, `SMS`, `Rendez-vous physique` |
-| `Probabilité` | singleSelect | `Hot 🔥`, `Warm`, `Cold` — pour prioriser |
-| `Raison du refus` | singleSelect | `Prix`, `Délai`, `Véhicule indisponible`, `Concurrent choisi`, `No-show`, `Hors zone`, `Spam`, `Autre` — à remplir si Statut=Perdu |
-| `Notes internes` | multilineText | Notes libres (relances, objections, contexte) |
-| `Réservation liée` | multipleRecordLinks → `Réservations` | À remplir manuellement quand la demande devient une location |
-| `Dossier de leasing lié` | multipleRecordLinks → `Dossiers de leasing` | Idem pour un leasing |
-| `Propriétaire lié` | multipleRecordLinks → `Propriétaires` | Pour les demandes `Type=Mise en gestion`, link vers le Propriétaire créé quand ça se concrétise |
-
-### Champs calculés (formules / rollups)
-
-| Field | Type | Calcul |
-|---|---|---|
-| `✅ Convertie ?` | formula | `IF(OR({Réservation liée}, {Dossier de leasing lié}, {Propriétaire lié}), "✅ Oui", "")` — visualisation rapide des leads convertis |
-| `💰 CA généré` | rollup (à créer manuellement) | SUM de `Montant total` depuis les `Réservation liée` — montre le CA généré par chaque demande |
-
-### Champs helpers (techniques, à masquer pour le commercial)
-
-| Field | Type | Rôle |
-|---|---|---|
-| `_NextCount` | formula | `{Nombre de relances} + 1` — utilisé par l'automation +1 contact pour incrémenter (workaround sans script) |
-
-### Workflow `Statut`
-
-```
-Nouveau → En cours → Contacté → Devis envoyé → Confirmé → Traité
-                                                       ↘ Perdu
-```
+- `typecast: true` : Airtable crée à la volée une option de liste inconnue. **Toute valeur de liste envoyée par le site est donc d'abord vérifiée contre une liste blanche**, puis convertie en libellé exact :
+  - l'objet de la Demande générale est comparé aux options du singleton Sanity `contact` (`resolveSubject`) ;
+  - les listes du Leasing pro sont comparées à `web/app/config/CONTACT_PRO_CONFIG.ts`.
+- `createAirtableRecord` (`web/server/utils/airtable.ts`) : si un champ a été renommé ou supprimé côté CRM, il est retiré et l'écriture est rejouée. **Le lead n'est jamais perdu** ; un `console.warn` liste les champs abandonnés.
+- Les logs d'erreur ne contiennent que les **noms** de champs, jamais les valeurs (données personnelles).
 
 ---
 
-## 🖥️ Interface Airtable
+## 🧭 Deux parcours sur la page Contact
 
-**Nom** : `Demandes de contact` (type Record review)
+Payload `profile: 'general' | 'pro'` : absent = `general` (payload historique), inconnu = 422.
 
-**Layout** :
-- Liste filtrable à gauche
-- Panneau détail à droite avec tous les champs essentiels (Nom, Email, Téléphone, Type, Message, Statut, Probabilité, Date dernier contact, Date prochaine relance, Nombre de relances, Canal utilisé, Notes internes, Raison du refus, Réservation/Dossier liés)
-- Champs admin/marketing masqués (Source, Page d'origine, UTM, Consentement RGPD, Opt-in newsletter, Dernière modif)
+| Parcours | Onglet | Où dans le code |
+|---|---|---|
+| `general` | « Demande générale » (Propriétaires · Autre) : le formulaire historique | `ElementsContactFormGeneral`, `generalFields()` |
+| `pro` | « Leasing professionnel » (LOA · LLD pour votre société) : 5 étapes, reprises du prototype client | `ElementsContactFormPro`, `server/utils/contactPro.ts` |
 
-**Bouton `📞 +1 contact`** (en haut à droite du panneau détail) :
-- Action : `Run automation` → déclenche l'automation `📞 +1 contact (bouton)`
-- L'automation gère la logique conditionnelle (premier contact vs relance)
+Lien direct : `/{fr|en}/contact?profil=pro`.
+
+### Champs communs (les deux parcours)
+
+| Champ | Valeur |
+|---|---|
+| `Langue` | `FR` / `EN` |
+| `Canal` | `Site web` |
+| `Étape` | `Nouveau` |
+| `Source` / `Statut` | `Site web` / `Nouveau` (anciens champs, encore lus par des vues ou automations) |
+| `Page d'origine` | URL de la page au moment de l'envoi |
+| `UTM source` / `UTM medium` / `UTM campaign` | 1er touch de la session (sessionStorage) |
+
+### Demande générale
+
+| Champ | Source |
+|---|---|
+| `Nom complet` | `firstName + lastName` |
+| `Email` | obligatoire |
+| `Téléphone` | ≥ 8 chiffres |
+| `Message` | obligatoire |
+| `Type de demande` | libellé FR de l'objet choisi (options Sanity) ; `Autre` sinon |
+| `Type de lead` | selon l'objet (`LEAD_TYPE_BY_SUBJECT_KEY`) ; pas d'objet propriétaire, FLOW ou FLEX se décide avec le propriétaire |
+| `Consentement RGPD` | `true` (mention visible sous le bouton) |
+| `Opt-in newsletter` | case du formulaire |
+
+### Leasing professionnel
+
+Valeurs fixes : `Type de lead` = `LLD PRO — Leasing société`, `Type de demande` = `Leasing professionnel`.
+
+| Donnée du formulaire | Champ Airtable | Remarque |
+|---|---|---|
+| Prénom + Nom | `Nom complet` | `Prénom` est une formule |
+| Ville | `Ville` | |
+| Téléphone WhatsApp | `Téléphone` | ≥ 8 chiffres |
+| Email (facultatif) | `Email` | écrit seulement s'il est rempli |
+| Nom de la société | `Société` | |
+| Forme juridique | `Forme juridique` | Auto-entrepreneur / Micro-entreprise · Entreprise individuelle (EI) · EIRL · EURL · SARL · SASU · SAS · SA · Association · Autre |
+| Date de création | `Société créée le` | `MM/AAAA`, ou `En cours de création` |
+| Domaine d'activité | `Domaine d'activité` | |
+| Chiffre d'affaires | `CA société` | Entre 0 et 50 000 € · Entre 50 000 et 100 000 € · Entre 100 000 et 500 000 € · Plus de 500 000 € |
+| Bilans clôturés | `Bilans disponibles` | 0 · 1 · 2 · 3 et + |
+| Revenus personnels | `Revenus personnels` | `Non`, ou CDI · CDD · Intérim · Indépendant ; vide si « Oui » sans type |
+| Apport disponible | `Apport disponible` | Moins de 5 000 € · Plus de 5 000 € · Aucun (`Apport / caution (€)` reste vide) |
+| Refus de leasing | `Refusé en concession` | case cochée si « Oui » |
+| Usage prévu | `Usage prévu` | Usage personnel (pour ma société) · Sous-location · Les deux |
+| LOA / LLD | `Type de financement` | `LOA` / `LLD` |
+| Kilomètres / an | `Km / an` | 1er nombre de la saisie libre (« 20 000 km » → 20000) |
+| Durée | `Durée (mois)` | 36 / 48 / 60 |
+| Je souhaite être conseillé | `Souhaite être conseillé` | |
+| Modèle(s) souhaité(s) | `Véhicule (texte libre)` | |
+| Nombre de véhicules | `Nombre de véhicules` | 1 par défaut |
+| Budget mensuel | `Budget mensuel (€)` | 1er nombre de la saisie libre |
+| Délai | `Délai` | Urgent · Sous 1 mois · Flexible |
+| Documents disponibles | `Documents disponibles` | pièces **déclarées** ; ne jamais écrire dans `Documents reçus` (pièces reçues par BORA) |
+| Autre chose à nous dire ? | `Message` | |
+| Tout le dossier | `Récap dossier PRO` | texte lisible, repris dans l'email de notification |
+| Case de consentement (obligatoire) | `Consentement RGPD` | le serveur refuse le dossier sans elle |
+
+**Changer une option d'une liste = modifier `CONTACT_PRO_CONFIG.ts` ET l'option Airtable.** Sinon, `typecast` crée une nouvelle option. Les **libellés affichés** sur le site sont dans le glossaire Sanity (`contact.pro.options.*`) ; ils ne changent rien côté CRM.
+
+**Champs conditionnels vérifiés côté serveur :** un type de revenus sans « Oui », des km ou une durée sans LOA/LLD, une date avec « en cours de création » sont ignorés et jamais écrits. Le dossier n'est pas refusé pour autant (on ne perd pas un lead à cause d'un bug du site).
 
 ---
 
-## 🤖 Automations actives
+## 🖥️ Interfaces & vues
 
-### 1. 🔔 Notif commercial sur nouveau lead
+- **« Demandes de contact »** (`pbdiiPv19kfEeR7VA`) : Record review historique, avec le bouton `📞 +1 contact`.
+- **« BORA CRM 📱 »** (`pbdpVWqnPmjibG6hj`) :
+  - pages Chiffres, Pipeline, Aujourd'hui, ➕ Nouvelle location, Projets, ✅ À faire, 💶 Comptabilité ;
+  - **💼 Leads PRO** (`pagnNmyTqNqkbNxyP`, créée le 2026-09-18) : kanban par `Étape`, limité à `Type de lead = LLD PRO — Leasing société`. Elle reste en brouillon tant que l'interface n'a pas été publiée.
+- **Vues de la table** : 🗂️ Toutes les demandes, À traiter, Relances aujourd'hui, Hot leads, Perdus — analyse, Pipeline.
+  - Vue « 💼 Leads PRO » à créer à la main : Kanban, empilé par `Étape`, filtre `Type de lead` = `LLD PRO — Leasing société`.
 
-- **Trigger** : `When record is created` sur `Demandes de contact`
-- **Action** : Send email aux commerciaux (`tech@bora-cars.com`)
-- **Body** : infos du record (Nom, Email, Téléphone, Type, Message, Langue, Page d'origine, lien Airtable)
-- **But** : ne pas louper un lead, réagir vite (luxe = engagement de rappel <24h)
+---
 
-### 2. 📩 Auto-reply email au client
+## 🤖 Automations (état au 2026-09-18)
 
-- **Trigger** : `When record is created` sur `Demandes de contact`
-- **Action** : Send email à `{{Email}}` du record
-- **From name** : "BORA CARS", **Reply-to** : `contact@bora-cars.com`
-- **Body** : confirmation de réception + délai de réponse 24h
-- **But** : UX premium, le client sait que sa demande a été reçue
+| Automation | Statut | Rôle |
+|---|---|---|
+| 🔔 Nouveau lead - Notif commercial | déployée | Création d'un lead → email à `boramotioncars@gmail.com`. Objet : `🔔 Nouveau lead : {Nom complet} — {Type de demande}`. Corps : nom, email, téléphone, type de demande, **type de lead**, langue, message, **Récap dossier PRO**, page d'origine, lien Airtable. Les ajouts du 2026-09-18 sont dans le **brouillon** : cliquer « Update » dans Airtable pour les déployer. |
+| ⏱️ Auto-fill Date 1er contact | déployée | `Statut = Contacté` et `Date dernier contact` vide → remplit la date |
+| 📞 +1 contact (bouton) | déployée | Bouton d'interface : 1er contact ou relance |
+| 🔔 Lead urgent → notification iPhone | non déployée | Assigne le lead (push iOS) + email de secours |
+| ☀️ Brief du matin — leads à relancer | non déployée | Email quotidien 8 h |
+| ✍️ Nouveau lead → tâche de relance | non déployée | Crée une tâche « Contacter » |
 
-### 3. 🔄 Auto-init Statut→Contacté (manuel via grid)
+**Aucune automation n'écrit au prospect.** L'ancienne réponse automatique au client n'existe plus, donc l'email facultatif du parcours pro ne casse rien.
 
-- **Trigger** : `When record matches conditions` → `Statut = Contacté` AND `Date dernier contact = empty`
-- **Action** : Update record → `Date dernier contact = Dernière modif`, `Nombre de relances = 1`
-- **But** : filet de sécurité si le commercial change le statut manuellement dans le Grid (sans utiliser le bouton Interface)
+---
 
-### 4. 📞 +1 contact (bouton Interface)
+## 🧪 Tester sans polluer le CRM
 
-- **Trigger** : `When a button is clicked` (bouton `+1 contact` dans l'interface)
-- **Logique conditionnelle** :
-  - **Branche A — Premier contact** : si `Statut = Nouveau`
-    - Update : `Statut = Contacté`, `Nombre de relances = 1`, `Date dernier contact = Maintenant`
-  - **Branche B — Sinon** (relance)
-    - Update : `Nombre de relances = {{_NextCount}}` (incrémenté via helper), `Date dernier contact = Maintenant`
-- **But** : 1 clic du commercial = +1 relance + maj date. `Date prochaine relance` (formule) se recalcule auto
+- Les requêtes invalides (422) et le honeypot (`website` rempli → 200 sans écriture) ne créent rien.
+- Un envoi valide depuis `npm run dev` écrit **dans la table de prod** et déclenche l'email de notification. Nommer le lead « TEST … (à supprimer) », puis le supprimer.
+- Pour tester l'interface sans écrire, intercepter `/api/contact` dans le navigateur (Playwright `page.route`).
 
 ---
 
 ## 🛡️ Sécurité
 
 - ✅ **Honeypot** : champ caché `website` dans le form, le serveur rejette silencieusement si rempli (anti-bot)
-- ✅ **Validation Zod-like** côté serveur (regex email, longueur téléphone, champs requis)
-- ✅ **Token RGPD** : `Consentement RGPD` auto-set par l'API uniquement
+- ✅ **Validation côté serveur** : regex email, longueur des champs (mêmes limites que les `maxlength` du formulaire, `CONTACT_MAX_LENGTH`), champs requis, listes blanches des valeurs de listes (parcours pro), case de consentement obligatoire (parcours pro)
+- ✅ **Consentement RGPD** : posé par l'API uniquement (Demande générale : mention visible ; Leasing pro : case obligatoire, qui mentionne la transmission aux partenaires)
 - 🟡 **Rate limiting** : pas implémenté (Netlify Functions ont une protection basique)
 - 🟡 **Cloudflare Turnstile** : pas implémenté (à ajouter si le spam passe le honeypot)
 - ❌ **Field permissions API-only** : non dispo (requiert plan Business). Workaround possible via automation "lock" (voir roadmap item 8)
@@ -181,7 +183,7 @@ Nouveau → En cours → Contacté → Devis envoyé → Confirmé → Traité
 
 ---
 
-## 🗺️ Roadmap
+## 🗺️ Roadmap (historique, table alors nommée « Demandes de contact »)
 
 ### ✅ Fait
 
