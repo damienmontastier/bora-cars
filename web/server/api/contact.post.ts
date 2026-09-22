@@ -33,6 +33,7 @@ const LEAD_TYPE_BY_SUBJECT_KEY: Record<string, string> = {
 
 const PRO_LEAD_TYPE = 'LLD PRO — Leasing société'
 const PRO_REQUEST_TYPE = 'Leasing professionnel'
+const PRO_FIXED_COLUMNS = ['Type de demande', 'Type de lead']
 
 function str(value: unknown) {
   return typeof value === 'string' ? value.trim() : ''
@@ -84,8 +85,9 @@ export default defineEventHandler(async (event) => {
   if (!(CONTACT_PROFILES as readonly string[]).includes(rawProfile))
     invalidPayload(['profile'])
 
-  const fields = rawProfile === 'pro'
-    ? proFields(body as Record<string, unknown>)
+  const isPro = rawProfile === 'pro'
+  const fields = isPro
+    ? await proFields(body as Record<string, unknown>)
     : await generalFields(body)
 
   Object.assign(fields, commonFields(body))
@@ -98,9 +100,9 @@ export default defineEventHandler(async (event) => {
         'Content-Type': 'application/json',
       },
       body: { fields: recordFields, typecast: true },
-    }), fields)
+    }), fields, isPro ? [...PRO_ESSENTIAL_COLUMNS, ...PRO_FIXED_COLUMNS, ...Object.keys(commonFields(body))] : undefined)
     if (dropped.length)
-      console.warn('[api/contact] Airtable fields no longer exist, lead saved without them:', dropped)
+      console.warn('[api/contact] Airtable refused some fields, lead saved without them:', dropped)
 
     return { ok: true }
   }
@@ -128,18 +130,18 @@ function invalidPayload(fields: string[]): never {
   })
 }
 
-function proFields(body: Record<string, unknown> | undefined): Record<string, unknown> {
-  const parsed = parseProLead(body)
+async function proFields(body: Record<string, unknown> | undefined): Promise<Record<string, unknown>> {
+  const parsed = parseProLead(body, await loadProForm())
   if ('invalid' in parsed)
     invalidPayload(parsed.invalid)
-  if (parsed.ignored.length)
-    console.warn('[api/contact] Pro lead: conditional values ignored', parsed.ignored)
+  if (parsed.lead.ignored.length)
+    console.warn('[api/contact] Pro lead: answers ignored (hidden or unknown)', parsed.lead.ignored)
 
   return {
     ...proAirtableFields(parsed.lead),
     'Type de demande': PRO_REQUEST_TYPE,
     'Type de lead': PRO_LEAD_TYPE,
-    'Consentement RGPD': parsed.lead.consent,
+    'Consentement RGPD': true,
   }
 }
 

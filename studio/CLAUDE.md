@@ -42,7 +42,7 @@ Tout type doit être importé **et** ajouté au tableau `schemaTypes` de `schema
 | `documents/` | `car` (voiture), `location` (lieu = agence), `legalPage` |
 | `modules/home/` | `hero`, `serviceCards`, `pitch`, `process`, `brandsSection`, `fullscreenMarquee`, `cardsColumn`, `testimonials` |
 | `modules/shared/` | `title`, `text`, `faq` |
-| `objects/` | `customImage`, `customVideo`, `customMedia`, `customLink`, `navLink`, `processStep`, `specsLayout`, `glossaryEntry` |
+| `objects/` | `customImage`, `customVideo`, `customMedia`, `customLink`, `navLink`, `processStep`, `specsLayout`, `glossaryEntry`, `proForm.ts` (`proFormStep` + les 9 `proField*`) |
 
 `objects/seo.ts` n'est **pas** un type global : `seoType` est importé et posé comme champ dans chaque singleton de page. `constants.ts` expose `GROUPS` (onglets Editorial/SEO), `SUPPORTED_LANGUAGES`, `SINGLETON_TYPES`, `LOCALIZED_DOCUMENT_TYPES`.
 
@@ -52,7 +52,7 @@ Les modules (`modules[]` des pages) sont rendus côté web par `PageModules` ; l
 
 - **Singleton** : l'ID du document = le nom du type. Le déclarer à **deux** endroits : `SINGLETON_TYPES` (`constants.ts` — source unique : le `Set` `SINGLETONS` de `sanity.config.ts`, qui retire create/delete/duplicate, en dérive, le Dashboard aussi) et la `structure` (`S.document().schemaType(x).documentId(x)`). Plus `LOCALIZED_DOCUMENT_TYPES` s'il est localisé, et `linkableSchemaTypes` s'il doit être cible de lien.
 - **Page liable** : côté web, ajouter aussi la route dans `SANITY_ROUTES` / `I18N_PAGES` (`web/app/config/I18N_CONFIG.ts`), sinon `BaseLink` ne sait pas la résoudre.
-- **Singleton `contact`** : onglet « Leasing professionnel » (group `pro`) avec `proIntro` (texte d'accueil) et `proSuccess` (écran de confirmation : `text` accepte le jeton `{prenom}`, 2 cartes-liens `whatsapp` / `instagram`). Les textes du formulaire pro eux-mêmes sont dans le Glossaire (clés `contact.pro.*`, `contact.profile.*`). Les **valeurs** des listes pro ne sont pas éditables (constantes web, liées aux options Airtable).
+- **Singleton `contact`** : `profileSwitch` (libellés des deux onglets du formulaire, groupe Editorial) ; onglet « Leasing professionnel » (group `pro`) avec `proIntro` (texte d'accueil), **`proForm`** (constructeur du formulaire pro : `steps[]` de `proFormStep` → `fields[]` parmi les types `proField*` de `objects/proForm.ts`, + `labels` = textes communs) et `proSuccess` (écran de confirmation : `text` accepte le jeton `{prenom}`, 2 cartes-liens `whatsapp` / `instagram`). Verrous : `validateProSteps` exige chaque coordonnée (`proFieldIdentity` × prénom/nom/téléphone/email) et le `proFieldConsent` une seule fois, et signale les conditions orphelines. `airtableColumn` refuse les colonnes remplies par le site (`PRO_RESERVED_COLUMNS`). Ajouter un type de champ = schéma ici + type/rendu/parse côté web (`CONTACT_PRO_CONFIG.ts`, `pro/Field.vue`, `server/utils/contactPro.ts`).
 - **Champ** : le web lit tout via des GROQ écrits à la main (`web/app/queries/`) — ajouter/renommer un champ ici impose de mettre à jour la projection et l'interface `*Data` côté web. Renommer un champ qui a des données ⇒ migration.
 
 ### Localisation des champs
@@ -81,6 +81,7 @@ Singleton `glossaire` : `GLOSSAIRE_SECTIONS` (`singletons/glossaire.ts`) = un on
 | `SpecsLayoutInput.tsx` | Drag & drop (`@dnd-kit`) de l'agencement des caractéristiques | `specsLayout` |
 | `CatalogueCarsPreview.tsx` | Liste des voitures qui apparaîtront dans le catalogue. Reproduit le filtre `clientType` de `web/app/queries/catalogue.ts` — **à garder aligné** | `catalogue`, `catalogueProfessionnel` |
 | `NavLinkPreview.tsx` | Aperçu localisé d'un `navLink` | `navLink` |
+| `ProFieldConditionInput.tsx` | « Afficher seulement si… » d'un champ du formulaire pro : liste les questions Choix / Oui-Non / Case de toutes les étapes (`useFormValue(['proForm','steps'])`) puis leurs réponses ; stocke `{ field: _key, values: [_key d'option \| yes \| no \| checked] }` | `showIf` des `proField*` |
 | `WhatsappTemplatesInput.tsx` | Les 4 templates WhatsApp de la fiche voiture | `carPage.whatsapp` |
 | `WhatsappTokenEditor.tsx` + `whatsappTokenDom.ts` | Éditeur de message à tags (cf. ci-dessous) | `PageWhatsappMessageInput` (pages), `BioWhatsappMessageInput` (`bio`) |
 | `dashboard/` | Dashboard (onglet par défaut) : état du site en ligne, points à vérifier, brouillons, activité — cf. § Dashboard | `sanity.config.ts` `tools` |

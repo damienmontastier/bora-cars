@@ -6,11 +6,22 @@ interface Props {
   fromYear: number
   toYear: number
   disabled?: boolean
+  required?: boolean
+  invalid?: boolean
+  errorMessage?: string
 }
 
 const props = withDefaults(defineProps<Props>(), {
   disabled: false,
+  required: false,
+  invalid: false,
+  errorMessage: '',
 })
+
+const uid = useId()
+const errorId = `${uid}-error`
+const showError = computed(() => props.invalid && !!props.errorMessage)
+const displayLegend = computed(() => props.required ? `${props.legend}*` : props.legend)
 
 const month = defineModel<string>('month', { default: '' })
 const year = defineModel<string>('year', { default: '' })
@@ -34,9 +45,9 @@ const yearOptions = computed(() => {
 </script>
 
 <template>
-  <fieldset class="app-atoms-field-month-year">
+  <fieldset class="app-atoms-field-month-year" :aria-describedby="showError ? errorId : undefined">
     <legend class="app-atoms-field-month-year__legend P1 regular-text">
-      {{ legend }}
+      {{ displayLegend }}
     </legend>
     <div class="app-atoms-field-month-year__row">
       <AtomsFieldSelect
@@ -44,6 +55,7 @@ const yearOptions = computed(() => {
         :label="monthLabel"
         :options="monthOptions"
         :disabled="disabled"
+        :invalid="invalid && !disabled && !month"
         floating-label
       />
       <AtomsFieldSelect
@@ -51,10 +63,19 @@ const yearOptions = computed(() => {
         :label="yearLabel"
         :options="yearOptions"
         :disabled="disabled"
+        :invalid="invalid && !disabled && !year"
         floating-label
       />
     </div>
     <slot />
+    <TextsP2
+      v-if="showError"
+      :id="errorId"
+      tag="span"
+      color="red"
+    >
+      {{ errorMessage }}
+    </TextsP2>
   </fieldset>
 </template>
 

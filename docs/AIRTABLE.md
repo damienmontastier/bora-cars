@@ -32,7 +32,8 @@ Preset Nitro `netlify` sur les deux branches (jamais `netlify_static`) : `/api/c
 
 - `typecast: true` : Airtable crée à la volée une option de liste inconnue. **Toute valeur de liste envoyée par le site est donc d'abord vérifiée contre une liste blanche**, puis convertie en libellé exact :
   - l'objet de la Demande générale est comparé aux options du singleton Sanity `contact` (`resolveSubject`) ;
-  - les listes du Leasing pro sont comparées à `web/app/config/CONTACT_PRO_CONFIG.ts`.
+  - les choix du Leasing pro sont comparés aux options de la config Sanity `contact.proForm` (relue à chaque envoi) ; une valeur inconnue est ignorée.
+- Une colonne refusée par Airtable (`UNKNOWN_FIELD_NAME`, `INVALID_VALUE_FOR_COLUMN`) est retirée et l'écriture rejouée. Pour un dossier pro, toute autre erreur 422 déclenche un dernier essai avec les seules colonnes essentielles (nom, téléphone, email, consentement, récap, type de demande/lead, champs communs).
 - `createAirtableRecord` (`web/server/utils/airtable.ts`) : si un champ a été renommé ou supprimé côté CRM, il est retiré et l'écriture est rejouée. **Le lead n'est jamais perdu** ; un `console.warn` liste les champs abandonnés.
 - Les logs d'erreur ne contiennent que les **noms** de champs, jamais les valeurs (données personnelles).
 
@@ -77,6 +78,10 @@ Lien direct : `/{fr|en}/contact?profil=pro`.
 
 Valeurs fixes : `Type de lead` = `LLD PRO — Leasing société`, `Type de demande` = `Leasing professionnel`.
 
+**Le formulaire se construit dans Sanity** (Contact → onglet « Leasing professionnel » → Formulaire). Pour chaque champ, le client peut indiquer une **Colonne Airtable** (nom exact) ; pour chaque choix, une **Valeur envoyée à Airtable** si l'option Airtable diffère du libellé FR. **Toutes** les réponses vont dans `Récap dossier PRO`, avec ou sans colonne. Toujours écrits par le site, quelle que soit la config : `Nom complet`, `Téléphone`, `Email` (s'il est rempli), `Consentement RGPD`, `Récap dossier PRO`.
+
+Config livrée (reprise à l'identique de l'ancien formulaire codé en dur, migration `studio/migrations/seed-contact-pro-form`) :
+
 | Donnée du formulaire | Champ Airtable | Remarque |
 |---|---|---|
 | Prénom + Nom | `Nom complet` | `Prénom` est une formule |
@@ -89,16 +94,16 @@ Valeurs fixes : `Type de lead` = `LLD PRO — Leasing société`, `Type de deman
 | Domaine d'activité | `Domaine d'activité` | |
 | Chiffre d'affaires | `CA société` | Entre 0 et 50 000 € · Entre 50 000 et 100 000 € · Entre 100 000 et 500 000 € · Plus de 500 000 € |
 | Bilans clôturés | `Bilans disponibles` | 0 · 1 · 2 · 3 et + |
-| Revenus personnels | `Revenus personnels` | `Non`, ou CDI · CDD · Intérim · Indépendant ; vide si « Oui » sans type |
+| Revenus personnels | `Revenus personnels` | Oui/Non (format texte) puis type de revenus sur la même colonne : `Non`, CDI · CDD · Intérim · Indépendant ; `Oui` si « Oui » sans type |
 | Apport disponible | `Apport disponible` | Moins de 5 000 € · Plus de 5 000 € · Aucun (`Apport / caution (€)` reste vide) |
-| Refus de leasing | `Refusé en concession` | case cochée si « Oui » |
+| Refus de leasing | `Refusé en concession` | case cochée si « Oui » (rien d'écrit sans réponse) |
 | Usage prévu | `Usage prévu` | Usage personnel (pour ma société) · Sous-location · Les deux |
 | LOA / LLD | `Type de financement` | `LOA` / `LLD` |
 | Kilomètres / an | `Km / an` | 1er nombre de la saisie libre (« 20 000 km » → 20000) |
 | Durée | `Durée (mois)` | 36 / 48 / 60 |
 | Je souhaite être conseillé | `Souhaite être conseillé` | |
 | Modèle(s) souhaité(s) | `Véhicule (texte libre)` | |
-| Nombre de véhicules | `Nombre de véhicules` | 1 par défaut |
+| Nombre de véhicules | `Nombre de véhicules` | pré-rempli à 1 |
 | Budget mensuel | `Budget mensuel (€)` | 1er nombre de la saisie libre |
 | Délai | `Délai` | Urgent · Sous 1 mois · Flexible |
 | Documents disponibles | `Documents disponibles` | pièces **déclarées** ; ne jamais écrire dans `Documents reçus` (pièces reçues par BORA) |
@@ -106,9 +111,9 @@ Valeurs fixes : `Type de lead` = `LLD PRO — Leasing société`, `Type de deman
 | Tout le dossier | `Récap dossier PRO` | texte lisible, repris dans l'email de notification |
 | Case de consentement (obligatoire) | `Consentement RGPD` | le serveur refuse le dossier sans elle |
 
-**Changer une option d'une liste = modifier `CONTACT_PRO_CONFIG.ts` ET l'option Airtable.** Sinon, `typecast` crée une nouvelle option. Les **libellés affichés** sur le site sont dans le glossaire Sanity (`contact.pro.options.*`) ; ils ne changent rien côté CRM.
+**Ajouter un choix dans Sanity = une nouvelle option créée dans Airtable** (`typecast`), au nom de sa « Valeur envoyée à Airtable » (ou de son libellé FR). Renommer un choix change ce qui est envoyé : renseigner « Valeur envoyée à Airtable » pour garder l'option existante. Si plusieurs champs visent la même colonne, le dernier champ rempli l'emporte.
 
-**Champs conditionnels vérifiés côté serveur :** un type de revenus sans « Oui », des km ou une durée sans LOA/LLD, une date avec « en cours de création » sont ignorés et jamais écrits. Le dossier n'est pas refusé pour autant (on ne perd pas un lead à cause d'un bug du site).
+**Champs conditionnels vérifiés côté serveur :** l'API rejoue les conditions « Afficher seulement si… » de la config publiée ; la réponse d'un champ masqué est ignorée et jamais écrite. Le dossier n'est pas refusé pour autant (on ne perd pas un lead à cause d'un bug du site).
 
 ---
 

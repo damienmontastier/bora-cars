@@ -4,8 +4,19 @@ import { pickLocalized } from '../../lib/preview'
 import { requireAllLanguages } from '../../lib/i18nValidation'
 import { GROUPS } from '../constants'
 import { seoType } from '../objects/seo'
+import { validateProSteps } from '../objects/proForm'
 
 const TITLE = 'Contact'
+
+function i18nString(name: string, title: string, description?: string, required = true) {
+  return defineField({
+    name,
+    title,
+    type: 'internationalizedArrayString',
+    description,
+    validation: required ? Rule => requireAllLanguages(Rule) : undefined,
+  })
+}
 
 function linkCardField(name: string, title: string, description: string) {
   return defineField({
@@ -52,6 +63,21 @@ export const contactType = defineType({
     },
   ],
   fields: [
+    defineField({
+      name: 'profileSwitch',
+      title: 'Onglets du formulaire',
+      type: 'object',
+      group: 'editorial',
+      description: 'Les deux gros boutons en haut du formulaire, pour passer de « Demande générale » à « Leasing professionnel ».',
+      options: { collapsible: true, collapsed: true },
+      fields: [
+        i18nString('label', 'Intitulé pour les lecteurs d’écran', 'Non affiché, lu par les logiciels pour malvoyants (ex. « Type de demande »).'),
+        i18nString('generalTitle', 'Demande générale — titre'),
+        i18nString('generalSubtitle', 'Demande générale — sous-titre', undefined, false),
+        i18nString('proTitle', 'Leasing professionnel — titre'),
+        i18nString('proSubtitle', 'Leasing professionnel — sous-titre', undefined, false),
+      ],
+    }),
     defineField({
       name: 'heading',
       title: 'Titre',
@@ -102,7 +128,7 @@ export const contactType = defineType({
       title: 'Texte d’accueil',
       type: 'object',
       group: 'pro',
-      description: 'Colonne de gauche de la page quand l’onglet « Leasing professionnel » est ouvert. Les textes du formulaire lui-même (étapes, questions, choix, boutons, messages d’erreur, case de consentement) sont dans le Glossaire, onglet « Contact », clés « pro.… » et « profile.… ».',
+      description: 'Colonne de gauche de la page quand l’onglet « Leasing professionnel » est ouvert.',
       options: { collapsible: true, collapsed: false },
       fields: [
         defineField({
@@ -122,6 +148,52 @@ export const contactType = defineType({
           title: 'Texte',
           type: 'internationalizedArrayText',
           description: 'Paragraphe sous l’accroche (déroulé et délai de réponse).',
+        }),
+      ],
+    }),
+    defineField({
+      name: 'proForm',
+      title: 'Formulaire',
+      type: 'object',
+      group: 'pro',
+      description: 'Étapes, questions, choix et textes du formulaire « Leasing professionnel ». Ajouter une étape ou un champ : bouton « Ajouter » en bas de la liste. Prénom, nom, téléphone, email et consentement sont verrouillés (indispensables au CRM) : on peut les déplacer et les reformuler, pas les retirer.',
+      options: { collapsible: true, collapsed: false },
+      fields: [
+        defineField({
+          name: 'steps',
+          title: 'Étapes',
+          type: 'array',
+          description: 'Une étape = un onglet (A, B, C…). La lettre suit l’ordre des étapes.',
+          of: [defineArrayMember({ type: 'proFormStep' })],
+          validation: Rule => Rule.min(1).custom(steps => validateProSteps(steps as any)),
+        }),
+        defineField({
+          name: 'labels',
+          title: 'Textes communs',
+          type: 'object',
+          options: { collapsible: true, collapsed: true },
+          fields: [
+            i18nString('stepsLabel', 'Intitulé de la barre des étapes', 'Non affiché, lu par les logiciels pour malvoyants (ex. « Étapes du dossier »).'),
+            i18nString('stepCounter', 'Compteur d’étapes', 'Écrivez {current} et {total} là où doivent apparaître les numéros (ex. « Étape {current} / {total} »).'),
+            i18nString('start', 'Bouton de la 1re étape', 'Ex. « Commencer ».'),
+            i18nString('next', 'Bouton « suivant »', 'Ex. « Continuer ».'),
+            i18nString('back', 'Bouton « précédent »'),
+            i18nString('submit', 'Bouton d’envoi (dernière étape)', 'Ex. « Envoyer mon dossier ».'),
+            i18nString('yes', 'Réponse « Oui »', 'Utilisé par les questions Oui / Non.'),
+            i18nString('no', 'Réponse « Non »'),
+            i18nString('requiredError', 'Message d’erreur par défaut', 'Affiché sous une question obligatoire sans réponse, si elle n’a pas son propre message.'),
+            defineField({
+              name: 'note',
+              title: 'Mention sous les boutons',
+              type: 'internationalizedArrayText',
+            }),
+            defineField({
+              name: 'sendError',
+              title: 'Message si l’envoi échoue',
+              type: 'internationalizedArrayText',
+              validation: Rule => requireAllLanguages(Rule),
+            }),
+          ],
         }),
       ],
     }),

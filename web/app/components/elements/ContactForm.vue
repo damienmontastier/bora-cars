@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import type { ContactProfile } from '~/config/CONTACT_PRO_CONFIG'
-import type { ContactSubjectOption } from '~/queries/contact'
+import type { ContactProfile, ProFormData } from '~/config/CONTACT_PRO_CONFIG'
+import type { ContactProfileSwitchData, ContactSubjectOption } from '~/queries/contact'
 import gsap from 'gsap'
 import { useLenis } from 'lenis/vue'
 import { CONTACT_PROFILES } from '~/config/CONTACT_PRO_CONFIG'
@@ -8,11 +8,15 @@ import { CONTACT_PROFILES } from '~/config/CONTACT_PRO_CONFIG'
 interface Props {
   subjectOptions?: ContactSubjectOption[] | null
   submitLabel?: string | null
+  profileSwitch?: ContactProfileSwitchData | null
+  proForm?: ProFormData | null
 }
 
-withDefaults(defineProps<Props>(), {
+const props = withDefaults(defineProps<Props>(), {
   subjectOptions: () => [],
   submitLabel: null,
+  profileSwitch: null,
+  proForm: null,
 })
 
 const emit = defineEmits<{
@@ -22,19 +26,19 @@ const emit = defineEmits<{
 const profile = defineModel<ContactProfile>('profile', { default: 'general' })
 const proStep = defineModel<number>('proStep', { default: 0 })
 
-const { t } = useI18n()
-
 const { website } = provideContactForm({
   onSuccess: (sent, body) => {
-    if (sent === 'pro')
-      emit('proSuccess', typeof body.firstName === 'string' ? body.firstName.trim() : '')
+    if (sent === 'pro') {
+      const firstName = (body.answers as Record<string, unknown> | undefined)?.firstName
+      emit('proSuccess', typeof firstName === 'string' ? firstName.trim() : '')
+    }
   },
 })
 
 const profileOptions = computed(() => CONTACT_PROFILES.map(value => ({
   value,
-  title: t(`contact.profile.${value}.title`),
-  subtitle: t(`contact.profile.${value}.subtitle`),
+  title: props.profileSwitch?.[`${value}Title`] ?? '',
+  subtitle: props.profileSwitch?.[`${value}Subtitle`] ?? undefined,
 })))
 
 const generalRef = ref<{ submit: () => void } | null>(null)
@@ -152,7 +156,7 @@ function onSubmit() {
     <AtomsProfileSwitch
       v-model="profile"
       :options="profileOptions"
-      :aria-label="t('contact.profile.label')"
+      :aria-label="profileSwitch?.label ?? undefined"
     />
 
     <div class="app-elements-contact-form__honeypot" aria-hidden="true">
@@ -179,6 +183,7 @@ function onSubmit() {
         v-show="shown === 'pro'"
         ref="proRef"
         v-model:step="proStep"
+        :form="proForm"
         data-contact-panel="pro"
       />
     </div>

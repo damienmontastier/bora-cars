@@ -76,6 +76,8 @@ function onProSuccess(firstName: string) {
             v-model:pro-step="proStep"
             :subject-options="page?.subjectOptions"
             :submit-label="page?.submitLabel"
+            :profile-switch="page?.profileSwitch"
+            :pro-form="page?.proForm"
             @pro-success="onProSuccess"
           />
         </div>

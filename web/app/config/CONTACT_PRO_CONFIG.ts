@@ -1,115 +1,3 @@
-export interface ProOption<V extends string = string> {
-  value: V
-  airtable: string
-}
-
-export const PRO_LEGAL_FORMS = [
-  { value: 'micro', airtable: 'Auto-entrepreneur / Micro-entreprise' },
-  { value: 'ei', airtable: 'Entreprise individuelle (EI)' },
-  { value: 'eirl', airtable: 'EIRL' },
-  { value: 'eurl', airtable: 'EURL' },
-  { value: 'sarl', airtable: 'SARL' },
-  { value: 'sasu', airtable: 'SASU' },
-  { value: 'sas', airtable: 'SAS' },
-  { value: 'sa', airtable: 'SA' },
-  { value: 'association', airtable: 'Association' },
-  { value: 'autre', airtable: 'Autre' },
-] as const satisfies readonly ProOption[]
-
-export const PRO_REVENUES = [
-  { value: 'upTo50k', airtable: 'Entre 0 et 50 000 €' },
-  { value: 'from50kTo100k', airtable: 'Entre 50 000 et 100 000 €' },
-  { value: 'from100kTo500k', airtable: 'Entre 100 000 et 500 000 €' },
-  { value: 'over500k', airtable: 'Plus de 500 000 €' },
-] as const satisfies readonly ProOption[]
-
-export const PRO_BALANCE_SHEETS = [
-  { value: 'none', airtable: '0' },
-  { value: 'one', airtable: '1' },
-  { value: 'two', airtable: '2' },
-  { value: 'threePlus', airtable: '3 et +' },
-] as const satisfies readonly ProOption[]
-
-export const PRO_YES_NO = [
-  { value: 'yes', airtable: 'Oui' },
-  { value: 'no', airtable: 'Non' },
-] as const satisfies readonly ProOption[]
-
-export const PRO_INCOME_NONE = 'Non'
-
-export const PRO_INCOME_TYPES = [
-  { value: 'cdi', airtable: 'CDI' },
-  { value: 'cdd', airtable: 'CDD' },
-  { value: 'interim', airtable: 'Intérim' },
-  { value: 'independent', airtable: 'Indépendant' },
-] as const satisfies readonly ProOption[]
-
-export const PRO_DEPOSITS = [
-  { value: 'under5k', airtable: 'Moins de 5 000 €' },
-  { value: 'over5k', airtable: 'Plus de 5 000 €' },
-  { value: 'none', airtable: 'Aucun' },
-] as const satisfies readonly ProOption[]
-
-export const PRO_USAGES = [
-  { value: 'personal', airtable: 'Usage personnel (pour ma société)' },
-  { value: 'sublet', airtable: 'Sous-location' },
-  { value: 'both', airtable: 'Les deux' },
-] as const satisfies readonly ProOption[]
-
-export const PRO_USAGES_WITH_DOCS_HINT: readonly string[] = ['personal', 'both']
-
-export const PRO_FINANCINGS = [
-  { value: 'loa', airtable: 'LOA' },
-  { value: 'lld', airtable: 'LLD' },
-] as const satisfies readonly ProOption[]
-
-export const PRO_DURATIONS = [
-  { value: 'y3', months: 36 },
-  { value: 'y4', months: 48 },
-  { value: 'y5plus', months: 60 },
-] as const
-
-export const PRO_TIMELINES = [
-  { value: 'urgent', airtable: 'Urgent' },
-  { value: 'withinMonth', airtable: 'Sous 1 mois' },
-  { value: 'flexible', airtable: 'Flexible' },
-] as const satisfies readonly ProOption[]
-
-export const PRO_DOCUMENTS = [
-  { value: 'kbis', airtable: 'Extrait KBIS (de moins de 3 mois)' },
-  { value: 'bankStatements', airtable: 'Relevés de compte professionnel (12 derniers mois)' },
-  { value: 'id', airtable: 'Pièce d\'identité' },
-  { value: 'license', airtable: 'Permis de conduire' },
-  { value: 'lease', airtable: 'Bail commercial' },
-  { value: 'balanceSheet', airtable: 'Dernier bilan comptable' },
-  { value: 'socialProof', airtable: 'Preuve sociale ou supports digitaux (site internet, réseaux sociaux…)' },
-] as const satisfies readonly ProOption[]
-
-export const PRO_DOCUMENTS_WITH_HINT: readonly string[] = ['socialProof']
-
-export const PRO_CREATION_FIRST_YEAR = 1980
-
-export const PRO_STEPS = [
-  { id: 'a', letter: 'A' },
-  { id: 'b', letter: 'B' },
-  { id: 'c', letter: 'C' },
-  { id: 'd', letter: 'D' },
-  { id: 'e', letter: 'E' },
-] as const
-
-export type ProStepId = typeof PRO_STEPS[number]['id']
-export type ProLegalForm = typeof PRO_LEGAL_FORMS[number]['value']
-export type ProRevenue = typeof PRO_REVENUES[number]['value']
-export type ProBalanceSheets = typeof PRO_BALANCE_SHEETS[number]['value']
-export type ProYesNo = typeof PRO_YES_NO[number]['value']
-export type ProIncomeType = typeof PRO_INCOME_TYPES[number]['value']
-export type ProDeposit = typeof PRO_DEPOSITS[number]['value']
-export type ProUsage = typeof PRO_USAGES[number]['value']
-export type ProFinancing = typeof PRO_FINANCINGS[number]['value']
-export type ProDuration = typeof PRO_DURATIONS[number]['value']
-export type ProTimeline = typeof PRO_TIMELINES[number]['value']
-export type ProDocument = typeof PRO_DOCUMENTS[number]['value']
-
 export const CONTACT_PROFILES = ['general', 'pro'] as const
 export type ContactProfile = typeof CONTACT_PROFILES[number]
 
@@ -119,42 +7,255 @@ export const CONTACT_MAX_LENGTH = {
   name: 100,
   email: 254,
   phone: 40,
-  city: 100,
-  company: 200,
-  activity: 200,
-  short: 100,
-  models: 300,
+  proText: 300,
+  proNumber: 100,
   message: 10000,
 } as const
 
-export interface ProLeadPayload {
-  firstName: string
-  lastName: string
-  city: string
-  phone: string
-  email: string
-  company: string
-  legalForm: ProLegalForm | ''
-  creationPending: boolean
-  creationMonth: string
-  creationYear: string
-  activity: string
-  revenue: ProRevenue | ''
-  balanceSheets: ProBalanceSheets | ''
-  hasIncome: ProYesNo | ''
-  incomeType: ProIncomeType | ''
-  deposit: ProDeposit | ''
-  leaseRefused: ProYesNo | ''
-  usage: ProUsage | ''
-  financing: ProFinancing | ''
-  mileage: string
-  duration: ProDuration | ''
-  wantsAdvice: boolean
-  models: string
-  vehicleCount: string
-  budget: string
-  timeline: ProTimeline | ''
-  documents: ProDocument[]
-  message: string
-  consent: boolean
+export const PRO_MAX_ANSWERS = 200
+
+export const PRO_IDENTITY_ROLES = ['firstName', 'lastName', 'phone', 'email'] as const
+export type ProIdentityRole = typeof PRO_IDENTITY_ROLES[number]
+
+export const PRO_CONSENT_KEY = 'consent'
+
+export interface ProFieldCondition {
+  field: string | null
+  values: string[] | null
+}
+
+interface ProFieldBase {
+  _key: string
+  label: string | null
+  required: boolean | null
+  errorMessage: string | null
+  width: 'full' | 'half' | null
+  showIf: ProFieldCondition | null
+  airtableColumn?: string | null
+}
+
+export interface ProFieldOption {
+  _key: string
+  label: string | null
+  description: string | null
+  crmValue?: string | null
+}
+
+export interface ProFieldIdentity extends ProFieldBase {
+  _type: 'proFieldIdentity'
+  role: ProIdentityRole
+  placeholder: string | null
+}
+
+export interface ProFieldConsent extends ProFieldBase {
+  _type: 'proFieldConsent'
+  before: string | null
+  linkLabel: string | null
+  after: string | null
+}
+
+export interface ProFieldText extends ProFieldBase {
+  _type: 'proFieldText'
+  placeholder: string | null
+  format: 'text' | 'number' | null
+  defaultValue: string | null
+}
+
+export interface ProFieldTextarea extends ProFieldBase {
+  _type: 'proFieldTextarea'
+  placeholder: string | null
+}
+
+export interface ProFieldChoice extends ProFieldBase {
+  _type: 'proFieldChoice'
+  display: 'select' | 'list' | 'row' | null
+  multiple: boolean | null
+  options: ProFieldOption[] | null
+}
+
+export interface ProFieldYesNo extends ProFieldBase {
+  _type: 'proFieldYesNo'
+  airtableFormat?: 'checkbox' | 'text' | null
+}
+
+export interface ProFieldCheckbox extends ProFieldBase {
+  _type: 'proFieldCheckbox'
+}
+
+export interface ProFieldMonthYear extends ProFieldBase {
+  _type: 'proFieldMonthYear'
+  monthLabel: string | null
+  yearLabel: string | null
+  firstYear: number | null
+  pendingLabel: string | null
+  pendingCrmValue?: string | null
+}
+
+export interface ProFieldNote extends ProFieldBase {
+  _type: 'proFieldNote'
+  text: string | null
+}
+
+export type ProFieldData
+  = | ProFieldIdentity
+    | ProFieldConsent
+    | ProFieldText
+    | ProFieldTextarea
+    | ProFieldChoice
+    | ProFieldYesNo
+    | ProFieldCheckbox
+    | ProFieldMonthYear
+    | ProFieldNote
+
+export type ProInputField = Exclude<ProFieldData, ProFieldNote>
+
+export interface ProFormStepData {
+  _key: string
+  tab: string | null
+  title: string | null
+  subtitle: string | null
+  fields: ProFieldData[] | null
+}
+
+export interface ProFormLabels {
+  stepsLabel: string | null
+  stepCounter: string | null
+  start: string | null
+  next: string | null
+  back: string | null
+  submit: string | null
+  yes: string | null
+  no: string | null
+  requiredError: string | null
+  note: string | null
+  sendError: string | null
+}
+
+export interface ProFormData {
+  steps: ProFormStepData[] | null
+  labels: ProFormLabels | null
+}
+
+export interface ProMonthYearAnswer {
+  month: string
+  year: string
+  pending: boolean
+}
+
+export type ProAnswer = string | string[] | boolean | ProMonthYearAnswer
+export type ProAnswers = Record<string, ProAnswer>
+
+export const PRO_YES = 'yes'
+export const PRO_NO = 'no'
+export const PRO_CHECKED = 'checked'
+
+export const PRO_FIELD_TYPES = [
+  'proFieldIdentity',
+  'proFieldConsent',
+  'proFieldText',
+  'proFieldTextarea',
+  'proFieldChoice',
+  'proFieldYesNo',
+  'proFieldCheckbox',
+  'proFieldMonthYear',
+  'proFieldNote',
+] as const satisfies readonly ProFieldData['_type'][]
+
+export function isProInputField(field: ProFieldData): field is ProInputField {
+  return field._type !== 'proFieldNote'
+}
+
+export function proStepLetter(index: number) {
+  return String.fromCharCode(65 + index)
+}
+
+export function proFormFields(form: ProFormData | null | undefined): ProFieldData[] {
+  return (form?.steps ?? []).flatMap(step => (step.fields ?? []).filter(f => PRO_FIELD_TYPES.includes(f._type)))
+}
+
+export function proAnswerKey(field: ProFieldData) {
+  if (field._type === 'proFieldIdentity')
+    return field.role
+  if (field._type === 'proFieldConsent')
+    return PRO_CONSENT_KEY
+  return field._key
+}
+
+export function isProFieldRequired(field: ProInputField) {
+  if (field._type === 'proFieldConsent')
+    return true
+  if (field._type === 'proFieldIdentity')
+    return field.role !== 'email' || !!field.required
+  if (field._type === 'proFieldCheckbox')
+    return false
+  return !!field.required
+}
+
+export function emptyProAnswer(field: ProInputField): ProAnswer {
+  switch (field._type) {
+    case 'proFieldConsent':
+    case 'proFieldCheckbox':
+      return false
+    case 'proFieldChoice':
+      return field.multiple ? [] : ''
+    case 'proFieldMonthYear':
+      return { month: '', year: '', pending: false }
+    case 'proFieldText':
+      return field.defaultValue?.trim() ?? ''
+    default:
+      return ''
+  }
+}
+
+export function isProAnswerFilled(field: ProInputField, value: unknown): boolean {
+  switch (field._type) {
+    case 'proFieldConsent':
+    case 'proFieldCheckbox':
+      return value === true
+    case 'proFieldChoice':
+      return field.multiple ? Array.isArray(value) && value.length > 0 : typeof value === 'string' && !!value
+    case 'proFieldMonthYear': {
+      const v = value as Partial<ProMonthYearAnswer> | undefined
+      return !!v && (v.pending === true || (!!v.month && !!v.year))
+    }
+    default:
+      return typeof value === 'string' && !!value.trim()
+  }
+}
+
+function conditionMet(source: ProFieldData, value: unknown, values: string[]) {
+  switch (source._type) {
+    case 'proFieldCheckbox':
+      return value === true && values.includes(PRO_CHECKED)
+    case 'proFieldChoice':
+      return Array.isArray(value) ? value.some(v => values.includes(v)) : typeof value === 'string' && values.includes(value)
+    case 'proFieldYesNo':
+      return typeof value === 'string' && values.includes(value)
+    default:
+      return false
+  }
+}
+
+export function isProFieldVisible(
+  field: ProFieldData,
+  byKey: Map<string, ProFieldData>,
+  answers: Record<string, unknown>,
+  seen: Set<string> = new Set(),
+): boolean {
+  if (field._type === 'proFieldIdentity' || field._type === 'proFieldConsent')
+    return true
+  const sourceKey = field.showIf?.field
+  if (!sourceKey)
+    return true
+  const source = byKey.get(sourceKey)
+  if (!source || seen.has(field._key))
+    return true
+  seen.add(field._key)
+  if (!isProFieldVisible(source, byKey, answers, seen))
+    return false
+  return conditionMet(source, answers[proAnswerKey(source)], field.showIf?.values ?? [])
+}
+
+export function proFieldsByKey(fields: ProFieldData[]) {
+  return new Map(fields.map(f => [f._key, f]))
 }

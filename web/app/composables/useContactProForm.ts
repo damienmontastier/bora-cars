@@ -1,147 +1,120 @@
-import type { ProLeadPayload, ProStepId } from '~/config/CONTACT_PRO_CONFIG'
+import type { Ref } from 'vue'
+import type { ProAnswers, ProFieldData, ProFormData, ProFormStepData, ProInputField } from '~/config/CONTACT_PRO_CONFIG'
 import { createInjectionState } from '@vueuse/core'
-import { PRO_USAGES_WITH_DOCS_HINT } from '~/config/CONTACT_PRO_CONFIG'
+import {
+  emptyProAnswer,
+  isProAnswerFilled,
+  isProFieldRequired,
+  isProFieldVisible,
+  isProInputField,
+  PRO_FIELD_TYPES,
+  proAnswerKey,
+  proFieldsByKey,
+} from '~/config/CONTACT_PRO_CONFIG'
 
-export type ProField = keyof ProLeadPayload
-
-const STEP_FIELDS: Record<ProStepId, ProField[]> = {
-  a: ['firstName', 'lastName', 'city', 'phone', 'email', 'company'],
-  b: ['legalForm', 'activity', 'revenue'],
-  c: ['deposit'],
-  d: ['usage'],
-  e: ['consent'],
+export interface ProStep extends Omit<ProFormStepData, 'fields'> {
+  fields: ProFieldData[]
 }
 
-function emptyForm(): ProLeadPayload {
-  return {
-    firstName: '',
-    lastName: '',
-    city: '',
-    phone: '',
-    email: '',
-    company: '',
-    legalForm: '',
-    creationPending: false,
-    creationMonth: '',
-    creationYear: '',
-    activity: '',
-    revenue: '',
-    balanceSheets: '',
-    hasIncome: '',
-    incomeType: '',
-    deposit: '',
-    leaseRefused: '',
-    usage: '',
-    financing: '',
-    mileage: '',
-    duration: '',
-    wantsAdvice: false,
-    models: '',
-    vehicleCount: '1',
-    budget: '',
-    timeline: '',
-    documents: [],
-    message: '',
-    consent: false,
-  }
-}
+const [provideState, injectState] = createInjectionState((config: Ref<ProFormData | null | undefined>) => {
+  const steps = computed<ProStep[]>(() => (config.value?.steps ?? []).map(step => ({
+    ...step,
+    fields: (step.fields ?? []).filter(f => PRO_FIELD_TYPES.includes(f._type)),
+  })))
+  const fields = computed(() => steps.value.flatMap(s => s.fields))
+  const inputFields = computed(() => fields.value.filter(isProInputField))
+  const byKey = computed(() => proFieldsByKey(fields.value))
+  const labels = computed(() => config.value?.labels ?? null)
 
-const [provideState, injectState] = createInjectionState(() => {
-  const { t, tm } = useI18n()
+  const answers = reactive<ProAnswers>({})
+  const errors = reactive<Record<string, string | null>>({})
+  const attempted = reactive(new Set<string>())
 
-  function options(list: string, values: readonly { value: string }[], hints: readonly string[] = []) {
-    return values.map(o => ({
-      value: o.value,
-      label: t(`contact.pro.options.${list}.${o.value}`),
-      description: hints.includes(o.value) ? t(`contact.pro.options.${list}.${o.value}Hint`) : undefined,
-    }))
-  }
-
-  const rawMessage = tm as unknown as (key: string) => unknown
-  function placeholder(field: ProField): string | undefined {
-    const raw = rawMessage(`contact.pro.placeholders.${field}`)
-    return typeof raw === 'string' && raw ? raw : undefined
-  }
-
-  const form = reactive<ProLeadPayload>(emptyForm())
-  const errors = reactive<Partial<Record<ProField, string>>>({})
-  const attempted = reactive(new Set<ProStepId>())
-
-  function check(field: ProField): string {
-    const msg = () => t(`contact.pro.errors.${field}`)
-    switch (field) {
-      case 'phone':
-        return form.phone.replace(/\D/g, '').length >= 8 ? '' : msg()
-      case 'email':
-        return !form.email.trim() || isValidEmail(form.email.trim()) ? '' : msg()
-      case 'consent':
-        return form.consent ? '' : msg()
-      default: {
-        const value = form[field]
-        return typeof value === 'string' && value.trim() ? '' : msg()
-      }
+  watch(inputFields, (list) => {
+    for (const field of list) {
+      const key = proAnswerKey(field)
+      if (!(key in answers))
+        answers[key] = emptyProAnswer(field)
     }
+  }, { immediate: true })
+
+  function visible(field: ProFieldData) {
+    return isProFieldVisible(field, byKey.value, answers)
   }
 
-  function validateStep(step: ProStepId): ProField[] {
-    attempted.add(step)
-    const invalid: ProField[] = []
-    for (const field of STEP_FIELDS[step]) {
+  function check(field: ProInputField): string | null {
+    if (!visible(field))
+      return null
+    const value = answers[proAnswerKey(field)]
+    const message = field.errorMessage || labels.value?.requiredError || ''
+    if (field._type === 'proFieldIdentity') {
+      const text = typeof value === 'string' ? value.trim() : ''
+      if (field.role === 'phone')
+        return text.replace(/\D/g, '').length >= 8 ? null : message
+      if (field.role === 'email' && text)
+        return isValidEmail(text) ? null : message
+    }
+    return isProFieldRequired(field) && !isProAnswerFilled(field, value) ? message : null
+  }
+
+  function stepFields(stepKey: string) {
+    return (steps.value.find(s => s._key === stepKey)?.fields ?? []).filter(isProInputField)
+  }
+
+  function validateStep(stepKey: string): ProInputField[] {
+    attempted.add(stepKey)
+    const invalid: ProInputField[] = []
+    for (const field of stepFields(stepKey)) {
       const message = check(field)
-      errors[field] = message
-      if (message)
+      errors[proAnswerKey(field)] = message
+      if (message !== null)
         invalid.push(field)
     }
     return invalid
   }
 
-  function isStepValid(step: ProStepId) {
-    return STEP_FIELDS[step].every(field => !check(field))
+  function isStepValid(stepKey: string) {
+    return stepFields(stepKey).every(field => check(field) === null)
   }
 
-  watch(form, () => {
-    for (const step of attempted) {
-      for (const field of STEP_FIELDS[step])
-        errors[field] = check(field)
+  watch(answers, () => {
+    for (const stepKey of attempted) {
+      for (const field of stepFields(stepKey))
+        errors[proAnswerKey(field)] = check(field)
     }
   }, { deep: true })
 
-  watch(() => form.hasIncome, (value) => {
-    if (value !== 'yes')
-      form.incomeType = ''
-  })
-  watch(() => form.creationPending, (pending) => {
-    if (pending) {
-      form.creationMonth = ''
-      form.creationYear = ''
+  const visibility = computed(() => inputFields.value.map(field => [field, visible(field)] as const))
+  watch(visibility, (next, prev) => {
+    const wasVisible = new Map(prev?.map(([field, shown]) => [field._key, shown]))
+    for (const [field, shown] of next) {
+      if (!shown && wasVisible.get(field._key))
+        answers[proAnswerKey(field)] = emptyProAnswer(field)
     }
   })
-  watch(() => form.financing, (value) => {
-    if (!value) {
-      form.mileage = ''
-      form.duration = ''
+
+  function toPayload() {
+    const sent: ProAnswers = {}
+    const questions: Record<string, string> = {}
+    for (const field of inputFields.value) {
+      if (!visible(field))
+        continue
+      const key = proAnswerKey(field)
+      const value = answers[key]!
+      sent[key] = typeof value === 'string'
+        ? value.trim()
+        : Array.isArray(value) ? [...value] : typeof value === 'object' ? { ...value } : value
+      if (field.label)
+        questions[key] = field.label
     }
-  })
-  watch(() => form.vehicleCount, (value) => {
-    const digits = value.replace(/\D/g, '')
-    if (digits !== value)
-      form.vehicleCount = digits
-  })
-
-  const showDocumentsHint = computed(() => PRO_USAGES_WITH_DOCS_HINT.includes(form.usage))
-
-  function toPayload(): ProLeadPayload {
-    const trimmed = Object.fromEntries(
-      Object.entries(form).map(([k, v]) => [k, typeof v === 'string' ? v.trim() : v]),
-    ) as unknown as ProLeadPayload
-    return { ...trimmed, documents: [...form.documents] }
+    return { answers: sent, questions }
   }
 
-  return { form, errors, validateStep, isStepValid, showDocumentsHint, toPayload, options, placeholder }
+  return { steps, labels, answers, errors, visible, validateStep, isStepValid, toPayload }
 })
 
-export function provideContactProForm() {
-  return provideState()
+export function provideContactProForm(config: Ref<ProFormData | null | undefined>) {
+  return provideState(config)
 }
 
 export function useContactProForm() {

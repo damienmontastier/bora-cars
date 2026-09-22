@@ -1,34 +1,51 @@
 <script setup lang="ts">
+import type { ProFormData } from '~/config/CONTACT_PRO_CONFIG'
 import { useLenis } from 'lenis/vue'
-import { PRO_STEPS } from '~/config/CONTACT_PRO_CONFIG'
+import { proStepLetter } from '~/config/CONTACT_PRO_CONFIG'
+
+const props = defineProps<{
+  form?: ProFormData | null
+}>()
 
 const step = defineModel<number>('step', { default: 0 })
 
 const { t } = useI18n()
 const contact = useContactForm()
-const pro = provideContactProForm()
+const pro = provideContactProForm(toRef(props, 'form'))
 const lenis = useLenis()
 
 const rootRef = ref<HTMLElement | null>(null)
 
-const current = computed(() => PRO_STEPS[step.value]!)
-const isLast = computed(() => step.value === PRO_STEPS.length - 1)
+const labels = computed(() => pro.labels.value)
+const total = computed(() => pro.steps.value.length)
+const current = computed(() => pro.steps.value[Math.min(step.value, total.value - 1)])
+const isLast = computed(() => step.value >= total.value - 1)
 const submitting = computed(() => contact.isSubmitting('pro'))
 const status = computed(() => contact.status.pro)
 
-const steps = computed(() => PRO_STEPS.map(s => ({
-  letter: s.letter,
-  label: t(`contact.pro.steps.${s.id}.tab`),
+const steps = computed(() => pro.steps.value.map((s, i) => ({
+  letter: proStepLetter(i),
+  label: s.tab ?? '',
 })))
 
-const meta = computed(() => `${t('contact.pro.stepCounter', { current: step.value + 1, total: PRO_STEPS.length })} · ${steps.value[step.value]!.label}`)
+const meta = computed(() => {
+  const counter = (labels.value?.stepCounter ?? '')
+    .replaceAll('{current}', String(step.value + 1))
+    .replaceAll('{total}', String(total.value))
+  return [counter, steps.value[step.value]?.label].filter(Boolean).join(' · ')
+})
 
 const nextLabel = computed(() => {
   if (submitting.value)
     return t('contact.form.status.submitting')
   if (isLast.value)
-    return t('contact.pro.actions.submit')
-  return step.value === 0 ? t('contact.pro.actions.start') : t('contact.pro.actions.next')
+    return labels.value?.submit ?? ''
+  return (step.value === 0 ? labels.value?.start : labels.value?.next) ?? ''
+})
+
+watch(total, (count) => {
+  if (count && step.value > count - 1)
+    step.value = count - 1
 })
 
 function scrollToForm() {
@@ -80,7 +97,7 @@ function focusFirstField() {
 }
 
 function goTo(index: number, keepErrors = false) {
-  if (index === step.value || index < 0 || index >= PRO_STEPS.length)
+  if (index === step.value || index < 0 || index >= total.value)
     return
   if (!keepErrors)
     contact.clearValidation('pro')
@@ -93,7 +110,7 @@ function back() {
 }
 
 async function submit() {
-  if (submitting.value)
+  if (submitting.value || !total.value)
     return
 
   if (!isLast.value) {
@@ -101,10 +118,10 @@ async function submit() {
     return
   }
 
-  const firstInvalidStep = PRO_STEPS.findIndex(s => !pro.isStepValid(s.id))
+  const firstInvalidStep = pro.steps.value.findIndex(s => !pro.isStepValid(s._key))
   if (firstInvalidStep >= 0) {
-    const invalid = pro.validateStep(PRO_STEPS[firstInvalidStep]!.id)
-    contact.fail('pro', invalid, t('contact.form.errors.summary'))
+    const invalid = pro.validateStep(pro.steps.value[firstInvalidStep]!._key)
+    contact.fail('pro', invalid.map(f => f.label || f._type), t('contact.form.errors.summary'))
     if (firstInvalidStep === step.value) {
       await nextTick()
       focusField(firstInvalidField())
@@ -117,8 +134,8 @@ async function submit() {
   }
 
   contact.clearValidation('pro')
-  await contact.send('pro', { ...pro.toPayload() }, {
-    errorMessage: t('contact.pro.status.error'),
+  await contact.send('pro', pro.toPayload(), {
+    errorMessage: labels.value?.sendError ?? '',
   })
 }
 
@@ -132,7 +149,7 @@ function onKeydown(event: KeyboardEvent) {
   submit()
 }
 
-watch(() => pro.isStepValid(current.value.id), (valid) => {
+watch(() => current.value && pro.isStepValid(current.value._key), (valid) => {
   if (valid)
     contact.clearValidation('pro')
 })
@@ -142,67 +159,70 @@ defineExpose({ submit })
 
 <template>
   <div ref="rootRef" class="app-elements-contact-form-pro" @keydown="onKeydown">
-    <div class="app-elements-contact-form-pro__head" data-contact-cascade>
-      <AtomsStepTabs
-        :steps="steps"
-        :current="step"
-        :aria-label="t('contact.pro.steps.label')"
-        :meta="meta"
-        @select="goTo"
-      />
-      <div class="app-elements-contact-form-pro__intro" aria-live="polite">
-        <TextsP1 tag="h2" class="app-elements-contact-form-pro__title">
-          {{ t(`contact.pro.steps.${current.id}.title`) }}
-        </TextsP1>
-        <TextsP1 weight="regular" color="black-70">
-          {{ t(`contact.pro.steps.${current.id}.subtitle`) }}
-        </TextsP1>
+    <template v-if="current">
+      <div class="app-elements-contact-form-pro__head" data-contact-cascade>
+        <AtomsStepTabs
+          :steps="steps"
+          :current="step"
+          :aria-label="labels?.stepsLabel ?? undefined"
+          :meta="meta"
+          @select="goTo"
+        />
+        <div class="app-elements-contact-form-pro__intro" aria-live="polite">
+          <TextsP1 tag="h2" class="app-elements-contact-form-pro__title">
+            {{ current.title }}
+          </TextsP1>
+          <TextsP1 v-if="current.subtitle" weight="regular" color="black-70">
+            {{ current.subtitle }}
+          </TextsP1>
+        </div>
       </div>
-    </div>
 
-    <Transition name="app-contact-pro-step" mode="out-in" @after-enter="focusFirstField">
-      <ElementsContactFormProStepYou v-if="current.id === 'a'" :key="current.id" class="app-elements-contact-form-pro__step" data-contact-cascade />
-      <ElementsContactFormProStepCompany v-else-if="current.id === 'b'" :key="current.id" class="app-elements-contact-form-pro__step" data-contact-cascade />
-      <ElementsContactFormProStepSituation v-else-if="current.id === 'c'" :key="current.id" class="app-elements-contact-form-pro__step" data-contact-cascade />
-      <ElementsContactFormProStepProject v-else-if="current.id === 'd'" :key="current.id" class="app-elements-contact-form-pro__step" data-contact-cascade />
-      <ElementsContactFormProStepDocuments v-else :key="current.id" class="app-elements-contact-form-pro__step" data-contact-cascade />
-    </Transition>
+      <Transition name="app-contact-pro-step" mode="out-in" @after-enter="focusFirstField">
+        <ElementsContactFormProStep
+          :key="current._key"
+          :fields="current.fields"
+          class="app-elements-contact-form-pro__step"
+          data-contact-cascade
+        />
+      </Transition>
 
-    <AtomsHelpNote
-      v-if="status.state === 'error' && status.message"
-      tone="error"
-      role="alert"
-    >
-      {{ status.message }}
-    </AtomsHelpNote>
-
-    <div class="app-elements-contact-form-pro__nav">
-      <button
-        v-if="step > 0"
-        type="button"
-        class="app-elements-contact-form-pro__button app-elements-contact-form-pro__button--back"
-        :disabled="submitting"
-        @click="back"
+      <AtomsHelpNote
+        v-if="status.state === 'error' && status.message"
+        tone="error"
+        role="alert"
       >
-        <TextsCTA :selectable="false" color="black-100">
-          {{ t('contact.pro.actions.back') }}
-        </TextsCTA>
-      </button>
-      <button
-        type="submit"
-        class="app-elements-contact-form-pro__button"
-        :disabled="submitting"
-        :aria-busy="submitting || undefined"
-      >
-        <TextsCTA :selectable="false" color="beige-100">
-          {{ nextLabel }}
-        </TextsCTA>
-      </button>
-    </div>
+        {{ status.message }}
+      </AtomsHelpNote>
 
-    <p class="app-elements-contact-form-pro__note">
-      {{ t('contact.pro.note') }}
-    </p>
+      <div class="app-elements-contact-form-pro__nav">
+        <button
+          v-if="step > 0"
+          type="button"
+          class="app-elements-contact-form-pro__button app-elements-contact-form-pro__button--back"
+          :disabled="submitting"
+          @click="back"
+        >
+          <TextsCTA :selectable="false" color="black-100">
+            {{ labels?.back }}
+          </TextsCTA>
+        </button>
+        <button
+          type="submit"
+          class="app-elements-contact-form-pro__button"
+          :disabled="submitting"
+          :aria-busy="submitting || undefined"
+        >
+          <TextsCTA :selectable="false" color="beige-100">
+            {{ nextLabel }}
+          </TextsCTA>
+        </button>
+      </div>
+
+      <p v-if="labels?.note" class="app-elements-contact-form-pro__note">
+        {{ labels.note }}
+      </p>
+    </template>
   </div>
 </template>
 

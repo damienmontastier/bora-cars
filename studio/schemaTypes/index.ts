@@ -37,6 +37,18 @@ import { navLink } from './objects/navLink'
 import { processStepType } from './objects/processStep'
 import { specsLayoutType } from './objects/specsLayout'
 import { glossaryEntry } from './objects/glossaryEntry'
+import {
+  proFieldCheckboxType,
+  proFieldChoiceType,
+  proFieldConsentType,
+  proFieldIdentityType,
+  proFieldMonthYearType,
+  proFieldNoteType,
+  proFieldTextareaType,
+  proFieldTextType,
+  proFieldYesNoType,
+  proFormStepType,
+} from './objects/proForm'
 
 export const schemaTypes: SchemaTypeDefinition[] = [
   homepageType,
@@ -76,4 +88,14 @@ export const schemaTypes: SchemaTypeDefinition[] = [
   processStepType,
   specsLayoutType,
   glossaryEntry,
+  proFormStepType,
+  proFieldIdentityType,
+  proFieldConsentType,
+  proFieldTextType,
+  proFieldTextareaType,
+  proFieldChoiceType,
+  proFieldYesNoType,
+  proFieldCheckboxType,
+  proFieldMonthYearType,
+  proFieldNoteType,
 ]

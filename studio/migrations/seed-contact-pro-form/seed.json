@@ -1,0 +1,2313 @@
+{
+  "proForm": {
+    "steps": [
+      {
+        "_key": "stepA",
+        "_type": "proFormStep",
+        "tab": [
+          {
+            "_key": "fr",
+            "_type": "internationalizedArrayStringValue",
+            "language": "fr",
+            "value": "Vous"
+          },
+          {
+            "_key": "en",
+            "_type": "internationalizedArrayStringValue",
+            "language": "en",
+            "value": "You"
+          }
+        ],
+        "title": [
+          {
+            "_key": "fr",
+            "_type": "internationalizedArrayStringValue",
+            "language": "fr",
+            "value": "Faisons connaissance"
+          },
+          {
+            "_key": "en",
+            "_type": "internationalizedArrayStringValue",
+            "language": "en",
+            "value": "Let’s get to know you"
+          }
+        ],
+        "subtitle": [
+          {
+            "_key": "fr",
+            "_type": "internationalizedArrayTextValue",
+            "language": "fr",
+            "value": "On saura ainsi comment vous joindre."
+          },
+          {
+            "_key": "en",
+            "_type": "internationalizedArrayTextValue",
+            "language": "en",
+            "value": "So we know how to reach you."
+          }
+        ],
+        "fields": [
+          {
+            "_type": "proFieldIdentity",
+            "_key": "firstName",
+            "label": [
+              {
+                "_key": "fr",
+                "_type": "internationalizedArrayStringValue",
+                "language": "fr",
+                "value": "Prénom"
+              },
+              {
+                "_key": "en",
+                "_type": "internationalizedArrayStringValue",
+                "language": "en",
+                "value": "First name"
+              }
+            ],
+            "placeholder": [
+              {
+                "_key": "fr",
+                "_type": "internationalizedArrayStringValue",
+                "language": "fr",
+                "value": "Alexandre"
+              },
+              {
+                "_key": "en",
+                "_type": "internationalizedArrayStringValue",
+                "language": "en",
+                "value": "Alexandre"
+              }
+            ],
+            "role": "firstName",
+            "width": "half",
+            "errorMessage": [
+              {
+                "_key": "fr",
+                "_type": "internationalizedArrayStringValue",
+                "language": "fr",
+                "value": "Merci d’indiquer votre prénom."
+              },
+              {
+                "_key": "en",
+                "_type": "internationalizedArrayStringValue",
+                "language": "en",
+                "value": "Please enter your first name."
+              }
+            ]
+          },
+          {
+            "_type": "proFieldIdentity",
+            "_key": "lastName",
+            "label": [
+              {
+                "_key": "fr",
+                "_type": "internationalizedArrayStringValue",
+                "language": "fr",
+                "value": "Nom"
+              },
+              {
+                "_key": "en",
+                "_type": "internationalizedArrayStringValue",
+                "language": "en",
+                "value": "Last name"
+              }
+            ],
+            "placeholder": [
+              {
+                "_key": "fr",
+                "_type": "internationalizedArrayStringValue",
+                "language": "fr",
+                "value": "Durand"
+              },
+              {
+                "_key": "en",
+                "_type": "internationalizedArrayStringValue",
+                "language": "en",
+                "value": "Durand"
+              }
+            ],
+            "role": "lastName",
+            "width": "half",
+            "errorMessage": [
+              {
+                "_key": "fr",
+                "_type": "internationalizedArrayStringValue",
+                "language": "fr",
+                "value": "Merci d’indiquer votre nom."
+              },
+              {
+                "_key": "en",
+                "_type": "internationalizedArrayStringValue",
+                "language": "en",
+                "value": "Please enter your last name."
+              }
+            ]
+          },
+          {
+            "_type": "proFieldText",
+            "_key": "city",
+            "label": [
+              {
+                "_key": "fr",
+                "_type": "internationalizedArrayStringValue",
+                "language": "fr",
+                "value": "Ville"
+              },
+              {
+                "_key": "en",
+                "_type": "internationalizedArrayStringValue",
+                "language": "en",
+                "value": "City"
+              }
+            ],
+            "placeholder": [
+              {
+                "_key": "fr",
+                "_type": "internationalizedArrayStringValue",
+                "language": "fr",
+                "value": "Paris, Lyon, Bordeaux…"
+              },
+              {
+                "_key": "en",
+                "_type": "internationalizedArrayStringValue",
+                "language": "en",
+                "value": "Paris, Lyon, Bordeaux…"
+              }
+            ],
+            "format": "text",
+            "required": true,
+            "width": "full",
+            "airtableColumn": "Ville",
+            "errorMessage": [
+              {
+                "_key": "fr",
+                "_type": "internationalizedArrayStringValue",
+                "language": "fr",
+                "value": "Merci d’indiquer votre ville."
+              },
+              {
+                "_key": "en",
+                "_type": "internationalizedArrayStringValue",
+                "language": "en",
+                "value": "Please enter your city."
+              }
+            ]
+          },
+          {
+            "_type": "proFieldIdentity",
+            "_key": "phone",
+            "label": [
+              {
+                "_key": "fr",
+                "_type": "internationalizedArrayStringValue",
+                "language": "fr",
+                "value": "Téléphone WhatsApp"
+              },
+              {
+                "_key": "en",
+                "_type": "internationalizedArrayStringValue",
+                "language": "en",
+                "value": "WhatsApp number"
+              }
+            ],
+            "placeholder": [
+              {
+                "_key": "fr",
+                "_type": "internationalizedArrayStringValue",
+                "language": "fr",
+                "value": "+33 6 00 00 00 00"
+              },
+              {
+                "_key": "en",
+                "_type": "internationalizedArrayStringValue",
+                "language": "en",
+                "value": "+33 6 00 00 00 00"
+              }
+            ],
+            "role": "phone",
+            "width": "full",
+            "errorMessage": [
+              {
+                "_key": "fr",
+                "_type": "internationalizedArrayStringValue",
+                "language": "fr",
+                "value": "Merci d’indiquer un numéro valide (chiffres uniquement, au moins 8)."
+              },
+              {
+                "_key": "en",
+                "_type": "internationalizedArrayStringValue",
+                "language": "en",
+                "value": "Please enter a valid number (digits only, at least 8)."
+              }
+            ]
+          },
+          {
+            "_type": "proFieldIdentity",
+            "_key": "email",
+            "label": [
+              {
+                "_key": "fr",
+                "_type": "internationalizedArrayStringValue",
+                "language": "fr",
+                "value": "Email (facultatif)"
+              },
+              {
+                "_key": "en",
+                "_type": "internationalizedArrayStringValue",
+                "language": "en",
+                "value": "Email (optional)"
+              }
+            ],
+            "placeholder": [
+              {
+                "_key": "fr",
+                "_type": "internationalizedArrayStringValue",
+                "language": "fr",
+                "value": "vous@societe.com"
+              },
+              {
+                "_key": "en",
+                "_type": "internationalizedArrayStringValue",
+                "language": "en",
+                "value": "you@company.com"
+              }
+            ],
+            "role": "email",
+            "width": "full",
+            "errorMessage": [
+              {
+                "_key": "fr",
+                "_type": "internationalizedArrayStringValue",
+                "language": "fr",
+                "value": "Format d’email invalide."
+              },
+              {
+                "_key": "en",
+                "_type": "internationalizedArrayStringValue",
+                "language": "en",
+                "value": "Invalid email format."
+              }
+            ],
+            "required": false
+          },
+          {
+            "_type": "proFieldText",
+            "_key": "company",
+            "label": [
+              {
+                "_key": "fr",
+                "_type": "internationalizedArrayStringValue",
+                "language": "fr",
+                "value": "Nom de la société"
+              },
+              {
+                "_key": "en",
+                "_type": "internationalizedArrayStringValue",
+                "language": "en",
+                "value": "Company name"
+              }
+            ],
+            "placeholder": [
+              {
+                "_key": "fr",
+                "_type": "internationalizedArrayStringValue",
+                "language": "fr",
+                "value": "Votre société"
+              },
+              {
+                "_key": "en",
+                "_type": "internationalizedArrayStringValue",
+                "language": "en",
+                "value": "Your company"
+              }
+            ],
+            "format": "text",
+            "required": true,
+            "width": "full",
+            "airtableColumn": "Société",
+            "errorMessage": [
+              {
+                "_key": "fr",
+                "_type": "internationalizedArrayStringValue",
+                "language": "fr",
+                "value": "Merci d’indiquer le nom de votre société."
+              },
+              {
+                "_key": "en",
+                "_type": "internationalizedArrayStringValue",
+                "language": "en",
+                "value": "Please enter your company name."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "_key": "stepB",
+        "_type": "proFormStep",
+        "tab": [
+          {
+            "_key": "fr",
+            "_type": "internationalizedArrayStringValue",
+            "language": "fr",
+            "value": "Société"
+          },
+          {
+            "_key": "en",
+            "_type": "internationalizedArrayStringValue",
+            "language": "en",
+            "value": "Company"
+          }
+        ],
+        "title": [
+          {
+            "_key": "fr",
+            "_type": "internationalizedArrayStringValue",
+            "language": "fr",
+            "value": "Quelques repères"
+          },
+          {
+            "_key": "en",
+            "_type": "internationalizedArrayStringValue",
+            "language": "en",
+            "value": "A few key facts"
+          }
+        ],
+        "subtitle": [
+          {
+            "_key": "fr",
+            "_type": "internationalizedArrayTextValue",
+            "language": "fr",
+            "value": "Pour cadrer les solutions envisageables."
+          },
+          {
+            "_key": "en",
+            "_type": "internationalizedArrayTextValue",
+            "language": "en",
+            "value": "To frame the possible solutions."
+          }
+        ],
+        "fields": [
+          {
+            "_type": "proFieldChoice",
+            "_key": "legalForm",
+            "label": [
+              {
+                "_key": "fr",
+                "_type": "internationalizedArrayStringValue",
+                "language": "fr",
+                "value": "Forme juridique"
+              },
+              {
+                "_key": "en",
+                "_type": "internationalizedArrayStringValue",
+                "language": "en",
+                "value": "Legal form"
+              }
+            ],
+            "display": "select",
+            "multiple": false,
+            "options": [
+              {
+                "_key": "micro",
+                "_type": "proFieldOption",
+                "label": [
+                  {
+                    "_key": "fr",
+                    "_type": "internationalizedArrayStringValue",
+                    "language": "fr",
+                    "value": "Auto-entrepreneur / Micro-entreprise"
+                  },
+                  {
+                    "_key": "en",
+                    "_type": "internationalizedArrayStringValue",
+                    "language": "en",
+                    "value": "Sole trader / Micro-enterprise"
+                  }
+                ]
+              },
+              {
+                "_key": "ei",
+                "_type": "proFieldOption",
+                "label": [
+                  {
+                    "_key": "fr",
+                    "_type": "internationalizedArrayStringValue",
+                    "language": "fr",
+                    "value": "Entreprise individuelle (EI)"
+                  },
+                  {
+                    "_key": "en",
+                    "_type": "internationalizedArrayStringValue",
+                    "language": "en",
+                    "value": "Sole proprietorship (EI)"
+                  }
+                ]
+              },
+              {
+                "_key": "eirl",
+                "_type": "proFieldOption",
+                "label": [
+                  {
+                    "_key": "fr",
+                    "_type": "internationalizedArrayStringValue",
+                    "language": "fr",
+                    "value": "EIRL"
+                  },
+                  {
+                    "_key": "en",
+                    "_type": "internationalizedArrayStringValue",
+                    "language": "en",
+                    "value": "EIRL"
+                  }
+                ]
+              },
+              {
+                "_key": "eurl",
+                "_type": "proFieldOption",
+                "label": [
+                  {
+                    "_key": "fr",
+                    "_type": "internationalizedArrayStringValue",
+                    "language": "fr",
+                    "value": "EURL"
+                  },
+                  {
+                    "_key": "en",
+                    "_type": "internationalizedArrayStringValue",
+                    "language": "en",
+                    "value": "EURL"
+                  }
+                ]
+              },
+              {
+                "_key": "sarl",
+                "_type": "proFieldOption",
+                "label": [
+                  {
+                    "_key": "fr",
+                    "_type": "internationalizedArrayStringValue",
+                    "language": "fr",
+                    "value": "SARL"
+                  },
+                  {
+                    "_key": "en",
+                    "_type": "internationalizedArrayStringValue",
+                    "language": "en",
+                    "value": "SARL"
+                  }
+                ]
+              },
+              {
+                "_key": "sasu",
+                "_type": "proFieldOption",
+                "label": [
+                  {
+                    "_key": "fr",
+                    "_type": "internationalizedArrayStringValue",
+                    "language": "fr",
+                    "value": "SASU"
+                  },
+                  {
+                    "_key": "en",
+                    "_type": "internationalizedArrayStringValue",
+                    "language": "en",
+                    "value": "SASU"
+                  }
+                ]
+              },
+              {
+                "_key": "sas",
+                "_type": "proFieldOption",
+                "label": [
+                  {
+                    "_key": "fr",
+                    "_type": "internationalizedArrayStringValue",
+                    "language": "fr",
+                    "value": "SAS"
+                  },
+                  {
+                    "_key": "en",
+                    "_type": "internationalizedArrayStringValue",
+                    "language": "en",
+                    "value": "SAS"
+                  }
+                ]
+              },
+              {
+                "_key": "sa",
+                "_type": "proFieldOption",
+                "label": [
+                  {
+                    "_key": "fr",
+                    "_type": "internationalizedArrayStringValue",
+                    "language": "fr",
+                    "value": "SA"
+                  },
+                  {
+                    "_key": "en",
+                    "_type": "internationalizedArrayStringValue",
+                    "language": "en",
+                    "value": "SA"
+                  }
+                ]
+              },
+              {
+                "_key": "association",
+                "_type": "proFieldOption",
+                "label": [
+                  {
+                    "_key": "fr",
+                    "_type": "internationalizedArrayStringValue",
+                    "language": "fr",
+                    "value": "Association"
+                  },
+                  {
+                    "_key": "en",
+                    "_type": "internationalizedArrayStringValue",
+                    "language": "en",
+                    "value": "Association"
+                  }
+                ]
+              },
+              {
+                "_key": "autre",
+                "_type": "proFieldOption",
+                "label": [
+                  {
+                    "_key": "fr",
+                    "_type": "internationalizedArrayStringValue",
+                    "language": "fr",
+                    "value": "Autre"
+                  },
+                  {
+                    "_key": "en",
+                    "_type": "internationalizedArrayStringValue",
+                    "language": "en",
+                    "value": "Other"
+                  }
+                ]
+              }
+            ],
+            "required": true,
+            "width": "full",
+            "airtableColumn": "Forme juridique",
+            "errorMessage": [
+              {
+                "_key": "fr",
+                "_type": "internationalizedArrayStringValue",
+                "language": "fr",
+                "value": "Merci de sélectionner une forme juridique."
+              },
+              {
+                "_key": "en",
+                "_type": "internationalizedArrayStringValue",
+                "language": "en",
+                "value": "Please select a legal form."
+              }
+            ]
+          },
+          {
+            "_type": "proFieldMonthYear",
+            "_key": "creationDate",
+            "label": [
+              {
+                "_key": "fr",
+                "_type": "internationalizedArrayStringValue",
+                "language": "fr",
+                "value": "Date de création (mois & année)"
+              },
+              {
+                "_key": "en",
+                "_type": "internationalizedArrayStringValue",
+                "language": "en",
+                "value": "Date of incorporation (month & year)"
+              }
+            ],
+            "monthLabel": [
+              {
+                "_key": "fr",
+                "_type": "internationalizedArrayStringValue",
+                "language": "fr",
+                "value": "Mois"
+              },
+              {
+                "_key": "en",
+                "_type": "internationalizedArrayStringValue",
+                "language": "en",
+                "value": "Month"
+              }
+            ],
+            "yearLabel": [
+              {
+                "_key": "fr",
+                "_type": "internationalizedArrayStringValue",
+                "language": "fr",
+                "value": "Année"
+              },
+              {
+                "_key": "en",
+                "_type": "internationalizedArrayStringValue",
+                "language": "en",
+                "value": "Year"
+              }
+            ],
+            "firstYear": 1980,
+            "pendingLabel": [
+              {
+                "_key": "fr",
+                "_type": "internationalizedArrayStringValue",
+                "language": "fr",
+                "value": "Société en cours de création"
+              },
+              {
+                "_key": "en",
+                "_type": "internationalizedArrayStringValue",
+                "language": "en",
+                "value": "Company being set up"
+              }
+            ],
+            "pendingCrmValue": "En cours de création",
+            "required": false,
+            "airtableColumn": "Société créée le"
+          },
+          {
+            "_type": "proFieldText",
+            "_key": "activity",
+            "label": [
+              {
+                "_key": "fr",
+                "_type": "internationalizedArrayStringValue",
+                "language": "fr",
+                "value": "Domaine d’activité"
+              },
+              {
+                "_key": "en",
+                "_type": "internationalizedArrayStringValue",
+                "language": "en",
+                "value": "Line of business"
+              }
+            ],
+            "placeholder": [
+              {
+                "_key": "fr",
+                "_type": "internationalizedArrayStringValue",
+                "language": "fr",
+                "value": "VTC, BTP, conseil, e-commerce…"
+              },
+              {
+                "_key": "en",
+                "_type": "internationalizedArrayStringValue",
+                "language": "en",
+                "value": "Ride-hailing, construction, consulting, e-commerce…"
+              }
+            ],
+            "format": "text",
+            "required": true,
+            "width": "full",
+            "airtableColumn": "Domaine d'activité",
+            "errorMessage": [
+              {
+                "_key": "fr",
+                "_type": "internationalizedArrayStringValue",
+                "language": "fr",
+                "value": "Merci d’indiquer votre domaine d’activité."
+              },
+              {
+                "_key": "en",
+                "_type": "internationalizedArrayStringValue",
+                "language": "en",
+                "value": "Please enter your line of business."
+              }
+            ]
+          },
+          {
+            "_type": "proFieldChoice",
+            "_key": "revenue",
+            "label": [
+              {
+                "_key": "fr",
+                "_type": "internationalizedArrayStringValue",
+                "language": "fr",
+                "value": "Chiffre d’affaires annuel"
+              },
+              {
+                "_key": "en",
+                "_type": "internationalizedArrayStringValue",
+                "language": "en",
+                "value": "Annual revenue"
+              }
+            ],
+            "display": "select",
+            "multiple": false,
+            "options": [
+              {
+                "_key": "upTo50k",
+                "_type": "proFieldOption",
+                "label": [
+                  {
+                    "_key": "fr",
+                    "_type": "internationalizedArrayStringValue",
+                    "language": "fr",
+                    "value": "Entre 0 et 50 000 €"
+                  },
+                  {
+                    "_key": "en",
+                    "_type": "internationalizedArrayStringValue",
+                    "language": "en",
+                    "value": "Between €0 and €50,000"
+                  }
+                ]
+              },
+              {
+                "_key": "from50kTo100k",
+                "_type": "proFieldOption",
+                "label": [
+                  {
+                    "_key": "fr",
+                    "_type": "internationalizedArrayStringValue",
+                    "language": "fr",
+                    "value": "Entre 50 000 et 100 000 €"
+                  },
+                  {
+                    "_key": "en",
+                    "_type": "internationalizedArrayStringValue",
+                    "language": "en",
+                    "value": "Between €50,000 and €100,000"
+                  }
+                ]
+              },
+              {
+                "_key": "from100kTo500k",
+                "_type": "proFieldOption",
+                "label": [
+                  {
+                    "_key": "fr",
+                    "_type": "internationalizedArrayStringValue",
+                    "language": "fr",
+                    "value": "Entre 100 000 et 500 000 €"
+                  },
+                  {
+                    "_key": "en",
+                    "_type": "internationalizedArrayStringValue",
+                    "language": "en",
+                    "value": "Between €100,000 and €500,000"
+                  }
+                ]
+              },
+              {
+                "_key": "over500k",
+                "_type": "proFieldOption",
+                "label": [
+                  {
+                    "_key": "fr",
+                    "_type": "internationalizedArrayStringValue",
+                    "language": "fr",
+                    "value": "Plus de 500 000 €"
+                  },
+                  {
+                    "_key": "en",
+                    "_type": "internationalizedArrayStringValue",
+                    "language": "en",
+                    "value": "Over €500,000"
+                  }
+                ]
+              }
+            ],
+            "required": true,
+            "width": "full",
+            "airtableColumn": "CA société",
+            "errorMessage": [
+              {
+                "_key": "fr",
+                "_type": "internationalizedArrayStringValue",
+                "language": "fr",
+                "value": "Merci de sélectionner une tranche."
+              },
+              {
+                "_key": "en",
+                "_type": "internationalizedArrayStringValue",
+                "language": "en",
+                "value": "Please select a range."
+              }
+            ]
+          },
+          {
+            "_type": "proFieldChoice",
+            "_key": "balanceSheets",
+            "label": [
+              {
+                "_key": "fr",
+                "_type": "internationalizedArrayStringValue",
+                "language": "fr",
+                "value": "Bilans comptables clôturés disponibles (optionnel)"
+              },
+              {
+                "_key": "en",
+                "_type": "internationalizedArrayStringValue",
+                "language": "en",
+                "value": "Closed annual accounts available (optional)"
+              }
+            ],
+            "display": "select",
+            "multiple": false,
+            "options": [
+              {
+                "_key": "none",
+                "_type": "proFieldOption",
+                "label": [
+                  {
+                    "_key": "fr",
+                    "_type": "internationalizedArrayStringValue",
+                    "language": "fr",
+                    "value": "0"
+                  },
+                  {
+                    "_key": "en",
+                    "_type": "internationalizedArrayStringValue",
+                    "language": "en",
+                    "value": "0"
+                  }
+                ]
+              },
+              {
+                "_key": "one",
+                "_type": "proFieldOption",
+                "label": [
+                  {
+                    "_key": "fr",
+                    "_type": "internationalizedArrayStringValue",
+                    "language": "fr",
+                    "value": "1"
+                  },
+                  {
+                    "_key": "en",
+                    "_type": "internationalizedArrayStringValue",
+                    "language": "en",
+                    "value": "1"
+                  }
+                ]
+              },
+              {
+                "_key": "two",
+                "_type": "proFieldOption",
+                "label": [
+                  {
+                    "_key": "fr",
+                    "_type": "internationalizedArrayStringValue",
+                    "language": "fr",
+                    "value": "2"
+                  },
+                  {
+                    "_key": "en",
+                    "_type": "internationalizedArrayStringValue",
+                    "language": "en",
+                    "value": "2"
+                  }
+                ]
+              },
+              {
+                "_key": "threePlus",
+                "_type": "proFieldOption",
+                "label": [
+                  {
+                    "_key": "fr",
+                    "_type": "internationalizedArrayStringValue",
+                    "language": "fr",
+                    "value": "3 et +"
+                  },
+                  {
+                    "_key": "en",
+                    "_type": "internationalizedArrayStringValue",
+                    "language": "en",
+                    "value": "3 or more"
+                  }
+                ]
+              }
+            ],
+            "required": false,
+            "width": "full",
+            "airtableColumn": "Bilans disponibles"
+          }
+        ]
+      },
+      {
+        "_key": "stepC",
+        "_type": "proFormStep",
+        "tab": [
+          {
+            "_key": "fr",
+            "_type": "internationalizedArrayStringValue",
+            "language": "fr",
+            "value": "Situation"
+          },
+          {
+            "_key": "en",
+            "_type": "internationalizedArrayStringValue",
+            "language": "en",
+            "value": "Situation"
+          }
+        ],
+        "title": [
+          {
+            "_key": "fr",
+            "_type": "internationalizedArrayStringValue",
+            "language": "fr",
+            "value": "Votre profil financier"
+          },
+          {
+            "_key": "en",
+            "_type": "internationalizedArrayStringValue",
+            "language": "en",
+            "value": "Your financial profile"
+          }
+        ],
+        "subtitle": [
+          {
+            "_key": "fr",
+            "_type": "internationalizedArrayTextValue",
+            "language": "fr",
+            "value": "Rien de définitif — juste pour mieux orienter."
+          },
+          {
+            "_key": "en",
+            "_type": "internationalizedArrayTextValue",
+            "language": "en",
+            "value": "Nothing binding — it just helps us guide you."
+          }
+        ],
+        "fields": [
+          {
+            "_type": "proFieldYesNo",
+            "_key": "hasIncome",
+            "label": [
+              {
+                "_key": "fr",
+                "_type": "internationalizedArrayStringValue",
+                "language": "fr",
+                "value": "Avez-vous des revenus personnels à côté ?"
+              },
+              {
+                "_key": "en",
+                "_type": "internationalizedArrayStringValue",
+                "language": "en",
+                "value": "Do you have personal income on the side?"
+              }
+            ],
+            "required": false,
+            "airtableColumn": "Revenus personnels",
+            "airtableFormat": "text"
+          },
+          {
+            "_type": "proFieldChoice",
+            "_key": "incomeType",
+            "label": [
+              {
+                "_key": "fr",
+                "_type": "internationalizedArrayStringValue",
+                "language": "fr",
+                "value": "Type de revenus"
+              },
+              {
+                "_key": "en",
+                "_type": "internationalizedArrayStringValue",
+                "language": "en",
+                "value": "Type of income"
+              }
+            ],
+            "display": "select",
+            "multiple": false,
+            "options": [
+              {
+                "_key": "cdi",
+                "_type": "proFieldOption",
+                "label": [
+                  {
+                    "_key": "fr",
+                    "_type": "internationalizedArrayStringValue",
+                    "language": "fr",
+                    "value": "CDI"
+                  },
+                  {
+                    "_key": "en",
+                    "_type": "internationalizedArrayStringValue",
+                    "language": "en",
+                    "value": "Permanent contract"
+                  }
+                ]
+              },
+              {
+                "_key": "cdd",
+                "_type": "proFieldOption",
+                "label": [
+                  {
+                    "_key": "fr",
+                    "_type": "internationalizedArrayStringValue",
+                    "language": "fr",
+                    "value": "CDD"
+                  },
+                  {
+                    "_key": "en",
+                    "_type": "internationalizedArrayStringValue",
+                    "language": "en",
+                    "value": "Fixed-term contract"
+                  }
+                ]
+              },
+              {
+                "_key": "interim",
+                "_type": "proFieldOption",
+                "label": [
+                  {
+                    "_key": "fr",
+                    "_type": "internationalizedArrayStringValue",
+                    "language": "fr",
+                    "value": "Intérim"
+                  },
+                  {
+                    "_key": "en",
+                    "_type": "internationalizedArrayStringValue",
+                    "language": "en",
+                    "value": "Temporary work"
+                  }
+                ]
+              },
+              {
+                "_key": "independent",
+                "_type": "proFieldOption",
+                "label": [
+                  {
+                    "_key": "fr",
+                    "_type": "internationalizedArrayStringValue",
+                    "language": "fr",
+                    "value": "Indépendant"
+                  },
+                  {
+                    "_key": "en",
+                    "_type": "internationalizedArrayStringValue",
+                    "language": "en",
+                    "value": "Self-employed"
+                  }
+                ]
+              }
+            ],
+            "required": false,
+            "width": "full",
+            "airtableColumn": "Revenus personnels",
+            "showIf": {
+              "field": "hasIncome",
+              "values": [
+                "yes"
+              ]
+            }
+          },
+          {
+            "_type": "proFieldChoice",
+            "_key": "deposit",
+            "label": [
+              {
+                "_key": "fr",
+                "_type": "internationalizedArrayStringValue",
+                "language": "fr",
+                "value": "Apport disponible"
+              },
+              {
+                "_key": "en",
+                "_type": "internationalizedArrayStringValue",
+                "language": "en",
+                "value": "Available down payment"
+              }
+            ],
+            "display": "list",
+            "multiple": false,
+            "options": [
+              {
+                "_key": "under5k",
+                "_type": "proFieldOption",
+                "label": [
+                  {
+                    "_key": "fr",
+                    "_type": "internationalizedArrayStringValue",
+                    "language": "fr",
+                    "value": "Moins de 5 000 €"
+                  },
+                  {
+                    "_key": "en",
+                    "_type": "internationalizedArrayStringValue",
+                    "language": "en",
+                    "value": "Less than €5,000"
+                  }
+                ]
+              },
+              {
+                "_key": "over5k",
+                "_type": "proFieldOption",
+                "label": [
+                  {
+                    "_key": "fr",
+                    "_type": "internationalizedArrayStringValue",
+                    "language": "fr",
+                    "value": "Plus de 5 000 €"
+                  },
+                  {
+                    "_key": "en",
+                    "_type": "internationalizedArrayStringValue",
+                    "language": "en",
+                    "value": "More than €5,000"
+                  }
+                ]
+              },
+              {
+                "_key": "none",
+                "_type": "proFieldOption",
+                "label": [
+                  {
+                    "_key": "fr",
+                    "_type": "internationalizedArrayStringValue",
+                    "language": "fr",
+                    "value": "Aucun"
+                  },
+                  {
+                    "_key": "en",
+                    "_type": "internationalizedArrayStringValue",
+                    "language": "en",
+                    "value": "None"
+                  }
+                ]
+              }
+            ],
+            "required": true,
+            "width": "full",
+            "airtableColumn": "Apport disponible",
+            "errorMessage": [
+              {
+                "_key": "fr",
+                "_type": "internationalizedArrayStringValue",
+                "language": "fr",
+                "value": "Merci de sélectionner une option."
+              },
+              {
+                "_key": "en",
+                "_type": "internationalizedArrayStringValue",
+                "language": "en",
+                "value": "Please select an option."
+              }
+            ]
+          },
+          {
+            "_type": "proFieldYesNo",
+            "_key": "leaseRefused",
+            "label": [
+              {
+                "_key": "fr",
+                "_type": "internationalizedArrayStringValue",
+                "language": "fr",
+                "value": "Avez-vous déjà eu un refus de leasing (concession, banque) ?"
+              },
+              {
+                "_key": "en",
+                "_type": "internationalizedArrayStringValue",
+                "language": "en",
+                "value": "Have you ever been turned down for a lease (dealership, bank)?"
+              }
+            ],
+            "required": false,
+            "airtableColumn": "Refusé en concession",
+            "airtableFormat": "checkbox"
+          }
+        ]
+      },
+      {
+        "_key": "stepD",
+        "_type": "proFormStep",
+        "tab": [
+          {
+            "_key": "fr",
+            "_type": "internationalizedArrayStringValue",
+            "language": "fr",
+            "value": "Projet"
+          },
+          {
+            "_key": "en",
+            "_type": "internationalizedArrayStringValue",
+            "language": "en",
+            "value": "Project"
+          }
+        ],
+        "title": [
+          {
+            "_key": "fr",
+            "_type": "internationalizedArrayStringValue",
+            "language": "fr",
+            "value": "Le véhicule visé"
+          },
+          {
+            "_key": "en",
+            "_type": "internationalizedArrayStringValue",
+            "language": "en",
+            "value": "The vehicle you want"
+          }
+        ],
+        "subtitle": [
+          {
+            "_key": "fr",
+            "_type": "internationalizedArrayTextValue",
+            "language": "fr",
+            "value": "Dites-nous ce que vous avez en tête."
+          },
+          {
+            "_key": "en",
+            "_type": "internationalizedArrayTextValue",
+            "language": "en",
+            "value": "Tell us what you have in mind."
+          }
+        ],
+        "fields": [
+          {
+            "_type": "proFieldChoice",
+            "_key": "usage",
+            "label": [
+              {
+                "_key": "fr",
+                "_type": "internationalizedArrayStringValue",
+                "language": "fr",
+                "value": "Usage prévu"
+              },
+              {
+                "_key": "en",
+                "_type": "internationalizedArrayStringValue",
+                "language": "en",
+                "value": "Intended use"
+              }
+            ],
+            "display": "list",
+            "multiple": false,
+            "options": [
+              {
+                "_key": "personal",
+                "_type": "proFieldOption",
+                "label": [
+                  {
+                    "_key": "fr",
+                    "_type": "internationalizedArrayStringValue",
+                    "language": "fr",
+                    "value": "Usage personnel (pour ma société)"
+                  },
+                  {
+                    "_key": "en",
+                    "_type": "internationalizedArrayStringValue",
+                    "language": "en",
+                    "value": "Own use (for my company)"
+                  }
+                ]
+              },
+              {
+                "_key": "sublet",
+                "_type": "proFieldOption",
+                "label": [
+                  {
+                    "_key": "fr",
+                    "_type": "internationalizedArrayStringValue",
+                    "language": "fr",
+                    "value": "Sous-location"
+                  },
+                  {
+                    "_key": "en",
+                    "_type": "internationalizedArrayStringValue",
+                    "language": "en",
+                    "value": "Subletting"
+                  }
+                ]
+              },
+              {
+                "_key": "both",
+                "_type": "proFieldOption",
+                "label": [
+                  {
+                    "_key": "fr",
+                    "_type": "internationalizedArrayStringValue",
+                    "language": "fr",
+                    "value": "Les deux"
+                  },
+                  {
+                    "_key": "en",
+                    "_type": "internationalizedArrayStringValue",
+                    "language": "en",
+                    "value": "Both"
+                  }
+                ]
+              }
+            ],
+            "required": true,
+            "width": "full",
+            "airtableColumn": "Usage prévu",
+            "errorMessage": [
+              {
+                "_key": "fr",
+                "_type": "internationalizedArrayStringValue",
+                "language": "fr",
+                "value": "Merci de préciser l’usage prévu."
+              },
+              {
+                "_key": "en",
+                "_type": "internationalizedArrayStringValue",
+                "language": "en",
+                "value": "Please specify the intended use."
+              }
+            ]
+          },
+          {
+            "_type": "proFieldChoice",
+            "_key": "financing",
+            "label": [
+              {
+                "_key": "fr",
+                "_type": "internationalizedArrayStringValue",
+                "language": "fr",
+                "value": "Je recherche (optionnel)"
+              },
+              {
+                "_key": "en",
+                "_type": "internationalizedArrayStringValue",
+                "language": "en",
+                "value": "I’m looking for (optional)"
+              }
+            ],
+            "display": "list",
+            "multiple": false,
+            "options": [
+              {
+                "_key": "loa",
+                "_type": "proFieldOption",
+                "label": [
+                  {
+                    "_key": "fr",
+                    "_type": "internationalizedArrayStringValue",
+                    "language": "fr",
+                    "value": "Location avec option d’achat (LOA)"
+                  },
+                  {
+                    "_key": "en",
+                    "_type": "internationalizedArrayStringValue",
+                    "language": "en",
+                    "value": "Lease with purchase option (LOA)"
+                  }
+                ],
+                "crmValue": "LOA"
+              },
+              {
+                "_key": "lld",
+                "_type": "proFieldOption",
+                "label": [
+                  {
+                    "_key": "fr",
+                    "_type": "internationalizedArrayStringValue",
+                    "language": "fr",
+                    "value": "Location longue durée (LLD)"
+                  },
+                  {
+                    "_key": "en",
+                    "_type": "internationalizedArrayStringValue",
+                    "language": "en",
+                    "value": "Long-term lease (LLD)"
+                  }
+                ],
+                "crmValue": "LLD"
+              }
+            ],
+            "required": false,
+            "width": "full",
+            "airtableColumn": "Type de financement"
+          },
+          {
+            "_type": "proFieldText",
+            "_key": "mileage",
+            "label": [
+              {
+                "_key": "fr",
+                "_type": "internationalizedArrayStringValue",
+                "language": "fr",
+                "value": "Kilomètres souhaités / an"
+              },
+              {
+                "_key": "en",
+                "_type": "internationalizedArrayStringValue",
+                "language": "en",
+                "value": "Kilometres per year"
+              }
+            ],
+            "placeholder": [
+              {
+                "_key": "fr",
+                "_type": "internationalizedArrayStringValue",
+                "language": "fr",
+                "value": "Ex. 20 000 km"
+              },
+              {
+                "_key": "en",
+                "_type": "internationalizedArrayStringValue",
+                "language": "en",
+                "value": "E.g. 20,000 km"
+              }
+            ],
+            "format": "number",
+            "required": false,
+            "width": "half",
+            "airtableColumn": "Km / an",
+            "showIf": {
+              "field": "financing",
+              "values": [
+                "loa",
+                "lld"
+              ]
+            }
+          },
+          {
+            "_type": "proFieldChoice",
+            "_key": "duration",
+            "label": [
+              {
+                "_key": "fr",
+                "_type": "internationalizedArrayStringValue",
+                "language": "fr",
+                "value": "Durée de financement"
+              },
+              {
+                "_key": "en",
+                "_type": "internationalizedArrayStringValue",
+                "language": "en",
+                "value": "Financing term"
+              }
+            ],
+            "display": "select",
+            "multiple": false,
+            "options": [
+              {
+                "_key": "y3",
+                "_type": "proFieldOption",
+                "label": [
+                  {
+                    "_key": "fr",
+                    "_type": "internationalizedArrayStringValue",
+                    "language": "fr",
+                    "value": "3 ans"
+                  },
+                  {
+                    "_key": "en",
+                    "_type": "internationalizedArrayStringValue",
+                    "language": "en",
+                    "value": "3 years"
+                  }
+                ],
+                "crmValue": "36"
+              },
+              {
+                "_key": "y4",
+                "_type": "proFieldOption",
+                "label": [
+                  {
+                    "_key": "fr",
+                    "_type": "internationalizedArrayStringValue",
+                    "language": "fr",
+                    "value": "4 ans"
+                  },
+                  {
+                    "_key": "en",
+                    "_type": "internationalizedArrayStringValue",
+                    "language": "en",
+                    "value": "4 years"
+                  }
+                ],
+                "crmValue": "48"
+              },
+              {
+                "_key": "y5plus",
+                "_type": "proFieldOption",
+                "label": [
+                  {
+                    "_key": "fr",
+                    "_type": "internationalizedArrayStringValue",
+                    "language": "fr",
+                    "value": "5 ans et +"
+                  },
+                  {
+                    "_key": "en",
+                    "_type": "internationalizedArrayStringValue",
+                    "language": "en",
+                    "value": "5 years or more"
+                  }
+                ],
+                "crmValue": "60"
+              }
+            ],
+            "required": false,
+            "width": "half",
+            "airtableColumn": "Durée (mois)",
+            "showIf": {
+              "field": "financing",
+              "values": [
+                "loa",
+                "lld"
+              ]
+            }
+          },
+          {
+            "_type": "proFieldCheckbox",
+            "_key": "wantsAdvice",
+            "label": [
+              {
+                "_key": "fr",
+                "_type": "internationalizedArrayStringValue",
+                "language": "fr",
+                "value": "Je souhaite être conseillé"
+              },
+              {
+                "_key": "en",
+                "_type": "internationalizedArrayStringValue",
+                "language": "en",
+                "value": "I’d like some advice"
+              }
+            ],
+            "airtableColumn": "Souhaite être conseillé"
+          },
+          {
+            "_type": "proFieldText",
+            "_key": "models",
+            "label": [
+              {
+                "_key": "fr",
+                "_type": "internationalizedArrayStringValue",
+                "language": "fr",
+                "value": "Modèle(s) souhaité(s) (optionnel)"
+              },
+              {
+                "_key": "en",
+                "_type": "internationalizedArrayStringValue",
+                "language": "en",
+                "value": "Preferred model(s) (optional)"
+              }
+            ],
+            "placeholder": [
+              {
+                "_key": "fr",
+                "_type": "internationalizedArrayStringValue",
+                "language": "fr",
+                "value": "Ex. Mercedes GLC, BMW Série 3, Tesla Model Y…"
+              },
+              {
+                "_key": "en",
+                "_type": "internationalizedArrayStringValue",
+                "language": "en",
+                "value": "E.g. Mercedes GLC, BMW 3 Series, Tesla Model Y…"
+              }
+            ],
+            "format": "text",
+            "required": false,
+            "width": "full",
+            "airtableColumn": "Véhicule (texte libre)"
+          },
+          {
+            "_type": "proFieldText",
+            "_key": "vehicleCount",
+            "label": [
+              {
+                "_key": "fr",
+                "_type": "internationalizedArrayStringValue",
+                "language": "fr",
+                "value": "Nombre de véhicules"
+              },
+              {
+                "_key": "en",
+                "_type": "internationalizedArrayStringValue",
+                "language": "en",
+                "value": "Number of vehicles"
+              }
+            ],
+            "format": "number",
+            "required": false,
+            "width": "half",
+            "airtableColumn": "Nombre de véhicules",
+            "defaultValue": "1"
+          },
+          {
+            "_type": "proFieldText",
+            "_key": "budget",
+            "label": [
+              {
+                "_key": "fr",
+                "_type": "internationalizedArrayStringValue",
+                "language": "fr",
+                "value": "Budget mensuel envisagé (optionnel)"
+              },
+              {
+                "_key": "en",
+                "_type": "internationalizedArrayStringValue",
+                "language": "en",
+                "value": "Planned monthly budget (optional)"
+              }
+            ],
+            "placeholder": [
+              {
+                "_key": "fr",
+                "_type": "internationalizedArrayStringValue",
+                "language": "fr",
+                "value": "Ex. 800 €/mois"
+              },
+              {
+                "_key": "en",
+                "_type": "internationalizedArrayStringValue",
+                "language": "en",
+                "value": "E.g. €800/month"
+              }
+            ],
+            "format": "number",
+            "required": false,
+            "width": "half",
+            "airtableColumn": "Budget mensuel (€)"
+          },
+          {
+            "_type": "proFieldChoice",
+            "_key": "timeline",
+            "label": [
+              {
+                "_key": "fr",
+                "_type": "internationalizedArrayStringValue",
+                "language": "fr",
+                "value": "Délai (optionnel)"
+              },
+              {
+                "_key": "en",
+                "_type": "internationalizedArrayStringValue",
+                "language": "en",
+                "value": "Timeframe (optional)"
+              }
+            ],
+            "display": "row",
+            "multiple": false,
+            "options": [
+              {
+                "_key": "urgent",
+                "_type": "proFieldOption",
+                "label": [
+                  {
+                    "_key": "fr",
+                    "_type": "internationalizedArrayStringValue",
+                    "language": "fr",
+                    "value": "Urgent"
+                  },
+                  {
+                    "_key": "en",
+                    "_type": "internationalizedArrayStringValue",
+                    "language": "en",
+                    "value": "Urgent"
+                  }
+                ]
+              },
+              {
+                "_key": "withinMonth",
+                "_type": "proFieldOption",
+                "label": [
+                  {
+                    "_key": "fr",
+                    "_type": "internationalizedArrayStringValue",
+                    "language": "fr",
+                    "value": "Sous 1 mois"
+                  },
+                  {
+                    "_key": "en",
+                    "_type": "internationalizedArrayStringValue",
+                    "language": "en",
+                    "value": "Within a month"
+                  }
+                ]
+              },
+              {
+                "_key": "flexible",
+                "_type": "proFieldOption",
+                "label": [
+                  {
+                    "_key": "fr",
+                    "_type": "internationalizedArrayStringValue",
+                    "language": "fr",
+                    "value": "Flexible"
+                  },
+                  {
+                    "_key": "en",
+                    "_type": "internationalizedArrayStringValue",
+                    "language": "en",
+                    "value": "Flexible"
+                  }
+                ]
+              }
+            ],
+            "required": false,
+            "width": "full",
+            "airtableColumn": "Délai"
+          }
+        ]
+      },
+      {
+        "_key": "stepE",
+        "_type": "proFormStep",
+        "tab": [
+          {
+            "_key": "fr",
+            "_type": "internationalizedArrayStringValue",
+            "language": "fr",
+            "value": "Justificatifs"
+          },
+          {
+            "_key": "en",
+            "_type": "internationalizedArrayStringValue",
+            "language": "en",
+            "value": "Documents"
+          }
+        ],
+        "title": [
+          {
+            "_key": "fr",
+            "_type": "internationalizedArrayStringValue",
+            "language": "fr",
+            "value": "Presque terminé"
+          },
+          {
+            "_key": "en",
+            "_type": "internationalizedArrayStringValue",
+            "language": "en",
+            "value": "Almost done"
+          }
+        ],
+        "subtitle": [
+          {
+            "_key": "fr",
+            "_type": "internationalizedArrayTextValue",
+            "language": "fr",
+            "value": "Je dispose des documents suivants :"
+          },
+          {
+            "_key": "en",
+            "_type": "internationalizedArrayTextValue",
+            "language": "en",
+            "value": "I have the following documents:"
+          }
+        ],
+        "fields": [
+          {
+            "_type": "proFieldNote",
+            "_key": "documentsHint",
+            "text": [
+              {
+                "_key": "fr",
+                "_type": "internationalizedArrayTextValue",
+                "language": "fr",
+                "value": "Ces pièces accélèrent l’étude d’une solution de financement adaptée. Cochez ce que vous avez déjà — rien n’est bloquant."
+              },
+              {
+                "_key": "en",
+                "_type": "internationalizedArrayTextValue",
+                "language": "en",
+                "value": "These documents speed up the search for a suitable financing solution. Tick what you already have — nothing is mandatory."
+              }
+            ],
+            "showIf": {
+              "field": "usage",
+              "values": [
+                "personal",
+                "both"
+              ]
+            }
+          },
+          {
+            "_type": "proFieldChoice",
+            "_key": "documents",
+            "label": [
+              {
+                "_key": "fr",
+                "_type": "internationalizedArrayStringValue",
+                "language": "fr",
+                "value": "Documents disponibles (cochez ceux que vous avez)"
+              },
+              {
+                "_key": "en",
+                "_type": "internationalizedArrayStringValue",
+                "language": "en",
+                "value": "Available documents (tick the ones you have)"
+              }
+            ],
+            "display": "list",
+            "multiple": true,
+            "options": [
+              {
+                "_key": "kbis",
+                "_type": "proFieldOption",
+                "label": [
+                  {
+                    "_key": "fr",
+                    "_type": "internationalizedArrayStringValue",
+                    "language": "fr",
+                    "value": "Extrait KBIS (de moins de 3 mois)"
+                  },
+                  {
+                    "_key": "en",
+                    "_type": "internationalizedArrayStringValue",
+                    "language": "en",
+                    "value": "Kbis extract (less than 3 months old)"
+                  }
+                ]
+              },
+              {
+                "_key": "bankStatements",
+                "_type": "proFieldOption",
+                "label": [
+                  {
+                    "_key": "fr",
+                    "_type": "internationalizedArrayStringValue",
+                    "language": "fr",
+                    "value": "Relevés de compte professionnel (12 derniers mois)"
+                  },
+                  {
+                    "_key": "en",
+                    "_type": "internationalizedArrayStringValue",
+                    "language": "en",
+                    "value": "Business bank statements (last 12 months)"
+                  }
+                ]
+              },
+              {
+                "_key": "id",
+                "_type": "proFieldOption",
+                "label": [
+                  {
+                    "_key": "fr",
+                    "_type": "internationalizedArrayStringValue",
+                    "language": "fr",
+                    "value": "Pièce d’identité"
+                  },
+                  {
+                    "_key": "en",
+                    "_type": "internationalizedArrayStringValue",
+                    "language": "en",
+                    "value": "ID document"
+                  }
+                ],
+                "crmValue": "Pièce d'identité"
+              },
+              {
+                "_key": "license",
+                "_type": "proFieldOption",
+                "label": [
+                  {
+                    "_key": "fr",
+                    "_type": "internationalizedArrayStringValue",
+                    "language": "fr",
+                    "value": "Permis de conduire"
+                  },
+                  {
+                    "_key": "en",
+                    "_type": "internationalizedArrayStringValue",
+                    "language": "en",
+                    "value": "Driving licence"
+                  }
+                ]
+              },
+              {
+                "_key": "lease",
+                "_type": "proFieldOption",
+                "label": [
+                  {
+                    "_key": "fr",
+                    "_type": "internationalizedArrayStringValue",
+                    "language": "fr",
+                    "value": "Bail commercial"
+                  },
+                  {
+                    "_key": "en",
+                    "_type": "internationalizedArrayStringValue",
+                    "language": "en",
+                    "value": "Commercial lease"
+                  }
+                ]
+              },
+              {
+                "_key": "balanceSheet",
+                "_type": "proFieldOption",
+                "label": [
+                  {
+                    "_key": "fr",
+                    "_type": "internationalizedArrayStringValue",
+                    "language": "fr",
+                    "value": "Dernier bilan comptable"
+                  },
+                  {
+                    "_key": "en",
+                    "_type": "internationalizedArrayStringValue",
+                    "language": "en",
+                    "value": "Latest annual accounts"
+                  }
+                ]
+              },
+              {
+                "_key": "socialProof",
+                "_type": "proFieldOption",
+                "label": [
+                  {
+                    "_key": "fr",
+                    "_type": "internationalizedArrayStringValue",
+                    "language": "fr",
+                    "value": "Preuve sociale ou supports digitaux"
+                  },
+                  {
+                    "_key": "en",
+                    "_type": "internationalizedArrayStringValue",
+                    "language": "en",
+                    "value": "Social proof or online presence"
+                  }
+                ],
+                "crmValue": "Preuve sociale ou supports digitaux (site internet, réseaux sociaux…)",
+                "description": [
+                  {
+                    "_key": "fr",
+                    "_type": "internationalizedArrayStringValue",
+                    "language": "fr",
+                    "value": "(site internet, réseaux sociaux…)"
+                  },
+                  {
+                    "_key": "en",
+                    "_type": "internationalizedArrayStringValue",
+                    "language": "en",
+                    "value": "(website, social media…)"
+                  }
+                ]
+              }
+            ],
+            "required": false,
+            "width": "full",
+            "airtableColumn": "Documents disponibles"
+          },
+          {
+            "_type": "proFieldTextarea",
+            "_key": "message",
+            "label": [
+              {
+                "_key": "fr",
+                "_type": "internationalizedArrayStringValue",
+                "language": "fr",
+                "value": "Autre chose à nous dire ? (optionnel)"
+              },
+              {
+                "_key": "en",
+                "_type": "internationalizedArrayStringValue",
+                "language": "en",
+                "value": "Anything else to tell us? (optional)"
+              }
+            ],
+            "placeholder": [
+              {
+                "_key": "fr",
+                "_type": "internationalizedArrayStringValue",
+                "language": "fr",
+                "value": "Un contexte, une contrainte, une échéance…"
+              },
+              {
+                "_key": "en",
+                "_type": "internationalizedArrayStringValue",
+                "language": "en",
+                "value": "Some context, a constraint, a deadline…"
+              }
+            ],
+            "required": false,
+            "airtableColumn": "Message"
+          },
+          {
+            "_type": "proFieldConsent",
+            "_key": "consent",
+            "before": [
+              {
+                "_key": "fr",
+                "_type": "internationalizedArrayTextValue",
+                "language": "fr",
+                "value": "J'accepte que BORA CARS conserve et utilise ces informations pour étudier mon dossier, le transmettre en toute confidentialité à ses partenaires (banques, loueurs) et me recontacter. Mes données ne sont jamais revendues ; je peux y accéder, les corriger ou les supprimer à tout moment — voir la "
+              },
+              {
+                "_key": "en",
+                "_type": "internationalizedArrayTextValue",
+                "language": "en",
+                "value": "I agree that BORA CARS may keep and use this information to review my application, share it in strict confidence with its partners (banks, leasing companies) and get back to me. My data is never sold; I can access, correct or delete it at any time — see the "
+              }
+            ],
+            "linkLabel": [
+              {
+                "_key": "fr",
+                "_type": "internationalizedArrayStringValue",
+                "language": "fr",
+                "value": "politique de confidentialité"
+              },
+              {
+                "_key": "en",
+                "_type": "internationalizedArrayStringValue",
+                "language": "en",
+                "value": "privacy policy"
+              }
+            ],
+            "after": [
+              {
+                "_key": "fr",
+                "_type": "internationalizedArrayStringValue",
+                "language": "fr",
+                "value": "."
+              },
+              {
+                "_key": "en",
+                "_type": "internationalizedArrayStringValue",
+                "language": "en",
+                "value": "."
+              }
+            ],
+            "errorMessage": [
+              {
+                "_key": "fr",
+                "_type": "internationalizedArrayStringValue",
+                "language": "fr",
+                "value": "Merci de cocher cette case pour envoyer votre dossier."
+              },
+              {
+                "_key": "en",
+                "_type": "internationalizedArrayStringValue",
+                "language": "en",
+                "value": "Please tick this box to send your application."
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "labels": {
+      "stepsLabel": [
+        {
+          "_key": "fr",
+          "_type": "internationalizedArrayStringValue",
+          "language": "fr",
+          "value": "Étapes du dossier"
+        },
+        {
+          "_key": "en",
+          "_type": "internationalizedArrayStringValue",
+          "language": "en",
+          "value": "Application steps"
+        }
+      ],
+      "stepCounter": [
+        {
+          "_key": "fr",
+          "_type": "internationalizedArrayStringValue",
+          "language": "fr",
+          "value": "Étape {current} / {total}"
+        },
+        {
+          "_key": "en",
+          "_type": "internationalizedArrayStringValue",
+          "language": "en",
+          "value": "Step {current} / {total}"
+        }
+      ],
+      "start": [
+        {
+          "_key": "fr",
+          "_type": "internationalizedArrayStringValue",
+          "language": "fr",
+          "value": "Commencer"
+        },
+        {
+          "_key": "en",
+          "_type": "internationalizedArrayStringValue",
+          "language": "en",
+          "value": "Start"
+        }
+      ],
+      "next": [
+        {
+          "_key": "fr",
+          "_type": "internationalizedArrayStringValue",
+          "language": "fr",
+          "value": "Continuer"
+        },
+        {
+          "_key": "en",
+          "_type": "internationalizedArrayStringValue",
+          "language": "en",
+          "value": "Continue"
+        }
+      ],
+      "back": [
+        {
+          "_key": "fr",
+          "_type": "internationalizedArrayStringValue",
+          "language": "fr",
+          "value": "Précédent"
+        },
+        {
+          "_key": "en",
+          "_type": "internationalizedArrayStringValue",
+          "language": "en",
+          "value": "Back"
+        }
+      ],
+      "submit": [
+        {
+          "_key": "fr",
+          "_type": "internationalizedArrayStringValue",
+          "language": "fr",
+          "value": "Envoyer mon dossier"
+        },
+        {
+          "_key": "en",
+          "_type": "internationalizedArrayStringValue",
+          "language": "en",
+          "value": "Send my application"
+        }
+      ],
+      "yes": [
+        {
+          "_key": "fr",
+          "_type": "internationalizedArrayStringValue",
+          "language": "fr",
+          "value": "Oui"
+        },
+        {
+          "_key": "en",
+          "_type": "internationalizedArrayStringValue",
+          "language": "en",
+          "value": "Yes"
+        }
+      ],
+      "no": [
+        {
+          "_key": "fr",
+          "_type": "internationalizedArrayStringValue",
+          "language": "fr",
+          "value": "Non"
+        },
+        {
+          "_key": "en",
+          "_type": "internationalizedArrayStringValue",
+          "language": "en",
+          "value": "No"
+        }
+      ],
+      "requiredError": [
+        {
+          "_key": "fr",
+          "_type": "internationalizedArrayStringValue",
+          "language": "fr",
+          "value": "Merci de répondre à cette question."
+        },
+        {
+          "_key": "en",
+          "_type": "internationalizedArrayStringValue",
+          "language": "en",
+          "value": "Please answer this question."
+        }
+      ],
+      "note": [
+        {
+          "_key": "fr",
+          "_type": "internationalizedArrayTextValue",
+          "language": "fr",
+          "value": "Vos informations restent strictement confidentielles et ne servent qu’à l’étude de votre dossier."
+        },
+        {
+          "_key": "en",
+          "_type": "internationalizedArrayTextValue",
+          "language": "en",
+          "value": "Your information remains strictly confidential and is only used to review your application."
+        }
+      ],
+      "sendError": [
+        {
+          "_key": "fr",
+          "_type": "internationalizedArrayTextValue",
+          "language": "fr",
+          "value": "Une erreur est survenue à l’envoi. Vérifiez votre connexion et réessayez dans un instant."
+        },
+        {
+          "_key": "en",
+          "_type": "internationalizedArrayTextValue",
+          "language": "en",
+          "value": "Something went wrong while sending. Check your connection and try again in a moment."
+        }
+      ]
+    }
+  },
+  "profileSwitch": {
+    "label": [
+      {
+        "_key": "fr",
+        "_type": "internationalizedArrayStringValue",
+        "language": "fr",
+        "value": "Type de demande"
+      },
+      {
+        "_key": "en",
+        "_type": "internationalizedArrayStringValue",
+        "language": "en",
+        "value": "Type of request"
+      }
+    ],
+    "generalTitle": [
+      {
+        "_key": "fr",
+        "_type": "internationalizedArrayStringValue",
+        "language": "fr",
+        "value": "Demande générale"
+      },
+      {
+        "_key": "en",
+        "_type": "internationalizedArrayStringValue",
+        "language": "en",
+        "value": "General enquiry"
+      }
+    ],
+    "generalSubtitle": [
+      {
+        "_key": "fr",
+        "_type": "internationalizedArrayStringValue",
+        "language": "fr",
+        "value": "Propriétaires · Autre"
+      },
+      {
+        "_key": "en",
+        "_type": "internationalizedArrayStringValue",
+        "language": "en",
+        "value": "Owners · Other"
+      }
+    ],
+    "proTitle": [
+      {
+        "_key": "fr",
+        "_type": "internationalizedArrayStringValue",
+        "language": "fr",
+        "value": "Leasing professionnel"
+      },
+      {
+        "_key": "en",
+        "_type": "internationalizedArrayStringValue",
+        "language": "en",
+        "value": "Business leasing"
+      }
+    ],
+    "proSubtitle": [
+      {
+        "_key": "fr",
+        "_type": "internationalizedArrayStringValue",
+        "language": "fr",
+        "value": "LOA · LLD pour votre société"
+      },
+      {
+        "_key": "en",
+        "_type": "internationalizedArrayStringValue",
+        "language": "en",
+        "value": "Lease-to-own · long-term lease for your company"
+      }
+    ]
+  }
+}
