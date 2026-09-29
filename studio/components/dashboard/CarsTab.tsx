@@ -6,6 +6,7 @@ import { ChevronDownIcon } from '@sanity/icons/ChevronDown'
 import { ChevronRightIcon } from '@sanity/icons/ChevronRight'
 import { CloseIcon } from '@sanity/icons/Close'
 import { SearchIcon } from '@sanity/icons/Search'
+import { carMainPrice, formatAmount } from '../../lib/currency'
 import { pickLocalized } from '../../lib/preview'
 import { docLabel } from './checks'
 import type { Snapshot } from './checks'
@@ -146,9 +147,8 @@ export function CarsTab({ snapshot, now }: { snapshot: Snapshot, now: number }) 
         : car === draft
           ? { id: 'pending', text: 'Publiée · modifications en brouillon', tone: 'caution' }
           : { id: 'published', text: 'Publiée', tone: 'positive' }
-      const price = car.prixMensuel != null
-        ? `${car.prixMensuel.toLocaleString('fr-FR')} €/mois`
-        : car.prixJournalier != null ? `${car.prixJournalier.toLocaleString('fr-FR')} €/jour` : null
+      const main = carMainPrice(car)
+      const price = main ? `${formatAmount(main.amount, main.currency)}/${main.monthly ? 'mois' : 'jour'}` : null
       return { id, car, label: docLabel(car), city: pickLocalized(car.city), price, status: rowStatus, result: scoreCar(car) }
     })
   }, [snapshot])

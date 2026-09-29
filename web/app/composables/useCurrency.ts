@@ -1,55 +1,70 @@
 export type CurrencyCode = 'EUR' | 'CHF'
 
-const CURRENCY_COOKIE = 'bora-currency'
-const ONE_YEAR = 60 * 60 * 24 * 365
+export interface Money {
+  eur?: number | null
+  chf?: number | null
+}
+
+export interface CarPriceFields {
+  prixJournalier?: number | null
+  prixJournalierChf?: number | null
+  prixMensuel?: number | null
+  prixMensuelChf?: number | null
+}
+
+export function carMainPrice(car: CarPriceFields): { money: Money, monthly: boolean } | null {
+  if (car.prixMensuel != null || car.prixMensuelChf != null)
+    return { money: { eur: car.prixMensuel, chf: car.prixMensuelChf }, monthly: true }
+  if (car.prixJournalier != null || car.prixJournalierChf != null)
+    return { money: { eur: car.prixJournalier, chf: car.prixJournalierChf }, monthly: false }
+  return null
+}
 
 export function useCurrency() {
   const { locale } = useI18n()
   const settings = useSettings()
 
-  const selected = useState<CurrencyCode>('currency', () => 'EUR')
-
-  const stored = useCookie<CurrencyCode | null>(CURRENCY_COOKIE, {
-    maxAge: ONE_YEAR,
-    sameSite: 'lax',
-    path: '/',
-  })
-
-  onMounted(() => {
-    if (stored.value === 'CHF' || stored.value === 'EUR')
-      selected.value = stored.value
-  })
+  const currency = useState<CurrencyCode>('currency', () => 'EUR')
 
   const chfRate = computed(() => {
     const rate = settings.value?.tauxChf
     return typeof rate === 'number' && rate > 0 ? rate : null
   })
 
-  const chfAvailable = computed(() => chfRate.value != null)
-
-  const currency = computed<CurrencyCode>(() =>
-    selected.value === 'CHF' && chfAvailable.value ? 'CHF' : 'EUR',
-  )
-
   function setCurrency(next: CurrencyCode) {
-    selected.value = next
-    stored.value = next
+    currency.value = next
+  }
+
+  function amountIn(money: Money, code: CurrencyCode): number | null {
+    const rate = chfRate.value
+    if (code === 'EUR')
+      return money.eur ?? (money.chf != null && rate ? money.chf / rate : null)
+    return money.chf ?? (money.eur != null && rate ? money.eur * rate : null)
   }
 
   const numberLocale = computed(() => (locale.value === 'fr' ? 'fr-FR' : 'en-GB'))
 
-  function formatPrice(amountEur: number, decimals = 0): string {
-    const amount = currency.value === 'CHF' && chfRate.value != null
-      ? amountEur * chfRate.value
-      : amountEur
-
+  function format(amount: number, code: CurrencyCode, decimals: number): string {
     return new Intl.NumberFormat(numberLocale.value, {
       style: 'currency',
-      currency: currency.value,
+      currency: code,
       minimumFractionDigits: decimals,
       maximumFractionDigits: decimals,
     }).format(amount)
   }
 
-  return { currency, chfAvailable, setCurrency, formatPrice }
+  function formatMoney(money: Money, code: CurrencyCode = currency.value, decimals = 0): string | null {
+    const amount = amountIn(money, code)
+    if (amount != null)
+      return format(amount, code, decimals)
+    const other: CurrencyCode = code === 'EUR' ? 'CHF' : 'EUR'
+    const fallback = amountIn(money, other)
+    return fallback != null ? format(fallback, other, decimals) : null
+  }
+
+  function canShowBoth(money: Money): boolean {
+    return amountIn(money, 'EUR') != null && amountIn(money, 'CHF') != null
+  }
+
+  return { currency, setCurrency, amountIn, formatMoney, canShowBoth }
 }

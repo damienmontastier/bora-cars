@@ -35,6 +35,14 @@ export interface HeroData {
   variant?: 'variant-1' | 'variant-2' | 'variant-3'
 }
 
+export interface MediaBlockData {
+  media?: HeroBackgroundMedia
+  heading?: string
+  subheading?: string
+  text?: string
+  showCta: boolean
+}
+
 export type CardType = 'xxl' | 'xl' | 'l' | 'm'
 
 export interface ServiceCard {
@@ -102,6 +110,7 @@ export type PageModule
     | { _type: 'title', _key: string, eyebrow?: string, heading?: string }
     | { _type: 'textBlock', _key: string, eyebrow?: string, body?: any[], showCta: boolean }
     | { _type: 'faq', _key: string, items: Array<{ _key: string, question: string, answer?: string }> }
+    | ({ _type: 'mediaBlock', _key: string } & MediaBlockData)
     | { _type: 'cardsColumn', _key: string, heading?: string, subtext?: string, cards: Array<{ _key: string, title: string, description?: string }> }
     | { _type: 'testimonials', _key: string, items: TestimonialItem[] }
 
@@ -122,20 +131,22 @@ export const TESTIMONIAL_ITEM_PROJECTION = `{
   }
 }`
 
+const MEDIA_PROJECTION = `{
+  mediaType,
+  "imageUrl": image.asset._ref,
+  ${i18n('image.alt', 'imageAlt')},
+  "imageHotspot": image.hotspot,
+  "imageCrop": image.crop,
+  "videoUrl": video.asset->url,
+  ${i18n('video.alt', 'videoAlt')}
+}`
+
 export const HERO_PROJECTION = `{
   variant,
   ${i18n('heading')},
   ${i18n('tagline')},
   ${i18n('subtext')},
-  "backgroundMedia": backgroundMedia {
-    mediaType,
-    "imageUrl": image.asset._ref,
-    ${i18n('image.alt', 'imageAlt')},
-    "imageHotspot": image.hotspot,
-    "imageCrop": image.crop,
-    "videoUrl": video.asset->url,
-    ${i18n('video.alt', 'videoAlt')}
-  }
+  "backgroundMedia": backgroundMedia ${MEDIA_PROJECTION}
 }`
 
 export const CAR_LABEL_PROJECTION = `marque + " " + modele`
@@ -208,6 +219,13 @@ export const MODULES_PROJECTION = `"modules": modules[]{
   _type == "textBlock" => {
     ${i18n('eyebrow')},
     ${i18nBlock('body')},
+    "showCta": showCta != false
+  },
+  _type == "mediaBlock" => {
+    "media": media ${MEDIA_PROJECTION},
+    ${i18n('heading')},
+    ${i18n('subheading')},
+    ${i18n('text')},
     "showCta": showCta != false
   },
   _type == "faq" => {

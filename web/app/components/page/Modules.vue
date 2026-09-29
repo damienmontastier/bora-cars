@@ -14,7 +14,7 @@ const heroModule = computed(() =>
   props.modules.find(m => m._type === 'hero') ?? null,
 )
 const otherModules = computed(() =>
-  props.modules.filter(m => m !== heroModule.value),
+  props.modules.filter(m => m._type !== 'hero'),
 )
 </script>
 
@@ -22,14 +22,14 @@ const otherModules = computed(() =>
   <ElementsHero :data="heroModule" :variant="heroModule?._type === 'hero' ? heroModule.variant : undefined" />
 
   <template v-for="module in otherModules" :key="module._key">
-    <ElementsHero v-if="module._type === 'hero'" :data="module" :variant="module.variant" secondary />
-    <ElementsServicesCards v-else-if="module._type === 'serviceCards'" :cards="module.cards" />
+    <ElementsServicesCards v-if="module._type === 'serviceCards'" :cards="module.cards" />
     <ElementsPitch v-if="module._type === 'pitch'" :data="module" />
     <ElementsProcessSteps v-else-if="module._type === 'process'" :steps="module.steps" :numbering="module.numbering" />
     <ElementsBrandsSection v-else-if="module._type === 'brandsSection'" :data="module" />
     <ElementsFullscreenMarquee v-else-if="module._type === 'fullscreenMarquee'" :data="module" />
     <ElementsTitle v-else-if="module._type === 'title'" :eyebrow="module.eyebrow" :heading="module.heading" />
     <ElementsText v-else-if="module._type === 'textBlock'" :eyebrow="module.eyebrow" :body="module.body" :show-cta="module.showCta" />
+    <ElementsMediaBlock v-else-if="module._type === 'mediaBlock'" :data="module" />
     <ElementsFaq v-else-if="module._type === 'faq'" :items="module.items" />
     <ElementsCardsColumn
       v-else-if="module._type === 'cardsColumn'"

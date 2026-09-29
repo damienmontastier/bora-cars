@@ -16,7 +16,7 @@ const localePath = useLocalePath()
 const { url: siteUrl } = useSiteConfig()
 const analytics = useAnalytics()
 
-const { formatPrice } = useCurrency()
+const { formatMoney } = useCurrency()
 
 const marque = computed(() => car.marque?.trim() ?? '')
 const isLatest = computed(() => index === 0)
@@ -24,11 +24,9 @@ const isLatest = computed(() => index === 0)
 const pad = (n: number) => String(n).padStart(2, '0')
 const counter = computed(() => `${pad(index + 1)} / ${pad(total)}`)
 
-const isMonthly = computed(() => car.prixMensuel != null)
-const formattedPrice = computed(() => {
-  const value = car.prixMensuel ?? car.prixJournalier ?? null
-  return value == null ? null : formatPrice(value)
-})
+const mainPrice = computed(() => carMainPrice(car))
+const isMonthly = computed(() => mainPrice.value?.monthly ?? false)
+const formattedPrice = computed(() => mainPrice.value ? formatMoney(mainPrice.value.money, car.currency ?? 'EUR') : null)
 
 const eyebrow = computed(() => {
   const price = formattedPrice.value

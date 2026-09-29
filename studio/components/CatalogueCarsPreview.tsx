@@ -3,6 +3,8 @@ import { useClient, useFormValue } from 'sanity'
 import type { StringInputProps } from 'sanity'
 import { IntentLink } from 'sanity/router'
 import { Badge, Box, Card, Flex, Grid, Inline, Spinner, Stack, Text } from '@sanity/ui'
+import type { CarPriceFields } from '../lib/currency'
+import { carMainPrice, formatAmount } from '../lib/currency'
 
 const CarLink = IntentLink as unknown as React.FC<any>
 
@@ -14,7 +16,9 @@ interface CarRow {
   city?: string
   rentalTypes?: string[]
   prixJournalier?: number
+  prixJournalierChf?: number
   prixMensuel?: number
+  prixMensuelChf?: number
 }
 
 const FILTERS: Record<string, string> = {
@@ -35,13 +39,14 @@ const buildQuery = (filter: string) => `*[${filter}] | order(marque asc, modele 
   "city": location->city[_key == "fr"][0].value,
   rentalTypes,
   prixJournalier,
-  prixMensuel
+  prixJournalierChf,
+  prixMensuel,
+  prixMensuelChf
 }`
 
-function priceLabel(car: CarRow): string | null {
-  if (typeof car.prixJournalier === 'number') return `${car.prixJournalier} € / jour`
-  if (typeof car.prixMensuel === 'number') return `${car.prixMensuel} € / mois`
-  return null
+function priceLabel(car: CarRow & CarPriceFields): string | null {
+  const main = carMainPrice(car)
+  return main ? `${formatAmount(main.amount, main.currency)} / ${main.monthly ? 'mois' : 'jour'}` : null
 }
 
 export function CatalogueCarsPreview(_props: StringInputProps) {

@@ -55,7 +55,9 @@ Les modules (`modules[]` des pages) sont rendus côté web par `PageModules` ; l
 - **Singleton `contact`** : `profileSwitch` (libellés des deux onglets du formulaire, groupe Editorial) ; onglet « Leasing professionnel » (group `pro`) avec `proIntro` (texte d'accueil), **`proForm`** (constructeur du formulaire pro : `steps[]` de `proFormStep` → `fields[]` parmi les types `proField*` de `objects/proForm.ts`, + `labels` = textes communs) et `proSuccess` (écran de confirmation : `text` accepte le jeton `{prenom}`, 2 cartes-liens `whatsapp` / `instagram`). Verrous : `validateProSteps` exige chaque coordonnée (`proFieldIdentity` × prénom/nom/téléphone/email) et le `proFieldConsent` une seule fois, et signale les conditions orphelines. `airtableColumn` refuse les colonnes remplies par le site (`PRO_RESERVED_COLUMNS`). Ajouter un type de champ = schéma ici + type/rendu/parse côté web (`CONTACT_PRO_CONFIG.ts`, `pro/Field.vue`, `server/utils/contactPro.ts`).
 - **`textBlock.showCta`** (défaut `true`, projeté `showCta != false` côté web pour couvrir les blocs créés avant le champ) : masque les boutons du bloc texte.
 - **`carPage`** : onglet « Témoignages » (`testimonialsTitle` + `testimonials`, type du module `testimonials`) affiché sur toutes les fiches voiture.
-- **`settings`** onglet Devise : `tauxChf` (+ bouton BCE) et `chfLocations` (Lieux dont le filtre catalogue affiche les prix en CHF).
+- **`settings`** onglet Devise : `tauxChf` (+ bouton BCE).
+- **Prix des voitures** (`car`) : chaque montant existe en € (champ historique, ex. `prixJournalier`) et en CHF (`…Chf`, ou `prixKmSupplementaire.prixChf`), côte à côte (fieldsets 2 colonnes). Chaque champ a un bouton « Convertir depuis le montant en … » (`moneyInput()` de `components/MoneyInput.tsx`, taux `settings.tauxChf` publié, repli sur le taux BCE). « Journalier OU mensuel » se vérifie toutes devises confondues (`lib/currency.ts`, aussi utilisé par le Dashboard et les aperçus). La devise affichée par le site vient du Lieu : `location.currency` (vide = CH → CHF, sinon €).
+- **Un seul Hero par page** (`lib/heroValidation.ts`, homepage / propriétaire / professionnel) ; bloc `mediaBlock` (« Média + texte », `modules/shared/`) pour un visuel plein écran en cours de page (dispo sur Professionnel). Migration `extra-hero-to-media-block` : convertit les heros en trop en `mediaBlock`.
 - **Champ** : le web lit tout via des GROQ écrits à la main (`web/app/queries/`) — ajouter/renommer un champ ici impose de mettre à jour la projection et l'interface `*Data` côté web. Renommer un champ qui a des données ⇒ migration.
 
 ### Localisation des champs
@@ -79,7 +81,8 @@ Singleton `glossaire` : `GLOSSAIRE_SECTIONS` (`singletons/glossaire.ts`) = un on
 | `DeployTool.tsx` | Outil « Mise en ligne » (build hook Netlify, dernier déclenchement) | `sanity.config.ts` `tools` |
 | `ModuleThumbnailPreview.tsx` | Aperçu d'un module avec miniature `static/module-thumbnails/` | modules + tableaux `modules` |
 | `InsertMenuHoverPreview.tsx` | Miniature au survol dans le menu d'insertion | `StudioLayout` |
-| `HeroArrayItem.tsx` | Item de tableau : le 1er hero doit être en 1ʳᵉ position (erreur sinon) ; les heros suivants sont signalés « Hero secondaire » (rendus à leur place par le web, sans logo ni synchro du CTA menu) | `homepage`, `proprietaire`, `professionnel` |
+| `HeroArrayItem.tsx` | Item de tableau : erreur si le hero n'est pas en 1ʳᵉ position ou s'il y a plus d'un hero (renvoie vers « Média + texte ») | `homepage`, `proprietaire`, `professionnel` |
+| `MoneyInput.tsx` | `moneyInput({ currency, counterpart, decimals })` : champ montant + bouton de conversion depuis l'autre devise | prix de `car` |
 | `ChfRateInput.tsx` | Bouton « Récupérer le taux du jour » : taux EUR→CHF officiel BCE via `api.frankfurter.dev` (CORS ouvert, sans clé), arrondi à 4 décimales | `settings.tauxChf` |
 | `GridMakerInput.tsx` | Éditeur de grille 12 colonnes (`react-grid-layout`) | `serviceCards` |
 | `SpecsLayoutInput.tsx` | Drag & drop (`@dnd-kit`) de l'agencement des caractéristiques | `specsLayout` |

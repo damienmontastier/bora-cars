@@ -1,11 +1,31 @@
 import { TagIcon } from '@sanity/icons/Tag'
 import { defineArrayMember, defineField, defineType } from 'sanity'
+import { moneyInput } from '../../components/MoneyInput'
+import type { CarPriceFields } from '../../lib/currency'
+import { hasDailyPrice, hasMonthlyPrice } from '../../lib/currency'
+
+const PRICE_HELP = 'Saisis le montant dans une devise ou les deux. Le site affiche la devise du Lieu de la voiture (Genève → CHF) ; un montant manquant est converti avec le taux des Paramètres.'
+
+function priceChoiceError(doc: CarPriceFields | undefined): true | string {
+  const daily = doc ? hasDailyPrice(doc) : false
+  const monthly = doc ? hasMonthlyPrice(doc) : false
+  if (!daily && !monthly)
+    return 'Renseignez soit le prix journalier, soit le prix mensuel.'
+  if (daily && monthly)
+    return 'Un seul des deux prix (journalier ou mensuel) doit être renseigné.'
+  return true
+}
 
 export const carType = defineType({
   name: 'car',
   title: 'Voiture',
   type: 'document',
   icon: TagIcon,
+  fieldsets: [
+    { name: 'prixJournalierSet', title: 'Prix journalier', description: `Renseignez soit le prix journalier, soit le prix mensuel (pas les deux). ${PRICE_HELP}`, options: { columns: 2 } },
+    { name: 'prixMensuelSet', title: 'Prix mensuel', description: `Renseignez soit le prix mensuel, soit le prix journalier (pas les deux). ${PRICE_HELP}`, options: { columns: 2 } },
+    { name: 'cautionSet', title: 'Caution', options: { columns: 2 } },
+  ],
   fields: [
     defineField({
       name: 'marque',
@@ -233,52 +253,73 @@ export const carType = defineType({
     }),
     defineField({
       name: 'prixJournalier',
-      title: 'Prix journalier (€)',
+      title: 'En euros (€)',
       type: 'number',
-      description: 'Renseignez soit le prix journalier, soit le prix mensuel (pas les deux).',
-      validation: (Rule) =>
-        Rule.custom((value, context) => {
-          const prixMensuel = (context.document as any)?.prixMensuel
-          if (value == null && prixMensuel == null) {
-            return 'Renseignez soit le prix journalier, soit le prix mensuel.'
-          }
-          if (value != null && prixMensuel != null) {
-            return 'Un seul des deux prix (journalier ou mensuel) doit être renseigné.'
-          }
-          return true
-        }),
+      fieldset: 'prixJournalierSet',
+      validation: (Rule) => Rule.min(0).custom((_, context) => priceChoiceError(context.document as CarPriceFields | undefined)),
+      components: { input: moneyInput({ currency: 'EUR', counterpart: ['prixJournalierChf'] }) },
+    }),
+    defineField({
+      name: 'prixJournalierChf',
+      title: 'En francs suisses (CHF)',
+      type: 'number',
+      fieldset: 'prixJournalierSet',
+      validation: (Rule) => Rule.min(0),
+      components: { input: moneyInput({ currency: 'CHF', counterpart: ['prixJournalier'] }) },
     }),
     defineField({
       name: 'prixMensuel',
-      title: 'Prix mensuel (€)',
+      title: 'En euros (€)',
       type: 'number',
-      description: 'Renseignez soit le prix mensuel, soit le prix journalier (pas les deux).',
-      validation: (Rule) =>
-        Rule.custom((value, context) => {
-          const prixJournalier = (context.document as any)?.prixJournalier
-          if (value == null && prixJournalier == null) {
-            return 'Renseignez soit le prix mensuel, soit le prix journalier.'
-          }
-          if (value != null && prixJournalier != null) {
-            return 'Un seul des deux prix (journalier ou mensuel) doit être renseigné.'
-          }
-          return true
-        }),
+      fieldset: 'prixMensuelSet',
+      validation: (Rule) => Rule.min(0).custom((_, context) => priceChoiceError(context.document as CarPriceFields | undefined)),
+      components: { input: moneyInput({ currency: 'EUR', counterpart: ['prixMensuelChf'] }) },
+    }),
+    defineField({
+      name: 'prixMensuelChf',
+      title: 'En francs suisses (CHF)',
+      type: 'number',
+      fieldset: 'prixMensuelSet',
+      validation: (Rule) => Rule.min(0),
+      components: { input: moneyInput({ currency: 'CHF', counterpart: ['prixMensuel'] }) },
     }),
     defineField({
       name: 'caution',
-      title: 'Caution (€)',
+      title: 'En euros (€)',
       type: 'number',
+      fieldset: 'cautionSet',
+      validation: (Rule) => Rule.min(0),
+      components: { input: moneyInput({ currency: 'EUR', counterpart: ['cautionChf'] }) },
+    }),
+    defineField({
+      name: 'cautionChf',
+      title: 'En francs suisses (CHF)',
+      type: 'number',
+      fieldset: 'cautionSet',
+      validation: (Rule) => Rule.min(0),
+      components: { input: moneyInput({ currency: 'CHF', counterpart: ['caution'] }) },
     }),
     defineField({
       name: 'prixKmSupplementaire',
       title: 'Prix km supplémentaire',
       type: 'object',
+      fieldsets: [{ name: 'prixSet', title: 'Prix', options: { columns: 2 } }],
       fields: [
         defineField({
           name: 'prix',
-          title: 'Prix (€)',
+          title: 'En euros (€)',
           type: 'number',
+          fieldset: 'prixSet',
+          validation: (Rule) => Rule.min(0),
+          components: { input: moneyInput({ currency: 'EUR', counterpart: ['prixKmSupplementaire', 'prixChf'], decimals: 2 }) },
+        }),
+        defineField({
+          name: 'prixChf',
+          title: 'En francs suisses (CHF)',
+          type: 'number',
+          fieldset: 'prixSet',
+          validation: (Rule) => Rule.min(0),
+          components: { input: moneyInput({ currency: 'CHF', counterpart: ['prixKmSupplementaire', 'prix'], decimals: 2 }) },
         }),
         defineField({
           name: 'km',

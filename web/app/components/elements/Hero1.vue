@@ -7,12 +7,10 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 interface Props {
   data: HeroData | null
   clipPath?: boolean
-  secondary?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
   clipPath: true,
-  secondary: false,
 })
 
 const settings = useSettings()
@@ -22,7 +20,7 @@ const { menuTheme, menuOpen } = storeToRefs(useAppStore())
 const route = useRoute()
 const heroSource = computed(() => {
   const path = route.path.replace(/^\/(?:fr|en)\/?/, '').replace(/\/$/, '')
-  return `${path || 'home'}_hero${props.secondary ? '_secondary' : ''}`
+  return `${path || 'home'}_hero`
 })
 const ctaTheme = computed(() => menuTheme.value === 'black' ? 'white' : menuTheme.value)
 const logoColor = computed(() => menuTheme.value === 'white' ? 'beige-100' : `${menuTheme.value}-100`)
@@ -35,7 +33,7 @@ const mainRef = useTemplateRef('mainRef')
 const bottomRef = useTemplateRef('bottomRef')
 
 watch(menuOpen, (open) => {
-  if (props.secondary || !menuCtaEl || ctaInView.value)
+  if (!menuCtaEl || ctaInView.value)
     return
 
   if (open) {
@@ -183,37 +181,16 @@ function onResize() {
 }
 
 onMounted(() => {
-  if (!props.secondary) {
-    menuCtaEl = document.querySelector<HTMLElement>('.app-menu__cta')
+  menuCtaEl = document.querySelector<HTMLElement>('.app-menu__cta')
 
-    if (menuCtaEl)
-      gsap.set(menuCtaEl, { clearProps: 'display,opacity,visibility,clipPath' })
+  if (menuCtaEl)
+    gsap.set(menuCtaEl, { clearProps: 'display,opacity,visibility,clipPath' })
 
-    const heroCta = ctaRef.value?.$el
-    if (heroCta)
-      gsap.set(heroCta, { clearProps: 'visibility' })
-  }
-
-  function createClip() {
-    if (!props.clipPath || isMobile.value)
-      return
-    gsap.timeline({
-      scrollTrigger: {
-        id: props.secondary ? undefined : 'hero-clip',
-        trigger: bottomRef.value,
-        start: 'top-=100% center',
-        end: 'bottom+=100% top',
-        scrub: true,
-      },
-    }).to(mainRef.value, { clipPath: 'inset(0 0% 2.5% 0)', y: '-50px' })
-  }
+  const heroCta = ctaRef.value?.$el
+  if (heroCta)
+    gsap.set(heroCta, { clearProps: 'visibility' })
 
   ctx = gsap.context(() => {
-    if (props.secondary) {
-      createClip()
-      return
-    }
-
     ScrollTrigger.addEventListener('refresh', onResize)
 
     let mounted = false
@@ -234,7 +211,17 @@ onMounted(() => {
     })
     mounted = true
 
-    createClip()
+    if (props.clipPath && !isMobile.value) {
+      gsap.timeline({
+        scrollTrigger: {
+          id: 'hero-clip',
+          trigger: bottomRef.value,
+          start: 'top-=100% center',
+          end: 'bottom+=100% top',
+          scrub: true,
+        },
+      }).to(mainRef.value, { clipPath: 'inset(0 0% 2.5% 0)', y: '-50px' })
+    }
 
     return () => {
       ScrollTrigger.removeEventListener('refresh', onResize)
@@ -256,7 +243,7 @@ onUnmounted(() => {
     <div class="app-elements-hero-1__background-wrapper">
       <UtilsParallax
         v-if="data?.backgroundMedia"
-        :id="secondary ? undefined : 'hero-bg'"
+        id="hero-bg"
         class="app-elements-hero-1__background"
         position="top"
         :trigger="mainRef"
@@ -271,8 +258,8 @@ onUnmounted(() => {
           provider="sanity"
           :hotspot="data.backgroundMedia.imageHotspot"
           :crop="data.backgroundMedia.imageCrop"
-          :lazy="secondary"
-          :preload="secondary ? false : { fetchPriority: 'high' }"
+          :lazy="false"
+          :preload="{ fetchPriority: 'high' }"
           :overlay="false"
           sizes="sm:100vw xl:100vw"
         />
@@ -286,12 +273,12 @@ onUnmounted(() => {
     </div>
 
     <div class="app-elements-hero-1__content">
-      <div v-if="!secondary" class="app-elements-hero-1__top">
+      <div class="app-elements-hero-1__top">
         <SvgLogo :color="logoColor" class="app-elements-hero-1__logo" />
       </div>
 
       <div class="app-elements-hero-1__middle">
-        <TextsH1 v-if="data?.heading" :tag="secondary ? 'h2' : 'h1'" color="beige-100">
+        <TextsH1 v-if="data?.heading" color="beige-100">
           {{ data.heading }}
         </TextsH1>
 

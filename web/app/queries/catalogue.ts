@@ -1,5 +1,6 @@
 import type { SeoData } from './fragments'
-import { imageFields, seoFields } from './fragments'
+import type { CurrencyCode } from '~/composables/useCurrency'
+import { imageFields, LOCATION_CURRENCY, seoFields } from './fragments'
 import { i18n, i18nBlock } from './i18n'
 
 export const CATALOGUE_LIMIT = 25
@@ -14,7 +15,10 @@ export interface CatalogueCar {
   imageCrop?: { top: number, bottom: number, left: number, right: number }
   rentalTypes?: string[]
   prixJournalier?: number
+  prixJournalierChf?: number
   prixMensuel?: number
+  prixMensuelChf?: number
+  currency?: CurrencyCode
 }
 
 export interface CatalogueTextBlock {
@@ -117,7 +121,10 @@ export const CAR_PROJECTION = `{
   ${imageFields()},
   rentalTypes,
   prixJournalier,
-  prixMensuel
+  prixJournalierChf,
+  prixMensuel,
+  prixMensuelChf,
+  "currency": location->{ "value": ${LOCATION_CURRENCY} }.value
 }`
 
 function catalogueQuery(singleton: string, audience: CatalogueAudience) {

@@ -4,12 +4,11 @@ import type { CurrencyCode } from '~/composables/useCurrency'
 const OPTIONS: readonly CurrencyCode[] = ['EUR', 'CHF']
 
 const { t } = useI18n()
-const { currency, chfAvailable, setCurrency } = useCurrency()
+const { currency, setCurrency } = useCurrency()
 </script>
 
 <template>
   <div
-    v-if="chfAvailable"
     class="app-atoms-currency-toggle"
     role="group"
     :aria-label="t('car.pricing.currency.label')"

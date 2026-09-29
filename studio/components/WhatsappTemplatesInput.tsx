@@ -4,6 +4,8 @@ import type { ObjectInputProps, Path } from 'sanity'
 import { Box, Card, Flex, Select, Stack, Text } from '@sanity/ui'
 import type { TokenWarnings } from './WhatsappTokenEditor'
 import { CAR_VARIABLES, WhatsappTokenObjectScope, WhatsappTokenPalette } from './WhatsappTokenEditor'
+import type { CurrencyCode } from '../lib/currency'
+import { carMainPrice, LOCATION_CURRENCY } from '../lib/currency'
 
 const FIELDS: { name: string, label: string, noDate: boolean }[] = [
   { name: 'withPrice', label: 'Bloc tarif — avec prix', noDate: false },
@@ -35,7 +37,10 @@ interface CarOption {
   modele?: string
   slug?: string
   prixJournalier?: number
+  prixJournalierChf?: number
   prixMensuel?: number
+  prixMensuelChf?: number
+  currency?: CurrencyCode
 }
 
 interface TemplateValueItem {
@@ -54,15 +59,15 @@ function lowerFirst(s: string): string {
 }
 
 function buildParams(car: CarOption, lang: Lang): Record<string, string> {
-  const isMonthly = car.prixMensuel != null
-  const price = car.prixMensuel ?? car.prixJournalier
-  const prix = price != null
+  const main = carMainPrice(car, car.currency)
+  const isMonthly = main?.monthly ?? false
+  const prix = main
     ? new Intl.NumberFormat(lang === 'fr' ? 'fr-FR' : 'en-GB', {
         style: 'currency',
-        currency: 'EUR',
+        currency: main.currency,
         minimumFractionDigits: 0,
         maximumFractionDigits: 0,
-      }).format(price)
+      }).format(main.amount)
     : ''
   const s = SAMPLE[lang]
   return {
@@ -83,7 +88,7 @@ function carFieldPresent(car: CarOption, token: string): boolean {
   switch (token) {
     case 'marque': return Boolean(car.marque)
     case 'modele': return Boolean(car.modele)
-    case 'prix': return (car.prixMensuel ?? car.prixJournalier) != null
+    case 'prix': return carMainPrice(car) != null
     case 'url': return Boolean(car.slug)
     default: return true
   }
@@ -154,7 +159,8 @@ export function WhatsappTemplatesInput(props: ObjectInputProps) {
     client
       .fetch<CarOption[]>(
         `*[_type == "car"] | order(marque asc, modele asc){
-          _id, marque, modele, "slug": slug.current, prixJournalier, prixMensuel
+          _id, marque, modele, "slug": slug.current, prixJournalier, prixJournalierChf, prixMensuel, prixMensuelChf,
+          "currency": ${LOCATION_CURRENCY}
         }`,
       )
       .then((res) => { if (active) setCars(res ?? []) })

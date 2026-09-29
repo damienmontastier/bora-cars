@@ -28,6 +28,7 @@ import { fullscreenMarqueeType } from './modules/home/fullscreenMarquee'
 import { titleType } from './modules/shared/title'
 import { textType } from './modules/shared/text'
 import { faqType } from './modules/shared/faq'
+import { mediaBlockType } from './modules/shared/mediaBlock'
 
 import { customImage } from './objects/customImage'
 import { customVideo } from './objects/customVideo'
@@ -79,6 +80,7 @@ export const schemaTypes: SchemaTypeDefinition[] = [
   titleType,
   textType,
   faqType,
+  mediaBlockType,
 
   customImage,
   customVideo,

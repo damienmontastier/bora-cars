@@ -6,12 +6,10 @@ import gsap from 'gsap'
 interface Props {
   data: HeroData | null
   clipPath?: boolean
-  secondary?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
   clipPath: true,
-  secondary: false,
 })
 
 const settings = useSettings()
@@ -22,7 +20,7 @@ const heroCTABus = useEventBus('hero-cta')
 const route = useRoute()
 const heroSource = computed(() => {
   const path = route.path.replace(/^\/(?:fr|en)\/?/, '').replace(/\/$/, '')
-  return `${path || 'home'}_hero${props.secondary ? '_secondary' : ''}`
+  return `${path || 'home'}_hero`
 })
 
 const mainRef = useTemplateRef('mainRef')
@@ -35,8 +33,6 @@ onMounted(() => {
 })
 
 watch(menuOpen, (open) => {
-  if (props.secondary)
-    return
   const menuCtaEl = document.querySelector<HTMLElement>('.app-menu__cta')
   if (!menuCtaEl)
     return
@@ -77,7 +73,7 @@ onUnmounted(() => {
     <div class="app-elements-hero-2__background-wrapper">
       <UtilsParallax
         v-if="data?.backgroundMedia"
-        :id="secondary ? undefined : 'hero-bg'"
+        id="hero-bg"
         class="app-elements-hero-2__background"
         position="top"
         :trigger="mainRef"
@@ -92,8 +88,8 @@ onUnmounted(() => {
           provider="sanity"
           :hotspot="data.backgroundMedia.imageHotspot"
           :crop="data.backgroundMedia.imageCrop"
-          :lazy="secondary"
-          :preload="secondary ? false : { fetchPriority: 'high' }"
+          :lazy="false"
+          :preload="{ fetchPriority: 'high' }"
           :overlay="false"
           sizes="sm:100vw xl:100vw"
         />
@@ -108,7 +104,7 @@ onUnmounted(() => {
 
     <div class="app-elements-hero-2__content">
       <div class="app-elements-hero-2__top">
-        <TextsH2 v-if="data?.heading" :tag="secondary ? 'h2' : 'h1'" color="beige-100">
+        <TextsH2 v-if="data?.heading" tag="h1" color="beige-100">
           {{ data.heading }}
         </TextsH2>
 

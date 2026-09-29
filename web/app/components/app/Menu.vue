@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { MenuData } from '~/queries/menu'
-import { onClickOutside, onKeyStroke, useEventBus } from '@vueuse/core'
+import { onClickOutside, onKeyStroke, useEventBus, useResizeObserver } from '@vueuse/core'
 import gsap from 'gsap'
 import { Flip } from 'gsap/Flip'
 import { useLenis } from 'lenis/vue'
@@ -36,6 +36,11 @@ const mainRef = ref(null)
 const mainClipRef = ref(null)
 const menuCtaRef = ref(null)
 const clipWrapRef = ref(null)
+
+const ctaShown = ref(false)
+useResizeObserver(mainClipRef, ([entry]) => {
+  ctaShown.value = (entry?.contentRect.width ?? 0) > 0
+})
 
 onClickOutside(clipWrapRef, () => {
   if (menuOpen.value && !menuAnimating.value)
@@ -281,7 +286,7 @@ onUnmounted(() => {
 
       <div ref="clipWrapRef" class="app-menu__clip-wrap">
         <div ref="mainRef" class="app-menu__main" :class="{ 'is-open': menuOpen }">
-          <AppMenuCTA class="app-menu__btn" :menu-label="props.data?.menuLabel" :close-label="props.data?.closeLabel" />
+          <AppMenuCTA class="app-menu__btn" :menu-label="props.data?.menuLabel" :close-label="props.data?.closeLabel" :compact="ctaShown" />
 
           <div ref="mainClipRef" class="app-menu__main-clip">
             <AtomsCTA ref="menuCtaRef" :to="settings?.contactLink" :theme="ctaTheme" class="app-menu__cta" :tracking-extra="{ source: 'menu' }">

@@ -28,15 +28,12 @@ export function useCarContact(car: MaybeRefOrGetter<CarDetailData>, options: Car
 
   const carRef = computed(() => toValue(car))
 
-  const isMonthly = computed(() => carRef.value.prixMensuel != null)
-  const priceValue = computed(() => carRef.value.prixMensuel ?? carRef.value.prixJournalier ?? null)
+  const mainPrice = computed(() => carMainPrice(carRef.value))
+  const isMonthly = computed(() => mainPrice.value?.monthly ?? false)
 
-  const { formatPrice } = useCurrency()
+  const { formatMoney } = useCurrency()
 
-  const formattedPrix = computed(() => {
-    const p = priceValue.value
-    return p == null ? null : formatPrice(p)
-  })
+  const formattedPrix = computed(() => mainPrice.value ? formatMoney(mainPrice.value.money) : null)
 
   const periodLabel = computed(() => isMonthly.value ? t('car.pricing.perMonth') : t('car.pricing.perDay'))
 
@@ -109,6 +106,7 @@ export function useCarContact(car: MaybeRefOrGetter<CarDetailData>, options: Car
   }))
 
   return {
+    mainPrice,
     isMonthly,
     formattedPrix,
     periodLabel,

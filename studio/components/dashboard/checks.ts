@@ -1,3 +1,4 @@
+import { carMainPrice, hasMonthlyPrice } from '../../lib/currency'
 import { missingLanguages } from '../../lib/i18nValidation'
 import { pickLocalized } from '../../lib/preview'
 import { SINGLETON_TYPES } from '../../schemaTypes/constants'
@@ -136,7 +137,6 @@ const hasTranslationGap = (value: Localized) => {
   return missing.length > 0 && missing.length < 2 ? missing : null
 }
 
-const pagePrice = (car: CarDoc) => car.prixMensuel ?? car.prixJournalier
 
 const SPEC_LABELS: Record<string, string> = {
   gamme: 'gamme',
@@ -250,9 +250,9 @@ const RULES: Rule[] = [
     short: 'prix',
     title: 'Voiture sans prix',
     why: 'Aucun tarif n’est affiché sur la carte du catalogue ni sur la fiche.',
-    fix: 'Renseignez le « Prix journalier » OU le « Prix mensuel ».',
+    fix: 'Renseignez le « Prix journalier » OU le « Prix mensuel » (en € et/ou en CHF).',
     types: ['car'],
-    test: (car: CarDoc) => pagePrice(car) == null && { path: 'prixJournalier' },
+    test: (car: CarDoc) => !carMainPrice(car) && { path: 'prixJournalier' },
   },
   {
     id: 'car-no-image',
@@ -333,7 +333,7 @@ const RULES: Rule[] = [
     why: 'Cette voiture est louée au mois, mais le forfait est saisi en « Km par jour inclus » : la fiche annonce par exemple « 3 000 km par jour ».',
     fix: 'Déplacez la valeur dans « Km par mois inclus » et videz « Km par jour inclus ».',
     types: ['car'],
-    test: (car: CarDoc) => car.prixMensuel != null
+    test: (car: CarDoc) => hasMonthlyPrice(car)
       && car.kmJourInclus != null
       && car.kmMoisInclus == null
       && !(car.rentalTypes ?? []).includes('courte-duree')

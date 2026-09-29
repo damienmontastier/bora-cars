@@ -48,13 +48,6 @@ export async function useCatalogueListing(query: string, carsQuery: string, face
 
   const hasActiveFilters = computed(() => FILTER_STATE_KEYS.some(k => filters[k] !== ''))
 
-  const settings = useSettings()
-  const { setCurrency } = useCurrency()
-  watch(() => filters.ville, (city) => {
-    if (city)
-      setCurrency(settings.value?.chfCities?.includes(city) ? 'CHF' : 'EUR')
-  }, { immediate: true })
-
   const params = reactive({
     lang: lang.value,
     from: 0,

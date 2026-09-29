@@ -30,7 +30,9 @@ export interface CarDoc extends BaseDoc {
   clientType?: string[] | null
   rentalTypes?: string[] | null
   prixJournalier?: number | null
+  prixJournalierChf?: number | null
   prixMensuel?: number | null
+  prixMensuelChf?: number | null
   kmJourInclus?: number | null
   kmMoisInclus?: number | null
   gamme?: string | null
@@ -42,10 +44,11 @@ export interface CarDoc extends BaseDoc {
   puissance?: number | null
   acceleration0to100?: number | null
   caution?: number | null
+  cautionChf?: number | null
   ageMinimum?: number | null
   anciennetePermis?: number | null
   dureeMinimum?: number | null
-  prixKmSupplementaire?: { prix?: number, km?: number } | null
+  prixKmSupplementaire?: { prix?: number, prixChf?: number, km?: number } | null
   paiementsAcceptes?: string[] | null
   city?: Localized<string>
   description?: Localized
@@ -135,9 +138,9 @@ export const DASHBOARD_QUERY = `{
   "cars": *[_type == "car"]{
     _id, _type, _updatedAt, _createdAt,
     marque, modele, "slug": slug.current, "location": location._ref,
-    clientType, rentalTypes, prixJournalier, prixMensuel, kmJourInclus, kmMoisInclus,
+    clientType, rentalTypes, prixJournalier, prixJournalierChf, prixMensuel, prixMensuelChf, kmJourInclus, kmMoisInclus,
     gamme, annee, boiteVitesse, carburant, nombrePlaces, nombrePortes, puissance, acceleration0to100,
-    caution, ageMinimum, anciennetePermis, dureeMinimum, prixKmSupplementaire, paiementsAcceptes,
+    caution, cautionChf, ageMinimum, anciennetePermis, dureeMinimum, prixKmSupplementaire, paiementsAcceptes,
     "city": location->city,
     description, teinteExterieure, teinteInterieure, equipements,
     "image": image${IMAGE},

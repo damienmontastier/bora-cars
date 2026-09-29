@@ -1,3 +1,4 @@
+import { carMainPrice, hasMonthlyPrice } from '../../lib/currency'
 import { missingLanguages } from '../../lib/i18nValidation'
 import type { CarDoc, ImageInfo, Localized } from './data'
 
@@ -47,7 +48,7 @@ export function scoreCar(car: CarDoc): CarScore {
   const noAlt = photos.filter(img => missingLanguages(img.alt).length).length
   const gallery = (car.images ?? []).filter(img => img?.url).length
   const rentalTypes = (car.rentalTypes ?? []).filter(t => t === 'courte-duree' || t === 'longue-duree')
-  const monthly = car.prixMensuel != null
+  const monthly = hasMonthlyPrice(car)
   const clientTypes = car.clientType
 
   const groups: CriteriaGroup[] = [
@@ -56,7 +57,7 @@ export function scoreCar(car: CarDoc): CarScore {
       title: 'Essentiel',
       items: [
         criterion('image', 'Photo principale', 'image', 3, !car.image?.url && 'Aucune photo'),
-        criterion('prix', 'Prix', 'prixJournalier', 3, car.prixJournalier == null && car.prixMensuel == null && 'Ni prix journalier ni mensuel'),
+        criterion('prix', 'Prix', 'prixJournalier', 3, !carMainPrice(car) && 'Ni prix journalier ni mensuel'),
         criterion('lieu', 'Lieu', 'location', 3, !car.location && 'Aucun lieu choisi'),
         criterion('rental', 'Type de location', 'rentalTypes', 3, !rentalTypes.length && 'Courte / longue durée non coché'),
         criterion('catalogue', 'Visible dans un catalogue', 'clientType',
@@ -102,12 +103,12 @@ export function scoreCar(car: CarDoc): CarScore {
       id: 'location',
       title: 'Conditions',
       items: [
-        criterion('caution', 'Caution', 'caution', 1, !has(car.caution) && 'Non renseignée'),
+        criterion('caution', 'Caution', 'caution', 1, !has(car.caution) && !has(car.cautionChf) && 'Non renseignée'),
         criterion('conducteur', 'Âge minimum et ancienneté du permis', 'ageMinimum', 1, listMissing([['âge minimum', car.ageMinimum], ['ancienneté du permis', car.anciennetePermis]])),
         criterion('duree', 'Durée minimum', 'dureeMinimum', 1, !has(car.dureeMinimum) && 'Non renseignée'),
         criterion('km', monthly ? 'Km par mois inclus' : 'Km par jour inclus', monthly ? 'kmMoisInclus' : 'kmJourInclus', 1,
           !has(monthly ? car.kmMoisInclus : car.kmJourInclus) && 'Non renseigné'),
-        criterion('kmSup', 'Prix du km supplémentaire', 'prixKmSupplementaire', 1, !has(car.prixKmSupplementaire?.prix) && 'Non renseigné'),
+        criterion('kmSup', 'Prix du km supplémentaire', 'prixKmSupplementaire', 1, !has(car.prixKmSupplementaire?.prix) && !has(car.prixKmSupplementaire?.prixChf) && 'Non renseigné'),
         criterion('paiements', 'Paiements acceptés', 'paiementsAcceptes', 1, !(car.paiementsAcceptes ?? []).length && 'Aucun moyen coché'),
       ],
     },

@@ -30,6 +30,8 @@ export function imageFields(field = 'image') {
   `
 }
 
+export const LOCATION_CURRENCY = `coalesce(currency, select(country == "CH" => "CHF", "EUR"))`
+
 export function imageMemberFields() {
   return `
     "imageUrl": asset._ref,

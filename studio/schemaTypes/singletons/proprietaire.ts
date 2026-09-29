@@ -1,6 +1,7 @@
 import { UserIcon } from '@sanity/icons/User'
 import { defineArrayMember, defineField, defineType } from 'sanity'
 import { HeroArrayItem } from '../../components/HeroArrayItem'
+import { validateHeroModules } from '../../lib/heroValidation'
 import { ModuleThumbnailPreview } from '../../components/ModuleThumbnailPreview'
 import { GROUPS } from '../constants'
 import { seoType } from '../objects/seo'
@@ -20,12 +21,7 @@ export const proprietaireType = defineType({
       title: 'Modules',
       type: 'array',
       group: 'editorial',
-      validation: Rule => Rule.custom((modules: any[] | undefined) => {
-        if (!modules?.length) return true
-        const heroIndex = modules.findIndex(m => m._type === 'hero')
-        if (heroIndex > 0) return 'Le module Hero doit toujours être en première position'
-        return true
-      }),
+      validation: Rule => Rule.custom((modules: Array<{ _type: string }> | undefined) => validateHeroModules(modules)),
       of: [
         defineArrayMember({ type: 'hero', components: { item: HeroArrayItem, preview: ModuleThumbnailPreview } }),
         defineArrayMember({ type: 'pitch' }),

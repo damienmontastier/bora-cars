@@ -1,6 +1,7 @@
 import type { SanityImage, SeoData } from './fragments'
 import type { TestimonialItem } from './modules'
-import { imageFields, imageMemberFields, seoFields } from './fragments'
+import type { CurrencyCode } from '~/composables/useCurrency'
+import { imageFields, imageMemberFields, LOCATION_CURRENCY, seoFields } from './fragments'
 import { i18n, i18nBlock } from './i18n'
 import { TESTIMONIAL_ITEM_PROJECTION } from './modules'
 
@@ -10,6 +11,7 @@ export interface CarLocation {
   postalCode?: string
   addressLocality?: string
   phone?: { type: string, phone?: string }
+  currency?: CurrencyCode
 }
 
 export interface CarPreFooter {
@@ -48,9 +50,12 @@ export interface CarDetailData {
   kmJourInclus?: number
   kmMoisInclus?: number
   prixJournalier?: number
+  prixJournalierChf?: number
   prixMensuel?: number
+  prixMensuelChf?: number
   caution?: number
-  prixKmSupplementaire?: { prix?: number, km?: number }
+  cautionChf?: number
+  prixKmSupplementaire?: { prix?: number, prixChf?: number, km?: number }
   equipements?: string[]
   paiementsAcceptes?: ('virement' | 'carte' | 'especes')[]
   assuranceTitre?: string
@@ -106,9 +111,12 @@ export const CAR_QUERY = `{
     kmJourInclus,
     kmMoisInclus,
     prixJournalier,
+    prixJournalierChf,
     prixMensuel,
+    prixMensuelChf,
     caution,
-    prixKmSupplementaire { prix, km },
+    cautionChf,
+    prixKmSupplementaire { prix, prixChf, km },
     ${i18n('equipements')},
     paiementsAcceptes,
     ${i18n('assuranceTitre')},
@@ -122,7 +130,8 @@ export const CAR_QUERY = `{
       address,
       postalCode,
       addressLocality,
-      "phone": phone { type, phone }
+      "phone": phone { type, phone },
+      "currency": ${LOCATION_CURRENCY}
     }
   },
   "page": *[_type == "carPage"][0] {

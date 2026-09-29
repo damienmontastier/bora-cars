@@ -12,14 +12,14 @@ const aboveFold = computed(() => position != null && position < 3)
 
 const { t } = useI18n()
 
-const { formatPrice } = useCurrency()
+const { formatMoney } = useCurrency()
 
 const priceLabel = computed(() => {
-  const value = car.prixMensuel ?? car.prixJournalier ?? null
-  if (value == null)
+  const main = carMainPrice(car)
+  const price = main && formatMoney(main.money, car.currency ?? 'EUR')
+  if (!main || !price)
     return null
-  const price = formatPrice(value)
-  return car.prixMensuel != null
+  return main.monthly
     ? t('catalogue.card.startingFromMonthly', { price })
     : t('catalogue.card.startingFrom', { price })
 })

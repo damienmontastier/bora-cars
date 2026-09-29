@@ -4,13 +4,7 @@ import { useToast } from '@sanity/ui/toast'
 import { useState } from 'react'
 import type { NumberInputProps } from 'sanity'
 import { set } from 'sanity'
-
-const RATE_URL = 'https://api.frankfurter.dev/v1/latest?base=EUR&symbols=CHF'
-
-interface RateResponse {
-  date?: string
-  rates?: { CHF?: number }
-}
+import { fetchEcbChfRate } from '../lib/currency'
 
 function formatDate(isoDate: string) {
   const [y, m, d] = isoDate.split('-')
@@ -26,20 +20,13 @@ export function ChfRateInput(props: NumberInputProps) {
   async function fetchRate() {
     setLoading(true)
     try {
-      const res = await fetch(RATE_URL, { cache: 'no-store' })
-      if (!res.ok)
-        throw new Error(`HTTP ${res.status}`)
-      const json = (await res.json()) as RateResponse
-      const rate = json.rates?.CHF
-      if (typeof rate !== 'number' || rate <= 0 || !json.date)
-        throw new Error('Réponse inattendue')
-      const rounded = Math.round(rate * 10000) / 10000
+      const { rate: rounded, date } = await fetchEcbChfRate()
       onChange(set(rounded))
-      setFetched({ rate: rounded, date: json.date })
+      setFetched({ rate: rounded, date })
       toast.push({
         status: 'success',
         title: `Taux mis à jour : 1 € = ${rounded.toLocaleString('fr-FR')} CHF`,
-        description: 'Pense à publier les Paramètres, puis à mettre le site en ligne.',
+        description: 'Pense à publier les Paramètres. Le taux sert aux boutons « Convertir » des fiches voiture et aux prix sans montant saisi dans la devise affichée.',
       })
     }
     catch (err) {

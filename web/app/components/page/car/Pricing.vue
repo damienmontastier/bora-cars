@@ -5,7 +5,10 @@ const props = defineProps<{ car: CarDetailData, whatsappTemplates?: CarWhatsappT
 
 const { t } = useI18n()
 
+const { canShowBoth } = useCurrency()
+
 const {
+  mainPrice,
   formattedPrix,
   periodLabel,
   duration,
@@ -35,7 +38,7 @@ const locationAddress = computed(() => {
         <TextsH4 tag="p" class="car-pricing__price-amount">
           {{ t('car.pricing.priceFrom', { price: formattedPrix }) }}
         </TextsH4>
-        <AtomsCurrencyToggle class="car-pricing__currency" />
+        <AtomsCurrencyToggle v-if="mainPrice && canShowBoth(mainPrice.money)" class="car-pricing__currency" />
       </div>
       <TextsP2 class="car-pricing__price-period">
         {{ periodLabel }}

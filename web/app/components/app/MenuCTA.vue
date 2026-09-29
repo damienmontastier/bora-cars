@@ -2,6 +2,7 @@
 interface Props {
   menuLabel?: string
   closeLabel?: string
+  compact?: boolean
 }
 
 const props = defineProps<Props>()
@@ -29,7 +30,7 @@ const themeColors = computed(() => {
 </script>
 
 <template>
-  <UtilsBaseLink class="app-menu-cta" :class="[{ 'is-open': menuOpen }, `app-menu-cta--${menuTheme}`]" @click="onClick">
+  <UtilsBaseLink class="app-menu-cta" :class="[{ 'is-open': menuOpen, 'is-compact': props.compact }, `app-menu-cta--${menuTheme}`]" @click="onClick">
     <div class="app-menu-cta__inner">
       <SvgIconBurger class="app-menu-cta__icon" :color="themeColors.icon" :open="menuOpen" />
 
@@ -47,7 +48,7 @@ const themeColors = computed(() => {
         </Transition>
       </div>
 
-      <TextsCTA class="app-menu-cta__label-mobile" tag="div" :color="themeColors.text" :aria-hidden="menuOpen">
+      <TextsCTA class="app-menu-cta__label-mobile" tag="div" :color="themeColors.text" :aria-hidden="menuOpen || props.compact">
         {{ props.menuLabel ?? t('menu.open') }}
       </TextsCTA>
     </div>
@@ -156,7 +157,8 @@ const themeColors = computed(() => {
     }
   }
 
-  &.is-open &__label-mobile {
+  &.is-open &__label-mobile,
+  &.is-compact &__label-mobile {
     max-width: 0;
     margin-left: 0;
     opacity: 0;

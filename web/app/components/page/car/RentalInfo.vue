@@ -18,7 +18,7 @@ function formatKm(value: number): string {
   return new Intl.NumberFormat(numberLocale.value).format(value)
 }
 
-const { formatPrice } = useCurrency()
+const { formatMoney } = useCurrency()
 
 const rentalTypes = computed<string[]>(() =>
   (props.car.rentalTypes ?? []).map(v => tEnum('type', v)),
@@ -57,11 +57,14 @@ const fraisCells = computed<Cell[]>(() => {
     items.push({ key: 'km', label: t('car.rental.kmJourInclus'), value: `${formatKm(c.kmJourInclus)} ${t('car.rental.units.km')}` })
   if (c.kmMoisInclus)
     items.push({ key: 'km-mois', label: t('car.rental.kmMoisInclus'), value: `${formatKm(c.kmMoisInclus)} ${t('car.rental.units.km')}` })
-  if (c.caution)
-    items.push({ key: 'caution', label: t('car.rental.caution'), value: formatPrice(c.caution) })
-  if (c.prixKmSupplementaire?.prix && c.prixKmSupplementaire?.km) {
-    const { prix, km } = c.prixKmSupplementaire
-    const price = formatPrice(prix, 2)
+  const caution = formatMoney({ eur: c.caution || null, chf: c.cautionChf || null })
+  if (caution)
+    items.push({ key: 'caution', label: t('car.rental.caution'), value: caution })
+  const kmSup = c.prixKmSupplementaire
+  const kmPrice = kmSup?.km ? formatMoney({ eur: kmSup.prix || null, chf: kmSup.prixChf || null }, undefined, 2) : null
+  if (kmSup?.km && kmPrice) {
+    const { km } = kmSup
+    const price = kmPrice
     items.push({
       key: 'km-supp',
       label: t('car.rental.kmSupplementaire'),

@@ -20,6 +20,9 @@ if (!car.value) {
   throw createError({ statusCode: 404, statusMessage: t('car.notFound') })
 }
 
+const { setCurrency } = useCurrency()
+watch(() => car.value?.location?.currency, currency => setCurrency(currency ?? 'EUR'), { immediate: true })
+
 const hasDescription = computed(() => Array.isArray(car.value?.description) && car.value!.description.length > 0)
 
 const descriptionText = computed(() =>
@@ -81,8 +84,12 @@ useSchemaOrg(computed(() => {
   if (c.puissance)
     specs.push({ '@type': 'PropertyValue', 'name': 'Puissance', 'value': c.puissance, 'unitText': t('car.highlights.powerUnit') })
 
-  const price = c.prixJournalier ?? c.prixMensuel ?? null
-  const unitCode = c.prixJournalier != null ? 'DAY' : 'MON'
+  const daily = c.prixJournalier != null || c.prixJournalierChf != null
+  const native = daily ? { EUR: c.prixJournalier, CHF: c.prixJournalierChf } : { EUR: c.prixMensuel, CHF: c.prixMensuelChf }
+  const carCurrency = c.location?.currency ?? 'EUR'
+  const priceCurrency = native[carCurrency] != null ? carCurrency : (carCurrency === 'EUR' ? 'CHF' : 'EUR')
+  const price = native[priceCurrency] ?? null
+  const unitCode = daily ? 'DAY' : 'MON'
   const carPath = localePath({ name: 'car-uid', params: { uid: c.slug } })
 
   const product = defineProduct({
@@ -97,14 +104,14 @@ useSchemaOrg(computed(() => {
       ? {
           offers: {
             '@type': 'Offer',
-            'priceCurrency': 'EUR',
+            priceCurrency,
             'businessFunction': 'http://purl.org/goodrelations/v1#LeaseOut',
             'availability': 'https://schema.org/InStock',
             'url': abs(carPath),
             'priceSpecification': {
               '@type': 'UnitPriceSpecification',
-              'price': price,
-              'priceCurrency': 'EUR',
+              price,
+              priceCurrency,
               'unitCode': unitCode,
             },
           },

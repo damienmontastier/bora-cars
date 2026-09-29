@@ -42,6 +42,20 @@ export const locationType = defineType({
       description: 'Code ISO 3166-1 alpha-2 — FR (France), CH (Suisse), MC (Monaco). → schema.org addressCountry.',
     }),
     defineField({
+      name: 'currency',
+      title: 'Devise des prix',
+      type: 'string',
+      options: {
+        list: [
+          { title: 'Euro (€)', value: 'EUR' },
+          { title: 'Franc suisse (CHF)', value: 'CHF' },
+        ],
+        layout: 'radio',
+        direction: 'horizontal',
+      },
+      description: 'Devise dans laquelle s’affichent les prix des voitures de ce lieu (cartes du catalogue, fiche voiture). Laisser vide = automatique selon le pays : CH → CHF, sinon €.',
+    }),
+    defineField({
       name: 'description',
       title: 'Description (SEO)',
       type: 'internationalizedArrayText',
