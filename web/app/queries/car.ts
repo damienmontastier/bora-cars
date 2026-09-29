@@ -1,6 +1,8 @@
 import type { SanityImage, SeoData } from './fragments'
+import type { TestimonialItem } from './modules'
 import { imageFields, imageMemberFields, seoFields } from './fragments'
 import { i18n, i18nBlock } from './i18n'
+import { TESTIMONIAL_ITEM_PROJECTION } from './modules'
 
 export interface CarLocation {
   city?: string
@@ -13,6 +15,7 @@ export interface CarLocation {
 export interface CarPreFooter {
   eyebrow?: string
   body?: any[]
+  showCta: boolean
 }
 
 export interface CarDetailData {
@@ -66,6 +69,8 @@ export interface CarPageResult {
   car: CarDetailData | null
   page: {
     contentPreFooter?: CarPreFooter
+    testimonialsTitle?: string
+    testimonials?: TestimonialItem[]
     whatsapp?: CarWhatsappTemplates
     seo?: SeoData
   } | null
@@ -123,8 +128,11 @@ export const CAR_QUERY = `{
   "page": *[_type == "carPage"][0] {
     "contentPreFooter": contentPreFooter{
       ${i18n('eyebrow')},
-      ${i18nBlock('body')}
+      ${i18nBlock('body')},
+      "showCta": showCta != false
     },
+    ${i18n('testimonialsTitle')},
+    "testimonials": testimonials.items[]${TESTIMONIAL_ITEM_PROJECTION},
     "whatsapp": whatsapp {
       ${i18n('withPrice')},
       ${i18n('withoutPrice')},

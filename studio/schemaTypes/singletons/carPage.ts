@@ -34,8 +34,22 @@ export const carPageType = defineType({
   title: TITLE,
   type: 'document',
   icon: TagIcon,
-  groups: [...GROUPS, { name: 'specs', title: 'Specs' }, { name: 'whatsapp', title: 'WhatsApp' }],
+  groups: [...GROUPS, { name: 'testimonials', title: 'Témoignages' }, { name: 'specs', title: 'Specs' }, { name: 'whatsapp', title: 'WhatsApp' }],
   fields: [
+    defineField({
+      name: 'testimonialsTitle',
+      title: 'Titre des témoignages',
+      type: 'internationalizedArrayString',
+      group: 'testimonials',
+      description: 'Affiché au-dessus des témoignages, sur toutes les fiches voiture (ex. « Ils ont roulé avec nous »).',
+    }),
+    defineField({
+      name: 'testimonials',
+      title: 'Témoignages',
+      type: 'testimonials',
+      group: 'testimonials',
+      description: 'Bloc affiché sur toutes les fiches voiture, juste avant le bloc texte de fin de page. Les témoignages liés à la voiture consultée passent en premier. Laisser vide pour masquer le bloc.',
+    }),
     defineField({
       name: 'contentPreFooter',
       title: 'Contenu (Bloc texte)',

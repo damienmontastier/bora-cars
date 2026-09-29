@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { FullscreenMarqueeData, MarqueeItem } from '~/queries/home'
-import gsap from 'gsap'
 
 interface Props {
   data: FullscreenMarqueeData
@@ -9,7 +8,6 @@ interface Props {
 const props = defineProps<Props>()
 
 const rootRef = useTemplateRef<HTMLElement>('rootRef')
-const rowsRef = useTemplateRef<HTMLElement>('rowsRef')
 
 const allItems = computed(() => props.data.items ?? [])
 
@@ -31,34 +29,6 @@ const sharedMarqueeProps = computed(() => ({
   scrollVelocitySpeed: 1.25,
   trigger: rootRef.value,
 }))
-
-let ctx: gsap.Context | null = null
-
-onMounted(async () => {
-  await nextTick()
-
-  ctx = gsap.context(() => {
-    gsap.fromTo(
-      rowsRef.value,
-      { y: 0 },
-      {
-        y: () => rootRef.value!.offsetHeight - rowsRef.value!.offsetHeight,
-        ease: 'none',
-        scrollTrigger: {
-          trigger: rootRef.value,
-          start: 'top bottom-=10%',
-          end: 'bottom top',
-          scrub: true,
-          invalidateOnRefresh: true,
-        },
-      },
-    )
-  }, rootRef.value!)
-})
-
-onUnmounted(() => {
-  ctx?.revert()
-})
 </script>
 
 <template>
@@ -91,7 +61,7 @@ onUnmounted(() => {
 
     <div class="app-elements-fullscreen-marquee__overlay" />
 
-    <div ref="rowsRef" class="app-elements-fullscreen-marquee__rows">
+    <div class="app-elements-fullscreen-marquee__rows">
       <ElementsMarquee
         v-bind="sharedMarqueeProps"
         class="app-elements-fullscreen-marquee__row"
@@ -182,13 +152,11 @@ onUnmounted(() => {
 
   &__rows {
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
+    inset: 0;
     z-index: 2;
     display: flex;
     flex-direction: column;
-    will-change: transform;
+    justify-content: center;
   }
 
   &__row {

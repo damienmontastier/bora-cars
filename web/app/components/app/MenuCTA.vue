@@ -46,6 +46,10 @@ const themeColors = computed(() => {
           </TextsCTA>
         </Transition>
       </div>
+
+      <TextsCTA class="app-menu-cta__label-mobile" tag="div" :color="themeColors.text" :aria-hidden="menuOpen">
+        {{ props.menuLabel ?? t('menu.open') }}
+      </TextsCTA>
     </div>
   </UtilsBaseLink>
 </template>
@@ -102,6 +106,10 @@ const themeColors = computed(() => {
     align-items: center;
     justify-content: center;
     gap: desktop-vw(8px);
+
+    @include mobile {
+      gap: 0;
+    }
   }
 
   &__icon.svg-icon-burger {
@@ -130,6 +138,28 @@ const themeColors = computed(() => {
       height: 0;
       overflow: hidden;
     }
+  }
+
+  &__label-mobile {
+    display: none;
+
+    @include mobile {
+      display: block;
+      overflow: hidden;
+      white-space: nowrap;
+      max-width: mobile-vw(80px);
+      margin-left: mobile-vw(6px);
+      transition:
+        max-width 0.4s var(--ease-out-cubic),
+        margin-left 0.4s var(--ease-out-cubic),
+        opacity 0.25s var(--ease-out-cubic);
+    }
+  }
+
+  &.is-open &__label-mobile {
+    max-width: 0;
+    margin-left: 0;
+    opacity: 0;
   }
 }
 

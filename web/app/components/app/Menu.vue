@@ -305,6 +305,7 @@ onUnmounted(() => {
   padding: desktop-vw(8px) 0px desktop-vw(8px) 0px;
   display: flex;
   flex-direction: row;
+  pointer-events: none;
 
   @include mobile {
     padding: mobile-vw(4px) mobile-vw(4px);

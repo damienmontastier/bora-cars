@@ -23,6 +23,13 @@ export const textType = defineType({
       type: 'internationalizedArrayBlock',
       validation: (Rule) => requireAllLanguages(Rule),
     }),
+    defineField({
+      name: 'showCta',
+      title: 'Afficher le bouton de contact',
+      type: 'boolean',
+      initialValue: true,
+      description: 'Bouton « Contacter » sous le texte. Activé par défaut ; désactive-le pour un bloc de texte seul.',
+    }),
   ],
   preview: {
     select: { eyebrow: 'eyebrow', body: 'body' },

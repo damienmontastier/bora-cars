@@ -1,5 +1,6 @@
+import type { SanityImage, SeoData } from './fragments'
 import type { SanityLink } from './home'
-import { seoFields, type SanityImage, type SeoData } from './fragments'
+import { seoFields } from './fragments'
 import { i18n, internalLinkSlug } from './i18n'
 
 export interface Partner extends SanityImage {
@@ -17,6 +18,7 @@ export interface SettingsData {
   contactLink?: SanityLink
   business?: BusinessInfo
   tauxChf?: number
+  chfCities?: string[]
   fallbackTitle?: string
   partners?: Partner[]
   seo?: SeoData
@@ -41,6 +43,7 @@ export const SETTINGS_QUERY = `*[_type == "settings"][0]{
     "socialLinks": socialLinks
   },
   tauxChf,
+  "chfCities": chfLocations[]->city[language == "fr"][0].value,
   ${i18n('fallbackTitle')},
   "partners": partners[]{
     "imageUrl": asset._ref,

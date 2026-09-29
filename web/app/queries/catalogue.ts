@@ -20,6 +20,7 @@ export interface CatalogueCar {
 export interface CatalogueTextBlock {
   eyebrow?: string
   body?: any[]
+  showCta: boolean
 }
 
 export interface CatalogueData {
@@ -127,7 +128,8 @@ function catalogueQuery(singleton: string, audience: CatalogueAudience) {
       ${i18n('description')},
       "contentPreFooter": contentPreFooter{
         ${i18n('eyebrow')},
-        ${i18nBlock('body')}
+        ${i18nBlock('body')},
+        "showCta": showCta != false
       },
       ${i18n('whatsappMessage')},
       ${seoFields()}

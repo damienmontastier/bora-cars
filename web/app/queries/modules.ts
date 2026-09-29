@@ -80,6 +80,7 @@ export interface TestimonialItem {
   authorName: string
   authorRole?: string
   useCar?: boolean
+  carId?: string
   car?: { marque: string, modele: string }
   subtitle?: string
   quote: string
@@ -99,10 +100,27 @@ export type PageModule
     | ({ _type: 'brandsSection', _key: string } & BrandsSection)
     | ({ _type: 'fullscreenMarquee', _key: string } & FullscreenMarqueeData)
     | { _type: 'title', _key: string, eyebrow?: string, heading?: string }
-    | { _type: 'textBlock', _key: string, eyebrow?: string, body?: any[] }
+    | { _type: 'textBlock', _key: string, eyebrow?: string, body?: any[], showCta: boolean }
     | { _type: 'faq', _key: string, items: Array<{ _key: string, question: string, answer?: string }> }
     | { _type: 'cardsColumn', _key: string, heading?: string, subtext?: string, cards: Array<{ _key: string, title: string, description?: string }> }
     | { _type: 'testimonials', _key: string, items: TestimonialItem[] }
+
+export const TESTIMONIAL_ITEM_PROJECTION = `{
+  _key,
+  ${i18n('authorName')},
+  ${i18n('authorRole')},
+  useCar,
+  "carId": car._ref,
+  "car": car->{ marque, modele },
+  ${i18n('subtitle')},
+  ${i18n('quote')},
+  "backgroundImage": backgroundImage {
+    "imageUrl": asset._ref,
+    ${i18n('alt', 'imageAlt')},
+    "imageHotspot": hotspot,
+    "imageCrop": crop
+  }
+}`
 
 export const HERO_PROJECTION = `{
   variant,
@@ -189,7 +207,8 @@ export const MODULES_PROJECTION = `"modules": modules[]{
   },
   _type == "textBlock" => {
     ${i18n('eyebrow')},
-    ${i18nBlock('body')}
+    ${i18nBlock('body')},
+    "showCta": showCta != false
   },
   _type == "faq" => {
     "items": items[]{ _key, ${i18n('question')}, ${i18n('answer')} }
@@ -200,20 +219,6 @@ export const MODULES_PROJECTION = `"modules": modules[]{
     "cards": cards[]{ _key, ${i18n('title')}, ${i18n('description')} }
   },
   _type == "testimonials" => {
-    "items": items[]{
-      _key,
-      ${i18n('authorName')},
-      ${i18n('authorRole')},
-      useCar,
-      "car": car->{ marque, modele },
-      ${i18n('subtitle')},
-      ${i18n('quote')},
-      "backgroundImage": backgroundImage {
-        "imageUrl": asset._ref,
-        ${i18n('alt', 'imageAlt')},
-        "imageHotspot": hotspot,
-        "imageCrop": crop
-      }
-    }
+    "items": items[]${TESTIMONIAL_ITEM_PROJECTION}
   }
 }`

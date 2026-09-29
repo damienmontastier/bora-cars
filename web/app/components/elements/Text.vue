@@ -4,9 +4,12 @@ import { getPortableTextComponents } from '~/utils/portableText'
 interface Props {
   eyebrow?: string
   body?: any[]
+  showCta?: boolean
 }
 
-const props = defineProps<Props>()
+const props = withDefaults(defineProps<Props>(), {
+  showCta: true,
+})
 
 const settings = useSettings()
 const portableTextComponents = computed(() => getPortableTextComponents({
@@ -28,7 +31,7 @@ const portableTextComponents = computed(() => getPortableTextComponents({
         </TextsP2>
       </div>
 
-      <div class="app-elements-text__actions">
+      <div v-if="showCta" class="app-elements-text__actions">
         <slot name="actions" />
         <AtomsCTA
           v-if="settings?.contactLink?.text"

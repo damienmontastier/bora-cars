@@ -1,11 +1,6 @@
 <script lang="ts" setup>
-import type { CarDetailData, CarPreFooter, CarWhatsappTemplates } from '~/queries/car'
+import type { CarPageResult } from '~/queries/car'
 import { CAR_QUERY } from '~/queries/car'
-
-interface QueryResult {
-  car: CarDetailData | null
-  page: { contentPreFooter?: CarPreFooter, whatsapp?: CarWhatsappTemplates } | null
-}
 
 const route = useRoute()
 const lang = useSanityLang()
@@ -16,7 +11,7 @@ watch(lang, (v) => {
   params.lang = v
 })
 
-const { data } = await useSanityQuery<QueryResult>(CAR_QUERY, params)
+const { data } = await useSanityQuery<CarPageResult>(CAR_QUERY, params)
 
 const car = computed(() => data.value?.car ?? null)
 const page = computed(() => data.value?.page ?? null)
@@ -91,9 +86,9 @@ useSchemaOrg(computed(() => {
   const carPath = localePath({ name: 'car-uid', params: { uid: c.slug } })
 
   const product = defineProduct({
-    'name': `${c.marque} ${c.modele}`,
-    'sku': c.slug,
-    'brand': { '@type': 'Brand', 'name': c.marque },
+    name: `${c.marque} ${c.modele}`,
+    sku: c.slug,
+    brand: { '@type': 'Brand', 'name': c.marque },
     ...(images.length ? { image: images } : {}),
     ...(plainDescription ? { description: plainDescription } : {}),
     ...(c.gamme ? { category: t(`car.specs.gamme.${c.gamme}`) } : {}),
@@ -187,10 +182,18 @@ onMounted(() => {
       />
     </section>
 
+    <PageCarTestimonials
+      v-if="page?.testimonials?.length"
+      :title="page.testimonialsTitle"
+      :items="page.testimonials"
+      :car-id="car!._id"
+    />
+
     <ElementsText
       v-if="page?.contentPreFooter"
       :eyebrow="page.contentPreFooter.eyebrow"
       :body="page.contentPreFooter.body"
+      :show-cta="page.contentPreFooter.showCta"
     />
 
     <AppFooter ref="footerRef" />

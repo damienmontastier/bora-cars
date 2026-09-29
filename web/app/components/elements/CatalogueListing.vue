@@ -136,6 +136,7 @@ function onSearchEnter() {
       v-if="contentPreFooter"
       :eyebrow="contentPreFooter.eyebrow"
       :body="contentPreFooter.body"
+      :show-cta="contentPreFooter.showCta"
     >
       <template v-if="proContactLink" #actions>
         <AtomsCTA

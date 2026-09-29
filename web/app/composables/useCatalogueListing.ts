@@ -48,6 +48,13 @@ export async function useCatalogueListing(query: string, carsQuery: string, face
 
   const hasActiveFilters = computed(() => FILTER_STATE_KEYS.some(k => filters[k] !== ''))
 
+  const settings = useSettings()
+  const { setCurrency } = useCurrency()
+  watch(() => filters.ville, (city) => {
+    if (city)
+      setCurrency(settings.value?.chfCities?.includes(city) ? 'CHF' : 'EUR')
+  }, { immediate: true })
+
   const params = reactive({
     lang: lang.value,
     from: 0,
@@ -56,10 +63,10 @@ export async function useCatalogueListing(query: string, carsQuery: string, face
   })
 
   const result = useSanityQuery<CatalogueQueryResult>(query, params, {
-    getCachedData: (key, nuxtApp) =>
-      nuxtApp.isHydrating ? (nuxtApp.payload.data[key] ?? nuxtApp.static.data[key]) : undefined,
+    getCachedData: (key, nuxtApp, ctx) =>
+      ctx.cause === 'initial' && nuxtApp.isHydrating ? (nuxtApp.payload.data[key] ?? nuxtApp.static.data[key]) : undefined,
   })
-  const { data, refresh } = result
+  const { data } = result
 
   const { data: facetsData } = useSanityQuery<Record<string, (string | FilterOption)[]>>(facetsQuery, { lang })
 
@@ -90,11 +97,6 @@ export async function useCatalogueListing(query: string, carsQuery: string, face
     cars.value = val?.cars ?? []
     total.value = val?.total ?? 0
     offset.value = CATALOGUE_LIMIT
-  })
-
-  onMounted(() => {
-    if (hasActiveFilters.value)
-      refresh()
   })
 
   watch(() => route.query, () => {

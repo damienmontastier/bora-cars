@@ -1,6 +1,7 @@
 import { CogIcon } from '@sanity/icons/Cog'
 import { defineArrayMember, defineField, defineType } from 'sanity'
 import { seoType } from '../objects/seo'
+import { ChfRateInput } from '../../components/ChfRateInput'
 
 const TITLE = 'Paramètres'
 
@@ -71,8 +72,18 @@ export const settingsType = defineType({
       title: 'Taux de conversion CHF',
       type: 'number',
       group: 'devise',
-      description: 'Combien vaut 1 € en francs suisses (ex. 0.94). Laisser vide pour masquer le sélecteur EUR / CHF sur les fiches voiture et les cartes du catalogue.',
+      description: 'Combien vaut 1 € en francs suisses (ex. 0.94). Le bouton « Récupérer le taux du jour » le remplit avec le taux officiel de la BCE. Laisser vide pour masquer le sélecteur EUR / CHF sur les fiches voiture et les cartes du catalogue.',
       validation: (Rule) => Rule.positive(),
+      components: { input: ChfRateInput },
+    }),
+    defineField({
+      name: 'chfLocations',
+      title: 'Villes affichées en CHF',
+      type: 'array',
+      group: 'devise',
+      description: 'Dans le catalogue, filtrer sur une de ces villes affiche les prix en CHF (ex. Genève). Le visiteur garde ensuite ce choix sur les fiches voiture, où il peut repasser en EUR. Sans effet si le taux CHF est vide.',
+      of: [defineArrayMember({ type: 'reference', to: [{ type: 'location' }] })],
+      validation: (Rule) => Rule.unique(),
     }),
     defineField({
       name: 'partners',

@@ -143,9 +143,9 @@ Grid system (CSS vars): `--layout-columns-count`, `--layout-columns-gap`, `--lay
 | `usePageSeo.ts` | Per-page SEO via `@nuxtjs/seo` — call with a `Ref<SeoData \| undefined>` from the Sanity query result. Sets `title`, `description`, `ogImage` (Sanity image cropped to **1200×630 JPEG q90** via `useOgImageUrl()`, hotspot/crop respected — JPEG because LinkedIn shows no preview for a WebP og:image) + `ogImageWidth`/`ogImageHeight` (lues dans l'URL via `ogImageSize`, cf. `utils/index.ts` — sans elles WhatsApp/LinkedIn sortent l'aperçu sans visuel au 1er partage). **Aucune balise `twitter:*`** : doublons stricts de l'Open Graph, dépréciées par unhead ; le `twitter:card` auto de nuxt-seo-utils est coupé par `seo.automaticTwitterTags: false` (nuxt.config) — la marque n'a pas de compte X. Global fallback description/image is set in `app.vue`. |
 | `useSplitTextAnimation.ts` | GSAP SplitText scroll animation. Accepts a named preset from `TEXT_ANIMATION_CONFIG` plus override options for `split`, `from`, `to`, `scrollTrigger`. Initialises after `fontsLoaded` and on SPA mount. Exposes `{ init }` for manual re-runs. Dev-only Tweakpane pane when `debug: true` (`composables/pane/splitText.ts`). |
 | `useIntersectionDebug.ts` | Dev-only IntersectionObserver visualiser — overlays a dashed border + badge on the target element, logs every intersection event. No-op in production. Options: `label`, `rootMargin`, `threshold`, `color`, `offColor`, `enabled`. |
-| `useCatalogueListing.ts` | Listing du catalogue : état recherche + filtres ↔ query string ↔ paramètres GROQ, piloté par le registre `ENABLED_FILTERS` |
+| `useCatalogueListing.ts` | Listing du catalogue : état recherche + filtres ↔ query string ↔ paramètres GROQ, piloté par le registre `ENABLED_FILTERS`. Lien direct `?ville=…` sur la prod prérendue : Nuxt restaure la query **pendant l'hydratation** (le setup voit une query vide) → le `watch` de la query modifie les params et relance la requête alors que `isHydrating` est encore vrai ; le `getCachedData` ne rend donc le payload que pour `cause === 'initial'`, sinon il resservirait la liste non filtrée sans rien requêter. Filtrer sur une ville de `settings.chfLocations` passe l'affichage en CHF (`setCurrency`), une autre ville repasse en EUR |
 | `useCarContact.ts` | Contact depuis la fiche voiture : choix du template WhatsApp (`schedule × hasPrice`), remplissage, étiquette `source` pour le tracking du clic |
-| `useCurrency.ts` | Devise d'**affichage** EUR/CHF de la fiche voiture. Sanity reste tarifé en EUR : le CHF est une conversion à l'affichage, le prix du JSON-LD `Offer` ne bouge pas. Sélecteur dormant tant que le taux CHF est vide dans Sanity |
+| `useCurrency.ts` | Devise d'**affichage** EUR/CHF de la fiche voiture. Sanity reste tarifé en EUR : le CHF est une conversion à l'affichage, le prix du JSON-LD `Offer` ne bouge pas. Sélecteur dormant tant que le taux CHF est vide dans Sanity. Choix mémorisé en cookie ; le filtre Ville du catalogue le pilote aussi (`settings.chfLocations` → `chfCities`, cf. `useCatalogueListing`) |
 | `useAnalytics.ts` | Helpers typés d'événements dataLayer (GA4, snake_case) via le proxy GTM de `@nuxt/scripts` ; no-op sans GTM (mock en dev) |
 | `useCookies.ts` | Consentement cookies → `consent.update()` Google Consent Mode v2. Les *defaults* (tout `denied`, `wait_for_update: 500`) sont dans `nuxt.config.ts > scripts.registry` pour partir AVANT gtm.js. `AppCookies` renvoie un choix déjà enregistré dès le montage (`restoreConsent`, avant le chargement de gtm.js et donc avant le premier `page_view`) ; seul le bandeau attend la fin du préchargeur (`promptIfNeeded`) |
 | `useUtm.ts` | Capture des UTM en first-touch sur la session (appelé par `05.utm.client.ts`) |
@@ -182,6 +182,9 @@ Key shared types in `fragments.ts`: `SanityImage`, `SanityLink` (type: external 
 - `MODULES_PROJECTION` — reusable GROQ fragment, include in any page query to get `modules[]` with all variants projected and localised
 - `HERO_PROJECTION` / `CAR_LABEL_PROJECTION` — sub-fragments also exported for direct use
 - `HeroData` supports `variant: 'variant-1' | 'variant-2' | 'variant-3'` (maps to `ElementsHero1/2/3`)
+- `TESTIMONIAL_ITEM_PROJECTION` — projection d'un témoignage (module `testimonials` et `carPage.testimonials`), `carId` = voiture liée
+
+`PageModules` : le 1er hero (validation Studio : en 1ʳᵉ position) est le hero principal (CTA synchronisé avec le menu, logo, image préchargée). Tout autre hero de `modules[]` est rendu à sa place en **hero secondaire** (`<ElementsHero secondary>`) : pas de synchro avec le CTA du menu (il garde son propre bouton), pas de grand logo (variant 1), titre en `h2`, image lazy, source analytics `…_hero_secondary`.
 
 ## Utils — `app/utils/index.ts`
 
@@ -209,7 +212,7 @@ Nom de route = chemin du fichier (segments joints par `-`) ; URL traduite dans `
 - `proprietaire.vue` — Owner page
 - `professionnel.vue` — Professional/business page
 - `catalogue.vue` / `catalogue-professionnel.vue` — listings (`useCatalogueListing`)
-- `car/[uid].vue` — fiche voiture (`PageCar*`) + JSON-LD `Product` / `BreadcrumbList`
+- `car/[uid].vue` — fiche voiture (`PageCar*`) + JSON-LD `Product` / `BreadcrumbList`. Avant le bloc texte de fin : `PageCarTestimonials` (témoignages communs `carPage.testimonials` + titre `carPage.testimonialsTitle`, grille verticale ; ceux liés à la voiture consultée passent en premier)
 - `legal/[slug].vue` — pages légales (slug EN via `slugEn` + `useSetI18nParams`)
 - `contact.vue` — Contact page, deux onglets (`AtomsProfileSwitch`) :
   - **Demande générale** (`ElementsContactFormGeneral`) : le formulaire historique.
@@ -304,9 +307,9 @@ Infinite scrolling marquee driven by GSAP `fromTo` with `repeat: -1`, **fully st
 
 ### ElementsFullscreenMarquee (`app/components/elements/FullscreenMarquee.vue`)
 
-Fullscreen 100vh section with two marquee rows that scroll vertically (rows translate from top to bottom of section via scrub ScrollTrigger).
+Fullscreen 100vh section with two marquee rows, vertically centred and static (the former top-to-bottom scrub on the rows was removed at the client's request; only the background parallax moves).
 
-- Always pass `:trigger="rootRef"` to both `<ElementsMarquee>` — the rows are animated vertically, so the marquee's own `mainRef` position is unreliable as a scroll trigger
+- Pass `:trigger="rootRef"` to both `<ElementsMarquee>` — visibility is observed on the section
 - Slot content is wrapped in `__row-wrapper` div with `gap: desktop-vw(64px)` between items
 - Background supports image or video via `backgroundMedia`
 
